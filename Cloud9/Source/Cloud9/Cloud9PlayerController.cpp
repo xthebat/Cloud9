@@ -31,26 +31,71 @@ void ACloud9PlayerController::SetupInputComponent()
 
 	InputComponent->BindAxis("MoveForward", this, &ACloud9PlayerController::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &ACloud9PlayerController::MoveRight);
+
+	InputComponent->BindAction("Walk", IE_Pressed, this, &ACloud9PlayerController::WalkPressed);
+	InputComponent->BindAction("Crouch", IE_Pressed, this, &ACloud9PlayerController::CrouchPressed);
+
+	InputComponent->BindAction("Walk", IE_Released, this, &ACloud9PlayerController::WalkReleased);
+	InputComponent->BindAction("Crouch", IE_Released, this, &ACloud9PlayerController::CrouchReleased);
 }
 
 void ACloud9PlayerController::MoveForward(float Value)
 {
-	const auto MyPawn = GetPawn();
+	const auto MyPawn = Cast<ACloud9Character>(GetPawn());
 
 	if (IsValid(MyPawn))
 	{
+		if (MyPawn->bIsWalk)
+		{
+			Value *= 0.52;
+		}
+		else if (MyPawn->bIsCrouch)
+		{
+			Value *= 0.34;
+		}
+
 		MyPawn->AddMovementInput({1, 0, 0}, Value);
 	}
 }
 
 void ACloud9PlayerController::MoveRight(float Value)
 {
-	const auto MyPawn = GetPawn();
+	const auto MyPawn = Cast<ACloud9Character>(GetPawn());
 
 	if (IsValid(MyPawn))
 	{
+		if (MyPawn->bIsWalk)
+		{
+			Value *= 0.52;
+		}
+		else if (MyPawn->bIsCrouch)
+		{
+			Value *= 0.34;
+		}
+
 		MyPawn->AddMovementInput({0, 1, 0}, Value);
 	}
+}
+
+void ACloud9PlayerController::WalkPressed()
+{
+	Cast<ACloud9Character>(GetPawn())->bIsWalk = true;
+}
+
+void ACloud9PlayerController::CrouchPressed()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Hello"));
+	Cast<ACloud9Character>(GetPawn())->bIsCrouch = true;
+}
+
+void ACloud9PlayerController::WalkReleased()
+{
+	Cast<ACloud9Character>(GetPawn())->bIsWalk = false;
+}
+
+void ACloud9PlayerController::CrouchReleased()
+{
+	Cast<ACloud9Character>(GetPawn())->bIsCrouch = false;
 }
 
 void ACloud9PlayerController::MoveToMouseCursor()
@@ -61,7 +106,8 @@ void ACloud9PlayerController::MoveToMouseCursor()
 		{
 			if (MyPawn->GetCursorToWorld())
 			{
-				UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, MyPawn->GetCursorToWorld()->GetComponentLocation());
+				UAIBlueprintHelperLibrary::SimpleMoveToLocation(
+					this, MyPawn->GetCursorToWorld()->GetComponentLocation());
 			}
 		}
 	}

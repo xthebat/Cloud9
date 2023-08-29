@@ -25,12 +25,18 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 
+	void WalkPressed();
+	void CrouchPressed();
+
+	void WalkReleased();
+	void CrouchReleased();
+
 	/** Navigate player to the current mouse cursor location. */
 	void MoveToMouseCursor();
 
 	/** Navigate player to the current touch location. */
 	void MoveToTouchLocation(const ETouchIndex::Type FingerIndex, const FVector Location);
-	
+
 	/** Navigate player to the given world location. */
 	void SetNewMoveDestination(const FVector DestLocation);
 

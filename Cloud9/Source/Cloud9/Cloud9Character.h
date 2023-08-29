@@ -26,6 +26,12 @@ public:
 	/** Returns CursorToWorld subobject **/
 	FORCEINLINE UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
 
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsCrouch = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsWalk = false;
+
 private:
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
