@@ -39,8 +39,7 @@ void ACloud9PlayerController::MoveForward(float Value)
 
 	if (IsValid(MyPawn))
 	{
-		const auto Direction = MyPawn->GetActorForwardVector();
-		MyPawn->AddMovementInput(Direction, Value);
+		MyPawn->AddMovementInput({1, 0, 0}, Value);
 	}
 }
 
@@ -50,8 +49,7 @@ void ACloud9PlayerController::MoveRight(float Value)
 
 	if (IsValid(MyPawn))
 	{
-		const auto Direction = MyPawn->GetActorRightVector();
-		MyPawn->AddMovementInput(Direction, Value);
+		MyPawn->AddMovementInput({0, 1, 0}, Value);
 	}
 }
 
