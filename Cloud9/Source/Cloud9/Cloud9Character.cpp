@@ -8,9 +8,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ACloud9Character::ACloud9Character()
 {
@@ -44,7 +44,8 @@ ACloud9Character::ACloud9Character()
 	// Create a decal in the world to show the cursor's location
 	CursorToWorld = CreateDefaultSubobject<UDecalComponent>("CursorToWorld");
 	CursorToWorld->SetupAttachment(RootComponent);
-	static ConstructorHelpers::FObjectFinder<UMaterial> DecalMaterialAsset(TEXT("Material'/Game/TopDownCPP/Blueprints/M_Cursor_Decal.M_Cursor_Decal'"));
+	static ConstructorHelpers::FObjectFinder<UMaterial> DecalMaterialAsset(
+		TEXT("Material'/Game/TopDownCPP/Blueprints/M_Cursor_Decal.M_Cursor_Decal'"));
 	if (DecalMaterialAsset.Succeeded())
 	{
 		CursorToWorld->SetDecalMaterial(DecalMaterialAsset.Object);
@@ -59,32 +60,22 @@ ACloud9Character::ACloud9Character()
 
 void ACloud9Character::Tick(float DeltaSeconds)
 {
-    Super::Tick(DeltaSeconds);
+	Super::Tick(DeltaSeconds);
 
-	if (CursorToWorld != nullptr)
-	{
-		if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled())
-		{
-			if (UWorld* World = GetWorld())
-			{
-				FHitResult HitResult;
-				FCollisionQueryParams Params(NAME_None, FCollisionQueryParams::GetUnknownStatId());
-				FVector StartLocation = TopDownCameraComponent->GetComponentLocation();
-				FVector EndLocation = TopDownCameraComponent->GetComponentRotation().Vector() * 2000.0f;
-				Params.AddIgnoredActor(this);
-				World->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
-				FQuat SurfaceRotation = HitResult.ImpactNormal.ToOrientationRotator().Quaternion();
-				CursorToWorld->SetWorldLocationAndRotation(HitResult.Location, SurfaceRotation);
-			}
-		}
-		else if (APlayerController* PC = Cast<APlayerController>(GetController()))
-		{
-			FHitResult TraceHitResult;
-			PC->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
-			FVector CursorFV = TraceHitResult.ImpactNormal;
-			FRotator CursorR = CursorFV.Rotation();
-			CursorToWorld->SetWorldLocation(TraceHitResult.Location);
-			CursorToWorld->SetWorldRotation(CursorR);
-		}
-	}
+	if (CursorToWorld == nullptr)
+		return;
+
+	const auto MyController = Cast<APlayerController>(GetController());
+	if (MyController == nullptr)
+		return;
+
+	FHitResult TraceHitResult;
+	MyController->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
+	FVector CursorFV = TraceHitResult.ImpactNormal;
+	FRotator CursorR = CursorFV.Rotation();
+	CursorToWorld->SetWorldLocation(TraceHitResult.Location);
+	CursorToWorld->SetWorldRotation(CursorR);
+
+	const auto Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TraceHitResult.Location);
+	SetActorRotation({0.0f, Rotation.Yaw, 0.0f});
 }

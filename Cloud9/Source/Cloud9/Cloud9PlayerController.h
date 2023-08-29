@@ -21,10 +21,9 @@ protected:
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
-	// End PlayerController interface
 
-	/** Resets HMD orientation in VR. */
-	void OnResetVR();
+	void MoveForward(float Value);
+	void MoveRight(float Value);
 
 	/** Navigate player to the current mouse cursor location. */
 	void MoveToMouseCursor();

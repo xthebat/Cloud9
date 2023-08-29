@@ -29,19 +29,30 @@ void ACloud9PlayerController::SetupInputComponent()
 	// set up gameplay key bindings
 	Super::SetupInputComponent();
 
-	InputComponent->BindAction("SetDestination", IE_Pressed, this, &ACloud9PlayerController::OnSetDestinationPressed);
-	InputComponent->BindAction("SetDestination", IE_Released, this, &ACloud9PlayerController::OnSetDestinationReleased);
-
-	// support touch devices 
-	InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ACloud9PlayerController::MoveToTouchLocation);
-	InputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ACloud9PlayerController::MoveToTouchLocation);
-
-	InputComponent->BindAction("ResetVR", IE_Pressed, this, &ACloud9PlayerController::OnResetVR);
+	InputComponent->BindAxis("MoveForward", this, &ACloud9PlayerController::MoveForward);
+	InputComponent->BindAxis("MoveRight", this, &ACloud9PlayerController::MoveRight);
 }
 
-void ACloud9PlayerController::OnResetVR()
+void ACloud9PlayerController::MoveForward(float Value)
 {
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
+	const auto MyPawn = GetPawn();
+
+	if (IsValid(MyPawn))
+	{
+		const auto Direction = MyPawn->GetActorForwardVector();
+		MyPawn->AddMovementInput(Direction, Value);
+	}
+}
+
+void ACloud9PlayerController::MoveRight(float Value)
+{
+	const auto MyPawn = GetPawn();
+
+	if (IsValid(MyPawn))
+	{
+		const auto Direction = MyPawn->GetActorRightVector();
+		MyPawn->AddMovementInput(Direction, Value);
+	}
 }
 
 void ACloud9PlayerController::MoveToMouseCursor()
