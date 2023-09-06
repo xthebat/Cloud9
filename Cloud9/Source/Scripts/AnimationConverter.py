@@ -20,16 +20,6 @@ def subtract_base_bone_from_frames_ex(frames: list[dict], bone_name: str, indexe
         for it in indexes:
             bones[it] = base_bones[it]
 
-        # base_bone_coordinates = frame[base_bone_name]
-        # for it in indexes:
-        #     base_bone_coordinates[it] = 0.0
-        # for bone_name in frame:
-        #     coordinates = frame[bone_name].copy()
-        #     for i in range(len(base_bone_coordinates)):
-        #         if i in indexes:
-        #             coordinates[i] -= base_bone_coordinates[i]
-        #     frame[bone_name] = coordinates
-
 
 def subtract_base_bone_from_frames(frames: list[dict], base_bone_names: list[str], indexes: list = None):
     for it in base_bone_names:

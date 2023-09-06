@@ -14,10 +14,6 @@
 		{
 			"Name": "EditorScriptingUtilities",
 			"Enabled": true
-		},
-		{
-			"Name": "HammUEr",
-			"Enabled": true
 		}
 	]
 }
