@@ -33,6 +33,11 @@ public:
 	bool bIsWalk = false;
 
 private:
+	virtual void OnConstruction(const FTransform& Transform) override;
+
+	UPROPERTY(EditDefaultsOnly)
+	UMaterial* CursorDecal;
+
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* TopDownCameraComponent;
