@@ -1,4 +1,5 @@
-﻿from dataclasses import dataclass
+﻿import os
+from dataclasses import dataclass
 from sys import stdout
 from typing import TextIO
 
@@ -10,6 +11,9 @@ def string_between(string: str, first: str, last: str):
 
 
 def subtract_base_bone_from_frames_ex(frames: list[dict], bone_name: str, indexes: list = None):
+    if not frames:
+        return
+
     indexes = indexes or [1]
 
     base_frame = frames[0]
@@ -74,10 +78,13 @@ def import_frames_from_smd(file: TextIO, ignore: set[str] = None):
                 coordinates = [float(it) for it in tokens[1:]]
                 frame[bone_node.name] = coordinates
 
+    if frame is not None:
+        frames.append(frame)
+
     return frames, nodes
 
 
-def export_frames_to_smd(file: TextIO, frames: list[dict], nodes: dict[int, Node]):
+def export_frames_to_smd(file: TextIO, frames: list[dict], nodes: dict[int, Node], scale: float = 1.0):
     print("version 1", file=file)
     print("nodes", file=file)
     for node in nodes.values():
@@ -94,22 +101,41 @@ def export_frames_to_smd(file: TextIO, frames: list[dict], nodes: dict[int, Node
             coordinates = frame[bone]
             print(f"{index}", file=file, end=" ")
             for coordinate in coordinates:
+                coordinate = coordinate * scale
                 print(f"{coordinate:.6f}", file=file, end=" ")
             print(file=file)
     print("end", file=file)
 
 
-def main():
-    with open("a_move_knife_walkN.smd", "rt") as smd:
+def convert_file(input_path: str, output_path: str):
+    with open(input_path, "rt") as smd:
         frames, nodes = import_frames_from_smd(smd, {"ValveBiped.weapon_bone"})
 
     subtract_base_bone_from_frames(frames, ["pelvis", "lean_root", "cam_driver"])
 
-    # for it in frames:
-    #     print(it)
-
-    with open("a_move_knife_walkN_static.smd", "wt") as smd:
+    with open(output_path, "wt") as smd:
         export_frames_to_smd(smd, frames, nodes)
+
+
+def convert_folder(input_folder: str, output_folder: str, extension: str = ".smd"):
+    os.makedirs(output_folder, exist_ok=True)
+
+    for file_name in os.listdir(input_folder):
+        input_path = os.path.join(input_folder, file_name)
+        if not os.path.isfile(input_path) or os.path.splitext(file_name)[-1] != extension:
+            continue
+
+        output_path = os.path.join(output_folder, file_name)
+
+        print(f"Processing: {input_path} -> {output_path}")
+        convert_file(input_path, output_path)
+
+
+def main():
+    convert_folder(
+        "c:/Users/bat/Documents/Work/unreal_tasks/Cloud9/Decompile/models/player/custom_player/animset_t_anims/",
+        "animset_t_anims"
+    )
 
 
 if __name__ == '__main__':

@@ -1,0 +1,94 @@
+version 1
+nodes
+0 "pelvis" -1
+1 "lean_root" -1
+2 "cam_driver" -1
+3 "spine_0" 0
+4 "spine_1" 3
+5 "spine_2" 4
+6 "spine_3" 5
+7 "neck_0" 6
+8 "head_0" 7
+9 "clavicle_L" 6
+10 "arm_upper_L" 9
+11 "arm_lower_L" 10
+12 "hand_L" 11
+13 "finger_middle_meta_L" 12
+14 "finger_middle_0_L" 13
+15 "finger_middle_1_L" 14
+16 "finger_middle_2_L" 15
+17 "finger_pinky_meta_L" 12
+18 "finger_pinky_0_L" 17
+19 "finger_pinky_1_L" 18
+20 "finger_pinky_2_L" 19
+21 "finger_index_meta_L" 12
+22 "finger_index_0_L" 21
+23 "finger_index_1_L" 22
+24 "finger_index_2_L" 23
+25 "finger_thumb_0_L" 12
+26 "finger_thumb_1_L" 25
+27 "finger_thumb_2_L" 26
+28 "finger_ring_meta_L" 12
+29 "finger_ring_0_L" 28
+30 "finger_ring_1_L" 29
+31 "finger_ring_2_L" 30
+32 "weapon_hand_L" 12
+33 "arm_lower_L_TWIST" 11
+34 "arm_lower_L_TWIST1" 11
+35 "arm_upper_L_TWIST" 10
+36 "arm_upper_L_TWIST1" 10
+37 "clavicle_R" 6
+38 "arm_upper_R" 37
+39 "arm_lower_R" 38
+40 "hand_R" 39
+41 "finger_middle_meta_R" 40
+42 "finger_middle_0_R" 41
+43 "finger_middle_1_R" 42
+44 "finger_middle_2_R" 43
+45 "finger_pinky_meta_R" 40
+46 "finger_pinky_0_R" 45
+47 "finger_pinky_1_R" 46
+48 "finger_pinky_2_R" 47
+49 "finger_index_meta_R" 40
+50 "finger_index_0_R" 49
+51 "finger_index_1_R" 50
+52 "finger_index_2_R" 51
+53 "finger_thumb_0_R" 40
+54 "finger_thumb_1_R" 53
+55 "finger_thumb_2_R" 54
+56 "finger_ring_meta_R" 40
+57 "finger_ring_0_R" 56
+58 "finger_ring_1_R" 57
+59 "finger_ring_2_R" 58
+60 "weapon_hand_R" 40
+61 "arm_lower_R_TWIST" 39
+62 "arm_lower_R_TWIST1" 39
+63 "arm_upper_R_TWIST" 38
+64 "arm_upper_R_TWIST1" 38
+65 "leg_upper_L" 0
+66 "leg_lower_L" 65
+67 "ankle_L" 66
+68 "ball_L" 67
+69 "leg_upper_L_TWIST" 65
+70 "leg_upper_L_TWIST1" 65
+71 "leg_upper_R" 0
+72 "leg_lower_R" 71
+73 "ankle_R" 72
+74 "ball_R" 73
+75 "leg_upper_R_TWIST" 71
+76 "leg_upper_R_TWIST1" 71
+77 "lfoot_lock" 68
+78 "rfoot_lock" 74
+79 "lh_ik_driver" 12
+80 "ValveBiped.weapon_bone" 40
+81 "ValveBiped.weapon_bone" 40
+82 "ValveBiped.weapon_bone" 40
+83 "ValveBiped.weapon_bone" 40
+84 "ValveBiped.weapon_bone" 40
+end
+skeleton
+time 0
+0 0.000000 0.000000 0.000000 0.063582 -0.268200 -1.410602 
+1 0.000000 0.000000 0.000000 0.000000 0.000000 -1.570796 
+2 0.000000 0.000000 0.000000 0.000000 0.000000 -1.570796 
+end
