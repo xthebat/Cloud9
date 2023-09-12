@@ -14,7 +14,7 @@ def subtract_base_bone_from_frames_ex(frames: list[dict], bone_name: str, indexe
     if not frames:
         return
 
-    indexes = indexes or [1]
+    indexes = indexes or [0, 1, 2]
 
     base_frame = frames[0]
     base_bones = base_frame[bone_name]
@@ -133,8 +133,8 @@ def convert_folder(input_folder: str, output_folder: str, extension: str = ".smd
 
 def main():
     convert_folder(
-        "c:/Users/bat/Documents/Work/unreal_tasks/Cloud9/Decompile/models/player/custom_player/animset_t_anims/",
-        "animset_t_anims"
+        "c:/Users/bat/Documents/Work/unreal_tasks/Cloud9/Decompile/models/player/custom_player/animset_t_anims",
+        "c:/Users/bat/Documents/Work/unreal_tasks/Cloud9/Importing/animset_t_anims"
     )
 
 
