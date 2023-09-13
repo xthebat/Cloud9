@@ -22,7 +22,7 @@ public:
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	
+
 	/** Returns CursorToWorld subobject **/
 	FORCEINLINE UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
 
@@ -31,6 +31,8 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsWalk = false;
+
+	float GetBaseSpeed() const { return BaseSpeed; }
 
 private:
 	virtual void OnConstruction(const FTransform& Transform) override;
@@ -49,5 +51,7 @@ private:
 	/** A decal that projects to the cursor location. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UDecalComponent* CursorToWorld;
-};
 
+	UPROPERTY(EditDefaultsOnly)
+	float BaseSpeed = 10000.0f;
+};

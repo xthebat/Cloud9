@@ -1,11 +1,14 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Cloud9PlayerController.h"
+
+#include "Cloud9.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Cloud9Character.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 
 ACloud9PlayerController::ACloud9PlayerController()
 {
@@ -54,7 +57,8 @@ void ACloud9PlayerController::MoveForward(float Value)
 			Value *= 0.34;
 		}
 
-		MyPawn->AddMovementInput({1, 0, 0}, Value);
+		if (FMath::Abs(Value) > 0.0f)
+			MyPawn->AddMovementInput({Value, 0, 0});			
 	}
 }
 
@@ -73,7 +77,8 @@ void ACloud9PlayerController::MoveRight(float Value)
 			Value *= 0.34;
 		}
 
-		MyPawn->AddMovementInput({0, 1, 0}, Value);
+		if (FMath::Abs(Value) > 0.0f)
+			MyPawn->AddMovementInput({0, Value, 0});
 	}
 }
 
