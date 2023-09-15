@@ -6,13 +6,15 @@
 #include "GameFramework/Character.h"
 #include "Cloud9Character.generated.h"
 
+class UCloud9CharacterMovementComponent;
+
 UCLASS(Blueprintable)
 class ACloud9Character : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	ACloud9Character();
+	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
@@ -26,17 +28,22 @@ public:
 	/** Returns CursorToWorld subobject **/
 	FORCEINLINE UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
 
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsCrouch = false;
+	bool CanSneak() const;
+	
+	void Sneak() const;
 
-	UPROPERTY(BlueprintReadOnly)
-	bool bIsWalk = false;
+	void UnSneak() const;
 
-	float GetBaseSpeed() const { return BaseSpeed; }
-
+	// Set by character movement to specify that this Character is currently sneaking.
+	// TODO: replicatedUsing=OnRep_IsSneaking
+	UPROPERTY(BlueprintReadOnly, Category=Character)
+	uint32 bIsSneaking:1;
+	
 private:
+	const UCloud9CharacterMovementComponent* GetMyCharacterMovement() const;
+	
 	virtual void OnConstruction(const FTransform& Transform) override;
-
+	
 	UPROPERTY(EditDefaultsOnly)
 	UMaterial* CursorDecal;
 
@@ -51,7 +58,4 @@ private:
 	/** A decal that projects to the cursor location. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UDecalComponent* CursorToWorld;
-
-	UPROPERTY(EditDefaultsOnly)
-	float BaseSpeed = 10000.0f;
 };

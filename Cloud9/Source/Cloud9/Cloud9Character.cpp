@@ -2,7 +2,7 @@
 
 #include "Cloud9Character.h"
 
-#include "Cloud9.h"
+#include "Cloud9CharacterMovementComponent.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
@@ -14,7 +14,8 @@
 #include "Engine/World.h"
 #include "Kismet/KismetMathLibrary.h"
 
-ACloud9Character::ACloud9Character()
+ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
+	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovementComponent>(CharacterMovementComponentName))
 {
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -51,6 +52,33 @@ ACloud9Character::ACloud9Character()
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+}
+
+const UCloud9CharacterMovementComponent* ACloud9Character::GetMyCharacterMovement() const
+{
+	const auto Movement = GetCharacterMovement();
+	if (Movement == nullptr)
+		return nullptr;
+
+	return Cast<UCloud9CharacterMovementComponent>(Movement);
+}
+
+bool ACloud9Character::CanSneak() const
+{
+	return !GetMyCharacterMovement()->IsCrouching();
+}
+
+void ACloud9Character::Sneak() const
+{
+	const auto Movement = GetMyCharacterMovement();
+	if (Movement && CanSneak())
+		Movement->Sneak();
+}
+
+void ACloud9Character::UnSneak() const
+{
+	if (const auto Movement = GetMyCharacterMovement())
+		Movement->UnSneak();
 }
 
 void ACloud9Character::OnConstruction(const FTransform& Transform)
