@@ -70,8 +70,7 @@ bool ACloud9Character::CanSneak() const
 
 void ACloud9Character::Sneak() const
 {
-	const auto Movement = GetMyCharacterMovement();
-	if (Movement && CanSneak())
+	if (const auto Movement = GetMyCharacterMovement())
 		Movement->Sneak();
 }
 

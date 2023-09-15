@@ -34,8 +34,8 @@ void UCloud9CharacterMovementComponent::UnSneak() const
 
 float UCloud9CharacterMovementComponent::GetMaxSpeed() const
 {
+	const auto MaxSpeed = Super::GetMaxSpeed();
 	if (IsSneaking())
-		return MaxSneakSpeed;
-
-	return Super::GetMaxSpeed();
+		return FMath::Min(MaxSneakSpeed, MaxSpeed);
+	return MaxSpeed;
 }

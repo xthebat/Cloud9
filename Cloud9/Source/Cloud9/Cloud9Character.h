@@ -29,7 +29,7 @@ public:
 	FORCEINLINE UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
 
 	bool CanSneak() const;
-	
+
 	void Sneak() const;
 
 	void UnSneak() const;

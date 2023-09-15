@@ -3,6 +3,7 @@
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "Cloud9PlayerController.h"
 
+#include "Cloud9.h"
 #include "Cloud9Character.h"
 #include "Engine/World.h"
 
@@ -35,13 +36,23 @@ void ACloud9PlayerController::SetupInputComponent()
 void ACloud9PlayerController::MoveForward(float Value)
 {
 	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f)
-		GetPawn<ACloud9Character>()->AddMovementInput(FVector::XAxisVector, Value);
+	{
+		const auto MyPawn = GetPawn<ACloud9Character>();
+		const auto Velocity = MyPawn->GetVelocity().Size();
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Velocity = %f"), Velocity));
+		MyPawn->AddMovementInput(FVector::XAxisVector, Value);
+	}
 }
 
 void ACloud9PlayerController::MoveRight(float Value)
 {
 	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f)
-		GetPawn<ACloud9Character>()->AddMovementInput(FVector::YAxisVector, Value);
+	{
+		const auto MyPawn = GetPawn<ACloud9Character>();
+		const auto Velocity = MyPawn->GetVelocity().Size();
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Velocity = %f"), Velocity));
+		MyPawn->AddMovementInput(FVector::YAxisVector, Value);
+	}
 }
 
 void ACloud9PlayerController::WalkPressed() { GetPawn<ACloud9Character>()->Sneak(); }
