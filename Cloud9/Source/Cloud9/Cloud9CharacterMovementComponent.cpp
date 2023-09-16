@@ -4,7 +4,13 @@
 
 UCloud9CharacterMovementComponent::UCloud9CharacterMovementComponent()
 {
+	MaxWalkSpeed = 500.0f;
 	MaxSneakSpeed = 270.0f;
+	MaxWalkSpeedCrouched = 170.0f;
+	auto& NavAgentProperties = GetNavAgentPropertiesRef();
+	NavAgentProperties.bCanCrouch = true;
+	NavAgentProperties.bCanSwim = false;
+	NavAgentProperties.bCanFly = false;
 }
 
 ACloud9Character* UCloud9CharacterMovementComponent::GetMyCharacterOwner() const
