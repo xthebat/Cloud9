@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Cloud9PlayerController.generated.h"
 
+class ACloud9Console;
 class ACloud9Character;
 
 UCLASS()
@@ -16,11 +17,19 @@ class ACloud9PlayerController : public APlayerController
 public:
 	ACloud9PlayerController();
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Classes)
+	TSubclassOf<ACloud9Console> ConsoleClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	ACloud9Console* Console;
+	
 protected:
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
 
+	virtual void OnConstruction(const FTransform& Transform) override;
+	
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 
@@ -29,6 +38,6 @@ protected:
 
 	void WalkReleased();
 	void CrouchReleased();
+
+	virtual bool ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor) override;
 };
-
-

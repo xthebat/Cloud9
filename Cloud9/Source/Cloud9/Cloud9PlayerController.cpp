@@ -2,14 +2,16 @@
 
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "Cloud9PlayerController.h"
-
 #include "Cloud9Character.h"
+#include "Cloud9Console.h"
 #include "Engine/World.h"
 
 ACloud9PlayerController::ACloud9PlayerController()
 {
 	bShowMouseCursor = false;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
+	ConsoleClass = ACloud9Console::StaticClass();
+	Console = nullptr;
 }
 
 void ACloud9PlayerController::PlayerTick(float DeltaTime)
@@ -33,6 +35,20 @@ void ACloud9PlayerController::SetupInputComponent()
 
 	InputComponent->BindAction("Walk", IE_Released, this, &ACloud9PlayerController::WalkReleased);
 	InputComponent->BindAction("Crouch", IE_Released, this, &ACloud9PlayerController::CrouchReleased);
+}
+
+void ACloud9PlayerController::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	
+	const auto Component = NewObject<UChildActorComponent>(this);
+	
+	Component->RegisterComponent();
+	Component->SetChildActorClass(ConsoleClass);
+	Component->CreateChildActor();
+	Component->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+	Console = Cast<ACloud9Console>(Component->GetChildActor());
 }
 
 void ACloud9PlayerController::MoveForward(float Value)
@@ -64,3 +80,13 @@ void ACloud9PlayerController::CrouchPressed() { GetPawn<ACloud9Character>()->Cro
 void ACloud9PlayerController::WalkReleased() { GetPawn<ACloud9Character>()->UnSneak(); }
 
 void ACloud9PlayerController::CrouchReleased() { GetPawn<ACloud9Character>()->UnCrouch(false); }
+
+bool ACloud9PlayerController::ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor)
+{
+	bool bHandled = Super::ProcessConsoleExec(Cmd, Ar, Executor);
+
+	if (!bHandled && Console != nullptr)
+		bHandled |= Console->ProcessConsoleExec(Cmd, Ar, Executor);
+
+	return bHandled;
+}
