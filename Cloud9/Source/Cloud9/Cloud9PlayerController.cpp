@@ -3,19 +3,21 @@
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "Cloud9PlayerController.h"
 
-#include "Cloud9.h"
 #include "Cloud9Character.h"
 #include "Engine/World.h"
 
 ACloud9PlayerController::ACloud9PlayerController()
 {
-	bShowMouseCursor = true;
+	bShowMouseCursor = false;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 }
 
 void ACloud9PlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
+	FHitResult TraceHitResult;
+	GetHitResultUnderCursor(ECC_Visibility, false, TraceHitResult);
+	GetPawn<ACloud9Character>()->SetViewDirection(TraceHitResult);
 }
 
 void ACloud9PlayerController::SetupInputComponent()

@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Cloud9Character.generated.h"
 
+class ACloud9PlayerController;
 class UCloud9CharacterMovementComponent;
 
 UCLASS(Blueprintable)
@@ -34,6 +35,8 @@ public:
 
 	void UnSneak() const;
 
+	void SetViewDirection(const FHitResult& HitResult);
+	
 	// Set by character movement to specify that this Character is currently sneaking.
 	// TODO: replicatedUsing=OnRep_IsSneaking
 	UPROPERTY(BlueprintReadOnly, Category=Character)
@@ -41,6 +44,7 @@ public:
 	
 private:
 	const UCloud9CharacterMovementComponent* GetMyCharacterMovement() const;
+	const ACloud9PlayerController* GetMyPlayerController() const;
 	
 	virtual void OnConstruction(const FTransform& Transform) override;
 	

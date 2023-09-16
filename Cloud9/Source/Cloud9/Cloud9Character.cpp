@@ -2,7 +2,9 @@
 
 #include "Cloud9Character.h"
 
+#include "Cloud9.h"
 #include "Cloud9CharacterMovementComponent.h"
+#include "Cloud9PlayerController.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
@@ -63,6 +65,15 @@ const UCloud9CharacterMovementComponent* ACloud9Character::GetMyCharacterMovemen
 	return Cast<UCloud9CharacterMovementComponent>(Movement);
 }
 
+const ACloud9PlayerController* ACloud9Character::GetMyPlayerController() const
+{
+	const auto MyController = GetController();
+	if (MyController == nullptr)
+		return nullptr;
+
+	return Cast<ACloud9PlayerController>(MyController);
+}
+
 bool ACloud9Character::CanSneak() const
 {
 	return !GetMyCharacterMovement()->IsCrouching();
@@ -80,35 +91,34 @@ void ACloud9Character::UnSneak() const
 		Movement->UnSneak();
 }
 
+void ACloud9Character::SetViewDirection(const FHitResult& HitResult)
+{
+	if (CursorToWorld == nullptr)
+		return;
+	
+	const auto Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitResult.Location);
+	
+	CursorToWorld->SetWorldLocation(HitResult.Location);
+
+	const auto ImpactNormal = HitResult.ImpactNormal;
+	const auto ImpactRotation = ImpactNormal.Rotation();
+	CursorToWorld->SetWorldRotation(ImpactRotation);
+
+	SetActorRotation({0.0f, Rotation.Yaw, 0.0f});
+}
+
 void ACloud9Character::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	if (CursorDecal != nullptr)
-	{
-		CursorToWorld->SetDecalMaterial(CursorDecal);
-		CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
-	}
+	if (CursorDecal == nullptr)
+		return;
+
+	CursorToWorld->SetDecalMaterial(CursorDecal);
+	CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
 }
 
 void ACloud9Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	if (CursorToWorld == nullptr)
-		return;
-
-	const auto MyController = Cast<APlayerController>(GetController());
-	if (MyController == nullptr)
-		return;
-
-	FHitResult TraceHitResult;
-	MyController->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
-	FVector CursorFV = TraceHitResult.ImpactNormal;
-	FRotator CursorR = CursorFV.Rotation();
-	CursorToWorld->SetWorldLocation(TraceHitResult.Location);
-	CursorToWorld->SetWorldRotation(CursorR);
-
-	const auto Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), TraceHitResult.Location);
-	SetActorRotation({0.0f, Rotation.Yaw, 0.0f});
 }
