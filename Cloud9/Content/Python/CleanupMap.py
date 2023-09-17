@@ -16,7 +16,7 @@ def fix_actors_collision(actors: Iterable, collision: unreal.CollisionTraceFlag)
         if mesh_component is None:
             continue
         static_mesh = mesh_component.static_mesh
-        unreal.ConverterFunctions.set_collision_complexity(static_mesh, int(collision.value))
+        unreal.Cloud9ToolsLibrary.set_collision_complexity(static_mesh, int(collision.value))
         unreal.EditorStaticMeshLibrary.remove_collisions(static_mesh)
 
 
