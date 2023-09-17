@@ -105,6 +105,27 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult)
 	SetActorRotation({0.0f, Rotation.Yaw, 0.0f});
 }
 
+void ACloud9Character::AddCameraRotation(float Angle) const
+{
+	const FRotator Rotation = {0.0f, Angle, 0.0f};
+	CameraBoom->AddRelativeRotation(Rotation);
+}
+
+void ACloud9Character::SetCursorIsHidden(bool Hidden) const
+{
+	CursorToWorld->bHiddenInGame = Hidden;
+}
+
+float ACloud9Character::GetCameraZoom() const
+{
+	return CameraBoom->TargetArmLength;
+}
+
+void ACloud9Character::SetCameraZoom(float Value) const
+{
+	CameraBoom->TargetArmLength = Value;
+}
+
 void ACloud9Character::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);

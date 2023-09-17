@@ -25,12 +25,15 @@ void ACloud9GameMode::Tick(float DeltaSeconds)
 
 	if (NetGraph > 0)
 	{
+		const auto Fps = 1.0f / DeltaSeconds;
+		
 		const auto Location = GetCharacter()->GetActorLocation();
 		const auto Velocity = GetCharacter()->GetVelocity();
 		const auto Text = FString::Printf(
-			TEXT("Location = %s Velocity = %.0f"),
+			TEXT("Location = %s Velocity = %.0f fps = %.1f"),
 			*Location.ToString(),
-			Velocity.Size()
+			Velocity.Size(),
+			Fps
 		);
 		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, Text);
 	}

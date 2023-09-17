@@ -36,7 +36,15 @@ public:
 	void UnSneak() const;
 
 	void SetViewDirection(const FHitResult& HitResult);
+
+	void AddCameraRotation(float Angle) const;
 	
+	void SetCursorIsHidden(bool Hidden) const;
+
+	float GetCameraZoom() const;
+	
+	void SetCameraZoom(float Value) const;
+
 	// Set by character movement to specify that this Character is currently sneaking.
 	// TODO: replicatedUsing=OnRep_IsSneaking
 	UPROPERTY(BlueprintReadOnly, Category=Character)
