@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "Cloud9GameMode.generated.h"
 
+class ACloud9Character;
+
 UCLASS(minimalapi)
 class ACloud9GameMode : public AGameModeBase
 {
@@ -13,6 +15,18 @@ class ACloud9GameMode : public AGameModeBase
 
 public:
 	ACloud9GameMode();
+
+	UFUNCTION(BlueprintCallable)
+	ACloud9Character* GetCharacter() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetNetGraph(int Value);
+	
+public:
+	virtual void Tick(float DeltaSeconds) override;
+
+private:
+	int NetGraph;
 };
 
 

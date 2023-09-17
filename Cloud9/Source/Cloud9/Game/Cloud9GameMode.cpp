@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "Cloud9GameMode.h"
 #include "Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
@@ -7,6 +5,33 @@
 
 ACloud9GameMode::ACloud9GameMode()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 	PlayerControllerClass = ACloud9PlayerController::StaticClass();
 	DefaultPawnClass = ACloud9Character::StaticClass();
+	NetGraph = 1;
+}
+
+ACloud9Character* ACloud9GameMode::GetCharacter() const
+{
+	return Cast<ACloud9Character>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+}
+
+void ACloud9GameMode::SetNetGraph(int Value) { NetGraph = Value; }
+
+void ACloud9GameMode::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (NetGraph > 0)
+	{
+		const auto Location = GetCharacter()->GetActorLocation();
+		const auto Velocity = GetCharacter()->GetVelocity();
+		const auto Text = FString::Printf(
+			TEXT("Location = %s Velocity = %.0f"),
+			*Location.ToString(),
+			Velocity.Size()
+		);
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, Text);
+	}
 }

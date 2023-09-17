@@ -11,12 +11,7 @@ ACloud9PlayerController::ACloud9PlayerController()
 	bShowMouseCursor = false;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 	Console = CreateDefaultSubobject<UCloud9ConsoleComponent>(TEXT("Console"));
-	// ConsoleClass = UCloud9ConsoleComponent::StaticClass();
-	// Console = NewObject<UCloud9ConsoleComponent>(this, *ConsoleClass, TEXT("Console"));
-	// AddOwnedComponent(Console);
 }
-
-// UCloud9ConsoleComponent* ACloud9PlayerController::GetConsole() const { return Console; }
 
 void ACloud9PlayerController::PlayerTick(float DeltaTime)
 {
@@ -61,8 +56,6 @@ void ACloud9PlayerController::MoveForward(float Value)
 	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f)
 	{
 		const auto MyPawn = GetPawn<ACloud9Character>();
-		const auto Velocity = MyPawn->GetVelocity().Size();
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Velocity = %f"), Velocity));
 		MyPawn->AddMovementInput(FVector::XAxisVector, Value);
 	}
 }
@@ -72,8 +65,6 @@ void ACloud9PlayerController::MoveRight(float Value)
 	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f)
 	{
 		const auto MyPawn = GetPawn<ACloud9Character>();
-		const auto Velocity = MyPawn->GetVelocity().Size();
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("Velocity = %f"), Velocity));
 		MyPawn->AddMovementInput(FVector::YAxisVector, Value);
 	}
 }

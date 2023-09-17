@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Cloud9ToolsLibrary.generated.h"
 
 class ACloud9GameMode;
@@ -35,4 +36,18 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static ACloud9GameMode* GetGameMode();
+
+	template <class Cls>
+	static Cls* GetActorOfClass()
+	{
+		return Cast<Cls>(UGameplayStatics::GetActorOfClass(GetWorld(), Cls::StaticClass()));
+	}
+
+	template <class Cls>
+	static TArray<Cls*> GetAllActorsOfClass()
+	{
+		TArray<AActor*> Actors = {};
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), Cls::StaticClass(), Actors);
+		return reinterpret_cast<TArray<Cls*>&>(Actors);
+	}
 };
