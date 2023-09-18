@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "Cloud9PlayerController.generated.h"
 
+class UCloud9KeyboardController;
+class UCloud9MouseController;
 class UCloud9ConsoleComponent;
 class ACloud9Character;
 
@@ -27,52 +29,14 @@ private:  // variables
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Console, meta = (AllowPrivateAccess = "true"))
 	UCloud9ConsoleComponent* Console;
 
-	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	float RotateSensitivity;
-	
-	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	float ZoomSensitivity;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Controllers, meta = (AllowPrivateAccess = "true"))
+	UCloud9MouseController* MouseController;
 
-	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	float MinZoomHeight;
-	
-	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	float MaxZoomHeight;
-	
-	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	bool bIsSmoothZoom;
-
-	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	float SmoothZoomSpeed;
-
-private:
-	FVector2D MousePositionBase;
-	float TargetZoomHeight;
-	EMouseMode MouseMode;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Controllers, meta = (AllowPrivateAccess = "true"))
+	UCloud9KeyboardController* KeyboardController;
 	
 protected:  // override section
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
-
-	virtual void OnConstruction(const FTransform& Transform) override;
-
 	virtual bool ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor) override;
-
-protected:  // new function
-	ACloud9Character* GetMyPawn() const;
-	FVector2D GetMousePosition() const;
-	bool IsZoomInProcess() const;
-	
-	void MoveForward(float Value);
-	void MoveRight(float Value);
-
-	void WalkPressed();
-	void CrouchPressed();
-
-	void WalkReleased();
-	void CrouchReleased();
-
-	void CameraZoom(float Value);
-	void CameraRotationPressed();
-	void CameraRotationReleased();
 };

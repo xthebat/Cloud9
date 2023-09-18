@@ -50,4 +50,7 @@ public:
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), Cls::StaticClass(), Actors);
 		return reinterpret_cast<TArray<Cls*>&>(Actors);
 	}
+
+	template <class T, class U>
+	static T InverseLerp(const T& A, const T& B, const U& X) { return static_cast<T>((X - A) / (B - A)); }
 };
