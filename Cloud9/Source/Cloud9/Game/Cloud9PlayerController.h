@@ -11,11 +11,6 @@ class UCloud9MouseController;
 class UCloud9ConsoleComponent;
 class ACloud9Character;
 
-enum class EMouseMode
-{
-	Aiming = 0,
-	Rotation = 1,
-};
 
 UCLASS()
 class ACloud9PlayerController : public APlayerController

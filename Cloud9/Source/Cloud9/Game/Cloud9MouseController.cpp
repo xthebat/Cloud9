@@ -1,6 +1,5 @@
 ﻿#include "Cloud9MouseController.h"
 #include "Cloud9PlayerController.h"
-#include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
 
 UCloud9MouseController::UCloud9MouseController()
@@ -45,11 +44,6 @@ void UCloud9MouseController::SetCameraZoomLevel(float Value) const
 		const auto NewZoomHeight = FMath::Lerp(MinZoomHeight, MaxZoomHeight, Value);
 		GetPawn()->SetCameraZoom(NewZoomHeight);
 	}
-}
-
-ACloud9Character* UCloud9MouseController::GetPawn() const
-{
-	return GetOwner<ACloud9PlayerController>()->GetPawn<ACloud9Character>();
 }
 
 void UCloud9MouseController::TickComponent(

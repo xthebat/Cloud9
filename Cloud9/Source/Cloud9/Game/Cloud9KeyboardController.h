@@ -1,12 +1,13 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9ControllerBase.h"
 #include "Components/ActorComponent.h"
 #include "Cloud9KeyboardController.generated.h"
 
 
 UCLASS()
-class CLOUD9_API UCloud9KeyboardController : public UActorComponent
+class CLOUD9_API UCloud9KeyboardController : public UCloud9ControllerBase
 {
 	GENERATED_BODY()
 

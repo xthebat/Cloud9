@@ -1,4 +1,5 @@
-﻿#include "Cloud9KeyboardController.h"
+﻿// ReSharper disable CppMemberFunctionMayBeConst
+#include "Cloud9KeyboardController.h"
 
 UCloud9KeyboardController::UCloud9KeyboardController()
 {

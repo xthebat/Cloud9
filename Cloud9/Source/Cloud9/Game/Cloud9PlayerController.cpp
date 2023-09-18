@@ -2,7 +2,6 @@
 
 #include "Cloud9KeyboardController.h"
 #include "Cloud9MouseController.h"
-#include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Console/Cloud9ConsoleComponent.h"
 #include "Engine/World.h"
 
@@ -12,6 +11,7 @@ ACloud9PlayerController::ACloud9PlayerController()
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 
 	Console = CreateDefaultSubobject<UCloud9ConsoleComponent>(TEXT("Console"));
+	KeyboardController = CreateDefaultSubobject<UCloud9KeyboardController>(TEXT("KeyboardController"));
 	MouseController = CreateDefaultSubobject<UCloud9MouseController>(TEXT("MouseController"));
 }
 
@@ -47,7 +47,3 @@ bool ACloud9PlayerController::ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice
 
 	return bHandled;
 }
-
-ACloud9Character* ACloud9PlayerController::GetMyPawn() const { return GetPawn<ACloud9Character>(); }
-
-
