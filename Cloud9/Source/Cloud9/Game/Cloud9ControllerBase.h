@@ -10,6 +10,8 @@ class CLOUD9_API UCloud9ControllerBase : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:
+protected:
 	ACloud9Character* GetPawn() const;
+
+	ACloud9PlayerController* GetPlayerController() const;
 };

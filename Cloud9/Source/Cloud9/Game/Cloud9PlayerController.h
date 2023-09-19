@@ -20,7 +20,12 @@ class ACloud9PlayerController : public APlayerController
 public:
 	ACloud9PlayerController();
 
-private:  // variables
+protected:
+	virtual void PlayerTick(float DeltaTime) override;
+	virtual void SetupInputComponent() override;
+	virtual bool ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor) override;
+	
+private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Console, meta = (AllowPrivateAccess = "true"))
 	UCloud9ConsoleComponent* Console;
 
@@ -29,9 +34,4 @@ private:  // variables
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Controllers, meta = (AllowPrivateAccess = "true"))
 	UCloud9KeyboardController* KeyboardController;
-	
-protected:  // override section
-	virtual void PlayerTick(float DeltaTime) override;
-	virtual void SetupInputComponent() override;
-	virtual bool ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor) override;
 };

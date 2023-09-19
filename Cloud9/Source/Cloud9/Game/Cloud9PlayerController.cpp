@@ -24,18 +24,18 @@ void ACloud9PlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	InputComponent->BindAxis("MoveForward", KeyboardController, &UCloud9KeyboardController::MoveForward);
-	InputComponent->BindAxis("MoveRight", KeyboardController, &UCloud9KeyboardController::MoveRight);
+	InputComponent->BindAxis("MoveForward", KeyboardController, &UCloud9KeyboardController::OnMoveForward);
+	InputComponent->BindAxis("MoveRight", KeyboardController, &UCloud9KeyboardController::OnMoveRight);
 
-	InputComponent->BindAction("Crouch", IE_Pressed, KeyboardController, &UCloud9KeyboardController::CrouchPressed);
-	InputComponent->BindAction("Crouch", IE_Released, KeyboardController, &UCloud9KeyboardController::CrouchReleased);
+	InputComponent->BindAction("Crouch", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnCrouchPressed);
+	InputComponent->BindAction("Crouch", IE_Released, KeyboardController, &UCloud9KeyboardController::OnCrouchReleased);
 
-	InputComponent->BindAction("Walk", IE_Pressed, KeyboardController, &UCloud9KeyboardController::WalkPressed);
-	InputComponent->BindAction("Walk", IE_Released, KeyboardController, &UCloud9KeyboardController::WalkReleased);
+	InputComponent->BindAction("Walk", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnWalkPressed);
+	InputComponent->BindAction("Walk", IE_Released, KeyboardController, &UCloud9KeyboardController::OnWalkReleased);
 
-	InputComponent->BindAxis("CameraZoom", MouseController, &UCloud9MouseController::CameraZoom);
-	InputComponent->BindAction("CameraRotation", IE_Pressed, MouseController, &UCloud9MouseController::CameraRotationPressed);
-	InputComponent->BindAction("CameraRotation", IE_Released, MouseController, &UCloud9MouseController::CameraRotationReleased);
+	InputComponent->BindAxis("CameraZoom", MouseController, &UCloud9MouseController::OnCameraZoom);
+	InputComponent->BindAction("CameraRotation", IE_Pressed, MouseController, &UCloud9MouseController::OnCameraRotationPressed);
+	InputComponent->BindAction("CameraRotation", IE_Released, MouseController, &UCloud9MouseController::OnCameraRotationReleased);
 }
 
 bool ACloud9PlayerController::ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor)

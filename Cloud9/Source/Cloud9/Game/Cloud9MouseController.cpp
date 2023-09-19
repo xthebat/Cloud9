@@ -1,25 +1,28 @@
 ﻿#include "Cloud9MouseController.h"
 #include "Cloud9PlayerController.h"
+#include "Cloud9/Cloud9.h"
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
 
 UCloud9MouseController::UCloud9MouseController()
 {
-	bCanEverTick = true;
-	bStartWithTickEnabled = true;
-	
-	RotateSensitivity = 1.0f;
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = true;
 
-	ZoomSensitivity = 400.0f;
+	CameraRotateSensitivity = 1.0f;
 
-	MinZoomHeight = 400.0f;
-	MaxZoomHeight = 1800.0f;
+	CameraZoomSensitivity = 0.2f;
 
-	bIsSmoothZoom = false;
-	SmoothZoomSpeed = 1600.0f;
+	MinCameraZoomHeight = 600.0f;
+	MaxCameraZoomHeight = 2000.0f;
 
-	MouseMode = EMouseMode::Aiming;
-	MousePositionBase = FVector2D::ZeroVector;
-	TargetZoomHeight = -1.0f;
+	bIsCameraZoomSmoothEnabled = true;
+	CameraZoomSmoothSpeed = 0.5f;
+
+	TargetCameraZoomLevel = InvalidCameraZoomLevel;
+	TargetCameraZoomSpeed = 0.0f;
+
+	CameraRotationBase = FVector2D::ZeroVector;
+	MouseMiddleButtonMode = EMouseMode::Aiming;
 }
 
 FVector2D UCloud9MouseController::GetMousePosition() const
@@ -29,21 +32,46 @@ FVector2D UCloud9MouseController::GetMousePosition() const
 	return MousePosition;
 }
 
-bool UCloud9MouseController::IsZoomInProcess() const { return TargetZoomHeight > 0.0f; }
-
 float UCloud9MouseController::GetCameraZoomLevel() const
 {
 	const auto ZoomHeight = GetPawn()->GetCameraZoom();
-	return UCloud9ToolsLibrary::InverseLerp(MinZoomHeight, MaxZoomHeight, ZoomHeight);
+	return UCloud9ToolsLibrary::InverseLerp(MinCameraZoomHeight, MaxCameraZoomHeight, ZoomHeight);
 }
 
 void UCloud9MouseController::SetCameraZoomLevel(float Value) const
 {
-	if (Value >= 0.0f && Value <= 1.0f)
+	Value = FMath::Clamp(Value, MinCameraZoomLevel, MaxCameraZoomLevel);
+	const auto NewZoomHeight = FMath::Lerp(MinCameraZoomHeight, MaxCameraZoomHeight, Value);
+	GetPawn()->SetCameraZoom(NewZoomHeight);
+}
+
+void UCloud9MouseController::ProcessZoom(float DeltaTime)
+{
+	if (TargetCameraZoomLevel == InvalidCameraZoomLevel)
+		return;
+
+	const auto CurrentCameraZoomLevel = GetCameraZoomLevel();
+
+	if (TargetCameraZoomLevel == CurrentCameraZoomLevel)
 	{
-		const auto NewZoomHeight = FMath::Lerp(MinZoomHeight, MaxZoomHeight, Value);
-		GetPawn()->SetCameraZoom(NewZoomHeight);
+		TargetCameraZoomLevel = InvalidCameraZoomLevel;
+		return;
 	}
+
+	float NewCameraZoomLevel = TargetCameraZoomLevel;
+
+	if (bIsCameraZoomSmoothEnabled)
+	{
+		NewCameraZoomLevel = CurrentCameraZoomLevel - DeltaTime * TargetCameraZoomSpeed;
+		if (TargetCameraZoomLevel > CurrentCameraZoomLevel)
+			NewCameraZoomLevel = FMath::Min(TargetCameraZoomLevel, NewCameraZoomLevel);
+		else if (TargetCameraZoomLevel < CurrentCameraZoomLevel)
+			NewCameraZoomLevel = FMath::Max(TargetCameraZoomLevel, NewCameraZoomLevel);
+	}
+
+	SetCameraZoomLevel(NewCameraZoomLevel);
+	if (NewCameraZoomLevel == TargetCameraZoomLevel)
+		TargetCameraZoomLevel = InvalidCameraZoomLevel;
 }
 
 void UCloud9MouseController::TickComponent(
@@ -53,66 +81,58 @@ void UCloud9MouseController::TickComponent(
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (MouseMode == EMouseMode::Aiming)
+	if (MouseMiddleButtonMode == EMouseMode::Aiming)
 	{
 		FHitResult TraceHitResult;
-		GetOwner<ACloud9PlayerController>()->GetHitResultUnderCursor(ECC_Visibility, false, TraceHitResult);
+		GetPlayerController()->GetHitResultUnderCursor(ECC_Visibility, false, TraceHitResult);
 		GetPawn()->SetViewDirection(TraceHitResult);
 	}
-	else if (MouseMode == EMouseMode::Rotation)
+	else if (MouseMiddleButtonMode == EMouseMode::Rotation)
 	{
 		const auto NewMousePosition = GetMousePosition();
-		const auto Offset = (NewMousePosition - MousePositionBase).X;
-		MousePositionBase = NewMousePosition;
-		const auto Angle = Offset * RotateSensitivity;
+		const auto Offset = (NewMousePosition - CameraRotationBase).X;
+		CameraRotationBase = NewMousePosition;
+		const auto Angle = Offset * CameraRotateSensitivity;
 		GetPawn()->AddCameraRotation(Angle);
 	}
 
-	if (IsZoomInProcess())
+	ProcessZoom(DeltaTime);
+}
+
+void UCloud9MouseController::OnCameraZoom(float Value)
+{
+	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f && TargetCameraZoomLevel == InvalidCameraZoomLevel)
 	{
-		const auto Sign = FMath::Sign(TargetZoomHeight - GetPawn()->GetCameraZoom());
-		const auto NewCameraZoom = FMath::Clamp(
-			GetPawn()->GetCameraZoom() + Sign * SmoothZoomSpeed * DeltaTime,
-			Sign > 0 ? MinZoomHeight : TargetZoomHeight,
-			Sign < 0 ? MaxZoomHeight : TargetZoomHeight
+		const auto CurrentCameraZoomLevel = GetCameraZoomLevel();
+
+		TargetCameraZoomLevel = FMath::Clamp(
+			CurrentCameraZoomLevel - Value * CameraZoomSensitivity,
+			MinCameraZoomLevel,
+			MaxCameraZoomLevel
 		);
-		GetPawn()->SetCameraZoom(NewCameraZoom);
-		if (TargetZoomHeight == NewCameraZoom)
-			TargetZoomHeight = -1.0f;
+
+		TargetCameraZoomSpeed = Value * CameraZoomSmoothSpeed;
+
+		UE_LOG(LogCloud9, Display, TEXT("Set TargetCameraZoomLevel = %f"), TargetCameraZoomLevel);
 	}
 }
 
-void UCloud9MouseController::CameraZoom(float Value)
+void UCloud9MouseController::OnCameraRotationPressed()
 {
-	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f)
+	if (IsValid(GetPawn()))
 	{
-		const auto NewCameraZoom = FMath::Clamp(
-			GetPawn()->GetCameraZoom() - Value * ZoomSensitivity,
-			MinZoomHeight,
-			MaxZoomHeight
-		);
-
-		if (!bIsSmoothZoom)
-		{
-			GetPawn()->SetCameraZoom(NewCameraZoom);
-		}
-		else if (!IsZoomInProcess() && TargetZoomHeight != NewCameraZoom)
-		{
-			TargetZoomHeight = NewCameraZoom;
-		}
+		CameraRotationBase = GetMousePosition();
+		MouseMiddleButtonMode = EMouseMode::Rotation;
+		GetPawn()->SetCursorIsHidden(true);
 	}
 }
 
-void UCloud9MouseController::CameraRotationPressed()
+void UCloud9MouseController::OnCameraRotationReleased()
 {
-	MousePositionBase = GetMousePosition();
-	MouseMode = EMouseMode::Rotation;
-	GetPawn()->SetCursorIsHidden(true);
-}
-
-void UCloud9MouseController::CameraRotationReleased()
-{
-	MousePositionBase = FVector2D::ZeroVector;
-	MouseMode = EMouseMode::Aiming;
-	GetPawn()->SetCursorIsHidden(false);
+	if (IsValid(GetPawn()))
+	{
+		CameraRotationBase = FVector2D::ZeroVector;
+		MouseMiddleButtonMode = EMouseMode::Aiming;
+		GetPawn()->SetCursorIsHidden(false);
+	}
 }

@@ -1,27 +1,38 @@
 ﻿// ReSharper disable CppMemberFunctionMayBeConst
 #include "Cloud9KeyboardController.h"
 
-UCloud9KeyboardController::UCloud9KeyboardController()
-{
-	
-}
-
-void UCloud9KeyboardController::MoveForward(float Value)
+void UCloud9KeyboardController::OnMoveForward(float Value)
 {
 	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f)
 		GetPawn()->AddMovementInput(FVector::XAxisVector, Value);
 }
 
-void UCloud9KeyboardController::MoveRight(float Value)
+void UCloud9KeyboardController::OnMoveRight(float Value)
 {
 	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f)
 		GetPawn()->AddMovementInput(FVector::YAxisVector, Value);
 }
 
-void UCloud9KeyboardController::WalkPressed() { GetPawn()->Sneak(); }
+void UCloud9KeyboardController::OnWalkPressed()
+{
+	if (IsValid(GetPawn()))
+		GetPawn()->Sneak();
+}
 
-void UCloud9KeyboardController::WalkReleased() { GetPawn()->UnSneak(); }
+void UCloud9KeyboardController::OnWalkReleased()
+{
+	if (IsValid(GetPawn()))
+		GetPawn()->UnSneak();
+}
 
-void UCloud9KeyboardController::CrouchPressed() { GetPawn()->Crouch(false); }
+void UCloud9KeyboardController::OnCrouchPressed()
+{
+	if (IsValid(GetPawn()))
+		GetPawn()->Crouch(false);
+}
 
-void UCloud9KeyboardController::CrouchReleased() { GetPawn()->UnCrouch(false); }
+void UCloud9KeyboardController::OnCrouchReleased()
+{
+	if (IsValid(GetPawn()))
+		GetPawn()->UnCrouch(false);
+}
