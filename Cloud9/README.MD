@@ -4,4 +4,4 @@
 
 - [Design Document](Docs/Design.MD)
 - [Notes](Docs/Notes.MD)
-- [Import CS:GO Maps](https://www.youtube.com/watch?v=pX2ddaJzFHw&ab_channel=ItsJustChris)
+- bspsrc_1.4.3 + [Import CS:GO Maps](https://www.youtube.com/watch?v=pX2ddaJzFHw&ab_channel=ItsJustChris)
