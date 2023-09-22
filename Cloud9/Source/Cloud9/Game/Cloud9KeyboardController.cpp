@@ -36,3 +36,9 @@ void UCloud9KeyboardController::OnCrouchReleased()
 	if (IsValid(GetPawn()))
 		GetPawn()->UnCrouch(false);
 }
+
+void UCloud9KeyboardController::OnJumpPressed()
+{
+	if (IsValid(GetPawn()))
+		GetPawn()->Jump();
+}

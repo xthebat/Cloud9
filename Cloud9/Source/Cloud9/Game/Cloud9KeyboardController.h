@@ -16,7 +16,9 @@ public:
 
 	void OnWalkPressed();
 	void OnWalkReleased();
-	
+
 	void OnCrouchPressed();
 	void OnCrouchReleased();
+	
+	void OnJumpPressed();
 };
