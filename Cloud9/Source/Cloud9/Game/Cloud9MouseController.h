@@ -25,6 +25,8 @@ public:
 	void OnCameraRotationReleased();
 	
 protected:
+	virtual void BeginPlay() override;
+	
 	virtual void TickComponent(
 		float DeltaTime,
 		ELevelTick TickType,
@@ -55,6 +57,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
 	float MaxCameraZoomHeight;
 
+	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
+	float InitialCameraZoomLevel;
+
+	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
+	float InitialCameraZoomAngle;
+	
 	UPROPERTY(EditDefaultsOnly, Category = Smooth, meta = (AllowPrivateAccess = "true"))
 	bool bIsCameraZoomSmoothEnabled;
 	

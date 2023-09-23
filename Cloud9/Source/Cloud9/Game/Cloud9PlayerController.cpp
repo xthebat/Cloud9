@@ -34,6 +34,7 @@ void ACloud9PlayerController::SetupInputComponent()
 	InputComponent->BindAction("Walk", IE_Released, KeyboardController, &UCloud9KeyboardController::OnWalkReleased);
 
 	InputComponent->BindAction("Jump", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnJumpPressed);
+	InputComponent->BindAction("Jump", IE_Released, KeyboardController, &UCloud9KeyboardController::OnJumpReleased);
 	
 	InputComponent->BindAxis("CameraZoom", MouseController, &UCloud9MouseController::OnCameraZoom);
 	InputComponent->BindAction("CameraRotation", IE_Pressed, MouseController, &UCloud9MouseController::OnCameraRotationPressed);

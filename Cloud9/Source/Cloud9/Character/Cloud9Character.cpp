@@ -3,7 +3,9 @@
 #include "Cloud9Character.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
+#include "Cloud9/Cloud9.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
+#include "Cloud9/Tools/Cloud9ToolsLibrary.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Cloud9CharacterMovement.h"
@@ -17,29 +19,26 @@
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
 {
-	// Set size for player capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	
 
 	// Don't rotate character to camera direction
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Rotate character to moving direction
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
-	GetCharacterMovement()->bConstrainToPlane = true;
-	GetCharacterMovement()->bSnapToPlaneAtStart = true;
-
-	// Create a camera boom...
+	const auto Movement = GetCharacterMovement();
+	Movement->bOrientRotationToMovement = true; // Rotate character to moving direction
+	Movement->RotationRate = FRotator(0.f, 640.f, 0.f);
+	Movement->bConstrainToPlane = true;
+	Movement->bSnapToPlaneAtStart = true;
+	Movement->JumpZVelocity = 320.0f;
+	
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
-	CameraBoom->TargetArmLength = 800.f;
 	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
 	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
 
-	// Create a camera...
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
@@ -105,10 +104,16 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult)
 	SetActorRotation({0.0f, Rotation.Yaw, 0.0f});
 }
 
-void ACloud9Character::AddCameraRotation(float Angle) const
+void ACloud9Character::AddCameraRotationYaw(float Angle) const
 {
 	const FRotator Rotation = {0.0f, Angle, 0.0f};
 	CameraBoom->AddRelativeRotation(Rotation);
+}
+
+void ACloud9Character::SetCameraRotationRoll(float Angle) const
+{
+	const FRotator Rotation = {-Angle, 0.0f, 0.0f};
+	CameraBoom->SetRelativeRotation(Rotation);
 }
 
 void ACloud9Character::SetCursorIsHidden(bool Hidden) const
@@ -130,11 +135,59 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	if (CursorDecal == nullptr)
-		return;
+	if (CursorDecal != nullptr)
+	{
+		CursorToWorld->SetDecalMaterial(CursorDecal);
+		CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
+	}
 
-	CursorToWorld->SetDecalMaterial(CursorDecal);
-	CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
+	if (IsValid(GetMesh()))
+	{
+		if (!CameraTargetBoneName.IsNone())
+		{
+			const auto HeadBoneLocation = GetMesh()->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
+			CameraBoom->SetWorldLocation(HeadBoneLocation);		
+		}
+
+		const auto Box = UCloud9ToolsLibrary::GetAccurateReferencePoseBounds(GetMesh()->SkeletalMesh);
+
+		UE_LOG(LogCloud9, Display, TEXT("Box = %s GetMesh()->Bounds = %s"), *Box.ToString(), *GetMesh()->Bounds.ToString());
+		
+		float Width = 0.0f, Height = 0.0f, Depth = 0.0f;
+		UCloud9ToolsLibrary::GetWidthHeightDepth(GetMesh()->Bounds.GetBox(), Width, Height, Depth);
+		// GetCapsuleComponent()->InitCapsuleSize(32.f, 72.0f);
+		GetCapsuleComponent()->InitCapsuleSize(Width, Height);
+	}
+}
+
+void ACloud9Character::SelectWeapon(int NewWeapon)
+{
+	PendingWeapon = NewWeapon;	
+}
+
+int ACloud9Character::GetSelectedWeapon()
+{
+	return SelectedWeapon;
+}
+
+int ACloud9Character::GetPendingWeapon()
+{
+	return PendingWeapon;
+}
+
+void ACloud9Character::OnWeaponChangeFinished()
+{
+	SelectedWeapon = PendingWeapon;
+}
+
+bool ACloud9Character::IsWeaponChanging()
+{
+	return SelectedWeapon != PendingWeapon;
+}
+
+void ACloud9Character::OnPoseUpdated()
+{
+	UE_LOG(LogCloud9, Display, TEXT("GetMesh()->Bounds = %s"), *GetMesh()->Bounds.ToString());
 }
 
 void ACloud9Character::Tick(float DeltaSeconds)

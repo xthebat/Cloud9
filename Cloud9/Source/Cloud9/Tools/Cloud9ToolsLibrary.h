@@ -53,4 +53,9 @@ public:
 
 	template <class T, class U>
 	static T InverseLerp(const T& A, const T& B, const U& X) { return static_cast<T>((X - A) / (B - A)); }
+
+	static FBox GetAccurateReferencePoseBounds(const USkeletalMesh* Mesh);
+
+	UFUNCTION(BlueprintCallable)
+	static void GetWidthHeightDepth(const FBox& Box, float& Width, float& Height, float& Depth);
 };

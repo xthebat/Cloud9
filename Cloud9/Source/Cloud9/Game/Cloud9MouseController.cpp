@@ -14,6 +14,8 @@ UCloud9MouseController::UCloud9MouseController()
 
 	MinCameraZoomHeight = 600.0f;
 	MaxCameraZoomHeight = 2000.0f;
+	InitialCameraZoomLevel = 0.5f;
+	InitialCameraZoomAngle = 60.0f;
 
 	bIsCameraZoomSmoothEnabled = true;
 	CameraZoomSmoothSpeed = 0.5f;
@@ -34,15 +36,24 @@ FVector2D UCloud9MouseController::GetMousePosition() const
 
 float UCloud9MouseController::GetCameraZoomLevel() const
 {
-	const auto ZoomHeight = GetPawn()->GetCameraZoom();
-	return UCloud9ToolsLibrary::InverseLerp(MinCameraZoomHeight, MaxCameraZoomHeight, ZoomHeight);
+	if (IsValid(GetPawn()))
+	{
+		const auto ZoomHeight = GetPawn()->GetCameraZoom();
+		return UCloud9ToolsLibrary::InverseLerp(MinCameraZoomHeight, MaxCameraZoomHeight, ZoomHeight);
+	}
+	
+	return InvalidCameraZoomLevel;
 }
 
 void UCloud9MouseController::SetCameraZoomLevel(float Value) const
 {
-	Value = FMath::Clamp(Value, MinCameraZoomLevel, MaxCameraZoomLevel);
-	const auto NewZoomHeight = FMath::Lerp(MinCameraZoomHeight, MaxCameraZoomHeight, Value);
-	GetPawn()->SetCameraZoom(NewZoomHeight);
+	if (IsValid(GetPawn()))
+	{
+		Value = FMath::Clamp(Value, MinCameraZoomLevel, MaxCameraZoomLevel);
+		const auto NewZoomHeight = FMath::Lerp(MinCameraZoomHeight, MaxCameraZoomHeight, Value);
+		// GetPawn()->SetCameraRotationRoll();
+		GetPawn()->SetCameraZoom(NewZoomHeight);
+	}
 }
 
 void UCloud9MouseController::ProcessZoom(float DeltaTime)
@@ -74,6 +85,13 @@ void UCloud9MouseController::ProcessZoom(float DeltaTime)
 		TargetCameraZoomLevel = InvalidCameraZoomLevel;
 }
 
+void UCloud9MouseController::BeginPlay()
+{
+	Super::BeginPlay();
+	SetCameraZoomLevel(InitialCameraZoomLevel);
+	GetPawn()->SetCameraRotationRoll(InitialCameraZoomAngle);
+}
+
 void UCloud9MouseController::TickComponent(
 	float DeltaTime,
 	ELevelTick TickType,
@@ -93,7 +111,7 @@ void UCloud9MouseController::TickComponent(
 		const auto Offset = (NewMousePosition - CameraRotationBase).X;
 		CameraRotationBase = NewMousePosition;
 		const auto Angle = Offset * CameraRotateSensitivity;
-		GetPawn()->AddCameraRotation(Angle);
+		GetPawn()->AddCameraRotationYaw(Angle);
 	}
 
 	ProcessZoom(DeltaTime);
@@ -136,3 +154,5 @@ void UCloud9MouseController::OnCameraRotationReleased()
 		GetPawn()->SetCursorIsHidden(false);
 	}
 }
+
+

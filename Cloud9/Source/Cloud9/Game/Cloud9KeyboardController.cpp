@@ -42,3 +42,9 @@ void UCloud9KeyboardController::OnJumpPressed()
 	if (IsValid(GetPawn()))
 		GetPawn()->Jump();
 }
+
+void UCloud9KeyboardController::OnJumpReleased()
+{
+	if (IsValid(GetPawn()))
+		GetPawn()->StopJumping();
+}

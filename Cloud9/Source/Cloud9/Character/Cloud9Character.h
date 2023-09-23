@@ -28,7 +28,7 @@ public:
 
 	/** Returns CursorToWorld subobject **/
 	FORCEINLINE UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
-
+	
 	bool CanSneak() const;
 
 	void Sneak() const;
@@ -37,8 +37,9 @@ public:
 
 	void SetViewDirection(const FHitResult& HitResult);
 
-	void AddCameraRotation(float Angle) const;
-	
+	void AddCameraRotationYaw(float Angle) const;
+	void SetCameraRotationRoll(float Angle) const;
+
 	void SetCursorIsHidden(bool Hidden) const;
 
 	float GetCameraZoom() const;
@@ -49,16 +50,41 @@ public:
 	// TODO: replicatedUsing=OnRep_IsSneaking
 	UPROPERTY(BlueprintReadOnly, Category=Character)
 	uint32 bIsSneaking:1;
+
+	UFUNCTION(BlueprintCallable)
+	void SelectWeapon(int NewWeapon);
+
+	UFUNCTION(BlueprintCallable)
+	int GetSelectedWeapon();
+
+	UFUNCTION(BlueprintCallable)
+	int GetPendingWeapon();
+	
+	UFUNCTION(BlueprintCallable)
+	void OnWeaponChangeFinished();
+
+	UFUNCTION(BlueprintCallable)
+	bool IsWeaponChanging();
 	
 private:
 	const UCloud9CharacterMovement* GetMyCharacterMovement() const;
 	const ACloud9PlayerController* GetMyPlayerController() const;
 	
 	virtual void OnConstruction(const FTransform& Transform) override;
+
+	int SelectedWeapon = 0;
+	int PendingWeapon = 0;
 	
+	UFUNCTION(BlueprintCallable)
+	void OnPoseUpdated();
+
 	UPROPERTY(EditDefaultsOnly)
 	UMaterial* CursorDecal;
 
+	/** A decal that projects to the cursor location. */
+	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	FName CameraTargetBoneName;
+	
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* TopDownCameraComponent;

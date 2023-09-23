@@ -21,4 +21,5 @@ public:
 	void OnCrouchReleased();
 	
 	void OnJumpPressed();
+	void OnJumpReleased();
 };
