@@ -1,6 +1,8 @@
 ﻿// ReSharper disable CppMemberFunctionMayBeConst
 #include "Cloud9KeyboardController.h"
 
+#include "Cloud9/Character/Enums/Cloud9WeaponSlot.h"
+
 void UCloud9KeyboardController::OnMoveForward(float Value)
 {
 	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f)
@@ -47,4 +49,37 @@ void UCloud9KeyboardController::OnJumpReleased()
 {
 	if (IsValid(GetPawn()))
 		GetPawn()->StopJumping();
+}
+
+void UCloud9KeyboardController::OnSlot1()
+{
+	if (IsValid(GetPawn()))
+		GetPawn()->GetInventory()->SelectWeapon(EWeaponSlot::Main);
+}
+
+void UCloud9KeyboardController::OnSlot2()
+{
+	if (IsValid(GetPawn()))
+		GetPawn()->GetInventory()->SelectWeapon(EWeaponSlot::Pistol);
+}
+
+
+void UCloud9KeyboardController::OnSlot3()
+{
+	if (IsValid(GetPawn()))
+		GetPawn()->GetInventory()->SelectWeapon(EWeaponSlot::Knife);
+}
+
+
+void UCloud9KeyboardController::OnSlot4()
+{
+	if (IsValid(GetPawn()))
+		GetPawn()->GetInventory()->SelectWeapon(EWeaponSlot::Grenade);
+}
+
+
+void UCloud9KeyboardController::OnSlot5()
+{
+	if (IsValid(GetPawn()))
+		GetPawn()->GetInventory()->SelectWeapon(EWeaponSlot::Stuff);
 }

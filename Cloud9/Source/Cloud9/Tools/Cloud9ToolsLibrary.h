@@ -7,6 +7,7 @@
 
 class ACloud9GameMode;
 
+
 /**
  * Class provides different tools/helpers functions to minimize boilerplate code.
  */

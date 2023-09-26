@@ -1,12 +1,14 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9ControllerBase.h"
+#include "Cloud9ControllerComponent.h"
 #include "Cloud9KeyboardController.generated.h"
 
 
 UCLASS()
-class CLOUD9_API UCloud9KeyboardController : public UCloud9ControllerBase
+class CLOUD9_API UCloud9KeyboardController
+	: public UActorComponent
+	, public ICloud9ControllerComponent
 {
 	GENERATED_BODY()
 
@@ -22,4 +24,10 @@ public:
 	
 	void OnJumpPressed();
 	void OnJumpReleased();
+	
+	void OnSlot1();
+	void OnSlot2();
+	void OnSlot3();
+	void OnSlot4();
+	void OnSlot5();
 };

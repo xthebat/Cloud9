@@ -9,6 +9,7 @@
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Cloud9CharacterMovement.h"
+#include "Components/Cloud9Inventory.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -19,9 +20,6 @@
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
 {
-	
-
-	// Don't rotate character to camera direction
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -32,21 +30,23 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	Movement->bConstrainToPlane = true;
 	Movement->bSnapToPlaneAtStart = true;
 	Movement->JumpZVelocity = 320.0f;
-	
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(SpringArmComponentName);
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
 	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
 	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
 
-	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
+	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(CameraComponentName);
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Create a decal in the world to show the cursor's location
-	CursorToWorld = CreateDefaultSubobject<UDecalComponent>("CursorToWorld");
+	CursorToWorld = CreateDefaultSubobject<UDecalComponent>(DecalComponentName);
 	CursorToWorld->SetupAttachment(RootComponent);
 	CursorToWorld->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f).Quaternion());
+
+	Inventory = CreateDefaultSubobject<UCloud9Inventory>(InventoryComponentName);
 
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
@@ -92,9 +92,9 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult)
 {
 	if (CursorToWorld == nullptr)
 		return;
-	
+
 	const auto Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitResult.Location);
-	
+
 	CursorToWorld->SetWorldLocation(HitResult.Location);
 
 	const auto ImpactNormal = HitResult.ImpactNormal;
@@ -131,6 +131,8 @@ void ACloud9Character::SetCameraZoom(float Value) const
 	CameraBoom->TargetArmLength = Value;
 }
 
+UCloud9Inventory* ACloud9Character::GetInventory() const { return Inventory; }
+
 void ACloud9Character::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
@@ -146,13 +148,14 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 		if (!CameraTargetBoneName.IsNone())
 		{
 			const auto HeadBoneLocation = GetMesh()->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
-			CameraBoom->SetWorldLocation(HeadBoneLocation);		
+			CameraBoom->SetWorldLocation(HeadBoneLocation);
 		}
 
 		const auto Box = UCloud9ToolsLibrary::GetAccurateReferencePoseBounds(GetMesh()->SkeletalMesh);
 
-		UE_LOG(LogCloud9, Display, TEXT("Box = %s GetMesh()->Bounds = %s"), *Box.ToString(), *GetMesh()->Bounds.ToString());
-		
+		UE_LOG(LogCloud9, Display, TEXT("Box = %s GetMesh()->Bounds = %s"), *Box.ToString(),
+		       *GetMesh()->Bounds.ToString());
+
 		float Width = 0.0f, Height = 0.0f, Depth = 0.0f;
 		UCloud9ToolsLibrary::GetWidthHeightDepth(GetMesh()->Bounds.GetBox(), Width, Height, Depth);
 		// GetCapsuleComponent()->InitCapsuleSize(32.f, 72.0f);
@@ -160,34 +163,10 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 	}
 }
 
-void ACloud9Character::SelectWeapon(int NewWeapon)
+void ACloud9Character::BeginPlay()
 {
-	PendingWeapon = NewWeapon;	
-}
-
-int ACloud9Character::GetSelectedWeapon()
-{
-	return SelectedWeapon;
-}
-
-int ACloud9Character::GetPendingWeapon()
-{
-	return PendingWeapon;
-}
-
-void ACloud9Character::OnWeaponChangeFinished()
-{
-	SelectedWeapon = PendingWeapon;
-}
-
-bool ACloud9Character::IsWeaponChanging()
-{
-	return SelectedWeapon != PendingWeapon;
-}
-
-void ACloud9Character::OnPoseUpdated()
-{
-	UE_LOG(LogCloud9, Display, TEXT("GetMesh()->Bounds = %s"), *GetMesh()->Bounds.ToString());
+	Super::BeginPlay();
+	// Inventory->SelectWeapon(EWeaponSlot::Pistol);
 }
 
 void ACloud9Character::Tick(float DeltaSeconds)

@@ -1,0 +1,44 @@
+﻿#pragma once
+
+#include "CoreMinimal.h"
+#include "Cloud9/Character/Enums/Cloud9WeaponType.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/Actor.h"
+#include "Cloud9WeaponBase.generated.h"
+
+
+UCLASS()
+class CLOUD9_API ACloud9WeaponBase : public AActor
+{
+	GENERATED_BODY()
+
+public:
+	const FName CapsuleComponentName = TEXT("CapsuleComponent");
+	const FName MeshComponentName = TEXT("MeshComponent");
+	const FName MeshCollisionProfile = TEXT("WeaponMesh");
+	
+	ACloud9WeaponBase();
+
+	UFUNCTION(BlueprintCallable)
+	bool CanBeDropped() const;
+	
+	UFUNCTION(BlueprintCallable)
+	EWeaponType GetWeaponType() const;
+	
+protected:
+	virtual void OnConstruction(const FTransform& Transform) override;
+	
+	virtual void BeginPlay() override;
+
+	UPROPERTY(Category=Weapon, BlueprintGetter=CanBeDropped)
+	bool bCanBeDropped;
+
+	UPROPERTY(Category=Weapon, BlueprintGetter=GetWeaponType)
+	EWeaponType WeaponType;
+
+	UPROPERTY(Category=Weapon, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	UCapsuleComponent* CapsuleComponent;
+	
+	UPROPERTY(Category=Weapon, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	USkeletalMeshComponent* Mesh;
+};

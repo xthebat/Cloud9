@@ -39,6 +39,12 @@ void ACloud9PlayerController::SetupInputComponent()
 	InputComponent->BindAxis("CameraZoom", MouseController, &UCloud9MouseController::OnCameraZoom);
 	InputComponent->BindAction("CameraRotation", IE_Pressed, MouseController, &UCloud9MouseController::OnCameraRotationPressed);
 	InputComponent->BindAction("CameraRotation", IE_Released, MouseController, &UCloud9MouseController::OnCameraRotationReleased);
+
+	InputComponent->BindAction("Slot1", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot1);
+	InputComponent->BindAction("Slot2", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot2);
+	InputComponent->BindAction("Slot3", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot3);
+	InputComponent->BindAction("Slot4", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot4);
+	InputComponent->BindAction("Slot5", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot5);
 }
 
 bool ACloud9PlayerController::ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor)

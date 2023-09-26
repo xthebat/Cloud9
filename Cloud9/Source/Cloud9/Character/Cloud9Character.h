@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/Cloud9Inventory.h"
 #include "GameFramework/Character.h"
 #include "Cloud9Character.generated.h"
 
@@ -15,8 +16,17 @@ class ACloud9Character : public ACharacter
 	GENERATED_BODY()
 
 public:
+	const FName SpringArmComponentName = TEXT("CameraBoom");
+	const FName CameraComponentName = TEXT("TopDownCamera");
+	const FName DecalComponentName = TEXT("CursorToWorld");
+	const FName InventoryComponentName = TEXT("Inventory");
+	
 	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
+	virtual void OnConstruction(const FTransform& Transform) override;
+
+	virtual void BeginPlay() override;
+	
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -43,40 +53,18 @@ public:
 	void SetCursorIsHidden(bool Hidden) const;
 
 	float GetCameraZoom() const;
-	
 	void SetCameraZoom(float Value) const;
+	
+	UCloud9Inventory* GetInventory() const;
 
 	// Set by character movement to specify that this Character is currently sneaking.
 	// TODO: replicatedUsing=OnRep_IsSneaking
 	UPROPERTY(BlueprintReadOnly, Category=Character)
 	uint32 bIsSneaking:1;
-
-	UFUNCTION(BlueprintCallable)
-	void SelectWeapon(int NewWeapon);
-
-	UFUNCTION(BlueprintCallable)
-	int GetSelectedWeapon();
-
-	UFUNCTION(BlueprintCallable)
-	int GetPendingWeapon();
-	
-	UFUNCTION(BlueprintCallable)
-	void OnWeaponChangeFinished();
-
-	UFUNCTION(BlueprintCallable)
-	bool IsWeaponChanging();
 	
 private:
 	const UCloud9CharacterMovement* GetMyCharacterMovement() const;
 	const ACloud9PlayerController* GetMyPlayerController() const;
-	
-	virtual void OnConstruction(const FTransform& Transform) override;
-
-	int SelectedWeapon = 0;
-	int PendingWeapon = 0;
-	
-	UFUNCTION(BlueprintCallable)
-	void OnPoseUpdated();
 
 	UPROPERTY(EditDefaultsOnly)
 	UMaterial* CursorDecal;
@@ -96,4 +84,7 @@ private:
 	/** A decal that projects to the cursor location. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UDecalComponent* CursorToWorld;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
+	UCloud9Inventory* Inventory;
 };

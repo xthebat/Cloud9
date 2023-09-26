@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9ControllerBase.h"
+#include "Cloud9ControllerComponent.h"
 #include "Cloud9MouseController.generated.h"
 
 class ACloud9Character;
@@ -13,7 +13,9 @@ enum class EMouseMode
 };
 
 UCLASS()
-class CLOUD9_API UCloud9MouseController : public UCloud9ControllerBase
+class CLOUD9_API UCloud9MouseController
+	: public UActorComponent
+	, public ICloud9ControllerComponent
 {
 	GENERATED_BODY()
 

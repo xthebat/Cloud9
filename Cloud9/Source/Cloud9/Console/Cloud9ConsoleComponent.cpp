@@ -22,7 +22,7 @@ void UCloud9ConsoleComponent::BeginPlay()
 		return;
 
 	const auto Owner = GetOwner();
-	
+
 	Console = NewObject<UCloud9Console>(Owner, ConsoleClass);
 }
 
