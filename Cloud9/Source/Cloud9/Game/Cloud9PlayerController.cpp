@@ -45,6 +45,8 @@ void ACloud9PlayerController::SetupInputComponent()
 	InputComponent->BindAction("Slot3", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot3);
 	InputComponent->BindAction("Slot4", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot4);
 	InputComponent->BindAction("Slot5", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot5);
+	
+	InputComponent->BindAction("Reload", IE_Pressed, KeyboardController, &UCloud9KeyboardController::Reload);
 }
 
 bool ACloud9PlayerController::ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor)

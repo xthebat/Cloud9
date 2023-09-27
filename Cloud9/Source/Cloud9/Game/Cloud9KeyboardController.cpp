@@ -83,3 +83,11 @@ void UCloud9KeyboardController::OnSlot5()
 	if (IsValid(GetPawn()))
 		GetPawn()->GetInventory()->SelectWeapon(EWeaponSlot::Stuff);
 }
+
+void UCloud9KeyboardController::Reload()
+{
+	if (IsValid(GetPawn()))
+	{
+		// TODO: Reload	
+	}
+}

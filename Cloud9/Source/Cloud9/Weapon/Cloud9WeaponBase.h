@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Cloud9/Character/Enums/Cloud9WeaponType.h"
-#include "Components/CapsuleComponent.h"
 #include "GameFramework/Actor.h"
 #include "Cloud9WeaponBase.generated.h"
 
@@ -35,10 +34,7 @@ protected:
 
 	UPROPERTY(Category=Weapon, BlueprintGetter=GetWeaponType)
 	EWeaponType WeaponType;
-
-	UPROPERTY(Category=Weapon, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
-	UCapsuleComponent* CapsuleComponent;
 	
 	UPROPERTY(Category=Weapon, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* Mesh;
+	UStaticMeshComponent* Mesh;
 };

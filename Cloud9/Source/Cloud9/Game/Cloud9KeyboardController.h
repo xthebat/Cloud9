@@ -30,4 +30,5 @@ public:
 	void OnSlot3();
 	void OnSlot4();
 	void OnSlot5();
+	void Reload();
 };
