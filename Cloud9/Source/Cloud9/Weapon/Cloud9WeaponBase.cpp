@@ -1,5 +1,8 @@
 ﻿#include "Cloud9WeaponBase.h"
 
+#include "Cloud9/Cloud9.h"
+#include "Cloud9/Character/Cloud9Character.h"
+
 ACloud9WeaponBase::ACloud9WeaponBase()
 {
 	bCanBeDropped = true;
@@ -31,6 +34,19 @@ void ACloud9WeaponBase::BeginPlay()
 void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
+
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+	if (const auto MyOwner = Cast<ACloud9Character>(GetOwner()))
+	{
+		const auto ParentMesh = MyOwner->GetMesh();
+		const auto SocketName = FName(TEXT("WeaponSocket"));
+		const auto SocketTransform = Mesh->GetSocketTransform(SocketName);
+		UE_LOG(LogCloud9, Display, TEXT("Transform = %s"), *SocketTransform.ToString());
+		// SetActorTransform(SocketTransform);
+		AttachToComponent(ParentMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
+		SetActorRelativeTransform(FTransform::Identity);
+	}
 }
 
 bool ACloud9WeaponBase::CanBeDropped() const { return bCanBeDropped; }

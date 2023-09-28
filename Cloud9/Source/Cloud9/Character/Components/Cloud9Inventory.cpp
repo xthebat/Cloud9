@@ -22,24 +22,47 @@ UCloud9Inventory::UCloud9Inventory()
 void UCloud9Inventory::BeginPlay()
 {
 	Super::BeginPlay();
-	const auto Owner = GetOwner();
-	const auto DefaultKnife = NewObject<ACloud9WeaponBase>(Owner, DefaultKnifeClass);
-	const auto DefaultPistol = NewObject<ACloud9WeaponBase>(Owner, DefaultPistolClass);
-	const auto DefaultMain = NewObject<ACloud9WeaponBase>(Owner, ACloud9WeaponSniper::StaticClass());
+	UE_LOG(LogCloud9, Display, TEXT("UCloud9Inventory::BeginPlay"));
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = GetOwner();
+	const auto DefaultKnife = GetWorld()->SpawnActor<ACloud9WeaponBase>(DefaultKnifeClass, SpawnParams);
+	const auto DefaultPistol = GetWorld()->SpawnActor<ACloud9WeaponBase>(DefaultPistolClass, SpawnParams);
+	const auto DefaultMain = GetWorld()->SpawnActor<ACloud9WeaponBase>(ACloud9WeaponSniper::StaticClass(), SpawnParams);
+	
 	SetWeaponAt(EWeaponSlot::Knife, DefaultKnife);
 	SetWeaponAt(EWeaponSlot::Pistol, DefaultPistol);
 	SetWeaponAt(EWeaponSlot::Main, DefaultMain);
+
+	SelectWeapon(EWeaponSlot::Knife);
 }
 
 bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 {
-	if (GetWeaponAt(Slot))
+	if (Slot == EWeaponSlot::NotSelected)
 	{
+		UE_LOG(LogCloud9, Error, TEXT("Should not be called with EWeaponSlot::NotSelected"))
+		return false;
+	}
+	
+	if (Slot == SelectedWeaponSlot)
+		return true;
+	
+	if (const auto PendingWeapon = GetWeaponAt(Slot))
+	{
+		if (const auto SelectedWeapon = GetWeaponAt(SelectedWeaponSlot))
+			SelectedWeapon->SetActorHiddenInGame(true);
+		PendingWeapon->SetActorHiddenInGame(false);
 		PendingWeaponSlot = Slot;
 		return true;
 	}
 	
 	return false;
+}
+
+void UCloud9Inventory::OnWeaponChangeFinished()
+{
+	SelectedWeaponSlot = PendingWeaponSlot;
 }
 
 bool UCloud9Inventory::SetWeaponAt(EWeaponSlot Slot, ACloud9WeaponBase* Weapon)
@@ -72,11 +95,6 @@ EWeaponType UCloud9Inventory::GetPendingWeaponType()
 		return Weapon->GetWeaponType();
 
 	return EWeaponType::NoWeapon;
-}
-
-void UCloud9Inventory::OnWeaponChangeFinished()
-{
-	SelectedWeaponSlot = PendingWeaponSlot;
 }
 
 void UCloud9Inventory::OnPoseUpdated()

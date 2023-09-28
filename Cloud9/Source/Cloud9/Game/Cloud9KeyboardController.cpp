@@ -63,20 +63,17 @@ void UCloud9KeyboardController::OnSlot2()
 		GetPawn()->GetInventory()->SelectWeapon(EWeaponSlot::Pistol);
 }
 
-
 void UCloud9KeyboardController::OnSlot3()
 {
 	if (IsValid(GetPawn()))
 		GetPawn()->GetInventory()->SelectWeapon(EWeaponSlot::Knife);
 }
 
-
 void UCloud9KeyboardController::OnSlot4()
 {
 	if (IsValid(GetPawn()))
 		GetPawn()->GetInventory()->SelectWeapon(EWeaponSlot::Grenade);
 }
-
 
 void UCloud9KeyboardController::OnSlot5()
 {
