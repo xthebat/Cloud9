@@ -72,8 +72,11 @@ void UCloud9MouseController::SetCameraZoomLevel(float Value) const
 		const auto NewZoomHeight = FMath::Lerp(MinCameraZoomHeight, MaxCameraZoomHeight, Value);
 		GetPawn()->SetCameraZoomHeight(NewZoomHeight);
 
-		const auto NewZoomAngle = FMath::Lerp(MinCameraZoomAngle, MaxCameraZoomAngle, Value);
-		GetPawn()->SetCameraRotationRoll(NewZoomAngle);
+		if (bIsCameraChangeAngleEnabled)
+		{
+			const auto NewZoomAngle = FMath::Lerp(MinCameraZoomAngle, MaxCameraZoomAngle, Value);
+			GetPawn()->SetCameraRotationRoll(NewZoomAngle);			
+		}
 	}
 }
 
