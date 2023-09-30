@@ -28,11 +28,11 @@ void UCloud9Inventory::BeginPlay()
 	SpawnParams.Owner = GetOwner();
 	const auto DefaultKnife = GetWorld()->SpawnActor<ACloud9WeaponBase>(DefaultKnifeClass, SpawnParams);
 	const auto DefaultPistol = GetWorld()->SpawnActor<ACloud9WeaponBase>(DefaultPistolClass, SpawnParams);
-	const auto DefaultMain = GetWorld()->SpawnActor<ACloud9WeaponBase>(ACloud9WeaponSniper::StaticClass(), SpawnParams);
+	// const auto DefaultMain = GetWorld()->SpawnActor<ACloud9WeaponBase>(ACloud9WeaponSniper::StaticClass(), SpawnParams);
 	
 	SetWeaponAt(EWeaponSlot::Knife, DefaultKnife);
 	SetWeaponAt(EWeaponSlot::Pistol, DefaultPistol);
-	SetWeaponAt(EWeaponSlot::Main, DefaultMain);
+	// SetWeaponAt(EWeaponSlot::Main, DefaultMain);
 
 	SelectWeapon(EWeaponSlot::Knife);
 }
