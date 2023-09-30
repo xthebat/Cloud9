@@ -48,12 +48,13 @@ public:
 	void SetViewDirection(const FHitResult& HitResult);
 
 	void AddCameraRotationYaw(float Angle) const;
+	float GetCameraRotationRoll() const;
 	void SetCameraRotationRoll(float Angle) const;
 
 	void SetCursorIsHidden(bool Hidden) const;
 
-	float GetCameraZoom() const;
-	void SetCameraZoom(float Value) const;
+	float GetCameraZoomHeight() const;
+	void SetCameraZoomHeight(float Value) const;
 	
 	UCloud9Inventory* GetInventory() const;
 

@@ -1,12 +1,12 @@
 ﻿#include "Cloud9WeaponBase.h"
 
-#include "Cloud9/Cloud9.h"
 #include "Cloud9/Character/Cloud9Character.h"
 
 ACloud9WeaponBase::ACloud9WeaponBase()
 {
 	bCanBeDropped = true;
 	WeaponType = EWeaponType::NoWeapon;
+	SocketTransform = FTransform::Identity;
 
 	Mesh = CreateOptionalDefaultSubobject<UStaticMeshComponent>(MeshComponentName);
 	
@@ -40,12 +40,8 @@ void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
 	if (const auto MyOwner = Cast<ACloud9Character>(GetOwner()))
 	{
 		const auto ParentMesh = MyOwner->GetMesh();
-		const auto SocketName = FName(TEXT("WeaponSocket"));
-		const auto SocketTransform = Mesh->GetSocketTransform(SocketName);
-		UE_LOG(LogCloud9, Display, TEXT("Transform = %s"), *SocketTransform.ToString());
-		// SetActorTransform(SocketTransform);
-		AttachToComponent(ParentMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
-		SetActorRelativeTransform(FTransform::Identity);
+		AttachToComponent(ParentMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocketName);
+		SetActorRelativeTransform(SocketTransform);
 	}
 }
 

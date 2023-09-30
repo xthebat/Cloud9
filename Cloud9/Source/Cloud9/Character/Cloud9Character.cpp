@@ -24,6 +24,8 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
+	GetCapsuleComponent()->InitCapsuleSize(32.f, 72.0f);
+	
 	const auto Movement = GetCharacterMovement();
 	Movement->bOrientRotationToMovement = true; // Rotate character to moving direction
 	Movement->RotationRate = FRotator(0.f, 640.f, 0.f);
@@ -110,6 +112,12 @@ void ACloud9Character::AddCameraRotationYaw(float Angle) const
 	CameraBoom->AddRelativeRotation(Rotation);
 }
 
+float ACloud9Character::GetCameraRotationRoll() const
+{
+	const auto Rotation = CameraBoom->GetRelativeRotation();
+	return -Rotation.Pitch;
+}
+
 void ACloud9Character::SetCameraRotationRoll(float Angle) const
 {
 	const FRotator Rotation = {-Angle, 0.0f, 0.0f};
@@ -121,12 +129,12 @@ void ACloud9Character::SetCursorIsHidden(bool Hidden) const
 	CursorToWorld->bHiddenInGame = Hidden;
 }
 
-float ACloud9Character::GetCameraZoom() const
+float ACloud9Character::GetCameraZoomHeight() const
 {
 	return CameraBoom->TargetArmLength;
 }
 
-void ACloud9Character::SetCameraZoom(float Value) const
+void ACloud9Character::SetCameraZoomHeight(float Value) const
 {
 	CameraBoom->TargetArmLength = Value;
 }
@@ -141,6 +149,7 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 	{
 		CursorToWorld->SetDecalMaterial(CursorDecal);
 		CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
+		CursorToWorld->SetWorldLocation({200.0f, 0.0f, 0.0f});
 	}
 
 	if (IsValid(GetMesh()))
@@ -156,17 +165,15 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 		UE_LOG(LogCloud9, Display, TEXT("Box = %s GetMesh()->Bounds = %s"), *Box.ToString(),
 		       *GetMesh()->Bounds.ToString());
 
-		float Width = 0.0f, Height = 0.0f, Depth = 0.0f;
-		UCloud9ToolsLibrary::GetWidthHeightDepth(GetMesh()->Bounds.GetBox(), Width, Height, Depth);
-		// GetCapsuleComponent()->InitCapsuleSize(32.f, 72.0f);
-		GetCapsuleComponent()->InitCapsuleSize(Width, Height);
+		// float Width = 0.0f, Height = 0.0f, Depth = 0.0f;
+		// UCloud9ToolsLibrary::GetWidthHeightDepth(GetMesh()->Bounds.GetBox(), Width, Height, Depth);
+		// GetCapsuleComponent()->InitCapsuleSize(Width, Height);
 	}
 }
 
 void ACloud9Character::BeginPlay()
 {
 	Super::BeginPlay();
-	// Inventory->SelectWeapon(EWeaponSlot::Pistol);
 }
 
 void ACloud9Character::Tick(float DeltaSeconds)

@@ -15,6 +15,7 @@ public:
 	const FName CapsuleComponentName = TEXT("CapsuleComponent");
 	const FName MeshComponentName = TEXT("MeshComponent");
 	const FName MeshCollisionProfile = TEXT("WeaponMesh");
+	const FName WeaponSocketName = TEXT("WeaponSocket");
 	
 	ACloud9WeaponBase();
 
@@ -34,6 +35,9 @@ protected:
 
 	UPROPERTY(Category=Weapon, BlueprintGetter=GetWeaponType)
 	EWeaponType WeaponType;
+
+	UPROPERTY(EditDefaultsOnly)
+	FTransform SocketTransform;
 	
 	UPROPERTY(Category=Weapon, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	UStaticMeshComponent* Mesh;

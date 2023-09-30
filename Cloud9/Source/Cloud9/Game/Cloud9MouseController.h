@@ -37,13 +37,14 @@ protected:
 
 	FVector2D GetMousePosition() const;
 
-	float GetCameraZoomLevel() const;
+	float GetCameraZoomHeightLevel() const;
 	void SetCameraZoomLevel(float Value) const;
 
 	void ProcessZoom(float DeltaTime);
 	
 private:
 	constexpr static float InvalidCameraZoomLevel = -1.0f;
+	constexpr static float InvalidCameraZoomAngle = -1.0f;
 	constexpr static float MinCameraZoomLevel = 0.0f;
 	constexpr static float MaxCameraZoomLevel = 1.0f;
 	
@@ -60,10 +61,16 @@ private:
 	float MaxCameraZoomHeight;
 
 	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
+	float MinCameraZoomAngle;
+
+	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
+	float MaxCameraZoomAngle;
+
+	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
 	float InitialCameraZoomLevel;
 
 	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
-	float InitialCameraZoomAngle;
+	bool bIsCameraChangeAngleEnabled;
 	
 	UPROPERTY(EditDefaultsOnly, Category = Smooth, meta = (AllowPrivateAccess = "true"))
 	bool bIsCameraZoomSmoothEnabled;

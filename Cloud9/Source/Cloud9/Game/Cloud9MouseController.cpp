@@ -10,12 +10,15 @@ UCloud9MouseController::UCloud9MouseController()
 
 	CameraRotateSensitivity = 1.0f;
 
-	CameraZoomSensitivity = 0.2f;
+	CameraZoomSensitivity = 0.1f;
 
 	MinCameraZoomHeight = 600.0f;
 	MaxCameraZoomHeight = 2000.0f;
+	MinCameraZoomAngle = 40.0f;
+	MaxCameraZoomAngle = 70.0f;
 	InitialCameraZoomLevel = 0.5f;
-	InitialCameraZoomAngle = 60.0f;
+
+	bIsCameraChangeAngleEnabled = true;
 
 	bIsCameraZoomSmoothEnabled = true;
 	CameraZoomSmoothSpeed = 0.5f;
@@ -34,14 +37,29 @@ FVector2D UCloud9MouseController::GetMousePosition() const
 	return MousePosition;
 }
 
-float UCloud9MouseController::GetCameraZoomLevel() const
+float UCloud9MouseController::GetCameraZoomHeightLevel() const
 {
 	if (IsValid(GetPawn()))
 	{
-		const auto ZoomHeight = GetPawn()->GetCameraZoom();
-		return UCloud9ToolsLibrary::InverseLerp(MinCameraZoomHeight, MaxCameraZoomHeight, ZoomHeight);
+		const auto ZoomHeightLevel = UCloud9ToolsLibrary::InverseLerp(
+			MinCameraZoomHeight,
+			MaxCameraZoomHeight,
+			GetPawn()->GetCameraZoomHeight());
+		const auto ZoomAngleLevel = UCloud9ToolsLibrary::InverseLerp(
+			MinCameraZoomAngle,
+			MaxCameraZoomAngle,
+			GetPawn()->GetCameraRotationRoll());
+
+		if (FMath::IsNearlyEqual(ZoomHeightLevel, ZoomAngleLevel, 0.001f))
+		{
+			UE_LOG(LogCloud9, Error, TEXT("ZoomHeightLevel = %f != ZoomAngleLevel != %f"),
+			       ZoomHeightLevel,
+			       ZoomAngleLevel);
+		}
+		
+		return ZoomHeightLevel;
 	}
-	
+
 	return InvalidCameraZoomLevel;
 }
 
@@ -50,9 +68,12 @@ void UCloud9MouseController::SetCameraZoomLevel(float Value) const
 	if (IsValid(GetPawn()))
 	{
 		Value = FMath::Clamp(Value, MinCameraZoomLevel, MaxCameraZoomLevel);
+
 		const auto NewZoomHeight = FMath::Lerp(MinCameraZoomHeight, MaxCameraZoomHeight, Value);
-		// GetPawn()->SetCameraRotationRoll();
-		GetPawn()->SetCameraZoom(NewZoomHeight);
+		GetPawn()->SetCameraZoomHeight(NewZoomHeight);
+
+		const auto NewZoomAngle = FMath::Lerp(MinCameraZoomAngle, MaxCameraZoomAngle, Value);
+		GetPawn()->SetCameraRotationRoll(NewZoomAngle);
 	}
 }
 
@@ -61,7 +82,7 @@ void UCloud9MouseController::ProcessZoom(float DeltaTime)
 	if (TargetCameraZoomLevel == InvalidCameraZoomLevel)
 		return;
 
-	const auto CurrentCameraZoomLevel = GetCameraZoomLevel();
+	const auto CurrentCameraZoomLevel = GetCameraZoomHeightLevel();
 
 	if (TargetCameraZoomLevel == CurrentCameraZoomLevel)
 	{
@@ -89,7 +110,6 @@ void UCloud9MouseController::BeginPlay()
 {
 	Super::BeginPlay();
 	SetCameraZoomLevel(InitialCameraZoomLevel);
-	GetPawn()->SetCameraRotationRoll(InitialCameraZoomAngle);
 }
 
 void UCloud9MouseController::TickComponent(
@@ -121,7 +141,7 @@ void UCloud9MouseController::OnCameraZoom(float Value)
 {
 	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f && TargetCameraZoomLevel == InvalidCameraZoomLevel)
 	{
-		const auto CurrentCameraZoomLevel = GetCameraZoomLevel();
+		const auto CurrentCameraZoomLevel = GetCameraZoomHeightLevel();
 
 		TargetCameraZoomLevel = FMath::Clamp(
 			CurrentCameraZoomLevel - Value * CameraZoomSensitivity,
@@ -154,5 +174,3 @@ void UCloud9MouseController::OnCameraRotationReleased()
 		GetPawn()->SetCursorIsHidden(false);
 	}
 }
-
-
