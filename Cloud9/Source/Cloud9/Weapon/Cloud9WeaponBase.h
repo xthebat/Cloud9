@@ -12,10 +12,10 @@ class CLOUD9_API ACloud9WeaponBase : public AActor
 	GENERATED_BODY()
 
 public:
-	const FName CapsuleComponentName = TEXT("CapsuleComponent");
-	const FName MeshComponentName = TEXT("MeshComponent");
-	const FName MeshCollisionProfile = TEXT("WeaponMesh");
-	const FName WeaponSocketName = TEXT("WeaponSocket");
+	static const FName CapsuleComponentName;
+	static const FName MeshComponentName;
+	static const FName MeshCollisionProfile;
+	static const FName WeaponSocketName;
 	
 	ACloud9WeaponBase();
 

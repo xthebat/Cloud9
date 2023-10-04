@@ -16,10 +16,10 @@ class ACloud9Character : public ACharacter
 	GENERATED_BODY()
 
 public:
-	const FName SpringArmComponentName = TEXT("CameraBoom");
-	const FName CameraComponentName = TEXT("TopDownCamera");
-	const FName DecalComponentName = TEXT("CursorToWorld");
-	const FName InventoryComponentName = TEXT("Inventory");
+	static const FName SpringArmComponentName;
+	static const FName CameraComponentName;
+	static const FName DecalComponentName;
+	static const FName InventoryComponentName;
 	
 	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
@@ -36,9 +36,6 @@ public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
-	/** Returns CursorToWorld subobject **/
-	FORCEINLINE UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
-	
 	bool CanSneak() const;
 
 	void Sneak() const;

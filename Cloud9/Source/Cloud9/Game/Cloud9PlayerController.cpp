@@ -5,14 +5,18 @@
 #include "Cloud9/Console/Cloud9ConsoleComponent.h"
 #include "Engine/World.h"
 
+const FName ACloud9PlayerController::ConsoleName = TEXT("Console");
+const FName ACloud9PlayerController::KeyboardControllerName = TEXT("KeyboardController");
+const FName ACloud9PlayerController::MouseControllerName = TEXT("MouseController");
+
 ACloud9PlayerController::ACloud9PlayerController()
 {
-	bShowMouseCursor = false;
+	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 
-	Console = CreateDefaultSubobject<UCloud9ConsoleComponent>(TEXT("Console"));
-	KeyboardController = CreateDefaultSubobject<UCloud9KeyboardController>(TEXT("KeyboardController"));
-	MouseController = CreateDefaultSubobject<UCloud9MouseController>(TEXT("MouseController"));
+	Console = CreateDefaultSubobject<UCloud9ConsoleComponent>(ConsoleName);
+	KeyboardController = CreateDefaultSubobject<UCloud9KeyboardController>(KeyboardControllerName);
+	MouseController = CreateDefaultSubobject<UCloud9MouseController>(MouseControllerName);
 }
 
 void ACloud9PlayerController::PlayerTick(float DeltaTime)

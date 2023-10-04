@@ -4,7 +4,6 @@
 #include "Cloud9/Weapon/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Cloud9WeaponKnife.h"
 #include "Cloud9/Weapon/Cloud9WeaponPistol.h"
-#include "Cloud9/Weapon/Cloud9WeaponSniper.h"
 
 
 UCloud9Inventory::UCloud9Inventory()
@@ -22,7 +21,6 @@ UCloud9Inventory::UCloud9Inventory()
 void UCloud9Inventory::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogCloud9, Display, TEXT("UCloud9Inventory::BeginPlay"));
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = GetOwner();

@@ -43,10 +43,10 @@ protected:
 	void ProcessZoom(float DeltaTime);
 	
 private:
-	constexpr static float InvalidCameraZoomLevel = -1.0f;
-	constexpr static float InvalidCameraZoomAngle = -1.0f;
-	constexpr static float MinCameraZoomLevel = 0.0f;
-	constexpr static float MaxCameraZoomLevel = 1.0f;
+	static constexpr float InvalidCameraZoomLevel = -1.0f;
+	static constexpr float InvalidCameraZoomAngle = -1.0f;
+	static constexpr float MinCameraZoomLevel = 0.0f;
+	static constexpr float MaxCameraZoomLevel = 1.0f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = Sensitivity, meta = (AllowPrivateAccess = "true"))
 	float CameraRotateSensitivity;

@@ -11,13 +11,16 @@ class UCloud9MouseController;
 class UCloud9ConsoleComponent;
 class ACloud9Character;
 
-
 UCLASS()
 class ACloud9PlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
 public:
+	static const FName ConsoleName;
+	static const FName KeyboardControllerName;
+	static const FName MouseControllerName;
+	
 	ACloud9PlayerController();
 
 protected:

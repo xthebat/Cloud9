@@ -17,6 +17,11 @@
 #include "Engine/World.h"
 #include "Kismet/KismetMathLibrary.h"
 
+const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
+const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");
+const FName ACloud9Character::DecalComponentName = TEXT("CursorToWorld");
+const FName ACloud9Character::InventoryComponentName = TEXT("Inventory");
+
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
 {
@@ -46,7 +51,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	// Create a decal in the world to show the cursor's location
 	CursorToWorld = CreateDefaultSubobject<UDecalComponent>(DecalComponentName);
 	CursorToWorld->SetupAttachment(RootComponent);
-	CursorToWorld->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f).Quaternion());
+	// CursorToWorld->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f).Quaternion());
 
 	Inventory = CreateDefaultSubobject<UCloud9Inventory>(InventoryComponentName);
 
@@ -99,11 +104,12 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult)
 
 	CursorToWorld->SetWorldLocation(HitResult.Location);
 
-	const auto ImpactNormal = HitResult.ImpactNormal;
-	const auto ImpactRotation = ImpactNormal.Rotation();
-	CursorToWorld->SetWorldRotation(ImpactRotation);
+	// const auto ImpactNormal = HitResult.ImpactNormal;
+	// const auto ImpactRotation = ImpactNormal.Rotation();
+	// CursorToWorld->SetWorldRotation(ImpactRotation);
 
 	SetActorRotation({0.0f, Rotation.Yaw, 0.0f});
+	SetCursorIsHidden(false);
 }
 
 void ACloud9Character::AddCameraRotationYaw(float Angle) const
@@ -126,7 +132,7 @@ void ACloud9Character::SetCameraRotationRoll(float Angle) const
 
 void ACloud9Character::SetCursorIsHidden(bool Hidden) const
 {
-	CursorToWorld->bHiddenInGame = Hidden;
+	CursorToWorld->SetHiddenInGame(Hidden || !IsValid(CursorDecal));
 }
 
 float ACloud9Character::GetCameraZoomHeight() const
@@ -145,11 +151,13 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	if (CursorDecal != nullptr)
+	SetCursorIsHidden(true);
+	
+	if (IsValid(CursorDecal))
 	{
+		UE_LOG(LogCloud9, Display, TEXT("Setup CursorDecal = %s"), *CursorDecal->GetName());
 		CursorToWorld->SetDecalMaterial(CursorDecal);
 		CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
-		CursorToWorld->SetWorldLocation({200.0f, 0.0f, 0.0f});
 	}
 
 	if (IsValid(GetMesh()))

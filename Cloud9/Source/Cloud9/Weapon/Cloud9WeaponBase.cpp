@@ -2,6 +2,11 @@
 
 #include "Cloud9/Character/Cloud9Character.h"
 
+const FName ACloud9WeaponBase::CapsuleComponentName = TEXT("CapsuleComponent");
+const FName ACloud9WeaponBase::MeshComponentName = TEXT("MeshComponent");
+const FName ACloud9WeaponBase::MeshCollisionProfile = TEXT("WeaponMesh");
+const FName ACloud9WeaponBase::WeaponSocketName = TEXT("WeaponSocket");
+
 ACloud9WeaponBase::ACloud9WeaponBase()
 {
 	bCanBeDropped = true;

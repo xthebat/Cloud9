@@ -50,7 +50,7 @@ float UCloud9MouseController::GetCameraZoomHeightLevel() const
 			MaxCameraZoomAngle,
 			GetPawn()->GetCameraRotationRoll());
 
-		if (!FMath::IsNearlyEqual(ZoomHeightLevel, ZoomAngleLevel, 0.1f))
+		if (!FMath::IsNearlyEqual(ZoomHeightLevel, ZoomAngleLevel, 0.001f))
 		{
 			UE_LOG(LogCloud9, Error, TEXT("ZoomHeightLevel = %f != ZoomAngleLevel != %f"),
 			       ZoomHeightLevel,
