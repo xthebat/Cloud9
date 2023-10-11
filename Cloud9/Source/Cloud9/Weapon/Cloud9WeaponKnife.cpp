@@ -2,12 +2,16 @@
 
 ACloud9WeaponKnife::ACloud9WeaponKnife()
 {
-	bCanBeDropped = false;
+	WeaponClass = EWeaponClass::Melee;
 	WeaponType = EWeaponType::Knife;
-}
+	bHasSecondaryAction = true;
+	bCanBeDropped = false;
+	bIsAutomatic = true;
 
-void ACloud9WeaponKnife::BeginPlay()
-{
-	Super::BeginPlay();
-}
+	PrimaryActionCooldown = 0.4;
+	SecondaryActionCooldown = 1.0;
 
+	BaseDamage = 45.0;
+
+	DeployTime = 1.0;
+}

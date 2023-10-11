@@ -81,5 +81,5 @@ private:
 	FVector2D CameraRotationBase;
 	float TargetCameraZoomLevel;
 	float TargetCameraZoomSpeed;
-	EMouseMode MouseMiddleButtonMode;
+	bool IsMouseRotationMode;
 };

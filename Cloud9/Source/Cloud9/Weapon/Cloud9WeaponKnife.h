@@ -13,7 +13,4 @@ class CLOUD9_API ACloud9WeaponKnife : public ACloud9WeaponBase
 
 public:
 	ACloud9WeaponKnife();
-
-protected:
-	virtual void BeginPlay() override;
 };

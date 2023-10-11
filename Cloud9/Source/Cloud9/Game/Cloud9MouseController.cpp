@@ -27,7 +27,7 @@ UCloud9MouseController::UCloud9MouseController()
 	TargetCameraZoomSpeed = 0.0f;
 
 	CameraRotationBase = FVector2D::ZeroVector;
-	MouseMiddleButtonMode = EMouseMode::Aiming;
+	IsMouseRotationMode = false;
 }
 
 FVector2D UCloud9MouseController::GetMousePosition() const
@@ -122,13 +122,11 @@ void UCloud9MouseController::TickComponent(
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (MouseMiddleButtonMode == EMouseMode::Aiming)
-	{
-		FHitResult TraceHitResult;
-		GetPlayerController()->GetHitResultUnderCursor(ECC_Visibility, false, TraceHitResult);
-		GetPawn()->SetViewDirection(TraceHitResult);
-	}
-	else if (MouseMiddleButtonMode == EMouseMode::Rotation)
+	FHitResult TraceHitResult;
+	GetPlayerController()->GetHitResultUnderCursor(ECC_Visibility, false, TraceHitResult);
+	GetPawn()->SetViewDirection(TraceHitResult);
+
+	if (IsMouseRotationMode)
 	{
 		const auto NewMousePosition = GetMousePosition();
 		const auto Offset = (NewMousePosition - CameraRotationBase).X;
@@ -163,7 +161,7 @@ void UCloud9MouseController::OnCameraRotationPressed()
 	if (IsValid(GetPawn()))
 	{
 		CameraRotationBase = GetMousePosition();
-		MouseMiddleButtonMode = EMouseMode::Rotation;
+		IsMouseRotationMode = true;
 		GetPawn()->SetCursorIsHidden(true);
 	}
 }
@@ -173,7 +171,7 @@ void UCloud9MouseController::OnCameraRotationReleased()
 	if (IsValid(GetPawn()))
 	{
 		CameraRotationBase = FVector2D::ZeroVector;
-		MouseMiddleButtonMode = EMouseMode::Aiming;
+		IsMouseRotationMode = false;
 		GetPawn()->SetCursorIsHidden(false);
 	}
 }

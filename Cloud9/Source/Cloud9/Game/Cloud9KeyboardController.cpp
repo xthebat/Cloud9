@@ -2,17 +2,24 @@
 #include "Cloud9KeyboardController.h"
 
 #include "Cloud9/Character/Enums/Cloud9WeaponSlot.h"
+#include "GameFramework/SpringArmComponent.h"
 
 void UCloud9KeyboardController::OnMoveForward(float Value)
 {
 	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f)
-		GetPawn()->AddMovementInput(FVector::XAxisVector, Value);
+	{
+		const auto Direction = GetPawn()->GetCameraBoom()->GetForwardVector();
+		GetPawn()->AddMovementInput(Direction, Value);
+	}
 }
 
 void UCloud9KeyboardController::OnMoveRight(float Value)
 {
 	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f)
-		GetPawn()->AddMovementInput(FVector::YAxisVector, Value);
+	{
+		const auto Direction = GetPawn()->GetCameraBoom()->GetRightVector();
+		GetPawn()->AddMovementInput(Direction, Value);
+	}
 }
 
 void UCloud9KeyboardController::OnWalkPressed()

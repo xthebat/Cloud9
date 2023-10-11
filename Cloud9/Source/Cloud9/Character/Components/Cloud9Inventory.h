@@ -23,22 +23,28 @@ public:
 	UCloud9Inventory();
 	
 	UFUNCTION(BlueprintCallable)
-	void OnPoseUpdated();
-	
-	UFUNCTION(BlueprintCallable)
 	bool SelectWeapon(EWeaponSlot Slot);
 
 	UFUNCTION(BlueprintCallable)
-	EWeaponType GetSelectedWeaponType();
+	EWeaponType GetSelectedWeaponType() const;
 
 	UFUNCTION(BlueprintCallable)
-	EWeaponType GetPendingWeaponType();
+	EWeaponType GetPendingWeaponType() const;
 
+	UFUNCTION(BlueprintCallable)
+	EWeaponSlot GetSelectedWeaponSlot() const;
+	
 	UFUNCTION(BlueprintCallable)
 	bool SetWeaponAt(EWeaponSlot Slot, ACloud9WeaponBase* Weapon);
 	
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetWeaponAt(EWeaponSlot Slot) const;
+
+	UFUNCTION(BlueprintCallable)
+	ACloud9WeaponBase* GetSelectedWeapon() const;
+
+	UFUNCTION(BlueprintCallable)
+	bool IsWeaponChanging() const;
 	
 	UFUNCTION(BlueprintCallable)
 	void OnWeaponChangeFinished();
@@ -54,7 +60,7 @@ protected:
 
 	UPROPERTY()
 	TArray<ACloud9WeaponBase*> WeaponSlots;
-	
+
 	EWeaponSlot SelectedWeaponSlot;
 	EWeaponSlot PendingWeaponSlot;
 };

@@ -4,21 +4,31 @@
 
 const FName ACloud9WeaponBase::CapsuleComponentName = TEXT("CapsuleComponent");
 const FName ACloud9WeaponBase::MeshComponentName = TEXT("MeshComponent");
+const FName ACloud9WeaponBase::MuzzleFlashComponentName = TEXT("MuzzleFlashComponent");
 const FName ACloud9WeaponBase::MeshCollisionProfile = TEXT("WeaponMesh");
-const FName ACloud9WeaponBase::WeaponSocketName = TEXT("WeaponSocket");
+const FName ACloud9WeaponBase::EquippedWeaponSocketName = TEXT("EquippedWeaponSocket");
+const FName ACloud9WeaponBase::HolsteredPrimaryWeaponSocketName = TEXT("HolsteredPrimaryWeaponSocket");
+const FName ACloud9WeaponBase::HolsteredSecondaryWeaponSocketName = TEXT("HolsteredSecondaryWeaponSocket");
+const FName ACloud9WeaponBase::HolsteredGrenadeWeaponSocketName = TEXT("HolsteredGrenadeWeaponSocket");
 
 ACloud9WeaponBase::ACloud9WeaponBase()
 {
-	bCanBeDropped = true;
+	WeaponClass = EWeaponClass::NoClass;
 	WeaponType = EWeaponType::NoWeapon;
-	SocketTransform = FTransform::Identity;
+	bHasSecondaryAction = false;
+	bCanBeDropped = true;
+	bIsAutomatic = false;
+	
+	PrimaryActionCooldown = 0.0;
+	SecondaryActionCooldown = 0.0;
+	BaseDamage = 0.0;
+	DeployTime = 0.0;
 
 	Mesh = CreateOptionalDefaultSubobject<UStaticMeshComponent>(MeshComponentName);
-	
-	if (Mesh)
+
+	if (IsValid(Mesh))
 	{
 		RootComponent = Mesh;
-		
 		Mesh->AlwaysLoadOnClient = true;
 		Mesh->AlwaysLoadOnServer = true;
 		Mesh->bOwnerNoSee = false;
@@ -45,11 +55,16 @@ void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
 	if (const auto MyOwner = Cast<ACloud9Character>(GetOwner()))
 	{
 		const auto ParentMesh = MyOwner->GetMesh();
-		AttachToComponent(ParentMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocketName);
-		SetActorRelativeTransform(SocketTransform);
+		AttachToComponent(ParentMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, EquippedWeaponSocketName);
 	}
 }
 
 bool ACloud9WeaponBase::CanBeDropped() const { return bCanBeDropped; }
 
 EWeaponType ACloud9WeaponBase::GetWeaponType() const { return WeaponType; }
+
+EWeaponClass ACloud9WeaponBase::GetWeaponClass() const { return WeaponClass; }
+
+bool ACloud9WeaponBase::HasSecondaryAction() const { return bHasSecondaryAction; }
+
+bool ACloud9WeaponBase::IsAutomatic() const { return bIsAutomatic; }
