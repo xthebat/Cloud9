@@ -6,18 +6,24 @@
 
 void UCloud9KeyboardController::OnMoveForward(float Value)
 {
-	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f)
+	const auto Pawn = GetPawn();
+	if (IsValid(Pawn) && FMath::Abs(Value) > 0.0f)
 	{
-		const auto Direction = GetPawn()->GetCameraBoom()->GetForwardVector();
-		GetPawn()->AddMovementInput(Direction, Value);
+		const auto CameraBoomForward = Pawn->GetCameraBoom()->GetForwardVector();
+		auto Direction = FVector{CameraBoomForward.X, CameraBoomForward.Y, 0.0f};
+		Direction.Normalize();
+		Pawn->AddMovementInput(Direction, Value);
 	}
 }
 
 void UCloud9KeyboardController::OnMoveRight(float Value)
 {
-	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f)
+	const auto Pawn = GetPawn();
+	if (IsValid(Pawn) && FMath::Abs(Value) > 0.0f)
 	{
-		const auto Direction = GetPawn()->GetCameraBoom()->GetRightVector();
+		const auto CameraBoomForward = Pawn->GetCameraBoom()->GetRightVector();
+		auto Direction = FVector{CameraBoomForward.X, CameraBoomForward.Y, 0.0f};
+		Direction.Normalize();
 		GetPawn()->AddMovementInput(Direction, Value);
 	}
 }

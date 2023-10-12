@@ -151,8 +151,6 @@ void UCloud9MouseController::OnCameraZoom(float Value)
 		);
 
 		TargetCameraZoomSpeed = Value * CameraZoomSmoothSpeed;
-
-		UE_LOG(LogCloud9, Display, TEXT("Set TargetCameraZoomLevel = %f"), TargetCameraZoomLevel);
 	}
 }
 

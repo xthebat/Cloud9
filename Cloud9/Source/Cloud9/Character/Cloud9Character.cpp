@@ -97,19 +97,24 @@ void ACloud9Character::UnSneak() const
 
 void ACloud9Character::SetViewDirection(const FHitResult& HitResult)
 {
-	if (CursorToWorld == nullptr)
-		return;
+ 	if (IsValid(CursorToWorld))
+ 	{
+ 		UE_LOG(LogCloud9, Display, TEXT("HitResult.Location = %s"), *HitResult.Location.ToString());
 
-	const auto Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitResult.Location);
+ 		const auto ImpactNormal = HitResult.ImpactNormal;
+ 		const auto ImpactRotation = ImpactNormal.Rotation();
+ 		
+ 		CursorToWorld->SetWorldLocation(HitResult.Location);
+ 		CursorToWorld->SetWorldRotation(ImpactRotation);
+ 		SetCursorIsHidden(false);
+ 	}
+	
+	const auto LookRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitResult.Location);
 
-	CursorToWorld->SetWorldLocation(HitResult.Location);
+	auto ActorRotation = GetActorRotation();
+	ActorRotation.Yaw = LookRotation.Yaw;
 
-	// const auto ImpactNormal = HitResult.ImpactNormal;
-	// const auto ImpactRotation = ImpactNormal.Rotation();
-	// CursorToWorld->SetWorldRotation(ImpactRotation);
-
-	SetActorRotation({0.0f, Rotation.Yaw, 0.0f});
-	SetCursorIsHidden(false);
+	SetActorRotation(ActorRotation);
 }
 
 void ACloud9Character::AddCameraRotationYaw(float Angle) const
@@ -126,7 +131,8 @@ float ACloud9Character::GetCameraRotationRoll() const
 
 void ACloud9Character::SetCameraRotationRoll(float Angle) const
 {
-	const FRotator Rotation = {-Angle, 0.0f, 0.0f};
+	auto Rotation = CameraBoom->GetRelativeRotation();
+	Rotation.Pitch = -Angle;
 	CameraBoom->SetRelativeRotation(Rotation);
 }
 
