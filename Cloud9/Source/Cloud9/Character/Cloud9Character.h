@@ -3,12 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/Cloud9CharacterMovement.h"
 #include "Components/Cloud9Inventory.h"
 #include "GameFramework/Character.h"
 #include "Cloud9Character.generated.h"
 
-class ACloud9PlayerController;
-class UCloud9CharacterMovement;
 
 UCLASS(Blueprintable)
 class ACloud9Character : public ACharacter
@@ -36,6 +35,9 @@ public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
+	ACloud9PlayerController* GetCloud9Controller() const;
+	UCloud9CharacterMovement* GetCloud9CharacterMovement() const;
+	
 	bool CanSneak() const;
 
 	void Sneak() const;
@@ -61,9 +63,6 @@ public:
 	uint32 bIsSneaking:1;
 	
 private:
-	const UCloud9CharacterMovement* GetMyCharacterMovement() const;
-	const ACloud9PlayerController* GetMyPlayerController() const;
-
 	UPROPERTY(EditDefaultsOnly)
 	UMaterial* CursorDecal;
 

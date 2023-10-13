@@ -30,7 +30,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	bUseControllerRotationRoll = false;
 
 	GetCapsuleComponent()->InitCapsuleSize(32.f, 72.0f);
-	
+
 	const auto Movement = GetCharacterMovement();
 	Movement->bOrientRotationToMovement = true; // Rotate character to moving direction
 	Movement->RotationRate = FRotator(0.f, 640.f, 0.f);
@@ -60,56 +60,50 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
-const UCloud9CharacterMovement* ACloud9Character::GetMyCharacterMovement() const
+UCloud9CharacterMovement* ACloud9Character::GetCloud9CharacterMovement() const
 {
-	const auto Movement = GetCharacterMovement();
-	if (Movement == nullptr)
-		return nullptr;
+	if (const auto MyCharacterMovement = GetCharacterMovement())
+		return Cast<UCloud9CharacterMovement>(MyCharacterMovement);
 
-	return Cast<UCloud9CharacterMovement>(Movement);
+	return nullptr;
 }
 
-const ACloud9PlayerController* ACloud9Character::GetMyPlayerController() const
+ACloud9PlayerController* ACloud9Character::GetCloud9Controller() const
 {
-	const auto MyController = GetController();
-	if (MyController == nullptr)
-		return nullptr;
+	if (const auto MyController = GetController())
+		return Cast<ACloud9PlayerController>(MyController);
 
-	return Cast<ACloud9PlayerController>(MyController);
+	return nullptr;
 }
 
-bool ACloud9Character::CanSneak() const
-{
-	return !GetMyCharacterMovement()->IsCrouching();
-}
+bool ACloud9Character::CanSneak() const { return !GetCloud9CharacterMovement()->IsCrouching(); }
 
 void ACloud9Character::Sneak() const
 {
-	if (const auto Movement = GetMyCharacterMovement())
+	if (const auto Movement = GetCloud9CharacterMovement())
 		Movement->Sneak();
 }
 
 void ACloud9Character::UnSneak() const
 {
-	if (const auto Movement = GetMyCharacterMovement())
+	if (const auto Movement = GetCloud9CharacterMovement())
 		Movement->UnSneak();
 }
 
 void ACloud9Character::SetViewDirection(const FHitResult& HitResult)
 {
- 	if (IsValid(CursorToWorld))
- 	{
- 		UE_LOG(LogCloud9, Display, TEXT("HitResult.Location = %s"), *HitResult.Location.ToString());
+	if (IsValid(CursorToWorld))
+	{
+		const auto ImpactNormal = HitResult.ImpactNormal;
+		const auto ImpactRotation = ImpactNormal.Rotation();
 
- 		const auto ImpactNormal = HitResult.ImpactNormal;
- 		const auto ImpactRotation = ImpactNormal.Rotation();
- 		
- 		CursorToWorld->SetWorldLocation(HitResult.Location);
- 		CursorToWorld->SetWorldRotation(ImpactRotation);
- 		SetCursorIsHidden(false);
- 	}
-	
-	const auto LookRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitResult.Location);
+		CursorToWorld->SetWorldLocation(HitResult.Location);
+		CursorToWorld->SetWorldRotation(ImpactRotation);
+		SetCursorIsHidden(false);
+	}
+
+	const auto ActorLocation = GetActorLocation();
+	const auto LookRotation = UKismetMathLibrary::FindLookAtRotation(ActorLocation, HitResult.Location);
 
 	auto ActorRotation = GetActorRotation();
 	ActorRotation.Yaw = LookRotation.Yaw;
@@ -158,7 +152,7 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 	Super::OnConstruction(Transform);
 
 	SetCursorIsHidden(true);
-	
+
 	if (IsValid(CursorDecal))
 	{
 		UE_LOG(LogCloud9, Display, TEXT("Setup CursorDecal = %s"), *CursorDecal->GetName());

@@ -51,6 +51,8 @@ void ACloud9PlayerController::SetupInputComponent()
 	InputComponent->BindAction("Slot5", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot5);
 	
 	InputComponent->BindAction("Reload", IE_Pressed, KeyboardController, &UCloud9KeyboardController::Reload);
+
+	KeyboardController->OnMoveDelegate.AddDynamic(MouseController, &UCloud9MouseController::OnCharacterMove);
 }
 
 bool ACloud9PlayerController::ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor)

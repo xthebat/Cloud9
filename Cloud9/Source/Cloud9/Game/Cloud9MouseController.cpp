@@ -39,16 +39,16 @@ FVector2D UCloud9MouseController::GetMousePosition() const
 
 float UCloud9MouseController::GetCameraZoomHeightLevel() const
 {
-	if (IsValid(GetPawn()))
+	if (IsValid(GetCloud9Pawn()))
 	{
 		const auto ZoomHeightLevel = UCloud9ToolsLibrary::InverseLerp(
 			MinCameraZoomHeight,
 			MaxCameraZoomHeight,
-			GetPawn()->GetCameraZoomHeight());
+			GetCloud9Pawn()->GetCameraZoomHeight());
 		const auto ZoomAngleLevel = UCloud9ToolsLibrary::InverseLerp(
 			MinCameraZoomAngle,
 			MaxCameraZoomAngle,
-			GetPawn()->GetCameraRotationRoll());
+			GetCloud9Pawn()->GetCameraRotationRoll());
 
 		if (!FMath::IsNearlyEqual(ZoomHeightLevel, ZoomAngleLevel, 0.001f))
 		{
@@ -56,7 +56,7 @@ float UCloud9MouseController::GetCameraZoomHeightLevel() const
 			       ZoomHeightLevel,
 			       ZoomAngleLevel);
 		}
-		
+
 		return ZoomHeightLevel;
 	}
 
@@ -65,22 +65,43 @@ float UCloud9MouseController::GetCameraZoomHeightLevel() const
 
 void UCloud9MouseController::SetCameraZoomLevel(float Value) const
 {
-	if (IsValid(GetPawn()))
+	if (IsValid(GetCloud9Pawn()))
 	{
 		Value = FMath::Clamp(Value, MinCameraZoomLevel, MaxCameraZoomLevel);
 
 		const auto NewZoomHeight = FMath::Lerp(MinCameraZoomHeight, MaxCameraZoomHeight, Value);
-		GetPawn()->SetCameraZoomHeight(NewZoomHeight);
+		GetCloud9Pawn()->SetCameraZoomHeight(NewZoomHeight);
 
 		if (bIsCameraChangeAngleEnabled)
 		{
 			const auto NewZoomAngle = FMath::Lerp(MinCameraZoomAngle, MaxCameraZoomAngle, Value);
-			GetPawn()->SetCameraRotationRoll(NewZoomAngle);			
+			GetCloud9Pawn()->SetCameraRotationRoll(NewZoomAngle);
 		}
 	}
 }
 
-void UCloud9MouseController::ProcessZoom(float DeltaTime)
+void UCloud9MouseController::OnCharacterMove() { ProcessCharacterView(); }
+
+void UCloud9MouseController::ProcessCharacterView() const
+{
+	FHitResult TraceHitResult;
+	GetCloud9Controller()->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
+	GetCloud9Pawn()->SetViewDirection(TraceHitResult);
+}
+
+void UCloud9MouseController::ProcessCameraRotation()
+{
+	if (IsMouseRotationMode)
+	{
+		const auto NewMousePosition = GetMousePosition();
+		const auto Offset = (NewMousePosition - CameraRotationBase).X;
+		CameraRotationBase = NewMousePosition;
+		const auto Angle = Offset * CameraRotateSensitivity;
+		GetCloud9Pawn()->AddCameraRotationYaw(Angle);
+	}
+}
+
+void UCloud9MouseController::ProcessCameraZoom(float DeltaTime)
 {
 	if (TargetCameraZoomLevel == InvalidCameraZoomLevel)
 		return;
@@ -122,25 +143,14 @@ void UCloud9MouseController::TickComponent(
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FHitResult TraceHitResult;
-	GetPlayerController()->GetHitResultUnderCursor(ECC_Visibility, false, TraceHitResult);
-	GetPawn()->SetViewDirection(TraceHitResult);
-
-	if (IsMouseRotationMode)
-	{
-		const auto NewMousePosition = GetMousePosition();
-		const auto Offset = (NewMousePosition - CameraRotationBase).X;
-		CameraRotationBase = NewMousePosition;
-		const auto Angle = Offset * CameraRotateSensitivity;
-		GetPawn()->AddCameraRotationYaw(Angle);
-	}
-
-	ProcessZoom(DeltaTime);
+	ProcessCharacterView();
+	ProcessCameraRotation();
+	ProcessCameraZoom(DeltaTime);
 }
 
 void UCloud9MouseController::OnCameraZoom(float Value)
 {
-	if (IsValid(GetPawn()) && FMath::Abs(Value) > 0.0f && TargetCameraZoomLevel == InvalidCameraZoomLevel)
+	if (IsValid(GetCloud9Pawn()) && FMath::Abs(Value) > 0.0f && TargetCameraZoomLevel == InvalidCameraZoomLevel)
 	{
 		const auto CurrentCameraZoomLevel = GetCameraZoomHeightLevel();
 
@@ -156,20 +166,20 @@ void UCloud9MouseController::OnCameraZoom(float Value)
 
 void UCloud9MouseController::OnCameraRotationPressed()
 {
-	if (IsValid(GetPawn()))
+	if (IsValid(GetCloud9Pawn()))
 	{
 		CameraRotationBase = GetMousePosition();
 		IsMouseRotationMode = true;
-		GetPawn()->SetCursorIsHidden(true);
+		GetCloud9Pawn()->SetCursorIsHidden(true);
 	}
 }
 
 void UCloud9MouseController::OnCameraRotationReleased()
 {
-	if (IsValid(GetPawn()))
+	if (IsValid(GetCloud9Pawn()))
 	{
 		CameraRotationBase = FVector2D::ZeroVector;
 		IsMouseRotationMode = false;
-		GetPawn()->SetCursorIsHidden(false);
+		GetCloud9Pawn()->SetCursorIsHidden(false);
 	}
 }

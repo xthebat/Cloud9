@@ -25,6 +25,9 @@ public:
 	void OnCameraZoom(float Value);
 	void OnCameraRotationPressed();
 	void OnCameraRotationReleased();
+
+	UFUNCTION()
+	void OnCharacterMove();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -40,7 +43,9 @@ protected:
 	float GetCameraZoomHeightLevel() const;
 	void SetCameraZoomLevel(float Value) const;
 
-	void ProcessZoom(float DeltaTime);
+	void ProcessCharacterView() const;
+	void ProcessCameraRotation();
+	void ProcessCameraZoom(float DeltaTime);
 	
 private:
 	static constexpr float InvalidCameraZoomLevel = -1.0f;

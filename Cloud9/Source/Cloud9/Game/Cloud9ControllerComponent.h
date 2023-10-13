@@ -16,7 +16,7 @@ class CLOUD9_API ICloud9ControllerComponent
 {
 	GENERATED_BODY()
 public:
-	ACloud9Character* GetPawn() const;
+	ACloud9Character* GetCloud9Pawn() const;
 
-	ACloud9PlayerController* GetPlayerController() const;
+	ACloud9PlayerController* GetCloud9Controller() const;
 };
