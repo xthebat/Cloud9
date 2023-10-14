@@ -1,8 +1,13 @@
 ﻿# Cloud9
 
-## Links
+### Game design
 
 - [Design Document](Docs/Design.MD)
-- [Notes](Docs/Notes.MD)
-- bspsrc_1.4.3 + [Import CS:GO Maps](https://www.youtube.com/watch?v=pX2ddaJzFHw&ab_channel=ItsJustChris)
-- skins: ...\csgo\materials\models\weapons\customization\paints\custom\workshop
+- [Basic Notes](Docs/Notes.MD)
+
+### CS:GO stuff
+
+- [Install CS:GO in CS2 Era](Docs/CSGO/InstallLegacyVersion.MD) - see base path also here
+- [Extract and import maps notes](Docs/CSGO/Maps.MD)
+- [Extract and import skins notes](Docs/CSGO/Skins.MD)
+- [Extract and import animations notes](Docs/CSGO/Animations.MD)
