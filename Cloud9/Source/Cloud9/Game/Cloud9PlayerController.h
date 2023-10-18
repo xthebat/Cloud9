@@ -30,7 +30,7 @@ protected:
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Console, meta = (AllowPrivateAccess = "true"))
-	UCloud9ConsoleComponent* Console;
+	UCloud9ConsoleComponent* ConsoleComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Controllers, meta = (AllowPrivateAccess = "true"))
 	UCloud9MouseController* MouseController;

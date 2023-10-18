@@ -14,7 +14,7 @@ ACloud9PlayerController::ACloud9PlayerController()
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 
-	Console = CreateDefaultSubobject<UCloud9ConsoleComponent>(ConsoleName);
+	ConsoleComponent = CreateDefaultSubobject<UCloud9ConsoleComponent>(ConsoleName);
 	KeyboardController = CreateDefaultSubobject<UCloud9KeyboardController>(KeyboardControllerName);
 	MouseController = CreateDefaultSubobject<UCloud9MouseController>(MouseControllerName);
 }
@@ -59,8 +59,8 @@ bool ACloud9PlayerController::ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice
 {
 	bool bHandled = Super::ProcessConsoleExec(Cmd, Ar, Executor);
 
-	if (!bHandled && Console != nullptr)
-		bHandled |= Console->ProcessConsoleExec(Cmd, Ar, Executor);
+	if (!bHandled && ConsoleComponent != nullptr)
+		bHandled |= ConsoleComponent->ProcessConsoleExec(Cmd, Ar, Executor);
 
 	return bHandled;
 }
