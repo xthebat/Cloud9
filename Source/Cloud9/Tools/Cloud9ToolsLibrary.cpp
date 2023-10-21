@@ -68,3 +68,12 @@ void UCloud9ToolsLibrary::GetWidthHeightDepth(const FBox& Box, float& Width, flo
 	Height = Size.X;
 	Depth = Size.Z;
 }
+
+FRotator UCloud9ToolsLibrary::RadiansToDegrees(const FRotator Rotator)
+{
+	return  {
+		FMath::RadiansToDegrees(Rotator.Pitch),
+		FMath::RadiansToDegrees(Rotator.Yaw),
+		FMath::RadiansToDegrees(Rotator.Roll)
+	};
+}

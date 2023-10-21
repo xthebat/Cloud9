@@ -80,13 +80,14 @@ void UCloud9MouseController::SetCameraZoomLevel(float Value) const
 	}
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void UCloud9MouseController::OnCharacterMove() { ProcessCharacterView(); }
 
 void UCloud9MouseController::ProcessCharacterView() const
 {
 	FHitResult TraceHitResult;
-	GetCloud9Controller()->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
-	GetCloud9Pawn()->SetViewDirection(TraceHitResult);
+	const auto bIsHitValid = GetCloud9Controller()->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
+	GetCloud9Pawn()->SetViewDirection(TraceHitResult, bIsHitValid);
 }
 
 void UCloud9MouseController::ProcessCameraRotation()

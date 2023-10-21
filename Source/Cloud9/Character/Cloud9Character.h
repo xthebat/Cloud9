@@ -44,7 +44,7 @@ public:
 
 	void UnSneak() const;
 
-	void SetViewDirection(const FHitResult& HitResult);
+	void SetViewDirection(const FHitResult& HitResult, bool bIsHitValid);
 
 	void AddCameraRotationYaw(float Angle) const;
 	float GetCameraRotationRoll() const;
@@ -84,4 +84,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
 	UCloud9Inventory* Inventory;
+
+	float RotationSpeed;
+	
+	FRotator TargetRotation;
 };
