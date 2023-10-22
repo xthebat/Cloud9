@@ -1,6 +1,5 @@
 ﻿import os
 from dataclasses import dataclass
-from sys import stdout
 from typing import TextIO
 
 
