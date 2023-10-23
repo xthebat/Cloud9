@@ -61,10 +61,5 @@ def cleanup_assets(
         delete_all_assets(failed_actor_paths)
 
 
-def main():
-    level_actors = get_level_actors()
-    cleanup_assets(level_actors, "de_shortdust_cleanup.txt", destroy_actors=True, delete_assets=True)
-
-
 if __name__ == '__main__':
-    main()
+    cleanup_assets(get_level_actors(), "de_shortdust_cleanup.txt", destroy_actors=True, delete_assets=True)

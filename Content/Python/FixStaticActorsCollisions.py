@@ -13,9 +13,5 @@ def fix_static_actors_collision():
         unreal.EditorStaticMeshLibrary.remove_collisions(static_mesh)
 
 
-def main():
-    fix_static_actors_collision()
-
-
 if __name__ == '__main__':
-    main()
+    fix_static_actors_collision()

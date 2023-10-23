@@ -23,9 +23,5 @@ def fix_physics_props_collision():
         mesh_component.set_simulate_physics(True)
 
 
-def main():
-    fix_physics_props_collision()
-
-
 if __name__ == '__main__':
-    main()
+    fix_physics_props_collision()
