@@ -53,7 +53,7 @@ Scripts must be executed in order below:
 - Fix dynamic props collisions with [FixPhysicsPropsCollisions.py](../../Content/Python/Map/FixPhysicsPropsCollisions.py)
 - Fix environment lightning on the map with [FixEnvironmentLight.py](../../Content/Python/Map/FixEnvironmentLight.py)
   * Imported `light_environment` lightning should be replaced because it is static thus no shadows etc 
-- Fix light's sources of the map with [FixLightSources.py](../../Content/Python/Map/FixLightSources.py)
+- Fix light's sources of the map with [FixLightSpotsSources.py](../../Content/Python/Map/FixLightSpotsSources.py)
   * All lights are `Static` other than `Stationary`, so if shadows and good lightning
     needed then all `light_*` actors required to be fixed
   * Imported lights are usually too bright about 10 times than normal 

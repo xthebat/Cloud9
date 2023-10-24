@@ -1,4 +1,4 @@
-﻿from typing import cast, Tuple
+﻿from typing import Tuple, cast
 
 import unreal
 
@@ -69,7 +69,12 @@ def fix_environment_light(
     location += shift
 
     actor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.AtmosphericFog, location)
+    actor = cast(unreal.AtmosphericFog, actor)
     actor.set_folder_path(folder)
+    actor.atmospheric_fog_component.set_precompute_params(
+        density_height=0.5,
+        max_scattering_order=4,
+        inscatter_altitude_sample_num=32)
     location += shift
 
     actor = unreal.EditorLevelLibrary.spawn_actor_from_class(unreal.SphereReflectionCapture, location)

@@ -4,12 +4,12 @@ import unreal
 
 
 def fix_light_sources(
-        intensity_scale: float = 0.1,
-        radius_scale: float = 0.1,
+        intensity_scale: float = 0.5,
+        radius_scale: float = 0.5,
 ):
     for actor in unreal.EditorLevelLibrary.get_all_level_actors():
         name: str = actor.get_name()
-        if not name.startswith("light_"):
+        if not name.startswith("light_spot_") or not name.startswith("light_"):
             continue
 
         print(f"Setup lights for: {actor.get_name()}")
@@ -22,7 +22,9 @@ def fix_light_sources(
         light_component.set_mobility(unreal.ComponentMobility.MOVABLE)
         light_component.set_intensity(light_component.intensity * intensity_scale)
         light_component.set_attenuation_radius(light_component.attenuation_radius * radius_scale)
-        light_component.set_mobility(unreal.ComponentMobility.STATIONARY)
+        # STATIONARY not working for many actors :(
+        # light_component.set_mobility(unreal.ComponentMobility.STATIONARY)
+        light_component.set_mobility(unreal.ComponentMobility.STATIC)
         light_component.set_cast_shadows(True)
 
 
