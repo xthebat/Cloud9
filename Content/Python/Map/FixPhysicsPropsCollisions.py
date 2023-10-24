@@ -22,6 +22,8 @@ def fix_physics_props_collision():
         unreal.EditorStaticMeshLibrary.add_simple_collisions(static_mesh, unreal.ScriptingCollisionShapeType.NDOP26)
         mesh_component.set_simulate_physics(True)
 
+        # TODO: Remove collision with character and bots
+
 
 if __name__ == '__main__':
     fix_physics_props_collision()

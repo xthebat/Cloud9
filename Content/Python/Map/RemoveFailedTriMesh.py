@@ -1,8 +1,10 @@
 ﻿import os
 from typing import Iterable, Dict
 
-import unreal
 from UnrealCommon import get_level_actors, get_actor_name_from_path
+
+import unreal
+from Extras import fixups_path
 
 
 def parse_failed_trimesh_logfile(filepath: str) -> Iterable[str]:
@@ -45,8 +47,7 @@ def cleanup_assets(
         destroy_actors: bool = False,
         delete_assets: bool = False
 ):
-    script_directory = os.path.dirname(os.path.realpath(__file__))
-    filepath = os.path.join(script_directory, filename)
+    filepath = os.path.join(fixups_path, filename)
     failed_actor_paths = parse_failed_trimesh_logfile(filepath)
 
     if destroy_actors:
@@ -62,4 +63,4 @@ def cleanup_assets(
 
 
 if __name__ == '__main__':
-    cleanup_assets(get_level_actors(), "de_shortdust_cleanup.txt", destroy_actors=True, delete_assets=True)
+    cleanup_assets(get_level_actors(), "de_shortdust.txt", destroy_actors=True, delete_assets=True)

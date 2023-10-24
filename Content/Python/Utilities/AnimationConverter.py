@@ -131,6 +131,7 @@ def convert_folder(input_folder: str, output_folder: str, extension: str = ".smd
 
 
 def main():
+    # TODO: Fix absolute paths
     convert_folder(
         "c:/Users/bat/Documents/Work/unreal_tasks/Cloud9/Decompile/models/player/custom_player/animset_t_anims",
         "c:/Users/bat/Documents/Work/unreal_tasks/Cloud9/Importing/animset_t_anims"
