@@ -14,10 +14,7 @@ float UCloud9ToolsLibrary::CalculateCollisionVolumeScale(UStaticMesh* StaticMesh
 	return SimpleCollisionVolume / BoundingBoxVolume;
 }
 
-UWorld* UCloud9ToolsLibrary::GetWorld()
-{
-	return GEngine->GameViewport->GetWorld();
-}
+UWorld* UCloud9ToolsLibrary::GetWorld() { return GEngine->GameViewport->GetWorld(); }
 
 ACloud9GameMode* UCloud9ToolsLibrary::GetGameMode()
 {
@@ -32,11 +29,7 @@ FBox UCloud9ToolsLibrary::GetAccurateReferencePoseBounds(const USkeletalMesh* Me
 {
 	auto Box = FBox(ForceInitToZero);
 
-	if (!Mesh)
-		return {};
-
-	if (!Mesh->GetPhysicsAsset())
-		return {};
+	if (!Mesh || !Mesh->GetPhysicsAsset()) { return {}; }
 
 	for (const auto BodySetups : Mesh->GetPhysicsAsset()->SkeletalBodySetups)
 	{
@@ -67,4 +60,13 @@ void UCloud9ToolsLibrary::GetWidthHeightDepth(const FBox& Box, float& Width, flo
 	Width = Size.Y;
 	Height = Size.X;
 	Depth = Size.Z;
+}
+
+FRotator UCloud9ToolsLibrary::RadiansToDegrees(const FRotator Rotator)
+{
+	return {
+		FMath::RadiansToDegrees(Rotator.Pitch),
+		FMath::RadiansToDegrees(Rotator.Yaw),
+		FMath::RadiansToDegrees(Rotator.Roll)
+	};
 }

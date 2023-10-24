@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Cloud9Character.h"
+
+#include "DrawDebugHelpers.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Cloud9/Cloud9.h"
@@ -29,11 +31,13 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
+	RotationSpeed = 8.0f;
+	TargetRotation = GetActorRotation();
+
 	GetCapsuleComponent()->InitCapsuleSize(32.f, 72.0f);
 
 	const auto Movement = GetCharacterMovement();
-	Movement->bOrientRotationToMovement = true; // Rotate character to moving direction
-	Movement->RotationRate = FRotator(0.f, 640.f, 0.f);
+	Movement->bOrientRotationToMovement = false;
 	Movement->bConstrainToPlane = true;
 	Movement->bSnapToPlaneAtStart = true;
 	Movement->JumpZVelocity = 320.0f;
@@ -51,7 +55,6 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	// Create a decal in the world to show the cursor's location
 	CursorToWorld = CreateDefaultSubobject<UDecalComponent>(DecalComponentName);
 	CursorToWorld->SetupAttachment(RootComponent);
-	// CursorToWorld->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f).Quaternion());
 
 	Inventory = CreateDefaultSubobject<UCloud9Inventory>(InventoryComponentName);
 
@@ -90,7 +93,7 @@ void ACloud9Character::UnSneak() const
 		Movement->UnSneak();
 }
 
-void ACloud9Character::SetViewDirection(const FHitResult& HitResult)
+void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHitValid)
 {
 	if (IsValid(CursorToWorld))
 	{
@@ -102,13 +105,46 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult)
 		SetCursorIsHidden(false);
 	}
 
-	const auto ActorLocation = GetActorLocation();
-	const auto LookRotation = UKismetMathLibrary::FindLookAtRotation(ActorLocation, HitResult.Location);
+	FVector WorldLocation;
+	FVector WorldDirection;
+	FVector2D MousePosition;
 
-	auto ActorRotation = GetActorRotation();
-	ActorRotation.Yaw = LookRotation.Yaw;
+	GetCloud9Controller()->GetMousePosition(MousePosition.X, MousePosition.Y);
+	GetCloud9Controller()->DeprojectScreenPositionToWorld(
+		MousePosition.X,
+		MousePosition.Y,
+		WorldLocation,
+		WorldDirection);
 
-	SetActorRotation(ActorRotation);
+	DrawDebugLine(
+		GetWorld(),
+		GetActorLocation(),
+		WorldLocation,
+		FColor::Red,
+		false,
+		/*LifeTime=*/0.0,
+		/*DepthPriority=*/0,
+		/*Thickness=*/0.f);
+
+	DrawDebugLine(
+		GetWorld(),
+		GetActorLocation(),
+		HitResult.Location,
+		FColor::Green,
+		false,
+		/*LifeTime=*/0.0,
+		/*DepthPriority=*/0,
+		/*Thickness=*/0.f);
+
+	// UE_LOG(LogCloud9, Display, TEXT("%s"), *HitResult.Location.ToString());
+
+	if (bIsHitValid)
+	{
+		const auto TargetLocation = FVector{HitResult.Location.X, HitResult.Location.Y, 0.0f};
+		const auto ActorLocation = GetActorLocation();
+		const auto LookRotation = UKismetMathLibrary::FindLookAtRotation(ActorLocation, TargetLocation);
+		TargetRotation.Yaw = LookRotation.Yaw;
+	}
 }
 
 void ACloud9Character::AddCameraRotationYaw(float Angle) const
@@ -187,4 +223,37 @@ void ACloud9Character::BeginPlay()
 void ACloud9Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	const auto ActorRotation = GetActorRotation();
+	const auto NewRotation = FMath::Lerp(ActorRotation, TargetRotation, RotationSpeed * DeltaSeconds);
+	SetActorRotation(NewRotation);
+	
+	// const auto ActorRotation = GetActorRotation();
+	// ActorRotation.GetNormalized()
+	// const auto Remain = TargetRotation - ActorRotation;
+	// if (Remain != FRotator::ZeroRotator)
+	// {
+	// 	const auto Delta = RotationSpeed * DeltaSeconds;
+	//
+	// 	auto DeltaRotation = FRotator{
+	// 		FMath::Min(Delta, Remain.Pitch),
+	// 		FMath::Min(Delta, Remain.Yaw),
+	// 		FMath::Min(Delta, Remain.Roll),
+	// 	};
+	//
+	// 	if (Remain.Pitch > PI)
+	// 		DeltaRotation.Pitch = -DeltaRotation.Pitch;
+	//
+	// 	if (Remain.Yaw > PI)
+	// 		DeltaRotation.Yaw = -DeltaRotation.Yaw;
+	//
+	// 	if (Remain.Roll > PI)
+	// 		DeltaRotation.Roll = -DeltaRotation.Roll;
+	//
+	// 	UE_LOG(LogCloud9, Display, TEXT("%s  |  %s"),
+	// 	       *ActorRotation.ToString(),
+	// 	       *DeltaRotation.ToString());
+	//
+	// 	AddActorWorldRotation(DeltaRotation);
+	// }
 }

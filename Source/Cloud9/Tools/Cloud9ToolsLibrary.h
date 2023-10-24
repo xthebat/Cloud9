@@ -59,4 +59,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void GetWidthHeightDepth(const FBox& Box, float& Width, float& Height, float& Depth);
+
+	static FRotator RadiansToDegrees(const FRotator Rotator);
 };
