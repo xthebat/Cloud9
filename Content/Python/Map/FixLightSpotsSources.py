@@ -16,6 +16,10 @@ def fix_light_actor(
 
     print(f"Setup lights for: {actor.get_name()}")
 
+    prev_mobility = component.mobility
+    # Only movable lights can change their radius at runtime
+    component.set_mobility(unreal.ComponentMobility.MOVABLE)
+
     if intensity_scale is not None:
         value = component.intensity * intensity_scale
         print(f" -> Change intensity: {value}")
@@ -24,26 +28,24 @@ def fix_light_actor(
     if radius_scale is not None:
         value = component.attenuation_radius * radius_scale
         print(f" -> Change attenuation radius: {value}")
-        prev_mobility = component.mobility
-        # Only movable lights can change their radius at runtime
-        component.set_mobility(unreal.ComponentMobility.MOVABLE)
         component.set_attenuation_radius(value)
-        component.set_mobility(prev_mobility)
-
-    if mobility is not None:
-        print(f" -> Change mobility: {mobility}")
-        component.set_mobility(mobility)
 
     if cast_shadows is not None:
         print(f" -> Change cast shadows: {cast_shadows}")
         component.set_cast_shadows(cast_shadows)
+
+    if mobility is not None:
+        print(f" -> Change mobility: {mobility}")
+        component.set_mobility(mobility)
+    else:
+        component.set_mobility(prev_mobility)
 
 
 def fix_light_sources():
     for actor in unreal.EditorLevelLibrary.get_all_level_actors():
         name: str = actor.get_name()
         if name.startswith("light_"):
-            fix_light_actor(actor, unreal.PointLightComponent, 2)
+            fix_light_actor(actor, unreal.PointLightComponent, 0.5, 0.5)
 
         # if name.startswith("light_spot_"):
         #     fix_light_actor(actor, unreal.SpotLightComponent)

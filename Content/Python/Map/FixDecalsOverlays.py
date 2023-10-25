@@ -12,7 +12,10 @@ def fix_decals_overlays():
 
         print(f"Setup decals for: {actor.get_name()}")
 
-        component = get_component_by_class(actor, unreal.StaticMeshComponent)
+        try:
+            component = get_component_by_class(actor, unreal.StaticMeshComponent)
+        except KeyError:
+            continue
 
         for index in range(component.get_num_materials()):
             material = component.get_material(index)
