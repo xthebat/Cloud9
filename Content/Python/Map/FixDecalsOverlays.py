@@ -1,4 +1,5 @@
 ﻿import unreal
+from Common import get_component_by_class
 
 
 def fix_decals_overlays():
@@ -6,17 +7,15 @@ def fix_decals_overlays():
 
     for actor in unreal.EditorLevelLibrary.get_all_level_actors():
         name: str = actor.get_name()
-        if not name.startswith("info_overlay"):
+        if not name.startswith("info_overlay_"):
             continue
 
         print(f"Setup decals for: {actor.get_name()}")
 
-        mesh_component: unreal.StaticMeshComponent = actor.get_component_by_class(unreal.StaticMeshComponent)
-        if mesh_component is None:
-            continue
+        component = get_component_by_class(actor, unreal.StaticMeshComponent)
 
-        for index in range(mesh_component.get_num_materials()):
-            material = mesh_component.get_material(index)
+        for index in range(component.get_num_materials()):
+            material = component.get_material(index)
 
             assert isinstance(material, unreal.Material), \
                 f"Material required, not a material interface for {material.get_name()}"
