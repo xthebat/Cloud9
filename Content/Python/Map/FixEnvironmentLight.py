@@ -13,15 +13,18 @@ def fix_environment_light(
         cloud_speed: float = 2.0,
         cloud_opacity: float = 1.0,
 
-        light_intensity: float = 2.75,
-        light_direction: Tuple[float, float, float] = (0, -55.0, -45.0),
+        direction_light_intensity: float = 2.0,
+        direction_light_rotation: Tuple[float, float, float] = (0, -55.0, -45.0),
+        direction_light_color: Tuple[float, float, float, float] = (1.0, 1.0, 0.760525, 1.0),
+
+        sky_light_scale: float = 3.5,
 
         folder: str = "Lighting"
 ):
     location = unreal.Vector(*location)
     shift = unreal.Vector(*shift)
     folder = unreal.Name(folder)
-    light_direction = unreal.Rotator(*light_direction)
+    direction_light_rotation = unreal.Rotator(*direction_light_rotation)
 
     for actor in unreal.EditorLevelLibrary.get_all_level_actors():
         name: str = actor.get_name()
@@ -46,9 +49,10 @@ def fix_environment_light(
 
     directional_light = spawn_actor_from_class(unreal.DirectionalLight, location)
     directional_light.set_folder_path(folder)
-    directional_light.set_actor_rotation(light_direction, True)
-    directional_light.light_component.set_intensity(light_intensity)
+    directional_light.set_actor_rotation(direction_light_rotation, True)
+    directional_light.light_component.set_intensity(direction_light_intensity)
     directional_light.light_component.set_atmosphere_sun_light(True)
+    directional_light.light_component.set_light_color(unreal.LinearColor(*direction_light_color))
     location += shift
 
     post_process_volume = spawn_actor_from_class(unreal.PostProcessVolume, location)
@@ -65,6 +69,7 @@ def fix_environment_light(
 
     sky_light = spawn_actor_from_class(unreal.SkyLight, location)
     sky_light.set_folder_path(folder)
+    sky_light.light_component.set_intensity(sky_light_scale)
     location += shift
 
     atmospheric_fog = spawn_actor_from_class(unreal.AtmosphericFog, location)
