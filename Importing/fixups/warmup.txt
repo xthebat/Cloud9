@@ -1,0 +1,26 @@
+﻿Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/func_detail_31688.func_detail_31688.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/func_detail_31688.func_detail_31688:BodySetup_0 when we are unable to.
+Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/func_detail_35295.func_detail_35295.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/func_detail_35295.func_detail_35295:BodySetup_0 when we are unable to.
+Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/func_detail_41910.func_detail_41910.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/func_detail_41910.func_detail_41910:BodySetup_0 when we are unable to.
+Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/func_detail_54193.func_detail_54193.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/func_detail_54193.func_detail_54193:BodySetup_0 when we are unable to.
+Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/func_detail_55728.func_detail_55728.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/func_detail_55728.func_detail_55728:BodySetup_0 when we are unable to.
+Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/func_detail_58694.func_detail_58694.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/func_detail_58694.func_detail_58694:BodySetup_0 when we are unable to.
+Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/worldspawn_24509.worldspawn_24509.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/worldspawn_24509.worldspawn_24509:BodySetup_0 when we are unable to.
+Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/worldspawn_24516.worldspawn_24516.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/worldspawn_24516.worldspawn_24516:BodySetup_0 when we are unable to.
+Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/worldspawn_24523.worldspawn_24523.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/worldspawn_24523.worldspawn_24523:BodySetup_0 when we are unable to.
+Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/worldspawn_24558.worldspawn_24558.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/worldspawn_24558.worldspawn_24558:BodySetup_0 when we are unable to.
+Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/worldspawn_24565.worldspawn_24565.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/worldspawn_24565.worldspawn_24565:BodySetup_0 when we are unable to.
+Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/worldspawn_24579.worldspawn_24579.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/worldspawn_24579.worldspawn_24579:BodySetup_0 when we are unable to.
+Warning      LogPhysics                Failed to cook TriMesh: /Game/Maps/warmup/Mesh/worldspawn_24586.worldspawn_24586.
+Warning      LogPhysics                Attempt to build physics data for /Game/Maps/warmup/Mesh/worldspawn_24586.worldspawn_24586:BodySetup_0 when we are unable to.
