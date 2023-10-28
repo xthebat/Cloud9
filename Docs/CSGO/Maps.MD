@@ -53,7 +53,7 @@ Scripts must be executed in order below:
 - Fix dynamic props collisions with [FixPhysicsPropsCollisions.py](../../Content/Python/Map/FixPhysicsPropsCollisions.py)
 - Fix environment lightning on the map with [FixEnvironmentLight.py](../../Content/Python/Map/FixEnvironmentLight.py)
   * Imported `light_environment` lightning should be replaced because it is static thus no shadows etc 
-- Fix light's sources of the map with [FixLightSources.py](../../Content/Python/Map/FixLightSources.py)
+- Fix light's sources of the map with [FixLightSpotsSources.py](../../Content/Python/Map/FixLightSpotsSources.py)
   * All lights are `Static` other than `Stationary`, so if shadows and good lightning
     needed then all `light_*` actors required to be fixed
   * Imported lights are usually too bright about 10 times than normal 
@@ -61,10 +61,10 @@ Scripts must be executed in order below:
   * `Blend mode` should be set to `Translucent` in material node
   * Alpha channel of texture should be connected to `Opaque pin`
   * See also https://docs.unrealengine.com/5.0/en-US/using-transparency-in-unreal-engine-materials/
-- Removed failed TriMesh with [RemoveFailedTriMesh.py](../../Content/Python/Map/RemoveFailedTriMesh.py)
+- Removed failed TriMesh with [FixFailedTriMesh.py](../../Content/Python/Map/FixFailedTriMesh.py)
   * Some meshes are invalid, and UE4 can't process it correctly (UE4 will print it in log file)
-  * Store log file in Python scripts directory
-  * Change name in `main` function of `RemoveFailedTriMesh.py` script and run it on the map
+  * Store log file with 'Failed to cook TriMesh' errors 
+    as `<map_name>.txt` in [fixups directory](../../Importing/fixups) 
 
 P.S.: Scripts made separated to each other and each time we 
 reiterate over all actors to make possible to run it independently.

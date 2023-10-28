@@ -1,4 +1,5 @@
 ﻿import unreal
+from Common import get_component_by_class
 
 
 def fix_physics_props_collision():
@@ -10,17 +11,15 @@ def fix_physics_props_collision():
 
         print(f"Setup physics collision for: {actor.get_name()}")
 
-        mesh_component = actor.get_component_by_class(unreal.StaticMeshComponent)
-        if mesh_component is None:
-            continue
+        component = get_component_by_class(actor, unreal.StaticMeshComponent)
 
         actor.set_mobility(unreal.ComponentMobility.MOVABLE)
 
-        static_mesh = mesh_component.static_mesh
+        static_mesh = component.static_mesh
         unreal.Cloud9ToolsLibrary.set_collision_complexity(static_mesh, ctf_use_default)
         unreal.EditorStaticMeshLibrary.remove_collisions(static_mesh)
         unreal.EditorStaticMeshLibrary.add_simple_collisions(static_mesh, unreal.ScriptingCollisionShapeType.NDOP26)
-        mesh_component.set_simulate_physics(True)
+        component.set_simulate_physics(True)
 
         # TODO: Remove collision with character and bots
 
