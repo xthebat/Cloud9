@@ -1,5 +1,4 @@
-﻿import os
-from typing import TypeVar, Type
+﻿from typing import TypeVar, Type, Dict, Iterable
 
 import unreal
 
@@ -25,10 +24,22 @@ def get_component_by_class(actor: unreal.Actor, cls: Type[T]) -> T:
     return component
 
 
-def get_level_actors():
+def make_level_actors_dict() -> Dict[str, unreal.Actor]:
     actors = unreal.EditorLevelLibrary.get_all_level_actors()
     return {actor.get_name(): actor for actor in actors}
 
 
-def get_actor_name_from_path(path: str):
-    return os.path.basename(path).split(".")[0]
+def get_actor_by_name(name: str):
+    return next(it for it in unreal.EditorLevelLibrary.get_all_level_actors() if it.get_name() == name)
+
+
+def delete_all_actors(actors: Iterable[unreal.Actor]):
+    for it in actors:
+        print(f"Destroy actor: {it.get_name()}")
+        it.destroy_actor()
+
+
+def delete_all_assets(assets_paths: Iterable[str]):
+    for it in assets_paths:
+        print(f"Delete asset: {it}")
+        unreal.EditorAssetLibrary.delete_asset(it)
