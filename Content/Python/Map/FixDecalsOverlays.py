@@ -1,4 +1,22 @@
-﻿import unreal
+﻿"""
+This script fixes decals and overlays in the level by updating their materials.
+
+This script searches for all actors in the level with names starting with "info_overlay_".
+For each matching actor, it retrieves the Static Mesh Component and updates the materials to add an alpha channel.
+The materials are set to use the BLEND_TRANSLUCENT blend mode, and an alpha channel is added to the base color texture.
+
+Note:
+- This script assumes that the Common module is available and provides the get_component_by_class function.
+- The materials that are modified are saved and recompiled.
+
+Example:
+    To fix decals and overlays in the level, call the `fix_decals_overlays` function without any arguments.
+
+        fix_decals_overlays()
+
+"""
+
+import unreal
 from Common import get_component_by_class
 
 

@@ -1,4 +1,31 @@
-﻿from typing import Tuple
+﻿"""
+Fixes the environment lighting in the scene by spawning and setting up the required light actors.
+
+This script searches for any existing environment light actors in the level and removes them.
+It then spawns and configures new light actors such as SkySphere, Directional Light, Post Process Volume,
+Sky Light, Atmospheric Fog, and Sphere Reflection Capture to set up the environment lighting.
+
+Parameters:
+- location: A tuple of three floats representing the initial location for spawning the light actors.
+- shift: A tuple of three floats representing the shift to apply to the location for each spawned light actor.
+- sun_brightness: The brightness of the sun in the SkySphere.
+- sun_height: The height of the sun in the SkySphere.
+- cloud_speed: The speed of the clouds in the SkySphere.
+- cloud_opacity: The opacity of the clouds in the SkySphere.
+- direction_light_intensity: The intensity of the Directional Light.
+- direction_light_rotation: A tuple of three floats representing the rotation of the Directional Light.
+- direction_light_color: A tuple of four floats representing the color of the Directional Light in RGBA format.
+- sky_light_scale: The intensity scale of the Skylight.
+- folder: The folder path where the spawned actors will be placed in the editor.
+
+Example:
+    To fix the environment lighting, call the `fix_environment_light` function without any arguments.
+
+        fix_environment_light()
+
+"""
+
+from typing import Tuple
 
 import unreal
 from Common import spawn_actor_from_class
