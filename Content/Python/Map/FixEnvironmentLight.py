@@ -3,7 +3,7 @@ Fixes the environment lighting in the scene by spawning and setting up the requi
 
 This script searches for any existing environment light actors in the level and removes them.
 It then spawns and configures new light actors such as SkySphere, Directional Light, Post Process Volume,
-Sky Light, Atmospheric Fog, and Sphere Reflection Capture to set up the environment lighting.
+Skylight, Atmospheric Fog, and Sphere Reflection Capture to set up the environment lighting.
 
 Parameters:
 - location: A tuple of three floats representing the initial location for spawning the light actors.
@@ -12,6 +12,7 @@ Parameters:
 - sun_height: The height of the sun in the SkySphere.
 - cloud_speed: The speed of the clouds in the SkySphere.
 - cloud_opacity: The opacity of the clouds in the SkySphere.
+- color_saturation: The saturation for PostProcessVolume
 - direction_light_intensity: The intensity of the Directional Light.
 - direction_light_rotation: A tuple of three floats representing the rotation of the Directional Light.
 - direction_light_color: A tuple of four floats representing the color of the Directional Light in RGBA format.
@@ -40,6 +41,8 @@ def fix_environment_light(
         cloud_speed: float = 2.0,
         cloud_opacity: float = 1.0,
 
+        color_saturation: float = 1.5,
+
         direction_light_intensity: float = 2.0,
         direction_light_rotation: Tuple[float, float, float] = (0, -55.0, -45.0),
         direction_light_color: Tuple[float, float, float, float] = (1.0, 1.0, 0.760525, 1.0),
@@ -52,6 +55,7 @@ def fix_environment_light(
     shift = unreal.Vector(*shift)
     folder = unreal.Name(folder)
     direction_light_rotation = unreal.Rotator(*direction_light_rotation)
+    color_saturation = unreal.Vector4(1.0, 1.0, 1.0, color_saturation)
 
     for actor in unreal.EditorLevelLibrary.get_all_level_actors():
         name: str = actor.get_name()
@@ -86,12 +90,16 @@ def fix_environment_light(
     post_process_volume.set_folder_path(folder)
     post_process_volume.unbound = True
     settings = post_process_volume.settings
+
     settings.override_auto_exposure_bias = True
     settings.override_auto_exposure_min_brightness = True
     settings.override_auto_exposure_max_brightness = True
+    settings.override_color_saturation = True
+
     settings.auto_exposure_bias = 0.0
     settings.auto_exposure_min_brightness = 1.0
     settings.auto_exposure_max_brightness = 1.0
+    settings.color_saturation = color_saturation
     location += shift
 
     sky_light = spawn_actor_from_class(unreal.SkyLight, location)
