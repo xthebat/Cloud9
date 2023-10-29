@@ -45,8 +45,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(SpringArmComponentName);
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
-	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
-	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
+	CameraBoom->bDoCollisionTest = true; // Don't want to pull camera in when it collides with level
 
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(CameraComponentName);
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
