@@ -66,7 +66,9 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 UCloud9CharacterMovement* ACloud9Character::GetCloud9CharacterMovement() const
 {
 	if (const auto MyCharacterMovement = GetCharacterMovement())
+	{
 		return Cast<UCloud9CharacterMovement>(MyCharacterMovement);
+	}
 
 	return nullptr;
 }
@@ -74,7 +76,9 @@ UCloud9CharacterMovement* ACloud9Character::GetCloud9CharacterMovement() const
 ACloud9PlayerController* ACloud9Character::GetCloud9Controller() const
 {
 	if (const auto MyController = GetController())
+	{
 		return Cast<ACloud9PlayerController>(MyController);
+	}
 
 	return nullptr;
 }
@@ -84,13 +88,17 @@ bool ACloud9Character::CanSneak() const { return !GetCloud9CharacterMovement()->
 void ACloud9Character::Sneak() const
 {
 	if (const auto Movement = GetCloud9CharacterMovement())
+	{
 		Movement->Sneak();
+	}
 }
 
 void ACloud9Character::UnSneak() const
 {
 	if (const auto Movement = GetCloud9CharacterMovement())
+	{
 		Movement->UnSneak();
+	}
 }
 
 void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHitValid)
@@ -147,6 +155,14 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 	}
 }
 
+void ACloud9Character::SetCameraRotationYaw(float Angle) const
+{
+	auto Rotation = CameraBoom->GetRelativeRotation();
+	Rotation.Yaw = Angle;
+	UE_LOG(LogCloud9, Display, TEXT("SetRelativeRotation Pitch: %s"), *Rotation.ToString());
+	CameraBoom->SetRelativeRotation(Rotation);
+}
+
 void ACloud9Character::AddCameraRotationYaw(float Angle) const
 {
 	const FRotator Rotation = {0.0f, Angle, 0.0f};
@@ -163,6 +179,7 @@ void ACloud9Character::SetCameraRotationRoll(float Angle) const
 {
 	auto Rotation = CameraBoom->GetRelativeRotation();
 	Rotation.Pitch = -Angle;
+	UE_LOG(LogCloud9, Display, TEXT("SetRelativeRotation Yaw: %s"), *Rotation.ToString());
 	CameraBoom->SetRelativeRotation(Rotation);
 }
 
@@ -186,6 +203,14 @@ UCloud9Inventory* ACloud9Character::GetInventory() const { return Inventory; }
 void ACloud9Character::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
+
+	UE_LOG(LogCloud9, Display, TEXT("Contruction transform %s"), *Transform.ToString());
+
+	const auto Rotator = Transform.Rotator();
+
+	TargetRotation.Yaw = Rotator.Yaw;
+	SetCameraRotationYaw(Rotator.Yaw);
+	SetActorRotation(TargetRotation);
 
 	SetCursorIsHidden(true);
 
@@ -227,7 +252,7 @@ void ACloud9Character::Tick(float DeltaSeconds)
 	const auto ActorRotation = GetActorRotation();
 	const auto NewRotation = FMath::Lerp(ActorRotation, TargetRotation, RotationSpeed * DeltaSeconds);
 	SetActorRotation(NewRotation);
-	
+
 	// const auto ActorRotation = GetActorRotation();
 	// ActorRotation.GetNormalized()
 	// const auto Remain = TargetRotation - ActorRotation;
