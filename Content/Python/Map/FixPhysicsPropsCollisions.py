@@ -1,4 +1,19 @@
-﻿import unreal
+﻿"""
+This script is used to fix physics collision properties of prop physics actors in a game level.
+
+Usage:
+- Call the `fix_physics_props_collision()` function to fix physics 
+  collision for prop physics actors in the current level.
+
+Functions:
+- `fix_physics_props_collision()`: Fixes the physics collision properties of prop physics actors in the current level.
+
+Note:
+- The script assumes the presence of the `get_component_by_class()` function.
+- The script currently does not handle collision with characters and bots. This functionality is marked as a TODO.
+"""
+
+import unreal
 from Common import get_component_by_class
 
 

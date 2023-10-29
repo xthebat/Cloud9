@@ -1,4 +1,17 @@
-﻿import unreal
+﻿"""
+This script is used to fix collision properties of static actors in a game level.
+
+Usage:
+- Call the `fix_static_actors_collision()` function to fix collision for static actors at the current level.
+
+Functions:
+- `fix_static_actors_collision()`: Fixes the collision properties of static actors at the current level.
+
+Note:
+- The script assumes the presence of the `get_component_by_class()`
+"""
+
+import unreal
 from Common import get_component_by_class
 
 

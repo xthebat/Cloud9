@@ -1,4 +1,20 @@
-﻿from typing import Optional, Type
+﻿"""
+This script is used to fix properties of light actors in a game level.
+
+Usage:
+- Call the `fix_light_sources()` function to fix light actors at the current level.
+
+Functions:
+- `fix_light_actor()`: Adjusts the properties of a light actor.
+- `fix_light_sources()`: Fixes light actors at the current level.
+
+Note:
+- The script assumes the presence of the `get_component_by_class()` function.
+- Uncomment the lines in the `fix_light_sources()` function corresponding 
+  to specific light types to fix their properties as well.
+"""
+
+from typing import Optional, Type
 
 import unreal
 from Common import get_component_by_class

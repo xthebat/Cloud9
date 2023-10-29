@@ -1,4 +1,18 @@
-﻿import os
+﻿"""
+Contains functions to fix failed TriMesh objects in the game engine.
+
+This module provides functions to parse a log file containing information about failed TriMesh objects and fix their build settings.
+The TriMesh objects are identified by their actor paths, and their scale is adjusted to a specified upscale factor.
+The fixed objects are then saved, and their scale is restored to the original value.
+
+Example:
+    To fix failed TriMesh objects, call the `fix_level_failed_trimesh` function.
+
+        fix_level_failed_trimesh()
+
+"""
+
+import os
 from typing import Iterable
 
 import unreal
