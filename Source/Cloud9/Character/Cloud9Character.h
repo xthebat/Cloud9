@@ -19,13 +19,13 @@ public:
 	static const FName CameraComponentName;
 	static const FName DecalComponentName;
 	static const FName InventoryComponentName;
-	
+
 	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	virtual void BeginPlay() override;
-	
+
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -37,7 +37,7 @@ public:
 
 	ACloud9PlayerController* GetCloud9Controller() const;
 	UCloud9CharacterMovement* GetCloud9CharacterMovement() const;
-	
+
 	bool CanSneak() const;
 
 	void Sneak() const;
@@ -46,6 +46,7 @@ public:
 
 	void SetViewDirection(const FHitResult& HitResult, bool bIsHitValid);
 
+	void SetCameraRotationYaw(float Angle) const;
 	void AddCameraRotationYaw(float Angle) const;
 	float GetCameraRotationRoll() const;
 	void SetCameraRotationRoll(float Angle) const;
@@ -54,14 +55,14 @@ public:
 
 	float GetCameraZoomHeight() const;
 	void SetCameraZoomHeight(float Value) const;
-	
+
 	UCloud9Inventory* GetInventory() const;
 
 	// Set by character movement to specify that this Character is currently sneaking.
 	// TODO: replicatedUsing=OnRep_IsSneaking
 	UPROPERTY(BlueprintReadOnly, Category=Character)
-	uint32 bIsSneaking:1;
-	
+	uint32 bIsSneaking : 1;
+
 private:
 	UPROPERTY(EditDefaultsOnly)
 	UMaterial* CursorDecal;
@@ -69,7 +70,7 @@ private:
 	/** A decal that projects to the cursor location. */
 	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	FName CameraTargetBoneName;
-	
+
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* TopDownCameraComponent;
@@ -86,6 +87,6 @@ private:
 	UCloud9Inventory* Inventory;
 
 	float RotationSpeed;
-	
+
 	FRotator TargetRotation;
 };
