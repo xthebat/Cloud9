@@ -44,5 +44,6 @@ private:
 	UPROPERTY(Category="Character Movement (Rotation Settings)", EditDefaultsOnly)
 	float RotationLag;
 
+	/** Target rotator of character*/
 	FRotator TargetRotator;
 };

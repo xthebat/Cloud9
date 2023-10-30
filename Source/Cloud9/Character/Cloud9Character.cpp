@@ -59,29 +59,28 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 
 UCloud9CharacterMovement* ACloud9Character::GetCloud9CharacterMovement() const
 {
-	if (const auto MyCharacterMovement = GetCharacterMovement())
-	{
-		return Cast<UCloud9CharacterMovement>(MyCharacterMovement);
-	}
-
-	return nullptr;
+	const auto Movement = GetCharacterMovement();
+	return IsValid(Movement) ? Cast<UCloud9CharacterMovement>(Movement) : nullptr;
 }
 
 ACloud9PlayerController* ACloud9Character::GetCloud9Controller() const
 {
-	if (const auto MyController = GetController())
-	{
-		return Cast<ACloud9PlayerController>(MyController);
-	}
-
-	return nullptr;
+	return IsValid(Controller) ? Cast<ACloud9PlayerController>(Controller) : nullptr;
 }
 
-bool ACloud9Character::CanSneak() const { return !GetCloud9CharacterMovement()->IsCrouching(); }
+bool ACloud9Character::CanSneak() const
+{
+	if (const auto Movement = GetCloud9CharacterMovement(); IsValid(Movement))
+	{
+		return !Movement->IsCrouching();
+	}
+
+	return false;
+}
 
 void ACloud9Character::Sneak() const
 {
-	if (const auto Movement = GetCloud9CharacterMovement())
+	if (const auto Movement = GetCloud9CharacterMovement(); IsValid(Movement))
 	{
 		Movement->Sneak();
 	}
@@ -89,7 +88,7 @@ void ACloud9Character::Sneak() const
 
 void ACloud9Character::UnSneak() const
 {
-	if (const auto Movement = GetCloud9CharacterMovement())
+	if (const auto Movement = GetCloud9CharacterMovement(); IsValid(Movement))
 	{
 		Movement->UnSneak();
 	}
@@ -207,16 +206,16 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 
 	SetCursorIsHidden(true);
 
-	if (CursorDecal != nullptr)
+	if (IsValid(CursorDecal))
 	{
 		UE_LOG(LogCloud9, Display, TEXT("Setup CursorDecal = %s"), *CursorDecal->GetName());
 		CursorToWorld->SetDecalMaterial(CursorDecal);
 		CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
 	}
 
-	if (GetMesh() != nullptr && !CameraTargetBoneName.IsNone())
+	if (const auto MyMesh = GetMesh(); IsValid(MyMesh) && !CameraTargetBoneName.IsNone())
 	{
-		const auto HeadBoneLocation = GetMesh()->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
+		const auto HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
 		UE_LOG(LogCloud9, Display, TEXT("Setup CameraBoom = %s"), *HeadBoneLocation.ToString());
 		CameraBoom->SetWorldLocation(HeadBoneLocation);
 	}
