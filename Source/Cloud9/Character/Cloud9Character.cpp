@@ -5,11 +5,11 @@
 #include "Camera/CameraComponent.h"
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
-#include "Cloud9/Tools/Cloud9ToolsLibrary.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Cloud9CharacterMovement.h"
 #include "Components/Cloud9Inventory.h"
+#include "Components/Cloud9SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -17,6 +17,7 @@
 #include "Engine/World.h"
 #include "Kismet/KismetMathLibrary.h"
 
+class UCloud9SpringArmComponent;
 const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
 const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");
 const FName ACloud9Character::DecalComponentName = TEXT("CursorToWorld");
@@ -37,7 +38,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	Movement->bSnapToPlaneAtStart = true;
 	Movement->JumpZVelocity = 320.0f;
 
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(SpringArmComponentName);
+	CameraBoom = CreateDefaultSubobject<UCloud9SpringArmComponent>(SpringArmComponentName);
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
 	CameraBoom->bDoCollisionTest = true; // Don't want to pull camera in when it collides with level
