@@ -44,7 +44,7 @@ public:
 
 	void UnSneak() const;
 
-	void SetViewDirection(const FHitResult& HitResult, bool bIsHitValid);
+	void SetViewDirection(const FHitResult& HitResult, bool bIsHitValid) const;
 
 	void SetCameraRotationYaw(float Angle) const;
 	void AddCameraRotationYaw(float Angle) const;
@@ -83,10 +83,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UDecalComponent* CursorToWorld;
 
+	/** An inventory of the character. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
 	UCloud9Inventory* Inventory;
-
-	float RotationSpeed;
-
-	FRotator TargetRotation;
 };

@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "Cloud9Character.h"
 
 #include "DrawDebugHelpers.h"
@@ -30,9 +28,6 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
-
-	RotationSpeed = 8.0f;
-	TargetRotation = GetActorRotation();
 
 	GetCapsuleComponent()->InitCapsuleSize(32.f, 72.0f);
 
@@ -100,7 +95,7 @@ void ACloud9Character::UnSneak() const
 	}
 }
 
-void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHitValid)
+void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHitValid) const
 {
 	if (IsValid(CursorToWorld))
 	{
@@ -150,7 +145,7 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 		const auto TargetLocation = FVector{HitResult.Location.X, HitResult.Location.Y, 0.0f};
 		const auto ActorLocation = GetActorLocation();
 		const auto LookRotation = UKismetMathLibrary::FindLookAtRotation(ActorLocation, TargetLocation);
-		TargetRotation.Yaw = LookRotation.Yaw;
+		GetCloud9CharacterMovement()->Rotate({0.0f, LookRotation.Yaw, 0.0f});
 	}
 }
 
@@ -207,35 +202,23 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 
 	const auto Rotator = Transform.Rotator();
 
-	TargetRotation.Yaw = Rotator.Yaw;
 	SetCameraRotationYaw(Rotator.Yaw);
-	SetActorRotation(TargetRotation);
+	GetCloud9CharacterMovement()->Rotate({0.0f, Rotator.Yaw, 0.0f}, true);
 
 	SetCursorIsHidden(true);
 
-	if (IsValid(CursorDecal))
+	if (CursorDecal != nullptr)
 	{
 		UE_LOG(LogCloud9, Display, TEXT("Setup CursorDecal = %s"), *CursorDecal->GetName());
 		CursorToWorld->SetDecalMaterial(CursorDecal);
 		CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
 	}
 
-	if (IsValid(GetMesh()))
+	if (GetMesh() != nullptr && !CameraTargetBoneName.IsNone())
 	{
-		if (!CameraTargetBoneName.IsNone())
-		{
-			const auto HeadBoneLocation = GetMesh()->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
-			CameraBoom->SetWorldLocation(HeadBoneLocation);
-		}
-
-		const auto Box = UCloud9ToolsLibrary::GetAccurateReferencePoseBounds(GetMesh()->SkeletalMesh);
-
-		UE_LOG(LogCloud9, Display, TEXT("Box = %s GetMesh()->Bounds = %s"), *Box.ToString(),
-		       *GetMesh()->Bounds.ToString());
-
-		// float Width = 0.0f, Height = 0.0f, Depth = 0.0f;
-		// UCloud9ToolsLibrary::GetWidthHeightDepth(GetMesh()->Bounds.GetBox(), Width, Height, Depth);
-		// GetCapsuleComponent()->InitCapsuleSize(Width, Height);
+		const auto HeadBoneLocation = GetMesh()->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
+		UE_LOG(LogCloud9, Display, TEXT("Setup CameraBoom = %s"), *HeadBoneLocation.ToString());
+		CameraBoom->SetWorldLocation(HeadBoneLocation);
 	}
 }
 
@@ -247,37 +230,4 @@ void ACloud9Character::BeginPlay()
 void ACloud9Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	const auto ActorRotation = GetActorRotation();
-	const auto NewRotation = FMath::Lerp(ActorRotation, TargetRotation, RotationSpeed * DeltaSeconds);
-	SetActorRotation(NewRotation);
-
-	// const auto ActorRotation = GetActorRotation();
-	// ActorRotation.GetNormalized()
-	// const auto Remain = TargetRotation - ActorRotation;
-	// if (Remain != FRotator::ZeroRotator)
-	// {
-	// 	const auto Delta = RotationSpeed * DeltaSeconds;
-	//
-	// 	auto DeltaRotation = FRotator{
-	// 		FMath::Min(Delta, Remain.Pitch),
-	// 		FMath::Min(Delta, Remain.Yaw),
-	// 		FMath::Min(Delta, Remain.Roll),
-	// 	};
-	//
-	// 	if (Remain.Pitch > PI)
-	// 		DeltaRotation.Pitch = -DeltaRotation.Pitch;
-	//
-	// 	if (Remain.Yaw > PI)
-	// 		DeltaRotation.Yaw = -DeltaRotation.Yaw;
-	//
-	// 	if (Remain.Roll > PI)
-	// 		DeltaRotation.Roll = -DeltaRotation.Roll;
-	//
-	// 	UE_LOG(LogCloud9, Display, TEXT("%s  |  %s"),
-	// 	       *ActorRotation.ToString(),
-	// 	       *DeltaRotation.ToString());
-	//
-	// 	AddActorWorldRotation(DeltaRotation);
-	// }
 }
