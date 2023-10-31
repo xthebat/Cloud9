@@ -70,3 +70,32 @@ FRotator UCloud9ToolsLibrary::RadiansToDegrees(const FRotator Rotator)
 		FMath::RadiansToDegrees(Rotator.Roll)
 	};
 }
+
+FVector UCloud9ToolsLibrary::VInterpTo(
+	const FVector Current,
+	const FVector Target,
+	float DeltaTime,
+	const FVector InterpSpeed)
+{
+	const auto ClampLerp = [](auto Current, auto Dist, auto Alpha, auto Target)
+	{
+		return Alpha <= 0.0f ? Target : Current + Dist * FMath::Clamp(Alpha, 0.0f, 1.0f);
+	};
+
+	// Distance to reach
+	const auto Dist = Target - Current;
+
+	// If distance is too small, just set the desired location
+	if (Dist.SizeSquared() < KINDA_SMALL_NUMBER)
+	{
+		return Target;
+	}
+
+	const auto Alpha = DeltaTime * InterpSpeed;
+
+	return {
+		ClampLerp(Current.X, Dist.X, Alpha.X, Target.X),
+		ClampLerp(Current.Y, Dist.Y, Alpha.Y, Target.Y),
+		ClampLerp(Current.Z, Dist.Z, Alpha.Z, Target.Z),
+	};
+}
