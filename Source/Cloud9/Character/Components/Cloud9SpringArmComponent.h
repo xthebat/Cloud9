@@ -1,36 +1,32 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9CharacterComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Cloud9SpringArmComponent.generated.h"
 
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class CLOUD9_API UCloud9SpringArmComponent
-	: public USpringArmComponent
-	  , public ICloud9CharacterComponent
+UCLASS(ClassGroup=(Camera), meta=(BlueprintSpawnableComponent))
+class CLOUD9_API UCloud9SpringArmComponent : public USpringArmComponent
 {
 	GENERATED_BODY()
 
 public:
+	// TODO: CameraLagRotator
+
+	/**
+	 * If bEnableCameraLag is true, controls how quickly camera reaches target position by each axis.
+	 * Values of this vector multiplies with @CameraLagSpeed.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Lag, meta=(editcondition="bEnableCameraLag"))
+	FVector CameraLagVector;
+
+public:
 	UCloud9SpringArmComponent();
 
-	virtual void TickComponent(
-		float DeltaTime,
-		ELevelTick TickType,
-		FActorComponentTickFunction* ThisTickFunction
+	virtual void UpdateDesiredArmLocation(
+		bool bDoTrace,
+		bool bDoLocationLag,
+		bool bDoRotationLag,
+		float DeltaTime
 	) override;
-
-	virtual void OnRegister() override;
-
-private:
-	static constexpr float RotationScale = 360.0f;
-
-	/** Vertical rotation speed lag for camera*/
-	UPROPERTY(EditDefaultsOnly, Category=Lag,
-		meta=(ClampMin="0.0", ClampMax="10000.0", UIMin = "0.0", UIMax = "10000.0"))
-	float RotationVerticalLagSpeed;
-
-	FRotator TargetRelativeRotation;
 };

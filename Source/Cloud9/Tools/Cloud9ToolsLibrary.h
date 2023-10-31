@@ -61,4 +61,10 @@ public:
 	static void GetWidthHeightDepth(const FBox& Box, float& Width, float& Height, float& Depth);
 
 	static FRotator RadiansToDegrees(const FRotator Rotator);
+
+	static FVector VInterpTo(
+		const FVector Current,
+		const FVector Target,
+		float DeltaTime,
+		const FVector InterpSpeed);
 };
