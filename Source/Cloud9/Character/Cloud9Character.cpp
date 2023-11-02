@@ -26,6 +26,9 @@ const FName ACloud9Character::InventoryComponentName = TEXT("Inventory");
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
 {
+	bIsDrawHitCursorLine = false;
+	bIsDrawDeprojectedCursorLine = false;
+
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -107,38 +110,38 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 		SetCursorIsHidden(false);
 	}
 
-	FVector WorldLocation;
-	FVector WorldDirection;
-	FVector2D MousePosition;
+	if (bIsDrawHitCursorLine)
+	{
+		DrawDebugLine(
+			GetWorld(),
+			GetActorLocation(),
+			HitResult.Location,
+			FColor::Green,
+			false,
+			0.0);
+	}
 
-	GetCloud9Controller()->GetMousePosition(MousePosition.X, MousePosition.Y);
-	GetCloud9Controller()->DeprojectScreenPositionToWorld(
-		MousePosition.X,
-		MousePosition.Y,
-		WorldLocation,
-		WorldDirection);
+	if (bIsDrawDeprojectedCursorLine)
+	{
+		FVector WorldLocation;
+		FVector WorldDirection;
+		FVector2D MousePosition;
 
-	DrawDebugLine(
-		GetWorld(),
-		GetActorLocation(),
-		WorldLocation,
-		FColor::Red,
-		false,
-		/*LifeTime=*/0.0,
-		/*DepthPriority=*/0,
-		/*Thickness=*/0.f);
+		GetCloud9Controller()->GetMousePosition(MousePosition.X, MousePosition.Y);
+		GetCloud9Controller()->DeprojectScreenPositionToWorld(
+			MousePosition.X,
+			MousePosition.Y,
+			WorldLocation,
+			WorldDirection);
 
-	DrawDebugLine(
-		GetWorld(),
-		GetActorLocation(),
-		HitResult.Location,
-		FColor::Green,
-		false,
-		/*LifeTime=*/0.0,
-		/*DepthPriority=*/0,
-		/*Thickness=*/0.f);
-
-	// UE_LOG(LogCloud9, Display, TEXT("%s"), *HitResult.Location.ToString());
+		DrawDebugLine(
+			GetWorld(),
+			GetActorLocation(),
+			WorldLocation,
+			FColor::Red,
+			false,
+			0.0);
+	}
 
 	if (bIsHitValid)
 	{

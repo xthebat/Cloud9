@@ -7,7 +7,7 @@
 #include "Cloud9Character.generated.h"
 
 
-UCLASS(Blueprintable)
+UCLASS(config=Game, Blueprintable)
 class ACloud9Character : public ACharacter
 {
 	GENERATED_BODY()
@@ -60,6 +60,21 @@ public:
 	// TODO: replicatedUsing=OnRep_IsSneaking
 	UPROPERTY(BlueprintReadOnly, Category=Character)
 	uint32 bIsSneaking : 1;
+
+	// Debug section
+
+	UFUNCTION(BlueprintCallable)
+	void SetIsDrawHitCursorLine(bool Value) { bIsDrawHitCursorLine = Value; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetIsDrawDeprojectedCursorLine(bool Value) { bIsDrawDeprojectedCursorLine = Value; }
+
+protected:
+	UPROPERTY(Config, BlueprintReadOnly, Category = Debug)
+	bool bIsDrawHitCursorLine;
+
+	UPROPERTY(Config, BlueprintReadOnly, Category = Debug)
+	bool bIsDrawDeprojectedCursorLine;
 
 private:
 	UPROPERTY(EditDefaultsOnly)
