@@ -16,6 +16,7 @@ public class Cloud9 : ModuleRules
 			"InputCore",
 			"HeadMountedDisplay",
 			"NavigationSystem",
+			"DeveloperSettings",
 			"AIModule",
 			"Niagara"
 		});

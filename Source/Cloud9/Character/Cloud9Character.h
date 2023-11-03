@@ -7,7 +7,7 @@
 #include "Cloud9Character.generated.h"
 
 
-UCLASS(Blueprintable)
+UCLASS(config=Game, Blueprintable)
 class ACloud9Character : public ACharacter
 {
 	GENERATED_BODY()

@@ -4,6 +4,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Cloud9/Cloud9.h"
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -15,6 +16,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "GameFramework/GameUserSettings.h"
 #include "Kismet/KismetMathLibrary.h"
 
 class UCloud9SpringArmComponent;
@@ -107,38 +109,40 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 		SetCursorIsHidden(false);
 	}
 
-	FVector WorldLocation;
-	FVector WorldDirection;
-	FVector2D MousePosition;
+	const auto Settings = UCloud9DeveloperSettings::GetCloud9DeveloperSettings();
 
-	GetCloud9Controller()->GetMousePosition(MousePosition.X, MousePosition.Y);
-	GetCloud9Controller()->DeprojectScreenPositionToWorld(
-		MousePosition.X,
-		MousePosition.Y,
-		WorldLocation,
-		WorldDirection);
+	if (Settings->bIsDrawHitCursorLine)
+	{
+		DrawDebugLine(
+			GetWorld(),
+			GetActorLocation(),
+			HitResult.Location,
+			FColor::Green,
+			false,
+			0.0);
+	}
 
-	DrawDebugLine(
-		GetWorld(),
-		GetActorLocation(),
-		WorldLocation,
-		FColor::Red,
-		false,
-		/*LifeTime=*/0.0,
-		/*DepthPriority=*/0,
-		/*Thickness=*/0.f);
+	if (Settings->bIsDrawDeprojectedCursorLine)
+	{
+		FVector WorldLocation;
+		FVector WorldDirection;
+		FVector2D MousePosition;
 
-	DrawDebugLine(
-		GetWorld(),
-		GetActorLocation(),
-		HitResult.Location,
-		FColor::Green,
-		false,
-		/*LifeTime=*/0.0,
-		/*DepthPriority=*/0,
-		/*Thickness=*/0.f);
+		GetCloud9Controller()->GetMousePosition(MousePosition.X, MousePosition.Y);
+		GetCloud9Controller()->DeprojectScreenPositionToWorld(
+			MousePosition.X,
+			MousePosition.Y,
+			WorldLocation,
+			WorldDirection);
 
-	// UE_LOG(LogCloud9, Display, TEXT("%s"), *HitResult.Location.ToString());
+		DrawDebugLine(
+			GetWorld(),
+			GetActorLocation(),
+			WorldLocation,
+			FColor::Red,
+			false,
+			0.0);
+	}
 
 	if (bIsHitValid)
 	{
