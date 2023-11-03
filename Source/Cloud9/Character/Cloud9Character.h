@@ -61,21 +61,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category=Character)
 	uint32 bIsSneaking : 1;
 
-	// Debug section
-
-	UFUNCTION(BlueprintCallable)
-	void SetIsDrawHitCursorLine(bool Value) { bIsDrawHitCursorLine = Value; }
-
-	UFUNCTION(BlueprintCallable)
-	void SetIsDrawDeprojectedCursorLine(bool Value) { bIsDrawDeprojectedCursorLine = Value; }
-
-protected:
-	UPROPERTY(Config, BlueprintReadOnly, Category = Debug)
-	bool bIsDrawHitCursorLine;
-
-	UPROPERTY(Config, BlueprintReadOnly, Category = Debug)
-	bool bIsDrawDeprojectedCursorLine;
-
 private:
 	UPROPERTY(EditDefaultsOnly)
 	UMaterial* CursorDecal;

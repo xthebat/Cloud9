@@ -4,6 +4,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Cloud9/Cloud9.h"
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -15,6 +16,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "GameFramework/GameUserSettings.h"
 #include "Kismet/KismetMathLibrary.h"
 
 class UCloud9SpringArmComponent;
@@ -26,9 +28,6 @@ const FName ACloud9Character::InventoryComponentName = TEXT("Inventory");
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
 {
-	bIsDrawHitCursorLine = false;
-	bIsDrawDeprojectedCursorLine = false;
-
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -110,7 +109,9 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 		SetCursorIsHidden(false);
 	}
 
-	if (bIsDrawHitCursorLine)
+	const auto Settings = UCloud9DeveloperSettings::GetCloud9DeveloperSettings();
+
+	if (Settings->bIsDrawHitCursorLine)
 	{
 		DrawDebugLine(
 			GetWorld(),
@@ -121,7 +122,7 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 			0.0);
 	}
 
-	if (bIsDrawDeprojectedCursorLine)
+	if (Settings->bIsDrawDeprojectedCursorLine)
 	{
 		FVector WorldLocation;
 		FVector WorldDirection;

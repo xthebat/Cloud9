@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Cloud9GameMode.generated.h"
 
+class UCloud9DeveloperSettings;
 class ACloud9Character;
 
 UCLASS(minimalapi)
@@ -19,15 +20,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ACloud9Character* GetCharacter() const;
 
-	UFUNCTION(BlueprintCallable)
-	void SetNetGraph(int Value);
-	
 public:
 	virtual void Tick(float DeltaSeconds) override;
-
-private:
-	int NetGraph;
 };
-
-
-

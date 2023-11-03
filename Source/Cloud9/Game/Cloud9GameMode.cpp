@@ -1,4 +1,6 @@
 #include "Cloud9GameMode.h"
+
+#include "Cloud9DeveloperSettings.h"
 #include "Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "UObject/ConstructorHelpers.h"
@@ -9,7 +11,6 @@ ACloud9GameMode::ACloud9GameMode()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	PlayerControllerClass = ACloud9PlayerController::StaticClass();
 	DefaultPawnClass = ACloud9Character::StaticClass();
-	NetGraph = 1;
 }
 
 ACloud9Character* ACloud9GameMode::GetCharacter() const
@@ -17,16 +18,16 @@ ACloud9Character* ACloud9GameMode::GetCharacter() const
 	return Cast<ACloud9Character>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 }
 
-void ACloud9GameMode::SetNetGraph(int Value) { NetGraph = Value; }
-
 void ACloud9GameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (NetGraph > 0)
+	const auto Settings = UCloud9DeveloperSettings::GetCloud9DeveloperSettings();
+
+	if (Settings->NetGraph > 0)
 	{
 		const auto Fps = 1.0f / DeltaSeconds;
-		
+
 		const auto Location = GetCharacter()->GetActorLocation();
 		const auto Velocity = GetCharacter()->GetVelocity();
 		const auto Text = FString::Printf(
