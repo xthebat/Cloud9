@@ -1,4 +1,6 @@
 ﻿#include "Cloud9ToolsLibrary.h"
+
+#include "Cloud9/Cloud9.h"
 #include "Cloud9/Game/Cloud9GameMode.h"
 
 void UCloud9ToolsLibrary::SetCollisionComplexity(UStaticMesh* StaticMesh, uint8 CollisionTraceFlag)
@@ -98,4 +100,95 @@ FVector UCloud9ToolsLibrary::VInterpTo(
 		ClampLerp(Current.Y, Dist.Y, Alpha.Y, Target.Y),
 		ClampLerp(Current.Z, Dist.Z, Alpha.Z, Target.Z),
 	};
+}
+
+template <typename TType>
+class FPropertyToString
+{
+public:
+	using TCppType = typename TType::TCppType;
+	using TGetter = TFunction<TCppType(const UObject*, const TType*)>;
+
+	FPropertyToString(const UObject* Container, const FProperty* ToConvert)
+	{
+		static_assert(TIsDerivedFrom<TType, FProperty>::Value, "Type should be inherited from FProperty");
+		Object = Container;
+		Property = ToConvert;
+	}
+	
+	FPropertyToString& UseGetter(TGetter NewGetter)
+	{
+		Getter = NewGetter;
+		return *this;
+	}
+	
+	TOptional<FString> Convert()
+	{
+		if (const auto TypedProperty = CastField<TType>(Property))
+		{
+			const auto Name = Property->GetFName();
+			const auto TypeName = Property->GetCPPType();
+			const auto ActualGetter = Getter.Get(&FPropertyToString::DefaultGetter);
+			const auto Value = ActualGetter(Object, TypedProperty);
+			return FString::Printf(TEXT("\t%s: %s = %s\n"), *Name.ToString(), *TypeName, *LexToString(Value));
+		}
+	
+		return {};
+	}
+	
+	bool AppendTo(FString& String)
+	{
+		if (const auto Converted = Convert(); Converted.IsSet())
+		{
+			String += Converted.GetValue();
+			return true;
+		}
+	
+		return false;
+	}
+
+private:
+	static TCppType DefaultGetter(const UObject* Object, const TType* Property)
+	{
+		if constexpr (!TIsSame<FBoolProperty, TType>::Value)
+		{
+			const auto ValuePtr = Property->template ContainerPtrToValuePtr<void>(Object);
+			return TType::GetPropertyValue(ValuePtr);
+		}
+
+		UE_LOG(LogCloud9, Fatal, TEXT("Default getter not exists for FBoolProperty"))
+		return false;
+	}
+
+	const UObject* Object;
+	const FProperty* Property;
+	TOptional<TGetter> Getter;
+};
+
+
+FString UCloud9ToolsLibrary::UObjectToString(const UObject* Object)
+{
+	FString String;
+	const auto Class = Object->GetClass();
+
+	String += FString::Printf(TEXT("class %s {\n"), *Class->GetName());
+	for (TFieldIterator<FProperty> PropertyIterator(Class); PropertyIterator; ++PropertyIterator)
+	{
+		const auto Property = *PropertyIterator;
+
+		FPropertyToString<FInt16Property>(Object, Property).AppendTo(String)
+			|| FPropertyToString<FIntProperty>(Object, Property).AppendTo(String)
+			|| FPropertyToString<FInt64Property>(Object, Property).AppendTo(String)
+			|| FPropertyToString<FUInt16Property>(Object, Property).AppendTo(String)
+			|| FPropertyToString<FUInt32Property>(Object, Property).AppendTo(String)
+			|| FPropertyToString<FUInt64Property>(Object, Property).AppendTo(String)
+			|| FPropertyToString<FFloatProperty>(Object, Property).AppendTo(String)
+			|| FPropertyToString<FDoubleProperty>(Object, Property).AppendTo(String)
+			|| FPropertyToString<FBoolProperty>(Object, Property)
+			   .UseGetter([](auto Object, auto Property) { return true; })
+			   .AppendTo(String);
+	}
+	String += FString::Printf(TEXT("}"));
+
+	return String;
 }

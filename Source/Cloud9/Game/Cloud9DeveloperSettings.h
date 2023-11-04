@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Cloud9ToolsLibrary.h"
 #include "Cloud9DeveloperSettings.generated.h"
 
 UCLASS(Config=Game, defaultconfig, meta = (DisplayName="Save Game Settings"))
@@ -16,14 +17,16 @@ public:
 		static auto bIsLoaded = false;
 		static const auto Settings = GetDefault<UCloud9DeveloperSettings>();
 
-		if (!bIsLoaded)
-		{
-			UE_LOG(LogCloud9, Display, TEXT("IsDrawHitCursorLine: %d"), Settings->bIsShowMouseCursor);
-			UE_LOG(LogCloud9, Display, TEXT("IsDrawDeprojectedCursorLine: %d"), Settings->bIsDrawDeprojectedCursorLine);
-			UE_LOG(LogCloud9, Display, TEXT("IsShowMouseCursor: %d"), Settings->bIsShowMouseCursor);
-			UE_LOG(LogCloud9, Display, TEXT("NetGraph: %d"), Settings->NetGraph);
-			bIsLoaded = true;
-		}
+		// if (!bIsLoaded)
+		// {
+			UE_LOG(LogCloud9, Display, TEXT("%s"), *UCloud9ToolsLibrary::UObjectToString(Settings));
+			
+			// UE_LOG(LogCloud9, Display, TEXT("IsDrawHitCursorLine: %d"), Settings->bIsShowMouseCursor);
+			// UE_LOG(LogCloud9, Display, TEXT("IsDrawDeprojectedCursorLine: %d"), Settings->bIsDrawDeprojectedCursorLine);
+			// UE_LOG(LogCloud9, Display, TEXT("IsShowMouseCursor: %d"), Settings->bIsShowMouseCursor);
+			// UE_LOG(LogCloud9, Display, TEXT("NetGraph: %d"), Settings->NetGraph);
+			// bIsLoaded = true;
+		// }
 
 		return Settings;
 	}

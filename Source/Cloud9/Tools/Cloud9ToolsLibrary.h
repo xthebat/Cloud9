@@ -67,4 +67,6 @@ public:
 		const FVector Target,
 		float DeltaTime,
 		const FVector InterpSpeed);
+
+	static FString UObjectToString(const UObject* Object);
 };
