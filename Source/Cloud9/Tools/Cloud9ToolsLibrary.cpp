@@ -112,7 +112,7 @@ typename TType::TCppType UPropertyGetValue(const UObject* Object, const TType* P
 template <>
 bool UPropertyGetValue(const UObject* Object, const FBoolProperty* Property)
 {
-	return false;
+	return Property->GetPropertyValue_InContainer(Object);
 }
 
 template <typename TType>
