@@ -3,6 +3,19 @@
 #include "CoreMinimal.h"
 #include "Cloud9DeveloperSettings.generated.h"
 
+USTRUCT(BlueprintType)
+struct FUnUsedStruct
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int IntField0 = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float FloatField1 = 0.0f;
+};
+
 UENUM()
 enum class EUnUsedEnum : int32
 {
@@ -43,4 +56,7 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	EUnUsedEnum UnUsedEnum;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	FUnUsedStruct UnUsedStruct;
 };

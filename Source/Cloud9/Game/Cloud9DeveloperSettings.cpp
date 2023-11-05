@@ -10,6 +10,8 @@ const UCloud9DeveloperSettings* UCloud9DeveloperSettings::GetCloud9DeveloperSett
 	
 	if (!bIsInitialized)
 	{
+		let X = FUnUsedStruct();
+		let q = X.StaticStruct();
 		Cast<UCloud9DeveloperSettings>(Settings)->Log();
 		bIsInitialized = true;
 	}
@@ -25,5 +27,5 @@ void UCloud9DeveloperSettings::Save()
 
 void UCloud9DeveloperSettings::Log() const
 {
-	UE_LOG(LogCloud9, Display, TEXT("%s"), *UCloud9ReflectionLibrary::UObjectToString(this));
+	UE_LOG(LogCloud9, Display, TEXT("%s"), *UCloud9ReflectionLibrary::UObjectToString(this, GetClass()));
 }

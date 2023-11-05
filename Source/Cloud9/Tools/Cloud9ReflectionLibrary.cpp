@@ -27,19 +27,6 @@
 
 auto LexToString(const FText& Text) { return *Text.ToString(); }
 
-template <typename TType, typename TResult>
-TResult UCloud9ReflectionLibrary::UPropertyGetValue(const UObject* Object, const TType* Property)
-{
-	let Ptr = Property->template ContainerPtrToValuePtr<void>(Object);
-	return TType::GetPropertyValue(Ptr);
-}
-
-template <>
-bool UCloud9ReflectionLibrary::UPropertyGetValue(const UObject* Object, const FBoolProperty* Property)
-{
-	return Property->GetPropertyValue_InContainer(Object);
-}
-
 template <typename TValue>
 FString UCloud9ReflectionLibrary::FormatProperty(const FProperty* Property, TValue Value)
 {
@@ -48,8 +35,21 @@ FString UCloud9ReflectionLibrary::FormatProperty(const FProperty* Property, TVal
 	return FString::Printf(TEXT("%s: %s = %s"), *Name.ToString(), *TypeName, *LexToString(Value));
 }
 
+template <typename TType, typename TResult>
+TResult UCloud9ReflectionLibrary::UPropertyGetValue(const void* Object, const TType* Property)
+{
+	let Ptr = Property->template ContainerPtrToValuePtr<void>(Object);
+	return TType::GetPropertyValue(Ptr);
+}
+
+template <>
+bool UCloud9ReflectionLibrary::UPropertyGetValue(const void* Object, const FBoolProperty* Property)
+{
+	return Property->GetPropertyValue_InContainer(Object);
+}
+
 template <typename TType>
-TOptional<FString> UCloud9ReflectionLibrary::UPropertyConvert(const UObject* Object, const FProperty* Property)
+TOptional<FString> UCloud9ReflectionLibrary::UPropertyConvert(const void* Object, const FProperty* Property)
 {
 	if (let TypedProperty = CastField<TType>(Property))
 	{
@@ -61,7 +61,7 @@ TOptional<FString> UCloud9ReflectionLibrary::UPropertyConvert(const UObject* Obj
 
 template <>
 TOptional<FString> UCloud9ReflectionLibrary::UPropertyConvert<FEnumProperty>(
-	const UObject* Object,
+	const void* Object,
 	const FProperty* Property)
 {
 	if (let TypedProperty = CastField<FEnumProperty>(Property))
@@ -76,10 +76,23 @@ TOptional<FString> UCloud9ReflectionLibrary::UPropertyConvert<FEnumProperty>(
 	return {};
 }
 
+template <>
+TOptional<FString> UCloud9ReflectionLibrary::UPropertyConvert<FStructProperty>(
+	const void* Object,
+	const FProperty* Property)
+{
+	if (let TypedProperty = CastField<FStructProperty>(Property))
+	{
+		let Ptr = TypedProperty->ContainerPtrToValuePtr<UObject>(Object);
+		return UObjectToString(Ptr, TypedProperty->Struct);
+	}
+	return {};
+}
+
 template <typename TType>
 bool UCloud9ReflectionLibrary::UPropertyAppendTo(
 	FTextBuilder& Builder,
-	const UObject* Object,
+	const void* Object,
 	const FProperty* Property)
 {
 	if (let String = UPropertyConvert<TType>(Object, Property))
@@ -90,44 +103,49 @@ bool UCloud9ReflectionLibrary::UPropertyAppendTo(
 	return false;
 }
 
-FString UCloud9ReflectionLibrary::UObjectToString(const UObject* Object)
+bool UCloud9ReflectionLibrary::UPropertyAppendTo(
+	FTextBuilder& Builder,
+	const void* Object,
+	const FProperty* Property)
+{
+	return UPropertyAppendTo<FInt16Property>(Builder, Object, Property)
+		|| UPropertyAppendTo<FIntProperty>(Builder, Object, Property)
+		|| UPropertyAppendTo<FInt64Property>(Builder, Object, Property)
+		|| UPropertyAppendTo<FUInt16Property>(Builder, Object, Property)
+		|| UPropertyAppendTo<FUInt32Property>(Builder, Object, Property)
+		|| UPropertyAppendTo<FUInt64Property>(Builder, Object, Property)
+		|| UPropertyAppendTo<FFloatProperty>(Builder, Object, Property)
+		|| UPropertyAppendTo<FDoubleProperty>(Builder, Object, Property)
+		|| UPropertyAppendTo<FBoolProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FObjectProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FWeakObjectProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FLazyObjectProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FSoftObjectProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FClassProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FSoftClassProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FInterfaceProperty>(Builder, Object, Property)
+		|| UPropertyAppendTo<FNameProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FArrayProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FMapProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FSetProperty>(Builder, Object, Property)
+		|| UPropertyAppendTo<FStructProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FDelegateProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FMulticastDelegateProperty>(Builder, Object, Property)
+		// || UPropertyAppendTo<FMulticastInlineDelegateProperty>(Builder, Object, Property)
+		|| UPropertyAppendTo<FEnumProperty>(Builder, Object, Property)
+		|| UPropertyAppendTo<FTextProperty>(Builder, Object, Property);
+}
+
+FString UCloud9ReflectionLibrary::UObjectToString(const UObject* Object, const UStruct* Type)
 {
 	FTextBuilder Builder;
-	let Class = Object->GetClass();
 
-	Builder.AppendLine(FString::Printf(TEXT("class %s {"), *Class->GetName()));
+	Builder.AppendLine(FString::Printf(TEXT("class %s {"), *Type->GetName()));
 	Builder.Indent();
 
-	for (TFieldIterator<FProperty> PropertyIterator(Class); PropertyIterator; ++PropertyIterator)
+	for (TFieldIterator<FProperty> It(Type); It; ++It)
 	{
-		let Property = *PropertyIterator;
-
-		UPropertyAppendTo<FInt16Property>(Builder, Object, Property)
-			|| UPropertyAppendTo<FIntProperty>(Builder, Object, Property)
-			|| UPropertyAppendTo<FInt64Property>(Builder, Object, Property)
-			|| UPropertyAppendTo<FUInt16Property>(Builder, Object, Property)
-			|| UPropertyAppendTo<FUInt32Property>(Builder, Object, Property)
-			|| UPropertyAppendTo<FUInt64Property>(Builder, Object, Property)
-			|| UPropertyAppendTo<FFloatProperty>(Builder, Object, Property)
-			|| UPropertyAppendTo<FDoubleProperty>(Builder, Object, Property)
-			|| UPropertyAppendTo<FBoolProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FObjectProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FWeakObjectProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FLazyObjectProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FSoftObjectProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FClassProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FSoftClassProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FInterfaceProperty>(Builder, Object, Property)
-			|| UPropertyAppendTo<FNameProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FArrayProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FMapProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FSetProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FStructProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FDelegateProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FMulticastDelegateProperty>(Builder, Object, Property)
-			// || UPropertyAppendTo<FMulticastInlineDelegateProperty>(Builder, Object, Property)
-			|| UPropertyAppendTo<FEnumProperty>(Builder, Object, Property)
-			|| UPropertyAppendTo<FTextProperty>(Builder, Object, Property);
+		UPropertyAppendTo(Builder, Object, *It);
 	}
 
 	Builder.Unindent();
