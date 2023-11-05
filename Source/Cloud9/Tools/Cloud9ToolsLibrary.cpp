@@ -103,68 +103,31 @@ FVector UCloud9ToolsLibrary::VInterpTo(
 }
 
 template <typename TType>
-class FPropertyToString
+typename TType::TCppType UPropertyGetValue(const UObject* Object, const TType* Property)
 {
-public:
-	using TCppType = typename TType::TCppType;
-	using TGetter = TFunction<TCppType(const UObject*, const TType*)>;
+	const auto Ptr = Property->template ContainerPtrToValuePtr<void>(Object);
+	return TType::GetPropertyValue(Ptr);
+}
 
-	FPropertyToString(const UObject* Container, const FProperty* ToConvert)
-	{
-		static_assert(TIsDerivedFrom<TType, FProperty>::Value, "Type should be inherited from FProperty");
-		Object = Container;
-		Property = ToConvert;
-	}
-	
-	FPropertyToString& UseGetter(TGetter NewGetter)
-	{
-		Getter = NewGetter;
-		return *this;
-	}
-	
-	TOptional<FString> Convert()
-	{
-		if (const auto TypedProperty = CastField<TType>(Property))
-		{
-			const auto Name = Property->GetFName();
-			const auto TypeName = Property->GetCPPType();
-			const auto ActualGetter = Getter.Get(&FPropertyToString::DefaultGetter);
-			const auto Value = ActualGetter(Object, TypedProperty);
-			return FString::Printf(TEXT("\t%s: %s = %s\n"), *Name.ToString(), *TypeName, *LexToString(Value));
-		}
-	
-		return {};
-	}
-	
-	bool AppendTo(FString& String)
-	{
-		if (const auto Converted = Convert(); Converted.IsSet())
-		{
-			String += Converted.GetValue();
-			return true;
-		}
-	
-		return false;
-	}
+template <>
+bool UPropertyGetValue(const UObject* Object, const FBoolProperty* Property)
+{
+	return false;
+}
 
-private:
-	static TCppType DefaultGetter(const UObject* Object, const TType* Property)
+template <typename TType>
+typename TType::TCppType UPropertyAppendTo(FString& String, const UObject* Object, const FProperty* Property)
+{
+	if (const auto TypedProperty = CastField<TType>(Property))
 	{
-		if constexpr (!TIsSame<FBoolProperty, TType>::Value)
-		{
-			const auto ValuePtr = Property->template ContainerPtrToValuePtr<void>(Object);
-			return TType::GetPropertyValue(ValuePtr);
-		}
-
-		UE_LOG(LogCloud9, Fatal, TEXT("Default getter not exists for FBoolProperty"))
-		return false;
+		const auto Name = Property->GetFName();
+		const auto TypeName = Property->GetCPPType();
+		const auto Value = UPropertyGetValue<TType>(Object, TypedProperty);
+		String += FString::Printf(TEXT("\t%s: %s = %s\n"), *Name.ToString(), *TypeName, *LexToString(Value));
+		return true;
 	}
-
-	const UObject* Object;
-	const FProperty* Property;
-	TOptional<TGetter> Getter;
-};
-
+	return false;
+}
 
 FString UCloud9ToolsLibrary::UObjectToString(const UObject* Object)
 {
@@ -176,17 +139,16 @@ FString UCloud9ToolsLibrary::UObjectToString(const UObject* Object)
 	{
 		const auto Property = *PropertyIterator;
 
-		FPropertyToString<FInt16Property>(Object, Property).AppendTo(String)
-			|| FPropertyToString<FIntProperty>(Object, Property).AppendTo(String)
-			|| FPropertyToString<FInt64Property>(Object, Property).AppendTo(String)
-			|| FPropertyToString<FUInt16Property>(Object, Property).AppendTo(String)
-			|| FPropertyToString<FUInt32Property>(Object, Property).AppendTo(String)
-			|| FPropertyToString<FUInt64Property>(Object, Property).AppendTo(String)
-			|| FPropertyToString<FFloatProperty>(Object, Property).AppendTo(String)
-			|| FPropertyToString<FDoubleProperty>(Object, Property).AppendTo(String)
-			|| FPropertyToString<FBoolProperty>(Object, Property)
-			   .UseGetter([](auto Object, auto Property) { return true; })
-			   .AppendTo(String);
+		UPropertyAppendTo<FInt16Property>(String, Object, Property)
+			|| UPropertyAppendTo<FIntProperty>(String, Object, Property)
+			|| UPropertyAppendTo<FInt64Property>(String, Object, Property)
+			|| UPropertyAppendTo<FUInt16Property>(String, Object, Property)
+			|| UPropertyAppendTo<FUInt32Property>(String, Object, Property)
+			|| UPropertyAppendTo<FUInt64Property>(String, Object, Property)
+			|| UPropertyAppendTo<FFloatProperty>(String, Object, Property)
+			|| UPropertyAppendTo<FDoubleProperty>(String, Object, Property)
+			|| UPropertyAppendTo<FBoolProperty>(String, Object, Property)
+		;
 	}
 	String += FString::Printf(TEXT("}"));
 
