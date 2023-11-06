@@ -23,28 +23,13 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
-#include "Cloud9ReflectionLibrary.generated.h"
+#include "Cloud9/Cloud9.h"
 
-/**
- * Class to work with UE4 UPROPERTY/UCLASS reflection for debugging.
- */
-UCLASS()
-class CLOUD9_API UCloud9ReflectionLibrary : public UBlueprintFunctionLibrary
+namespace EUObject
 {
-	GENERATED_BODY()
-
-public:
-	template <typename TType, typename TResult = typename TType::TCppType>
-	static TResult UPropertyGetValue(const void* Object, const TType* Property);
-
-	template <typename TType>
-	static bool UPropertyAppendTo(FTextBuilder& Builder, const void* Object, const FProperty* Property);
-
-	static void UObjectAppendTo(FTextBuilder& Builder, const void* Object, const UStruct* Type);
-
-	UFUNCTION(BlueprintCallable)
-	static FString UObjectToString(const UObject* Object, const UStruct* Type);
-};
-
+	struct Stringify : TOperator<Stringify>
+	{
+	public:
+		FString operator()(const UObject* Object) const;
+	};
+}

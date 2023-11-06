@@ -28,7 +28,7 @@
 auto LexToString(const FText& Text) { return *Text.ToString(); }
 
 template <typename TValue>
-FString UCloud9ReflectionLibrary::FormatProperty(const FProperty* Property, TValue Value)
+FString FormatProperty(const FProperty* Property, TValue Value)
 {
 	let Name = Property->GetFName();
 	let TypeName = Property->GetCPPType();
@@ -49,18 +49,24 @@ bool UCloud9ReflectionLibrary::UPropertyGetValue(const void* Object, const FBool
 }
 
 template <typename TType>
-TOptional<FString> UCloud9ReflectionLibrary::UPropertyConvert(const void* Object, const FProperty* Property)
+bool UCloud9ReflectionLibrary::UPropertyAppendTo(
+	FTextBuilder& Builder,
+	const void* Object,
+	const FProperty* Property)
 {
 	if (let TypedProperty = CastField<TType>(Property))
 	{
 		let Value = UPropertyGetValue<TType>(Object, TypedProperty);
-		return FormatProperty(Property, Value);
+		let String = FormatProperty(Property, Value);
+		Builder.AppendLine(String);
+		return true;
 	}
-	return {};
+	return false;
 }
 
 template <>
-TOptional<FString> UCloud9ReflectionLibrary::UPropertyConvert<FEnumProperty>(
+bool UCloud9ReflectionLibrary::UPropertyAppendTo<FEnumProperty>(
+	FTextBuilder& Builder,
 	const void* Object,
 	const FProperty* Property)
 {
@@ -71,44 +77,44 @@ TOptional<FString> UCloud9ReflectionLibrary::UPropertyConvert<FEnumProperty>(
 		let Index = UnderlyingProperty->GetSignedIntPropertyValue(Ptr);
 		let Enum = TypedProperty->GetEnum();
 		let Value = Enum->GetNameByIndex(Index);
-		return FormatProperty(Property, Value);
+		let String = FormatProperty(Property, Value);
+		Builder.AppendLine(String);
+		return true;
 	}
-	return {};
+	return false;
 }
 
 template <>
-TOptional<FString> UCloud9ReflectionLibrary::UPropertyConvert<FStructProperty>(
+bool UCloud9ReflectionLibrary::UPropertyAppendTo<FStructProperty>(
+	FTextBuilder& Builder,
 	const void* Object,
 	const FProperty* Property)
 {
 	if (let TypedProperty = CastField<FStructProperty>(Property))
 	{
 		let Ptr = TypedProperty->ContainerPtrToValuePtr<UObject>(Object);
-		return UObjectToString(Ptr, TypedProperty->Struct);
-	}
-	return {};
-}
-
-template <typename TType>
-bool UCloud9ReflectionLibrary::UPropertyAppendTo(
-	FTextBuilder& Builder,
-	const void* Object,
-	const FProperty* Property)
-{
-	if (let String = UPropertyConvert<TType>(Object, Property))
-	{
-		Builder.AppendLine(*String);
+		UObjectAppendTo(Builder, Ptr, TypedProperty->Struct);
 		return true;
 	}
 	return false;
 }
 
-bool UCloud9ReflectionLibrary::UPropertyAppendTo(
+void UCloud9ReflectionLibrary::UObjectAppendTo(
 	FTextBuilder& Builder,
 	const void* Object,
-	const FProperty* Property)
+	const UStruct* Type)
 {
-	return UPropertyAppendTo<FInt16Property>(Builder, Object, Property)
+	let TypeClass = Type->GetClass();
+	let Header = FString::Printf(TEXT("%s %s {"),
+		*TypeClass->GetName(), *Type->GetName());
+	
+	Builder.AppendLine(Header);
+	Builder.Indent();
+
+	for (TFieldIterator<FProperty> It(Type); It; ++It)
+	{
+		let Property = *It;
+		UPropertyAppendTo<FInt16Property>(Builder, Object, Property)
 		|| UPropertyAppendTo<FIntProperty>(Builder, Object, Property)
 		|| UPropertyAppendTo<FInt64Property>(Builder, Object, Property)
 		|| UPropertyAppendTo<FUInt16Property>(Builder, Object, Property)
@@ -134,24 +140,16 @@ bool UCloud9ReflectionLibrary::UPropertyAppendTo(
 		// || UPropertyAppendTo<FMulticastInlineDelegateProperty>(Builder, Object, Property)
 		|| UPropertyAppendTo<FEnumProperty>(Builder, Object, Property)
 		|| UPropertyAppendTo<FTextProperty>(Builder, Object, Property);
+	}
+
+	Builder.Unindent();
+	Builder.AppendLine(FString{"}"});
 }
 
 FString UCloud9ReflectionLibrary::UObjectToString(const UObject* Object, const UStruct* Type)
 {
 	FTextBuilder Builder;
-
-	Builder.AppendLine(FString::Printf(TEXT("class %s {"), *Type->GetName()));
-	Builder.Indent();
-
-	for (TFieldIterator<FProperty> It(Type); It; ++It)
-	{
-		UPropertyAppendTo(Builder, Object, *It);
-	}
-
-	Builder.Unindent();
-	Builder.AppendLine(FString{"}"});
-
+	UObjectAppendTo(Builder, Object, Type);
 	let Text = Builder.ToText();
-
 	return Text.ToString();
 }

@@ -21,30 +21,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#pragma once
+#include "UObject.h"
 
-#include "CoreMinimal.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
-#include "Cloud9ReflectionLibrary.generated.h"
+#include "Cloud9/Tools/Cloud9ReflectionLibrary.h"
 
-/**
- * Class to work with UE4 UPROPERTY/UCLASS reflection for debugging.
- */
-UCLASS()
-class CLOUD9_API UCloud9ReflectionLibrary : public UBlueprintFunctionLibrary
+FString EUObject::Stringify::operator()(const UObject* Object) const
 {
-	GENERATED_BODY()
-
-public:
-	template <typename TType, typename TResult = typename TType::TCppType>
-	static TResult UPropertyGetValue(const void* Object, const TType* Property);
-
-	template <typename TType>
-	static bool UPropertyAppendTo(FTextBuilder& Builder, const void* Object, const FProperty* Property);
-
-	static void UObjectAppendTo(FTextBuilder& Builder, const void* Object, const UStruct* Type);
-
-	UFUNCTION(BlueprintCallable)
-	static FString UObjectToString(const UObject* Object, const UStruct* Type);
-};
-
+	return UCloud9ReflectionLibrary::UObjectToString(Object, Object->GetClass());
+}
