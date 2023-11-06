@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Alexei Gladkikh
+﻿// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -24,31 +24,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
+#include "Cloud9ReflectionLibrary.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogCloud9, Log, All);
-
-#define let const auto
-#define var auto
-
-template <typename TFunction>
-class TOperator
+/**
+ * Class to work with UE4 UPROPERTY/UCLASS reflection for debugging.
+ */
+UCLASS()
+class CLOUD9_API UCloud9ReflectionLibrary : public UBlueprintFunctionLibrary
 {
-public:
-	template <typename TValue>
-	constexpr friend auto operator|(const TValue* Value, const TFunction& Function)
-	{
-		return Function(Value);
-	}
-	
-	template <typename TValue>
-	constexpr friend auto operator|(TValue& Value, const TFunction& Function)
-	{
-		return Function(Value);
-	}
+	GENERATED_BODY()
 
-	template <typename TValue>
-	constexpr friend auto operator|(TValue&& Value, const TFunction& Function)
-	{
-		return Function(Value);
-	}
+public:
+	UFUNCTION(BlueprintCallable)
+	static FString UObjectToString(const UObject* Object, const UStruct* Type);
 };
+
