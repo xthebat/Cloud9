@@ -36,14 +36,6 @@ class CLOUD9_API UCloud9ReflectionLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	template <typename TType, typename TResult = typename TType::TCppType>
-	static TResult UPropertyGetValue(const void* Object, const TType* Property);
-
-	template <typename TType>
-	static bool UPropertyAppendTo(FTextBuilder& Builder, const void* Object, const FProperty* Property);
-
-	static void UObjectAppendTo(FTextBuilder& Builder, const void* Object, const UStruct* Type);
-
 	UFUNCTION(BlueprintCallable)
 	static FString UObjectToString(const UObject* Object, const UStruct* Type);
 };

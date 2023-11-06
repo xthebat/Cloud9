@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Alexei Gladkikh
+﻿// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -23,32 +23,36 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Cloud9/Cloud9.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogCloud9, Log, All);
-
-#define let const auto
-#define var auto
-
-template <typename TFunction>
-class TOperator
+namespace EFTextBuilder
 {
-public:
-	template <typename TValue>
-	constexpr friend auto operator|(const TValue* Value, const TFunction& Function)
+	struct AppendObject : TOperator<AppendObject>
 	{
-		return Function(Value);
-	}
-	
-	template <typename TValue>
-	constexpr friend auto operator|(TValue& Value, const TFunction& Function)
-	{
-		return Function(Value);
-	}
+		AppendObject(const UObject* Object, const UStruct* Type)
+			: Object(Object), Type(Type) { }
 
-	template <typename TValue>
-	constexpr friend auto operator|(TValue&& Value, const TFunction& Function)
+		FTextBuilder& operator()(FTextBuilder& Builder) const;
+
+	private:
+		const UObject* Object;
+		const UStruct* Type;
+	};
+
+	struct AppendProperty : TOperator<AppendProperty>
 	{
-		return Function(Value);
-	}
-};
+		AppendProperty(const UObject* Object, const FProperty* Property)
+			: Object(Object), Property(Property) { }
+
+		FTextBuilder& operator()(FTextBuilder& Builder) const;
+
+	private:
+		const UObject* Object;
+		const FProperty* Property;
+	};
+	
+	struct ToText : TOperator<ToText>
+	{
+		FText operator()(const FTextBuilder& Builder) const;
+	};
+}
