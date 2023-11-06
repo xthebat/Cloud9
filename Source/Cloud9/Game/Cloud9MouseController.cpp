@@ -1,4 +1,27 @@
-﻿#include "Cloud9MouseController.h"
+﻿// Copyright (c) 2023 Alexei Gladkikh
+//
+// Permission is hereby granted, free of charge, to any person
+// obtaining a copy of this software and associated documentation
+// files (the "Software"), to deal in the Software without
+// restriction, including without limitation the rights to use,
+// copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following
+// conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+
+#include "Cloud9MouseController.h"
 #include "Cloud9PlayerController.h"
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
@@ -32,23 +55,29 @@ UCloud9MouseController::UCloud9MouseController()
 
 FVector2D UCloud9MouseController::GetMousePosition() const
 {
-	FVector2D MousePosition = FVector2D::ZeroVector;
-	GetOwner<ACloud9PlayerController>()->GetMousePosition(MousePosition.X, MousePosition.Y);
-	return MousePosition;
+	if (let Owner = GetOwner<ACloud9PlayerController>(); IsValid(Owner))
+	{
+		FVector2D MousePosition = FVector2D::ZeroVector;
+		GetOwner<ACloud9PlayerController>()->GetMousePosition(MousePosition.X, MousePosition.Y);
+		return MousePosition;
+	}
+
+	UE_LOG(LogCloud9, Fatal, TEXT("Can't get Cloud9PlayerController"));
+	return FVector2D::ZeroVector;
 }
 
 float UCloud9MouseController::GetCameraZoomHeightLevel() const
 {
-	if (IsValid(GetCloud9Pawn()))
+	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
-		const auto ZoomHeightLevel = UCloud9ToolsLibrary::InverseLerp(
+		let ZoomHeightLevel = UCloud9ToolsLibrary::InverseLerp(
 			MinCameraZoomHeight,
 			MaxCameraZoomHeight,
-			GetCloud9Pawn()->GetCameraZoomHeight());
-		const auto ZoomAngleLevel = UCloud9ToolsLibrary::InverseLerp(
+			Pawn->GetCameraZoomHeight());
+		let ZoomAngleLevel = UCloud9ToolsLibrary::InverseLerp(
 			MinCameraZoomAngle,
 			MaxCameraZoomAngle,
-			GetCloud9Pawn()->GetCameraRotationRoll());
+			Pawn->GetCameraRotationRoll());
 
 		if (!FMath::IsNearlyEqual(ZoomHeightLevel, ZoomAngleLevel, 0.001f))
 		{
@@ -60,22 +89,23 @@ float UCloud9MouseController::GetCameraZoomHeightLevel() const
 		return ZoomHeightLevel;
 	}
 
+	UE_LOG(LogCloud9, Fatal, TEXT("Can't get Cloud9Pawn"));
 	return InvalidCameraZoomLevel;
 }
 
 void UCloud9MouseController::SetCameraZoomLevel(float Value) const
 {
-	if (IsValid(GetCloud9Pawn()))
+	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
 		Value = FMath::Clamp(Value, MinCameraZoomLevel, MaxCameraZoomLevel);
 
-		const auto NewZoomHeight = FMath::Lerp(MinCameraZoomHeight, MaxCameraZoomHeight, Value);
-		GetCloud9Pawn()->SetCameraZoomHeight(NewZoomHeight);
+		let NewZoomHeight = FMath::Lerp(MinCameraZoomHeight, MaxCameraZoomHeight, Value);
+		Pawn->SetCameraZoomHeight(NewZoomHeight);
 
 		if (bIsCameraChangeAngleEnabled)
 		{
-			const auto NewZoomAngle = FMath::Lerp(MinCameraZoomAngle, MaxCameraZoomAngle, Value);
-			GetCloud9Pawn()->SetCameraRotationRoll(NewZoomAngle);
+			let NewZoomAngle = FMath::Lerp(MinCameraZoomAngle, MaxCameraZoomAngle, Value);
+			Pawn->SetCameraRotationRoll(NewZoomAngle);
 		}
 	}
 }
@@ -85,50 +115,65 @@ void UCloud9MouseController::OnCharacterMove() { ProcessCharacterView(); }
 
 void UCloud9MouseController::ProcessCharacterView() const
 {
-	FHitResult TraceHitResult;
-	const auto bIsHitValid = GetCloud9Controller()->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
-	GetCloud9Pawn()->SetViewDirection(TraceHitResult, bIsHitValid);
+	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
+	{
+		if (let Controller = GetCloud9Controller(); IsValid(Controller))
+		{
+			FHitResult TraceHitResult;
+			let bIsHitValid = Controller->GetHitResultUnderCursor(
+				ECC_Visibility,
+				true,
+				TraceHitResult);
+			Pawn->SetViewDirection(TraceHitResult, bIsHitValid);
+		}
+	}
 }
 
 void UCloud9MouseController::ProcessCameraRotation()
 {
-	if (IsMouseRotationMode)
+	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn) && IsMouseRotationMode)
 	{
-		const auto NewMousePosition = GetMousePosition();
-		const auto Offset = (NewMousePosition - CameraRotationBase).X;
+		let NewMousePosition = GetMousePosition();
+		let Offset = (NewMousePosition - CameraRotationBase).X;
 		CameraRotationBase = NewMousePosition;
-		const auto Angle = Offset * CameraRotateSensitivity;
-		GetCloud9Pawn()->AddCameraRotationYaw(Angle);
+		let Angle = Offset * CameraRotateSensitivity;
+		Pawn->AddCameraRotationYaw(Angle);
 	}
 }
 
 void UCloud9MouseController::ProcessCameraZoom(float DeltaTime)
 {
-	if (TargetCameraZoomLevel == InvalidCameraZoomLevel)
-		return;
-
-	const auto CurrentCameraZoomLevel = GetCameraZoomHeightLevel();
-
-	if (TargetCameraZoomLevel == CurrentCameraZoomLevel)
+	if (TargetCameraZoomLevel != InvalidCameraZoomLevel)
 	{
-		TargetCameraZoomLevel = InvalidCameraZoomLevel;
-		return;
+		let CurrentCameraZoomLevel = GetCameraZoomHeightLevel();
+
+		if (TargetCameraZoomLevel == CurrentCameraZoomLevel)
+		{
+			TargetCameraZoomLevel = InvalidCameraZoomLevel;
+			return;
+		}
+
+		float NewCameraZoomLevel = TargetCameraZoomLevel;
+
+		if (bIsCameraZoomSmoothEnabled)
+		{
+			NewCameraZoomLevel = CurrentCameraZoomLevel - DeltaTime * TargetCameraZoomSpeed;
+			if (TargetCameraZoomLevel > CurrentCameraZoomLevel)
+			{
+				NewCameraZoomLevel = FMath::Min(TargetCameraZoomLevel, NewCameraZoomLevel);
+			}
+			else if (TargetCameraZoomLevel < CurrentCameraZoomLevel)
+			{
+				NewCameraZoomLevel = FMath::Max(TargetCameraZoomLevel, NewCameraZoomLevel);
+			}
+		}
+
+		SetCameraZoomLevel(NewCameraZoomLevel);
+		if (NewCameraZoomLevel == TargetCameraZoomLevel)
+		{
+			TargetCameraZoomLevel = InvalidCameraZoomLevel;
+		}
 	}
-
-	float NewCameraZoomLevel = TargetCameraZoomLevel;
-
-	if (bIsCameraZoomSmoothEnabled)
-	{
-		NewCameraZoomLevel = CurrentCameraZoomLevel - DeltaTime * TargetCameraZoomSpeed;
-		if (TargetCameraZoomLevel > CurrentCameraZoomLevel)
-			NewCameraZoomLevel = FMath::Min(TargetCameraZoomLevel, NewCameraZoomLevel);
-		else if (TargetCameraZoomLevel < CurrentCameraZoomLevel)
-			NewCameraZoomLevel = FMath::Max(TargetCameraZoomLevel, NewCameraZoomLevel);
-	}
-
-	SetCameraZoomLevel(NewCameraZoomLevel);
-	if (NewCameraZoomLevel == TargetCameraZoomLevel)
-		TargetCameraZoomLevel = InvalidCameraZoomLevel;
 }
 
 void UCloud9MouseController::BeginPlay()
@@ -151,36 +196,39 @@ void UCloud9MouseController::TickComponent(
 
 void UCloud9MouseController::OnCameraZoom(float Value)
 {
-	if (IsValid(GetCloud9Pawn()) && FMath::Abs(Value) > 0.0f && TargetCameraZoomLevel == InvalidCameraZoomLevel)
+	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
-		const auto CurrentCameraZoomLevel = GetCameraZoomHeightLevel();
+		if (FMath::Abs(Value) > 0.0f && TargetCameraZoomLevel == InvalidCameraZoomLevel)
+		{
+			let CurrentCameraZoomLevel = GetCameraZoomHeightLevel();
 
-		TargetCameraZoomLevel = FMath::Clamp(
-			CurrentCameraZoomLevel - Value * CameraZoomSensitivity,
-			MinCameraZoomLevel,
-			MaxCameraZoomLevel
-		);
+			TargetCameraZoomLevel = FMath::Clamp(
+				CurrentCameraZoomLevel - Value * CameraZoomSensitivity,
+				MinCameraZoomLevel,
+				MaxCameraZoomLevel
+			);
 
-		TargetCameraZoomSpeed = Value * CameraZoomSmoothSpeed;
+			TargetCameraZoomSpeed = Value * CameraZoomSmoothSpeed;
+		}
 	}
 }
 
 void UCloud9MouseController::OnCameraRotationPressed()
 {
-	if (IsValid(GetCloud9Pawn()))
+	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
 		CameraRotationBase = GetMousePosition();
 		IsMouseRotationMode = true;
-		GetCloud9Pawn()->SetCursorIsHidden(true);
+		Pawn->SetCursorIsHidden(true);
 	}
 }
 
 void UCloud9MouseController::OnCameraRotationReleased()
 {
-	if (IsValid(GetCloud9Pawn()))
+	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
 		CameraRotationBase = FVector2D::ZeroVector;
 		IsMouseRotationMode = false;
-		GetCloud9Pawn()->SetCursorIsHidden(false);
+		Pawn->SetCursorIsHidden(false);
 	}
 }

@@ -1,3 +1,26 @@
+// Copyright (c) 2023 Alexei Gladkikh
+//
+// Permission is hereby granted, free of charge, to any person
+// obtaining a copy of this software and associated documentation
+// files (the "Software"), to deal in the Software without
+// restriction, including without limitation the rights to use,
+// copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following
+// conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+
 #include "Cloud9Character.h"
 
 #include "DrawDebugHelpers.h"
@@ -16,7 +39,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
-#include "GameFramework/GameUserSettings.h"
 #include "Kismet/KismetMathLibrary.h"
 
 class UCloud9SpringArmComponent;
@@ -34,7 +56,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 
 	GetCapsuleComponent()->InitCapsuleSize(32.f, 72.0f);
 
-	const auto Movement = GetCharacterMovement();
+	let Movement = GetCharacterMovement();
 	Movement->bOrientRotationToMovement = false;
 	Movement->bConstrainToPlane = true;
 	Movement->bSnapToPlaneAtStart = true;
@@ -62,7 +84,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 
 UCloud9CharacterMovement* ACloud9Character::GetCloud9CharacterMovement() const
 {
-	const auto Movement = GetCharacterMovement();
+	let Movement = GetCharacterMovement();
 	return IsValid(Movement) ? Cast<UCloud9CharacterMovement>(Movement) : nullptr;
 }
 
@@ -73,7 +95,7 @@ ACloud9PlayerController* ACloud9Character::GetCloud9Controller() const
 
 bool ACloud9Character::CanSneak() const
 {
-	if (const auto Movement = GetCloud9CharacterMovement(); IsValid(Movement))
+	if (let Movement = GetCloud9CharacterMovement(); IsValid(Movement))
 	{
 		return !Movement->IsCrouching();
 	}
@@ -83,7 +105,7 @@ bool ACloud9Character::CanSneak() const
 
 void ACloud9Character::Sneak() const
 {
-	if (const auto Movement = GetCloud9CharacterMovement(); IsValid(Movement))
+	if (let Movement = GetCloud9CharacterMovement(); IsValid(Movement))
 	{
 		Movement->Sneak();
 	}
@@ -91,7 +113,7 @@ void ACloud9Character::Sneak() const
 
 void ACloud9Character::UnSneak() const
 {
-	if (const auto Movement = GetCloud9CharacterMovement(); IsValid(Movement))
+	if (let Movement = GetCloud9CharacterMovement(); IsValid(Movement))
 	{
 		Movement->UnSneak();
 	}
@@ -101,15 +123,15 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 {
 	if (IsValid(CursorToWorld))
 	{
-		const auto ImpactNormal = HitResult.ImpactNormal;
-		const auto ImpactRotation = ImpactNormal.Rotation();
+		let ImpactNormal = HitResult.ImpactNormal;
+		let ImpactRotation = ImpactNormal.Rotation();
 
 		CursorToWorld->SetWorldLocation(HitResult.Location);
 		CursorToWorld->SetWorldRotation(ImpactRotation);
 		SetCursorIsHidden(false);
 	}
 
-	const auto Settings = UCloud9DeveloperSettings::GetCloud9DeveloperSettings();
+	let Settings = UCloud9DeveloperSettings::GetCloud9DeveloperSettings();
 
 	if (Settings->bIsDrawHitCursorLine)
 	{
@@ -146,9 +168,9 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 
 	if (bIsHitValid)
 	{
-		const auto TargetLocation = FVector{HitResult.Location.X, HitResult.Location.Y, 0.0f};
-		const auto ActorLocation = GetActorLocation();
-		const auto LookRotation = UKismetMathLibrary::FindLookAtRotation(ActorLocation, TargetLocation);
+		let TargetLocation = FVector{HitResult.Location.X, HitResult.Location.Y, 0.0f};
+		let ActorLocation = GetActorLocation();
+		let LookRotation = UKismetMathLibrary::FindLookAtRotation(ActorLocation, TargetLocation);
 		GetCloud9CharacterMovement()->Rotate({0.0f, LookRotation.Yaw, 0.0f});
 	}
 }
@@ -169,13 +191,13 @@ void ACloud9Character::AddCameraRotationYaw(float Angle) const
 
 float ACloud9Character::GetCameraRotationRoll() const
 {
-	const auto Rotation = CameraBoom->GetRelativeRotation();
+	let Rotation = CameraBoom->GetRelativeRotation();
 	return -Rotation.Pitch;
 }
 
 void ACloud9Character::SetCameraRotationRoll(float Angle) const
 {
-	auto Rotation = CameraBoom->GetRelativeRotation();
+	var Rotation = CameraBoom->GetRelativeRotation();
 	Rotation.Pitch = -Angle;
 	UE_LOG(LogCloud9, Display, TEXT("SetRelativeRotation Yaw: %s"), *Rotation.ToString());
 	CameraBoom->SetRelativeRotation(Rotation);
@@ -204,7 +226,7 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 
 	UE_LOG(LogCloud9, Display, TEXT("Contruction transform %s"), *Transform.ToString());
 
-	const auto Rotator = Transform.Rotator();
+	let Rotator = Transform.Rotator();
 
 	SetCameraRotationYaw(Rotator.Yaw);
 	GetCloud9CharacterMovement()->Rotate({0.0f, Rotator.Yaw, 0.0f}, true);
@@ -218,9 +240,9 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 		CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
 	}
 
-	if (const auto MyMesh = GetMesh(); IsValid(MyMesh) && !CameraTargetBoneName.IsNone())
+	if (let MyMesh = GetMesh(); IsValid(MyMesh) && !CameraTargetBoneName.IsNone())
 	{
-		const auto HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
+		let HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
 		UE_LOG(LogCloud9, Display, TEXT("Setup CameraBoom = %s"), *HeadBoneLocation.ToString());
 		CameraBoom->SetWorldLocation(HeadBoneLocation);
 	}
