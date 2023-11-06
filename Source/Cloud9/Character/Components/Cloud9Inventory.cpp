@@ -1,4 +1,27 @@
-﻿#include "Cloud9Inventory.h"
+﻿// Copyright (c) 2023 Alexei Gladkikh
+//
+// Permission is hereby granted, free of charge, to any person
+// obtaining a copy of this software and associated documentation
+// files (the "Software"), to deal in the Software without
+// restriction, including without limitation the rights to use,
+// copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following
+// conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+
+#include "Cloud9Inventory.h"
 
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Weapon/Cloud9WeaponBase.h"
@@ -11,7 +34,7 @@ UCloud9Inventory::UCloud9Inventory()
 	SelectedWeaponSlot = EWeaponSlot::NotSelected;
 	PendingWeaponSlot = EWeaponSlot::NotSelected;
 
-	const auto SlotsNumber = StaticEnum<EWeaponSlot>()->NumEnums();
+	let SlotsNumber = StaticEnum<EWeaponSlot>()->NumEnums();
 	WeaponSlots.SetNum(SlotsNumber);
 
 	DefaultKnifeClass = ACloud9WeaponKnife::StaticClass();
@@ -24,9 +47,9 @@ void UCloud9Inventory::BeginPlay()
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = GetOwner();
-	const auto DefaultKnife = GetWorld()->SpawnActor<ACloud9WeaponBase>(DefaultKnifeClass, SpawnParams);
-	const auto DefaultPistol = GetWorld()->SpawnActor<ACloud9WeaponBase>(DefaultPistolClass, SpawnParams);
-	// const auto DefaultMain = GetWorld()->SpawnActor<ACloud9WeaponBase>(ACloud9WeaponSniper::StaticClass(), SpawnParams);
+	let DefaultKnife = GetWorld()->SpawnActor<ACloud9WeaponBase>(DefaultKnifeClass, SpawnParams);
+	let DefaultPistol = GetWorld()->SpawnActor<ACloud9WeaponBase>(DefaultPistolClass, SpawnParams);
+	// let DefaultMain = GetWorld()->SpawnActor<ACloud9WeaponBase>(ACloud9WeaponSniper::StaticClass(), SpawnParams);
 
 	SetWeaponAt(EWeaponSlot::Knife, DefaultKnife);
 	SetWeaponAt(EWeaponSlot::Pistol, DefaultPistol);
@@ -43,19 +66,23 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 		return false;
 	}
 
-	if (Slot == SelectedWeaponSlot)
-		return true;
-
-	if (const auto PendingWeapon = GetWeaponAt(Slot))
+	if (Slot != SelectedWeaponSlot)
 	{
-		if (const auto SelectedWeapon = GetWeaponAt(SelectedWeaponSlot))
-			SelectedWeapon->SetActorHiddenInGame(true);
-		PendingWeapon->SetActorHiddenInGame(false);
-		PendingWeaponSlot = Slot;
-		return true;
+		if (let PendingWeapon = GetWeaponAt(Slot))
+		{
+			if (let SelectedWeapon = GetWeaponAt(SelectedWeaponSlot))
+			{
+				SelectedWeapon->SetActorHiddenInGame(true);
+			}
+			PendingWeapon->SetActorHiddenInGame(false);
+			PendingWeaponSlot = Slot;
+			return true;
+		}
+
+		return false;
 	}
 
-	return false;
+	return true;
 }
 
 void UCloud9Inventory::OnWeaponChangeFinished() { SelectedWeaponSlot = PendingWeaponSlot; }
@@ -63,16 +90,18 @@ void UCloud9Inventory::OnWeaponChangeFinished() { SelectedWeaponSlot = PendingWe
 bool UCloud9Inventory::SetWeaponAt(EWeaponSlot Slot, ACloud9WeaponBase* Weapon)
 {
 	if (GetWeaponAt(Slot))
+	{
 		return false;
+	}
 
-	const auto Index = static_cast<int>(Slot);
+	let Index = static_cast<int>(Slot);
 	WeaponSlots[Index] = Weapon;
 	return true;
 }
 
 ACloud9WeaponBase* UCloud9Inventory::GetWeaponAt(EWeaponSlot Slot) const
 {
-	const auto Index = static_cast<int>(Slot);
+	let Index = static_cast<int>(Slot);
 	return WeaponSlots[Index];
 }
 
@@ -82,16 +111,20 @@ bool UCloud9Inventory::IsWeaponChanging() const { return SelectedWeaponSlot != P
 
 EWeaponType UCloud9Inventory::GetSelectedWeaponType() const
 {
-	if (const auto Weapon = GetWeaponAt(SelectedWeaponSlot))
+	if (let Weapon = GetWeaponAt(SelectedWeaponSlot))
+	{
 		return Weapon->GetWeaponType();
+	}
 
 	return EWeaponType::NoWeapon;
 }
 
 EWeaponType UCloud9Inventory::GetPendingWeaponType() const
 {
-	if (const auto Weapon = GetWeaponAt(PendingWeaponSlot))
+	if (let Weapon = GetWeaponAt(PendingWeaponSlot))
+	{
 		return Weapon->GetWeaponType();
+	}
 
 	return EWeaponType::NoWeapon;
 }

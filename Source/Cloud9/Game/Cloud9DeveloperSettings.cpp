@@ -30,7 +30,7 @@ const UCloud9DeveloperSettings* UCloud9DeveloperSettings::GetCloud9DeveloperSett
 {
 	static var bIsInitialized = false;
 	static let Settings = GetDefault<UCloud9DeveloperSettings>();
-	
+
 	if (!bIsInitialized)
 	{
 		Cast<UCloud9DeveloperSettings>(Settings)->Log();
