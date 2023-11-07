@@ -26,12 +26,12 @@
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
 
-
 UCloud9SpringArmComponent::UCloud9SpringArmComponent()
 {
 	CameraLagVector = FVector::OneVector;
 }
 
+// Origin code: Copyright Epic Games, Inc. All Rights Reserved.
 void UCloud9SpringArmComponent::UpdateDesiredArmLocation(
 	bool bDoTrace,
 	bool bDoLocationLag,
