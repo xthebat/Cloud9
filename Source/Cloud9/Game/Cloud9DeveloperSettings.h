@@ -48,38 +48,55 @@ enum class EUnUsedEnum : int32
 	Whatever = 3,
 };
 
-UCLASS(Config=Game, defaultconfig, meta = (DisplayName="Save Game Settings"))
+UCLASS(Config=Game, defaultconfig, meta = (DisplayName="Various Developer Settings"))
 class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 {
-	GENERATED_BODY()
+	GENERATED_UCLASS_BODY()
 
-public:
-	UFUNCTION(BlueprintCallable, Category=Settings)
-	static const UCloud9DeveloperSettings* GetCloud9DeveloperSettings();
+public: // properties
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug, meta=(
+		ConsoleVariable="r.IsDrawHitCursorLine",
+		DisplayName="IsDrawHitCursorLine",
+		ToolTip="Whether to draw line from character to GetHitUnderCursor point"))
+	int32 bIsDrawHitCursorLine;
 
-	UFUNCTION(BlueprintCallable)
-	void Save();
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug, meta=(
+		ConsoleVariable="r.IsDrawDeprojectedCursorLine",
+		DisplayName="IsDrawDeprojectedCursorLine",
+		ToolTip="Whether to draw line from character to deprojected mouse cursor"))
+	int32 bIsDrawDeprojectedCursorLine;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug, meta=(
+		ConsoleVariable="r.IsShowMouseCursor",
+		DisplayName="IsShowMouseCursor",
+		ToolTip="Whether to show mouse cursor on screen or not in game"))
+	int32 bIsShowMouseCursor;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug, meta=(
+		ConsoleVariable="r.NetGraph",
+		DisplayName="NetGraph",
+		ToolTip="Whether to show FPS and other specific debug info"))
+	int32 NetGraph;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	EUnUsedEnum UnUsedEnum;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	FUnUsedStruct UnUsedStruct;
+
+public: // static
+	UFUNCTION(BlueprintCallable, Category=Settings, DisplayName=GetCloud9DeveloperSettings)
+	static const UCloud9DeveloperSettings* Get();
+
+public: // function
+	void InitializeCVars();
+
+	// UFUNCTION(BlueprintCallable)
+	// void Save();
 
 	UFUNCTION(BlueprintCallable)
 	void Log() const;
 
-	// Debug
-
-	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = "Debug")
-	bool bIsDrawHitCursorLine;
-
-	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = "Debug")
-	bool bIsDrawDeprojectedCursorLine;
-
-	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = "Debug")
-	bool bIsShowMouseCursor;
-
-	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = "Debug")
-	int NetGraph;
-
-	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = "Debug")
-	EUnUsedEnum UnUsedEnum;
-
-	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category = "Debug")
-	FUnUsedStruct UnUsedStruct;
+	virtual void PostInitProperties() override;
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 };
