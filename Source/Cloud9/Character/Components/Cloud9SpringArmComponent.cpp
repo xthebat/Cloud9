@@ -38,19 +38,19 @@ void UCloud9SpringArmComponent::UpdateDesiredArmLocation(
 	bool bDoRotationLag,
 	float DeltaTime)
 {
-	FRotator DesiredRot = GetTargetRotation();
+	var DesiredRot = GetTargetRotation();
 
 	// Apply 'lag' to rotation if desired
 	if (bDoRotationLag)
 	{
 		if (bUseCameraLagSubstepping && DeltaTime > CameraLagMaxTimeStep && CameraRotationLagSpeed > 0.f)
 		{
-			const FRotator ArmRotStep = (DesiredRot - PreviousDesiredRot).GetNormalized() * (1.f / DeltaTime);
-			FRotator LerpTarget = PreviousDesiredRot;
-			float RemainingTime = DeltaTime;
+			let ArmRotStep = (DesiredRot - PreviousDesiredRot).GetNormalized() * (1.f / DeltaTime);
+			var LerpTarget = PreviousDesiredRot;
+			var RemainingTime = DeltaTime;
 			while (RemainingTime > KINDA_SMALL_NUMBER)
 			{
-				const float LerpAmount = FMath::Min(CameraLagMaxTimeStep, RemainingTime);
+				let LerpAmount = FMath::Min(CameraLagMaxTimeStep, RemainingTime);
 				LerpTarget += ArmRotStep * LerpAmount;
 				RemainingTime -= LerpAmount;
 
@@ -80,9 +80,9 @@ void UCloud9SpringArmComponent::UpdateDesiredArmLocation(
 	PreviousDesiredRot = DesiredRot;
 
 	// Get the spring arm 'origin', the target we want to look at
-	FVector ArmOrigin = GetComponentLocation() + TargetOffset;
+	var ArmOrigin = GetComponentLocation() + TargetOffset;
 	// We lag the target, not the actual camera position, so rotating the camera around does not have lag
-	FVector DesiredLoc = ArmOrigin;
+	var DesiredLoc = ArmOrigin;
 	if (bDoLocationLag)
 	{
 		let LocationLag = CameraLagSpeed * CameraLagVector;
@@ -91,13 +91,13 @@ void UCloud9SpringArmComponent::UpdateDesiredArmLocation(
 			&& DeltaTime > CameraLagMaxTimeStep
 			&& LocationLag != FVector::ZeroVector)
 		{
-			const FVector ArmMovementStep = (DesiredLoc - PreviousDesiredLoc) * (1.f / DeltaTime);
-			auto LerpTarget = PreviousDesiredLoc;
+			let ArmMovementStep = (DesiredLoc - PreviousDesiredLoc) * (1.f / DeltaTime);
+			var LerpTarget = PreviousDesiredLoc;
 
-			float RemainingTime = DeltaTime;
+			var RemainingTime = DeltaTime;
 			while (RemainingTime > KINDA_SMALL_NUMBER)
 			{
-				const float LerpAmount = FMath::Min(CameraLagMaxTimeStep, RemainingTime);
+				let LerpAmount = FMath::Min(CameraLagMaxTimeStep, RemainingTime);
 				LerpTarget += ArmMovementStep * LerpAmount;
 				RemainingTime -= LerpAmount;
 

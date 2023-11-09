@@ -131,7 +131,7 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 		SetCursorIsHidden(false);
 	}
 
-	let Settings = UCloud9DeveloperSettings::GetCloud9DeveloperSettings();
+	let Settings = UCloud9DeveloperSettings::Get();
 
 	if (Settings->bIsDrawHitCursorLine)
 	{
@@ -177,7 +177,7 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 
 void ACloud9Character::SetCameraRotationYaw(float Angle) const
 {
-	auto Rotation = CameraBoom->GetRelativeRotation();
+	var Rotation = CameraBoom->GetRelativeRotation();
 	Rotation.Yaw = Angle;
 	UE_LOG(LogCloud9, Display, TEXT("SetRelativeRotation Pitch: %s"), *Rotation.ToString());
 	CameraBoom->SetRelativeRotation(Rotation);
@@ -185,8 +185,7 @@ void ACloud9Character::SetCameraRotationYaw(float Angle) const
 
 void ACloud9Character::AddCameraRotationYaw(float Angle) const
 {
-	const FRotator Rotation = {0.0f, Angle, 0.0f};
-	CameraBoom->AddRelativeRotation(Rotation);
+	CameraBoom->AddRelativeRotation({0.0f, Angle, 0.0f});
 }
 
 float ACloud9Character::GetCameraRotationRoll() const

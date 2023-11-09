@@ -47,7 +47,7 @@ void ACloud9PlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
-	let Settings = UCloud9DeveloperSettings::GetCloud9DeveloperSettings();
+	let Settings = UCloud9DeveloperSettings::Get();
 	bShowMouseCursor = Settings->bIsShowMouseCursor;
 }
 

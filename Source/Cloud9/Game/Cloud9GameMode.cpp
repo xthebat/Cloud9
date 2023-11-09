@@ -46,7 +46,7 @@ void ACloud9GameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	let Settings = UCloud9DeveloperSettings::GetCloud9DeveloperSettings();
+	let Settings = UCloud9DeveloperSettings::Get();
 
 	if (Settings->NetGraph > 0)
 	{

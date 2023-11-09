@@ -34,8 +34,6 @@ class CLOUD9_API UCloud9SpringArmComponent : public USpringArmComponent
 	GENERATED_BODY()
 
 public:
-	// TODO: CameraLagRotator
-
 	/**
 	 * If bEnableCameraLag is true, controls how quickly camera reaches target position by each axis.
 	 * Values of this vector multiplies with @CameraLagSpeed.
