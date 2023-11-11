@@ -2,55 +2,61 @@
 
 #include "Cloud9/Cloud9.h"
 
-template <typename TOperation, typename... TTypes>
-struct Helper {};
-
-template <typename TOperation, typename TFirst, typename... TRest>
-struct Helper<TOperation, TFirst, TRest...>
+namespace Private_EachOrNone
 {
-	using ReturnType = typename TInvokeResult<TOperation, TFirst>::Type;
+	template <typename TOperation, typename... TTypes>
+	struct THelper {};
 
-	explicit Helper(TOperation Operation) : Operation(Operation) {}
-
-	template <typename TValue>
-	friend constexpr auto operator|(TValue Value, Helper&& Self)
+	template <typename TOperation, typename TFirst, typename... TRest>
+	struct THelper<TOperation, TFirst, TRest...>
 	{
-		return Helper::Call(Value, Self);
-	}
+		using ReturnType = typename TInvokeResult<TOperation, TFirst>::Type;
 
-	template <typename TValue, typename... TTypes>
-	static constexpr TOptional<ReturnType> Call(TValue Value, Helper<TTypes...>& Self)
-	{
-		using ArgType = typename TRemovePointer<TFirst>::Type;
-		if (let Casted = CastField<ArgType>(Value))
+		explicit THelper(TOperation Operation) : Operation(Operation) {}
+
+		template <typename TValue>
+		friend constexpr auto operator|(TValue Value, THelper&& Self)
 		{
-			return Self.Operation(Casted);
+			return THelper::Call(Value, Self);
 		}
 
-		return Helper<TOperation, TFirst, TTypes...>::Call(Value, Self);
-	}
-
-	template <typename TValue, typename TLast>
-	static constexpr TOptional<ReturnType> Call(TValue Value, Helper<TLast>& When)
-	{
-		using ArgType = typename TRemovePointer<TLast>::Type;
-		if (let Casted = CastField<ArgType>(Value))
+		template <typename TValue, typename... TTypes>
+		static constexpr TOptional<ReturnType> Call(TValue Value, THelper<TTypes...>& Self)
 		{
-			return When.Operation(Casted);
+			using ArgType = typename TRemovePointer<TFirst>::Type;
+			if (let Casted = CastField<ArgType>(Value))
+			{
+				return Self.Operation(Casted);
+			}
+
+			return THelper<TOperation, TFirst, TTypes...>::Call(Value, Self);
 		}
 
-		return {};
-	}
+		template <typename TValue, typename TLast>
+		static constexpr TOptional<ReturnType> Call(TValue Value, THelper<TLast>& When)
+		{
+			using ArgType = typename TRemovePointer<TLast>::Type;
+			if (let Casted = CastField<ArgType>(Value))
+			{
+				return When.Operation(Casted);
+			}
 
-	TOperation Operation;
-};
+			return {};
+		}
 
+		TOperation Operation;
+	};
+}
+
+/**
+ * TODO: Fix EachOrNone
+ */
 template <typename... TTypes>
 struct EachOrNone
 {
 	template <typename TOperation>
 	static auto Exec(TOperation Operation)
 	{
-		return Helper<TOperation, TTypes...>(Operation);
+		return Private_EachOrNone::THelper<TOperation, TTypes...>(Operation);
 	}
 };
