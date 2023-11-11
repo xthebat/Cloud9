@@ -78,6 +78,12 @@ public: // properties
 		ToolTip="Whether to show FPS and other specific debug info"))
 	int32 NetGraph;
 
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug, meta=(
+		ConsoleVariable="r.CameraVerticalSpeedLag",
+		DisplayName="CameraVerticalSpeedLag",
+		ToolTip="Configure how smoothly does the camera change its position vertically"))
+	float CameraVerticalSpeedLag;
+
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	EUnUsedEnum UnUsedEnum;
 

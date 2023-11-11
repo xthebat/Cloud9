@@ -50,4 +50,9 @@ public:
 		bool bDoRotationLag,
 		float DeltaTime
 	) override;
+
+	virtual void OnRegister() override;
+
+private:
+	float CachedCameraVerticalSpeedLag;
 };
