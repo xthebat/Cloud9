@@ -26,6 +26,7 @@
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Tools/Extensions/EachOrNone.h"
 #include "Cloud9/Tools/Extensions/UObject.h"
+#include "Cloud9/Tools/Extensions/WhenOrNone.h"
 
 // ReSharper disable once CppPossiblyUninitializedMember
 UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& ObjectInitializer)
