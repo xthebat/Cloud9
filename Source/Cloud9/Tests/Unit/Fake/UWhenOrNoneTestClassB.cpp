@@ -21,8 +21,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#include "UWhenOrNoneTestClass.h"
+#include "UWhenOrNoneTestClassB.h"
 
 // ReSharper disable once CppPossiblyUninitializedMember
-UWhenOrNoneTestClass::UWhenOrNoneTestClass(const FObjectInitializer& ObjectInitializer)
+UWhenOrNoneTestClassB::UWhenOrNoneTestClassB(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer) {}

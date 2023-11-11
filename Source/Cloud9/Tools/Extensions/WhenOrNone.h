@@ -33,7 +33,7 @@ struct WhenOrNone {};
 template <typename TFirst, typename... TRest>
 struct WhenOrNone<TFirst, TRest...>
 {
-	explicit WhenOrNone(TFirst First, TRest... Rest) : First(First), Rest(Rest...) {}
+	WhenOrNone(TFirst First, TRest... Rest) : First(First), Rest(Rest...) {}
 
 	template <typename TValue>
 	friend constexpr auto operator|(TValue Value, WhenOrNone&& Self)
@@ -45,12 +45,9 @@ struct WhenOrNone<TFirst, TRest...>
 	template <typename TResult, typename TValue, typename... TFunctions>
 	static constexpr TOptional<TResult> Call(TValue Value, WhenOrNone<TFunctions...>& Self)
 	{
-		using ReturnType = typename TResultOf<decltype(Self.First)>::Type;
-		using ArgType = typename TRemovePointer<typename TFirstArgumentOf<TFirst>::Type>::Type;
-		static_assert(TIsSame<TResult, ReturnType>::Value, "All WhenOrNone branches must return same type");
-		if (let Casted = CastField<ArgType>(Value))
+		if (let Result = WhenOrNone<TFirst>::template Call<TResult>(Value, Self.First))
 		{
-			return Self.First(Casted);
+			return Result;
 		}
 
 		return WhenOrNone<TRest...>::template Call<TResult>(Value, Self.Rest);
@@ -59,12 +56,37 @@ struct WhenOrNone<TFirst, TRest...>
 	template <typename TResult, typename TValue, typename TLast>
 	static constexpr TOptional<TResult> Call(TValue Value, WhenOrNone<TLast>& When)
 	{
-		using ReturnType = typename TResultOf<decltype(When.First)>::Type;
-		using ArgType = typename TRemovePointer<typename TFirstArgumentOf<TFirst>::Type>::Type;
+		return WhenOrNone<TLast>::template Call<TResult>(Value, When.First);
+	}
+
+	template <typename TResult, typename TValue, typename TLast>
+	static constexpr TOptional<TResult> Call(TValue Value, TLast Last)
+	{
+		using ReturnType = typename TResultOf<TLast>::Type;
+		using ArgType = typename TRemovePointer<typename TFirstArgumentOf<TLast>::Type>::Type;
+		using ValueType = typename TRemovePointer<TValue>::Type;
 		static_assert(TIsSame<TResult, ReturnType>::Value, "All WhenOrNone branches must return same type");
-		if (let Casted = CastField<ArgType>(Value))
+
+		ArgType* Casted;
+
+		if constexpr (TIsSame<ValueType, FProperty>::Value)
 		{
-			return When.First(Casted);
+			Casted = CastField<ArgType>(Value);
+		}
+		else if constexpr (TIsSame<ValueType, UObject>::Value)
+		{
+			Casted = Cast<ArgType>(Value);
+		}
+		else
+		{
+			// https://forums.unrealengine.com/t/how-do-i-cast-between-polymorphic-classes-that-dont-extend-uobject/368660
+			COMPILE_WARNING("bUseRTTI = true; in your build.cs file to enable cast for raw pointers")
+			Casted = dynamic_cast<ArgType*>(Value);
+		}
+
+		if (Casted != nullptr)
+		{
+			return Last(Casted);
 		}
 
 		return {};

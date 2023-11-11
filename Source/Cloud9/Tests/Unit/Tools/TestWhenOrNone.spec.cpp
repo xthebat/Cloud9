@@ -22,7 +22,8 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 
-#include "Cloud9/Tests/Unit/Fake/UWhenOrNoneTestClass.h"
+#include "Cloud9/Tests/Unit/Fake/UWhenOrNoneTestClassA.h"
+#include "Cloud9/Tests/Unit/Fake/UWhenOrNoneTestClassB.h"
 #include "Cloud9/Tools/Extensions/WhenOrNone.h"
 
 BEGIN_DEFINE_SPEC(
@@ -32,13 +33,90 @@ BEGIN_DEFINE_SPEC(
 
 END_DEFINE_SPEC(FWhenOrNoneSpec)
 
+namespace FWhenOrNoneClasses
+{
+	class FBase
+	{
+	public:
+		virtual ~FBase() = default;
+		virtual int Hello() = 0;
+	};
+
+	class FDerived1 final : public FBase
+	{
+	public:
+		virtual int Hello() override { return 1; }
+	};
+
+	class FDerived2 final : public FBase
+	{
+	public:
+		virtual int Hello() override { return 2; }
+	};
+
+	class FDerived3 final : public FBase
+	{
+	public:
+		virtual int Hello() override { return 3; }
+	};
+
+	class FDerived4 final : public FBase
+	{
+	public:
+		virtual int Hello() override { return 4; }
+	};
+}
+
 void FWhenOrNoneSpec::Define()
 {
-	Describe("WhenOrNone<CastField>", [this]
+	Describe("WhenOrNone", [this]
 	{
-		let Object = UWhenOrNoneTestClass::StaticClass()->GetDefaultObject<UWhenOrNoneTestClass>();
+		let Object = UWhenOrNoneTestClassA::StaticClass()->GetDefaultObject<UWhenOrNoneTestClassA>();
 
-		It("Fields", [this, Object]
+		It("dynamic_cast", [this, Object]
+		{
+			// WARNING: Won't work without RTTI information (by default disabled in UE)
+
+			// let Array = TArray<FWhenOrNoneClasses::FBase*>{
+			// 	new FWhenOrNoneClasses::FDerived1,
+			// 	new FWhenOrNoneClasses::FDerived2,
+			// 	new FWhenOrNoneClasses::FDerived3,
+			// 	new FWhenOrNoneClasses::FDerived4,
+			// };
+			//
+			// TArray<int> Types;
+			//
+			// for (let Iterator : Array)
+			// {
+			// 	let TypeName = Iterator | WhenOrNone{
+			// 		[this](FWhenOrNoneClasses::FDerived1* Arg) { return Arg->Hello(); },
+			// 		[this](FWhenOrNoneClasses::FDerived2* Arg) { return Arg->Hello(); },
+			// 		[this](FWhenOrNoneClasses::FDerived3* Arg) { return Arg->Hello(); },
+			// 		[this](FWhenOrNoneClasses::FDerived4* Arg) { return Arg->Hello(); }
+			// 	};
+			// 	TestTrue("TypeName.IsSet()", TypeName.IsSet());
+			// 	Types.Add(*TypeName);
+			// }
+			//
+			// TestEqual("FDerived1", Types[0], 1);
+			// TestEqual("FDerived2", Types[1], 2);
+			// TestEqual("FDerived3", Types[2], 3);
+			// TestEqual("FDerived4", Types[3], 4);
+		});
+
+		It("UObject", [this, Object]
+		{
+			UObject* AsUObject = Object;
+
+			let TypeName = AsUObject | WhenOrNone{
+				[this](UWhenOrNoneTestClassA* Arg) { return "UWhenOrNoneTestClassA"; },
+				[this](UWhenOrNoneTestClassB* Arg) { return "UWhenOrNoneTestClassB"; }
+			};
+			TestTrue("TypeName.IsSet()", TypeName.IsSet());
+			TestEqual("UWhenOrNoneTestClassA", *TypeName, "UWhenOrNoneTestClassA");
+		});
+
+		It("FProperty", [this, Object]
 		{
 			var Types = TArray<FString>();
 
@@ -47,7 +125,7 @@ void FWhenOrNoneSpec::Define()
 				let TypeName = *Iterator | WhenOrNone{
 					[this](FBoolProperty* Arg) { return "FBoolProperty"; },
 					[this](FIntProperty* Arg) { return "FIntProperty"; },
-					[this](FFloatProperty* Arg) { return "FFloatProperty"; },
+					[this](FFloatProperty* Arg) { return "FFloatProperty"; }
 				};
 				TestTrue("TypeName.IsSet()", TypeName.IsSet());
 				Types.Add(*TypeName);

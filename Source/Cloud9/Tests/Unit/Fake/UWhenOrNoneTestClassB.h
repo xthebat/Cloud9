@@ -25,10 +25,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "UWhenOrNoneTestClass.generated.h"
+#include "UWhenOrNoneTestClassB.generated.h"
+
 
 UCLASS()
-class UWhenOrNoneTestClass : public UObject
+class UWhenOrNoneTestClassB : public UObject
 {
 	GENERATED_UCLASS_BODY()
 
