@@ -24,11 +24,13 @@
 #include "Cloud9SpringArmComponent.h"
 
 #include "Cloud9/Cloud9.h"
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
 
 UCloud9SpringArmComponent::UCloud9SpringArmComponent()
 {
 	CameraLagVector = FVector::OneVector;
+	CachedCameraVerticalSpeedLag = -1.0f;
 }
 
 // Origin code: Copyright Epic Games, Inc. All Rights Reserved.
@@ -38,6 +40,16 @@ void UCloud9SpringArmComponent::UpdateDesiredArmLocation(
 	bool bDoRotationLag,
 	float DeltaTime)
 {
+	let Settings = UCloud9DeveloperSettings::Get();
+	if (let CameraVerticalSpeedLag = Settings->CameraVerticalSpeedLag; CameraVerticalSpeedLag > 0.0f)
+	{
+		CameraLagVector.Z = CameraVerticalSpeedLag / 10.0f;
+	}
+	else if (CachedCameraVerticalSpeedLag > 0.0f)
+	{
+		CameraLagVector.Z = CachedCameraVerticalSpeedLag;
+	}
+
 	var DesiredRot = GetTargetRotation();
 
 	// Apply 'lag' to rotation if desired
@@ -168,4 +180,10 @@ void UCloud9SpringArmComponent::UpdateDesiredArmLocation(
 	RelativeSocketRotation = RelCamTM.GetRotation();
 
 	UpdateChildTransforms();
+}
+
+void UCloud9SpringArmComponent::OnRegister()
+{
+	Super::OnRegister();
+	CachedCameraVerticalSpeedLag = CameraLagVector.Z;
 }
