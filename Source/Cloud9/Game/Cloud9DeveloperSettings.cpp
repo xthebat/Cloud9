@@ -24,7 +24,6 @@
 #include "Cloud9DeveloperSettings.h"
 
 #include "Cloud9/Cloud9.h"
-#include "Cloud9/Tools/Extensions/EachOrNone.h"
 #include "Cloud9/Tools/Extensions/UObject.h"
 #include "Cloud9/Tools/Extensions/WhenOrNone.h"
 
@@ -39,95 +38,66 @@ const UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
 	return Settings;
 }
 
-// void UCloud9DeveloperSettings::Save()
-// {
-// 	UpdateDefaultConfigFile();
-// 	Log();
-// }
-
-
-template <typename TProperty>
-FAutoConsoleVariableRef RegisterConsoleVariable(UObject* Object, TProperty* Property)
+void UCloud9DeveloperSettings::Save()
 {
-	// if (let TypedProperty = CastField<TProperty>(Property))
-	// {
+	UpdateDefaultConfigFile();
+	Log();
+}
+
+template <typename TObject, typename TProperty>
+auto RegisterConsoleVariable(TObject* Object, TProperty* Property)
+{
 	using TCppType = typename TProperty::TCppType;
 
 	let ConsoleVariable = Property->GetMetaData(TEXT("ConsoleVariable"));
 	let ToolTip = Property->GetMetaData(TEXT("ToolTip"));
 
 	let ValuePtr = Property->template ContainerPtrToValuePtr<TCppType>(Object);
-	return {*ConsoleVariable, *ValuePtr, *ToolTip};
-	// }
-	// return {};
-}
 
+	let ConsoleManager = &IConsoleManager::Get();
+
+	// FAutoConsoleVariableSink
+	let CVar = ConsoleManager->RegisterConsoleVariableRef(*ConsoleVariable, *ValuePtr, *ToolTip);
+
+	CVar->AsVariable()->SetOnChangedCallback(
+		FConsoleVariableDelegate::CreateLambda([Object](auto Arg) { Object->Save(); })
+	);
+
+	return CVar;
+}
 
 void UCloud9DeveloperSettings::InitializeCVars()
 {
-	// GetObjectOfType<FBoolProperty, FIntProperty>(X)
 	static var bIsConsoleInitialized = false;
-	static var ConsoleVariables = TArray<FAutoConsoleVariableRef>();
 
 	if (!bIsConsoleInitialized)
 	{
-		UE_LOG(LogCloud9, Display, TEXT("InitializeCVars"))
-
 		bIsConsoleInitialized = true;
 
 		for (TFieldIterator<FProperty> It(GetClass()); It; ++It)
 		{
 			if (let Property = *It; Property->HasMetaData(TEXT("ConsoleVariable")))
 			{
-				// let CVar = Property | WhenOrNone{
-				// [this](const FBoolProperty* Arg) { return RegisterConsoleVariable(this, Arg); },
-				// [this](FIntProperty* Arg) { return RegisterConsoleVariable(this, Arg); },
-				// [this](FFloatProperty* Arg) { return RegisterConsoleVariable(this, Arg); },
-				// };
+				// TODO: Refactor with EachOrNone
+				let CVar = Property | WhenOrNone{
+					[this](FBoolProperty* Arg) { return RegisterConsoleVariable(this, Arg); },
+					[this](FIntProperty* Arg) { return RegisterConsoleVariable(this, Arg); },
+					[this](FFloatProperty* Arg) { return RegisterConsoleVariable(this, Arg); },
+				};
 
-				// let CVar = Property | EachOrNone<FBoolProperty*, FIntProperty*, FFloatProperty*>::Exec(
-				// [this](auto* Arg) { return RegisterConsoleVariable(this, Arg); }
-				// );
-
-				// let CVar = Property | When{
-				// 	[](FBoolProperty* Arg) { return ""; },
-				// 	// [this](FIntProperty* Arg) { return RegisterConsoleVariable(this, Arg); },
-				// 	// [this](FFloatProperty* Arg) { return RegisterConsoleVariable(this, Arg); },
-				// };
-
-				// if (!CVar.IsSet())
-				// {
-				// 	UE_LOG(
-				// 		LogCloud9,
-				// 		Warning,
-				// 		TEXT("Property with meta key 'ConsoleVariable' %s wasn't registered"
-				// 			" as console variable due to unsupported type '%s'"),
-				// 		*Property->GetName(),
-				// 		*Property->GetCPPType()
-				// 	)
-				// }
+				if (!CVar)
+				{
+					UE_LOG(
+						LogCloud9,
+						Warning,
+						TEXT("Property with meta key 'ConsoleVariable' %s wasn't registered"
+							" as console variable due to unsupported type '%s'"),
+						*Property->GetName(),
+						*Property->GetCPPType()
+					)
+				}
 			}
 		}
-
-		static FAutoConsoleVariableRef CVarIsDrawHitCursorLine(
-			TEXT("r.IsDrawHitCursorLine"),
-			bIsDrawHitCursorLine,
-			TEXT("Whether to draw line from character to GetHitUnderCursor point"));
-
-		static FAutoConsoleVariableRef CVarIsDrawDeprojectedCursorLine(
-			TEXT("r.IsDrawDeprojectedCursorLine"),
-			bIsDrawDeprojectedCursorLine,
-			TEXT("Whether to draw line from character to deprojected mouse cursor"));
-
-		static FAutoConsoleVariableRef CVarIsShowMouseCursor(
-			TEXT("r.IsShowMouseCursor"),
-			bIsShowMouseCursor,
-			TEXT("Whether to show mouse cursor on screen or not in game"));
-
-		static FAutoConsoleVariableRef CVarNetGraph(
-			TEXT("r.NetGraph"),
-			NetGraph,
-			TEXT("Enable NetGraph level"));
 
 		Log();
 	}
@@ -143,14 +113,11 @@ void UCloud9DeveloperSettings::PostInitProperties()
 {
 	InitializeCVars();
 	Super::PostInitProperties();
-	UE_LOG(LogCloud9, Display, TEXT("PostInitProperties"))
 #if WITH_EDITOR
 	if (IsTemplate())
 	{
-		UE_LOG(LogCloud9, Display, TEXT("PostInitProperties IsTemplate"))
 		ImportConsoleVariableValues();
 	}
-	Log();
 #endif
 }
 
@@ -159,10 +126,8 @@ void UCloud9DeveloperSettings::PostEditChangeProperty(FPropertyChangedEvent& Pro
 {
 	InitializeCVars();
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-	UE_LOG(LogCloud9, Display, TEXT("PropertyChangedEvent"))
 	if (PropertyChangedEvent.Property)
 	{
-		UE_LOG(LogCloud9, Display, TEXT("PropertyChangedEvent Property"))
 		ExportValuesToConsoleVariables(PropertyChangedEvent.Property);
 	}
 }

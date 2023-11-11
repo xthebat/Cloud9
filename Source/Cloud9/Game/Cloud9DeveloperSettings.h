@@ -91,8 +91,8 @@ public: // static
 public: // function
 	void InitializeCVars();
 
-	// UFUNCTION(BlueprintCallable)
-	// void Save();
+	UFUNCTION(BlueprintCallable)
+	void Save();
 
 	UFUNCTION(BlueprintCallable)
 	void Log() const;

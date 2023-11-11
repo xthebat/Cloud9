@@ -59,11 +59,11 @@ struct WhenOrNone<TFirst, TRest...>
 		return WhenOrNone<TLast>::template Call<TResult>(Value, When.First);
 	}
 
-	template <typename TResult, typename TValue, typename TLast>
-	static constexpr TOptional<TResult> Call(TValue Value, TLast Last)
+	template <typename TResult, typename TValue, typename TFunction>
+	static constexpr TOptional<TResult> Call(TValue Value, TFunction Function)
 	{
-		using ReturnType = typename TResultOf<TLast>::Type;
-		using ArgType = typename TRemovePointer<typename TFirstArgumentOf<TLast>::Type>::Type;
+		using ReturnType = typename TResultOf<TFunction>::Type;
+		using ArgType = typename TRemovePointer<typename TFirstArgumentOf<TFunction>::Type>::Type;
 		using ValueType = typename TRemovePointer<TValue>::Type;
 		static_assert(TIsSame<TResult, ReturnType>::Value, "All WhenOrNone branches must return same type");
 
@@ -77,16 +77,16 @@ struct WhenOrNone<TFirst, TRest...>
 		{
 			Casted = Cast<ArgType>(Value);
 		}
-		else
-		{
-			// https://forums.unrealengine.com/t/how-do-i-cast-between-polymorphic-classes-that-dont-extend-uobject/368660
-			COMPILE_WARNING("bUseRTTI = true; in your build.cs file to enable cast for raw pointers")
-			Casted = dynamic_cast<ArgType*>(Value);
-		}
+		// else
+		// {
+		// 	// https://forums.unrealengine.com/t/how-do-i-cast-between-polymorphic-classes-that-dont-extend-uobject/368660
+		// 	COMPILE_WARNING("bUseRTTI = true; in your build.cs file to enable cast for raw pointers")
+		// 	Casted = dynamic_cast<ArgType*>(Value);
+		// }
 
 		if (Casted != nullptr)
 		{
-			return Last(Casted);
+			return Function(Casted);
 		}
 
 		return {};
