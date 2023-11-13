@@ -54,34 +54,19 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	GENERATED_UCLASS_BODY()
 
 public: // properties
-	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug, meta=(
-		ConsoleVariable="r.IsDrawHitCursorLine",
-		DisplayName="IsDrawHitCursorLine",
-		ToolTip="Whether to draw line from character to GetHitUnderCursor point"))
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 bIsDrawHitCursorLine;
 
-	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug, meta=(
-		ConsoleVariable="r.IsDrawDeprojectedCursorLine",
-		DisplayName="IsDrawDeprojectedCursorLine",
-		ToolTip="Whether to draw line from character to deprojected mouse cursor"))
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 bIsDrawDeprojectedCursorLine;
 
-	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug, meta=(
-		ConsoleVariable="r.IsShowMouseCursor",
-		DisplayName="IsShowMouseCursor",
-		ToolTip="Whether to show mouse cursor on screen or not in game"))
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 bIsShowMouseCursor;
 
-	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug, meta=(
-		ConsoleVariable="r.NetGraph",
-		DisplayName="NetGraph",
-		ToolTip="Whether to show FPS and other specific debug info"))
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 NetGraph;
 
-	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug, meta=(
-		ConsoleVariable="r.CameraVerticalSpeedLag",
-		DisplayName="CameraVerticalSpeedLag",
-		ToolTip="Configure how smoothly does the camera change its position vertically"))
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	float CameraVerticalSpeedLag;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
@@ -90,19 +75,25 @@ public: // properties
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	FUnUsedStruct UnUsedStruct;
 
-public: // static
+public: // static functions
 	UFUNCTION(BlueprintCallable, Category=Settings, DisplayName=GetCloud9DeveloperSettings)
 	static const UCloud9DeveloperSettings* Get();
 
-public: // function
-	void InitializeCVars();
-
+public: // functions
 	UFUNCTION(BlueprintCallable)
 	void Save();
 
 	UFUNCTION(BlueprintCallable)
 	void Log() const;
 
+#if WITH_EDITOR
 	virtual void PostInitProperties() override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+
+protected: // functions
+	void InitializeCVars();
+
+	template <typename TValue>
+	auto RegisterConsoleVariable(TValue& ValueRef, const TCHAR* Name, const TCHAR* Help);
 };
