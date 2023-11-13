@@ -44,23 +44,23 @@ void UCloud9DeveloperSettings::Save()
 	Log();
 }
 
-template <typename TObject, typename TProperty>
-auto RegisterConsoleVariable(TObject* Object, TProperty* Property)
+template <typename TValue>
+auto UCloud9DeveloperSettings::RegisterConsoleVariable(TValue& ValueRef, const TCHAR* Name, const TCHAR* Help)
 {
-	using TCppType = typename TProperty::TCppType;
-
-	let ConsoleVariable = Property->GetMetaData(TEXT("ConsoleVariable"));
-	let ToolTip = Property->GetMetaData(TEXT("ToolTip"));
-
-	let ValuePtr = Property->template ContainerPtrToValuePtr<TCppType>(Object);
+	static_assert(
+		TIsSame<TValue, int>::Value ||
+		TIsSame<TValue, float>::Value ||
+		TIsSame<TValue, bool>::Value ||
+		TIsSame<TValue, FString>::Value,
+		"TValue must be int, float, bool or FString"
+	);
 
 	let ConsoleManager = &IConsoleManager::Get();
 
-	// FAutoConsoleVariableSink
-	let CVar = ConsoleManager->RegisterConsoleVariableRef(*ConsoleVariable, *ValuePtr, *ToolTip);
+	let CVar = ConsoleManager->RegisterConsoleVariableRef(Name, ValueRef, Help);
 
 	CVar->AsVariable()->SetOnChangedCallback(
-		FConsoleVariableDelegate::CreateLambda([Object](auto Arg) { Object->Save(); })
+		FConsoleVariableDelegate::CreateLambda([this](auto Arg) { Save(); })
 	);
 
 	return CVar;
@@ -74,30 +74,35 @@ void UCloud9DeveloperSettings::InitializeCVars()
 	{
 		bIsConsoleInitialized = true;
 
-		for (TFieldIterator<FProperty> It(GetClass()); It; ++It)
-		{
-			if (let Property = *It; Property->HasMetaData(TEXT("ConsoleVariable")))
-			{
-				// TODO: Refactor with EachOrNone
-				let CVar = Property | WhenOrNone{
-					[this](FBoolProperty* Arg) { return RegisterConsoleVariable(this, Arg); },
-					[this](FIntProperty* Arg) { return RegisterConsoleVariable(this, Arg); },
-					[this](FFloatProperty* Arg) { return RegisterConsoleVariable(this, Arg); },
-				};
+		RegisterConsoleVariable(
+			bIsShowMouseCursor,
+			TEXT("r.IsShowMouseCursor"),
+			TEXT("Whether to draw line from character to GetHitUnderCursor point")
+		);
 
-				if (!CVar)
-				{
-					UE_LOG(
-						LogCloud9,
-						Warning,
-						TEXT("Property with meta key 'ConsoleVariable' %s wasn't registered"
-							" as console variable due to unsupported type '%s'"),
-						*Property->GetName(),
-						*Property->GetCPPType()
-					)
-				}
-			}
-		}
+		RegisterConsoleVariable(
+			bIsDrawDeprojectedCursorLine,
+			TEXT("r.IsDrawDeprojectedCursorLine"),
+			TEXT("Whether to draw line from character to deprojected mouse cursor")
+		);
+
+		RegisterConsoleVariable(
+			bIsShowMouseCursor,
+			TEXT("r.IsShowMouseCursor"),
+			TEXT("Whether to show mouse cursor on screen or not in game")
+		);
+
+		RegisterConsoleVariable(
+			NetGraph,
+			TEXT("r.NetGraph"),
+			TEXT("Whether to show FPS and other specific debug info")
+		);
+
+		RegisterConsoleVariable(
+			CameraVerticalSpeedLag,
+			TEXT("r.CameraVerticalSpeedLag"),
+			TEXT("Configure how smoothly does the camera change its position vertically")
+		);
 
 		Log();
 	}
@@ -109,19 +114,17 @@ void UCloud9DeveloperSettings::Log() const
 	UE_LOG(LogCloud9, Display, TEXT("%s"), *String);
 }
 
+#if WITH_EDITOR
 void UCloud9DeveloperSettings::PostInitProperties()
 {
 	InitializeCVars();
 	Super::PostInitProperties();
-#if WITH_EDITOR
 	if (IsTemplate())
 	{
 		ImportConsoleVariableValues();
 	}
-#endif
 }
 
-#if WITH_EDITOR
 void UCloud9DeveloperSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	InitializeCVars();
