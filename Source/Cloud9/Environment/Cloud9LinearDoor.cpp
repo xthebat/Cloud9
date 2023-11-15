@@ -25,16 +25,20 @@
 #include "Cloud9LinearDoor.h"
 
 #include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Cloud9ToolsLibrary.h"
+#include "Cloud9/Tools/Extensions/AActor.h"
 
 ACloud9LinearDoor::ACloud9LinearDoor()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	bIsOpen = false;
-	Direction = FVector::ZeroVector;
 	Speed = 1.0f;
 	Distance = 0.0f;
+	Direction = EDirection::Right;
+
 	bIsMoving = false;
+	DirectionVector = FVector::ZeroVector;
 
 	SetMobility(EComponentMobility::Movable);
 }
@@ -65,15 +69,38 @@ void ACloud9LinearDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	let Sign = bIsOpen ? -1 : 1;
-	OriginPosition = GetActorLocation();
-	TargetPosition = OriginPosition + Sign * Direction * Distance;
+	let Transform = GetActorTransform();
+	let LocalVector = this | EAActor::ToDirectionVector(Direction);
+	DirectionVector = Transform.InverseTransformVector(LocalVector);
+	DirectionVector.Normalize();
 
-	if (Speed == 0.0f || Distance == 0.0f || Direction.IsZero())
+	if (DirectionVector.IsZero())
 	{
 		SetActorTickEnabled(false);
-		UE_LOG(LogCloud9, Warning, TEXT("Door %s can't moved due to incorrect properties"), *GetName());
+		UE_LOG(LogCloud9, Error, TEXT("Door '%s' can't moved due to incorrect direction vector"), *GetName());
 	}
+
+	if (Speed <= 0.0f)
+	{
+		SetActorTickEnabled(false);
+		UE_LOG(LogCloud9, Warning, TEXT("Door '%s' can't moved due to speed <= 0.0f"), *GetName());
+	}
+
+	if (Distance <= 0.0f)
+	{
+		var Origin = FVector::ZeroVector;
+		var Extents = FVector::ZeroVector;
+		GetActorBounds(true, Origin, Extents, true);
+		Distance = (2.0f * Extents * DirectionVector).Size();
+	}
+
+	let ActualDistance = Distance - Extent;
+
+	UE_LOG(LogCloud9, Display, TEXT("Door '%s' distance = '%f'"), *GetName(), ActualDistance);
+
+	let Sign = bIsOpen ? -1 : 1;
+	OriginPosition = Transform.GetLocation();
+	TargetPosition = OriginPosition + Sign * DirectionVector * ActualDistance;
 }
 
 void ACloud9LinearDoor::Tick(float DeltaTime)
@@ -84,7 +111,7 @@ void ACloud9LinearDoor::Tick(float DeltaTime)
 	{
 		var NewPosition = GetActorLocation() + Shift * DeltaTime;
 
-		if (FVector::DistSquared(OriginPosition, GetActorLocation()) > FMath::Square(Distance))
+		if (FVector::DistSquared(OriginPosition, GetActorLocation()) > FMath::Square(Distance - Extent))
 		{
 			bIsOpen = !bIsOpen;
 			bIsMoving = false;

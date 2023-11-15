@@ -125,4 +125,38 @@ FVector UCloud9ToolsLibrary::VInterpTo(
 	};
 }
 
+FVector UCloud9ToolsLibrary::DirectionToActorVector(const AActor* Actor, const EDirection Direction)
+{
+	if (Direction == EDirection::Right)
+	{
+		return Actor->GetActorRightVector();
+	}
 
+	if (Direction == EDirection::Left)
+	{
+		return -Actor->GetActorRightVector();
+	}
+
+	if (Direction == EDirection::Up)
+	{
+		return Actor->GetActorUpVector();
+	}
+
+	if (Direction == EDirection::Down)
+	{
+		return -Actor->GetActorUpVector();
+	}
+
+	if (Direction == EDirection::Forward)
+	{
+		return Actor->GetActorForwardVector();
+	}
+
+	if (Direction == EDirection::Backward)
+	{
+		return -Actor->GetActorForwardVector();
+	}
+
+	UE_LOG(LogCloud9, Fatal, TEXT("Invalid value for Actor = '%s' Direction = '%d'"), *Actor->GetName(), Direction);
+	return {};
+}
