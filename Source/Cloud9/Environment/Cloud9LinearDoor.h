@@ -24,8 +24,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9/Tools/Cloud9Direction.h"
 #include "Engine/StaticMeshActor.h"
 #include "Cloud9LinearDoor.generated.h"
+
 
 UCLASS()
 class CLOUD9_API ACloud9LinearDoor : public AStaticMeshActor
@@ -56,6 +58,7 @@ protected: // variables
 	FVector OriginPosition;
 	FVector TargetPosition;
 	FVector Shift;
+	FVector DirectionVector;
 
 	/**
 	 * Whether door is currently open or closed
@@ -67,7 +70,7 @@ protected: // variables
 	 * Direction where to move door
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta = (AllowPrivateAccess = "true"))
-	FVector Direction;
+	EDirection Direction;
 
 	/**
 	 * Door moving speed when open or close
@@ -80,4 +83,10 @@ protected: // variables
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta = (AllowPrivateAccess = "true"))
 	float Distance;
+
+	/**
+	 * Extent when move distance to make door not open on full size (if distance not specified)  
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta = (AllowPrivateAccess = "true"))
+	float Extent;
 };

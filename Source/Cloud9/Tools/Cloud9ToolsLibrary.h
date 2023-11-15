@@ -24,6 +24,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9Direction.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Cloud9ToolsLibrary.generated.h"
@@ -91,4 +92,6 @@ public:
 		float DeltaTime,
 		const FVector InterpSpeed);
 
+	UFUNCTION(BlueprintCallable)
+	static FVector DirectionToActorVector(const AActor* Actor, const EDirection Direction);
 };
