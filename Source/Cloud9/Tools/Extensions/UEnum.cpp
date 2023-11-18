@@ -21,11 +21,12 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#include "AActor.h"
+#include "UEnum.h"
 
-#include "Cloud9/Tools/Cloud9Direction.h"
+#include "Cloud9/Tools/Cloud9EnumLibrary.h"
 
-FVector EAActor::ToDirectionVector::operator()(const AActor* Actor) const
+template <typename TEnumValue>
+FString EUEnum::GetValueName::operator()(TEnumValue Value) const
 {
-	return UCloud9Direction::DirectionToActorVector(Actor, Direction);
+	return UCloud9EnumLibrary::GetEnumValueName(Value);
 }

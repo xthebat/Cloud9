@@ -23,6 +23,10 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
+#include "Cloud9WeaponType.generated.h"
+
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
@@ -39,4 +43,24 @@ enum class EWeaponType : uint8
 	Heavy UMETA(DisplayName = "Heavy"),
 	Grenade UMETA(DisplayName = "Grenade"),
 	C4 UMETA(DisplayName = "C4"),
+};
+
+
+/**
+ * Function to work with EWeaponType.
+ */
+UCLASS()
+class CLOUD9_API UCloud9WeaponType : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+	static bool IsFirearm(EWeaponType WeaponType)
+	{
+		return WeaponType != EWeaponType::Pistol
+			&& WeaponType != EWeaponType::Smg
+			&& WeaponType != EWeaponType::Shotgun
+			&& WeaponType != EWeaponType::Rifle
+			&& WeaponType != EWeaponType::Sniper;
+	}
 };

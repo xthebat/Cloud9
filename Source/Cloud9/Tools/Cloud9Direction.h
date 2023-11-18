@@ -23,6 +23,10 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
+#include "Cloud9Direction.generated.h"
+
 UENUM(BlueprintType)
 enum class EDirection : uint8
 {
@@ -32,4 +36,17 @@ enum class EDirection : uint8
 	Right UMETA(DisplayName = "Right"),
 	Forward UMETA(DisplayName = "Forward"),
 	Backward UMETA(DisplayName = "Backward"),
+};
+
+/**
+ * Function to working with EDirection.
+ */
+UCLASS()
+class CLOUD9_API UCloud9Direction : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable)
+	static FVector DirectionToActorVector(const AActor* Actor, const EDirection Direction);
 };

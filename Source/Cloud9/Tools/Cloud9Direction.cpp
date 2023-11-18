@@ -21,11 +21,42 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#include "AActor.h"
+#include "Cloud9Direction.h"
 
-#include "Cloud9/Tools/Cloud9Direction.h"
+#include "Cloud9/Cloud9.h"
 
-FVector EAActor::ToDirectionVector::operator()(const AActor* Actor) const
+FVector UCloud9Direction::DirectionToActorVector(const AActor* Actor, const EDirection Direction)
 {
-	return UCloud9Direction::DirectionToActorVector(Actor, Direction);
+	if (Direction == EDirection::Right)
+	{
+		return Actor->GetActorRightVector();
+	}
+
+	if (Direction == EDirection::Left)
+	{
+		return -Actor->GetActorRightVector();
+	}
+
+	if (Direction == EDirection::Up)
+	{
+		return Actor->GetActorUpVector();
+	}
+
+	if (Direction == EDirection::Down)
+	{
+		return -Actor->GetActorUpVector();
+	}
+
+	if (Direction == EDirection::Forward)
+	{
+		return Actor->GetActorForwardVector();
+	}
+
+	if (Direction == EDirection::Backward)
+	{
+		return -Actor->GetActorForwardVector();
+	}
+
+	UE_LOG(LogCloud9, Fatal, TEXT("Invalid value for Actor = '%s' Direction = '%d'"), *Actor->GetName(), Direction);
+	return {};
 }
