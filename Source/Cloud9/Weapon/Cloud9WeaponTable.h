@@ -1,0 +1,406 @@
+﻿// Copyright (c) 2023 Alexei Gladkikh
+//
+// Permission is hereby granted, free of charge, to any person
+// obtaining a copy of this software and associated documentation
+// files (the "Software"), to deal in the Software without
+// restriction, including without limitation the rights to use,
+// copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following
+// conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+
+#pragma once
+
+#include "NiagaraComponent.h"
+#include "Engine/DataTable.h"
+#include "Cloud9/Cloud9.h"
+#include "Cloud9/Character/Enums/Cloud9WeaponType.h"
+#include "Cloud9/Tools/Extensions/UEnum.h"
+#include "Cloud9WeaponTable.generated.h"
+
+USTRUCT(BlueprintType)
+struct FFirearmWeaponSounds
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sounds)
+	USoundBase* PrimarySound = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sounds)
+	USoundBase* SecondarySound = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sounds)
+	USoundBase* DeploySound = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sounds)
+	USoundBase* ReloadSound = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FFirearmWeaponEffects
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Effects)
+	UNiagaraSystem* MuzzleFlash = nullptr;
+
+	// TODO: May be similar for all weapons
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Effects)
+	UParticleSystem* Tracer = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FFirearmSkin
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=About)
+	FName Name;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=About)
+	FString Description;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	UStaticMesh* Weapon = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	UStaticMesh* Magazine = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FFirearmInaccuracy
+{
+	GENERATED_BODY()
+
+	/**
+	 * Additional inaccuracy when crouch
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
+	float OnCrouch;
+
+	/**
+	 * Additional inaccuracy when stand still
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
+	float OnStand;
+
+	/**
+	 * Additional inaccuracy after firing
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
+	float OnFire;
+
+	/**
+	 * Additional inaccuracy whilst moving at MaxPlayerSpeed
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
+	float OnMove;
+
+	/**
+	 * Additional inaccuracy whilst jump
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
+	float OnJump;
+
+	/**
+	 * Additional inaccuracy whilst character on ladder
+	 *
+	 * NOTE: For future use
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
+	float OnLadder;
+};
+
+USTRUCT(BlueprintType)
+struct FRecoveryTime
+{
+	GENERATED_BODY()
+
+	/**
+	 * When crouching it is the decay rate for InaccuracyFire, InaccuracyJump, InaccuracyLadder
+	 * the difference between InaccuracyStand and InaccuracyCrouch and
+	 * the difference between InaccuracyCrouch and InaccuracyCrouchAlt
+	 * using the following formula: 'Inaccuracy * (0.1 ^ (time/RecoveryTime))'
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
+	float OnCrouch;
+
+	/**
+	 * When standing it is the decay rate for InaccuracyFire, InaccuracyJump, InaccuracyLadder, and
+	 * the difference between InaccuracyStand and InaccuracyStandAlt using
+	 * the following formula: 'Inaccuracy * (0.1 ^ (time/RecoveryTime))'
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
+	float OnStand;
+};
+
+USTRUCT(BlueprintType)
+struct FFirearmWeaponInfo : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	/**
+	 * Weapon type (Pistol/Smg/Shotgun/Rifle/Sniper/Heavy)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Type)
+	EWeaponType WeaponType = EWeaponType::Pistol;
+
+	/**
+	 * Amount of damage inflicted per bullet before any modifiers
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
+		meta=(UIMin="0", UIMax="1000", ClampMin="0", ClampMax="1000"))
+	float Damage;
+
+	/**
+	 * Damage against armored opponents is multiplied
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
+		meta=(UIMin="0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
+	float ArmorPenetration;
+
+	/**
+	 * Maximum number of character or items to penetrate
+	 *
+	 * NOTE: For future use
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
+		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
+	float PenetrationPower = 1.0;
+
+	/**
+	 * Damage is multiplied by 'RangeModifier ^ (Distance(u)/500u)'
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
+		meta=(UIMin="0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
+	float RangeModifier = 1.0;
+
+	/**
+	 * Maximum fire weapon range (no any impact after this distance)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
+		meta=(UIMin="0", UIMax="10000", ClampMin="0", ClampMax="10000"))
+	float MaxBulletRange;
+
+	/**
+	 * The amount damage is multiplied for headshots
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
+		meta=(UIMin="0", UIMax="100", ClampMin="0", ClampMax="100"))
+	float HeadshotMultiplier;
+
+	/**
+	 * Minimum interval between firing next bullet (measured in seconds)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
+		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
+	float CycleTime;
+
+	/**
+	 * Minimum interval between zoom enable and shoot (measured in seconds)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
+		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
+	float ZoomTime;
+
+	/**
+	 * Time to deploy weapon i.e. from start deploying to available for use (shoot)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
+		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
+	float DeployTime;
+
+	/**
+	 * Time to reload weapon i.e. from start reloading to available for use (shoot)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
+		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
+	float ReloadTime;
+
+	/**
+	 * Maximum running speed with the weapon equipped
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mobility,
+		meta=(UIMin="0", UIMax="500", ClampMin="0", ClampMax="500"))
+	float MaxPlayerSpeed; // aka Mobility
+
+	/**
+	 * Number of rounds (or shots) per weapon magazine
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Ammo,
+		meta=(UIMin="0", UIMax="300", ClampMin="0", ClampMax="300"))
+	int MagazineSize;
+
+	/**
+	 * Total number of rounds available to carry for this weapon type
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Ammo,
+		meta=(UIMin="0", UIMax="1000", ClampMin="0", ClampMax="1000"))
+	int MaxAmmoInReserve;
+
+	/**
+	 * Weapon fires automatically whilst primary action is toggled
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mode)
+	bool bIsFullAuto = false; // aka HoldToShoot
+
+	/**
+	 * The frequency at which tracers are applied to bullets (0 = never)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX,
+		meta=(UIMin="0", UIMax="5", ClampMin="0", ClampMax="5"))
+	int TracerFrequency = 0;
+
+	/**
+	 * Weapon visual effects on different actions
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)
+	FFirearmWeaponEffects Effects;
+
+	/**
+	 * Weapon sound on different actions
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)
+	FFirearmWeaponSounds Sounds;
+
+	/**
+	 * Available skins for weapon and it magazines
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)
+	TArray<FFirearmSkin> Skins;
+
+	/**
+	 * Weapon price in buy menu
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
+		meta=(UIMin="0", UIMax="20000", ClampMin="0", ClampMax="20000"))
+	int Price;
+
+	/**
+	 * Money award for kill enemy with this gun
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
+		meta=(UIMin="0", UIMax="20000", ClampMin="0", ClampMax="20000"))
+	int KillAward;
+
+	// TODO: Implement spread
+	// float fDecayFactor = logf( 10.0f ) / GetRecoveryTime( );
+	// m_fAccuracyPenalty = Lerp( expf( TICK_INTERVAL * -fDecayFactor ), fNewPenalty, ( float ) m_fAccuracyPenalty );
+
+	/**
+	 * Basic weapon bullet shooting spread (inaccuracy)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
+	float Spread;
+
+	/**
+	 * Weapon bullet shooting spread inaccuracy at different conditions
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy)
+	FFirearmInaccuracy Inaccuracy;
+
+	/**
+	 * Inaccuracy recovery time at different conditions
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy)
+	FRecoveryTime RecoveryTime;
+
+	/**
+	 * The number of bullets (pellets for a shotgun) fired from a cartridge
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Additional,
+		meta=(EditCondition="WeaponType == EWeaponType::Smg", UIMin="1", UIMax="10", ClampMin="0", ClampMax="10"))
+	int BulletsPerShot = 1;
+
+	/**
+	 * The field of view while in the 1st zoom level (default unscoped is 90)
+	 *
+	 * NOTE: Currently is uncleared how zoom will work
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Zoom,
+		meta=(UIMin="0.0", UIMax="90.0", ClampMin="0", ClampMax="90.0"))
+	float ZoomFieldOfView1;
+
+	/**
+	 * The field of view while in the 2nd zoom level (default unscoped is 90)
+	 *
+	 * NOTE: Currently is uncleared how zoom will work
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Zoom,
+		meta=(Latent, UIMin="0.0", UIMax="90.0", ClampMin="0", ClampMax="90.0"))
+	float ZoomFieldOfView2;
+
+	/**
+	 * The factor a target is slowed to (the lower the more effective)
+	 *
+	 * NOTE: For future use
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Flinch,
+		meta=(Latent, UIMin="0.0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
+	float FlinchVelocityModifierFirst = 1.0f;
+
+	/**
+	 * The factor a target is slowed to for second and consequent shoots
+	 *
+	 * NOTE: For future use
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Flinch,
+		meta=(Latent, UIMin="0.0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
+	float FlinchVelocityModifierNext = 1.0f;
+
+public: // functions
+	TOptional<FFirearmSkin> GetSkinByName(FString Name)
+	{
+		// TODO: Refactor with AssociateBy
+		static TMap<FName, FFirearmSkin> FirearmsSkinsMap;
+		for (let& It : Skins)
+		{
+			FirearmsSkinsMap.Add(It.Name, It);
+		}
+
+		let Key = FName(Name);
+
+		if (let Found = FirearmsSkinsMap.Find(Key); Found != nullptr)
+		{
+			return *Found;
+		}
+
+		return {};
+	}
+
+private:
+#if WITH_EDITOR
+	// TODO: Move when create weapon
+	bool PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) const
+	{
+		if (UCloud9WeaponType::IsFirearm(WeaponType))
+		{
+			let Name = WeaponType | EUEnum::GetValueName();
+			UE_LOG(LogCloud9, Warning, TEXT("Specified weapon type '%s' unavailabe for firearm"), *Name);
+			return false;
+		}
+		return true;
+	}
+#endif
+};

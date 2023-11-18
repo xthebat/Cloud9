@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 Alexei Gladkikh
+﻿// Fill out your copyright notice in// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -21,11 +21,14 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#include "AActor.h"
+#include "Cloud9EnumLibrary.h"
 
-#include "Cloud9/Tools/Cloud9Direction.h"
+#include "Cloud9/Cloud9.h"
 
-FVector EAActor::ToDirectionVector::operator()(const AActor* Actor) const
+template <typename TEnumValue>
+FString UCloud9EnumLibrary::GetEnumValueName(TEnumValue Value)
 {
-	return UCloud9Direction::DirectionToActorVector(Actor, Direction);
+	let ClassName = TEnumValue::StaticClass()->GetFName();
+	let EnumPtr = FindObject<UEnum>(ANY_PACKAGE, ClassName, true);
+	return EnumPtr ? EnumPtr->GetNameByIndex(static_cast<uint8>(Value)).ToString() : FString("Invalid");
 }

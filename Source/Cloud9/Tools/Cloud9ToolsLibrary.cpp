@@ -26,7 +26,6 @@
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Game/Cloud9GameMode.h"
 
-
 void UCloud9ToolsLibrary::SetCollisionComplexity(UStaticMesh* StaticMesh, uint8 CollisionTraceFlag)
 {
 	StaticMesh->GetBodySetup()->CollisionTraceFlag = static_cast<ECollisionTraceFlag>(CollisionTraceFlag);
@@ -123,40 +122,4 @@ FVector UCloud9ToolsLibrary::VInterpTo(
 		ClampLerp(Current.Y, Dist.Y, Alpha.Y, Target.Y),
 		ClampLerp(Current.Z, Dist.Z, Alpha.Z, Target.Z),
 	};
-}
-
-FVector UCloud9ToolsLibrary::DirectionToActorVector(const AActor* Actor, const EDirection Direction)
-{
-	if (Direction == EDirection::Right)
-	{
-		return Actor->GetActorRightVector();
-	}
-
-	if (Direction == EDirection::Left)
-	{
-		return -Actor->GetActorRightVector();
-	}
-
-	if (Direction == EDirection::Up)
-	{
-		return Actor->GetActorUpVector();
-	}
-
-	if (Direction == EDirection::Down)
-	{
-		return -Actor->GetActorUpVector();
-	}
-
-	if (Direction == EDirection::Forward)
-	{
-		return Actor->GetActorForwardVector();
-	}
-
-	if (Direction == EDirection::Backward)
-	{
-		return -Actor->GetActorForwardVector();
-	}
-
-	UE_LOG(LogCloud9, Fatal, TEXT("Invalid value for Actor = '%s' Direction = '%d'"), *Actor->GetName(), Direction);
-	return {};
 }

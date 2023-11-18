@@ -21,11 +21,18 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#include "AActor.h"
+#pragma once
 
-#include "Cloud9/Tools/Cloud9Direction.h"
+#include "CoreMinimal.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
+#include "Cloud9EnumLibrary.generated.h"
 
-FVector EAActor::ToDirectionVector::operator()(const AActor* Actor) const
+UCLASS()
+class CLOUD9_API UCloud9EnumLibrary : public UBlueprintFunctionLibrary
 {
-	return UCloud9Direction::DirectionToActorVector(Actor, Direction);
-}
+	GENERATED_BODY()
+
+public:
+	template <typename TEnumValue>
+	static FString GetEnumValueName(TEnumValue Value);
+};
