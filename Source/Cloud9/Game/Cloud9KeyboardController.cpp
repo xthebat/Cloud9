@@ -92,11 +92,9 @@ void UCloud9KeyboardController::WeaponAction(FunctionType Function)
 			return;
 		}
 
-		// Check if any other action in progress on this weapon
-		if (not SelectedWeapon->IsActionInProgress())
-		{
-			Function(SelectedWeapon);
-		}
+		// Checking of other actions in progress should be done inside weapon
+		// because this can depend on implementation of weapon work logic
+		Function(SelectedWeapon);
 	}
 }
 
