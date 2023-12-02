@@ -77,6 +77,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 
 	Inventory = CreateDefaultSubobject<UCloud9Inventory>(InventoryComponentName);
 
+
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
@@ -97,7 +98,7 @@ bool ACloud9Character::CanSneak() const
 {
 	if (let Movement = GetCloud9CharacterMovement(); IsValid(Movement))
 	{
-		return !Movement->IsCrouching();
+		return not Movement->IsCrouching();
 	}
 
 	return false;
@@ -179,7 +180,7 @@ void ACloud9Character::SetCameraRotationYaw(float Angle) const
 {
 	var Rotation = CameraBoom->GetRelativeRotation();
 	Rotation.Yaw = Angle;
-	UE_LOG(LogCloud9, Display, TEXT("SetRelativeRotation Pitch: %s"), *Rotation.ToString());
+	TRACE(Display, "SetRelativeRotation Pitch: %s", *Rotation.ToString());
 	CameraBoom->SetRelativeRotation(Rotation);
 }
 
@@ -198,7 +199,7 @@ void ACloud9Character::SetCameraRotationRoll(float Angle) const
 {
 	var Rotation = CameraBoom->GetRelativeRotation();
 	Rotation.Pitch = -Angle;
-	UE_LOG(LogCloud9, Display, TEXT("SetRelativeRotation Yaw: %s"), *Rotation.ToString());
+	TRACE(Display, "SetRelativeRotation Yaw: %s", *Rotation.ToString());
 	CameraBoom->SetRelativeRotation(Rotation);
 }
 
@@ -219,11 +220,16 @@ void ACloud9Character::SetCameraZoomHeight(float Value) const
 
 UCloud9Inventory* ACloud9Character::GetInventory() const { return Inventory; }
 
+void ACloud9Character::UseObject()
+{
+	// TODO: Implement UseObject
+}
+
 void ACloud9Character::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	UE_LOG(LogCloud9, Display, TEXT("Contruction transform %s"), *Transform.ToString());
+	TRACE(Display, "Contruction transform %s", *Transform.ToString());
 
 	let Rotator = Transform.Rotator();
 
@@ -234,16 +240,19 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 
 	if (IsValid(CursorDecal))
 	{
-		UE_LOG(LogCloud9, Display, TEXT("Setup CursorDecal = %s"), *CursorDecal->GetName());
+		TRACE(Display, "Setup CursorDecal = %s", *CursorDecal->GetName());
 		CursorToWorld->SetDecalMaterial(CursorDecal);
 		CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
 	}
 
-	if (let MyMesh = GetMesh(); IsValid(MyMesh) && !CameraTargetBoneName.IsNone())
+	if (let MyMesh = GetMesh(); IsValid(MyMesh) && not CameraTargetBoneName.IsNone())
 	{
 		let HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
-		UE_LOG(LogCloud9, Display, TEXT("Setup CameraBoom = %s"), *HeadBoneLocation.ToString());
+		TRACE(Display, "Setup CameraBoom = %s", *HeadBoneLocation.ToString());
 		CameraBoom->SetWorldLocation(HeadBoneLocation);
+
+		MyMesh->bCastDynamicShadow = true;
+		MyMesh->bAffectDynamicIndirectLighting = true;
 	}
 }
 

@@ -104,7 +104,7 @@ namespace EFTextBuilder
 		return false;
 	}
 
-	FTextBuilder& AppendProperty::operator()(FTextBuilder& Builder) const
+	FTextBuilder& AppendProperty::operator()(FTextBuilder&& Builder) const
 	{
 		UPropertyAppendTo<FInt16Property>(Builder, Object, Property)
 			|| UPropertyAppendTo<FIntProperty>(Builder, Object, Property)
@@ -135,7 +135,7 @@ namespace EFTextBuilder
 		return Builder;
 	}
 
-	FTextBuilder& AppendObject::operator()(FTextBuilder& Builder) const
+	FTextBuilder& AppendObject::operator()(FTextBuilder&& Builder) const
 	{
 		let TypeClass = Type->GetClass();
 		let Header = FString::Printf(TEXT("%s %s {"), *TypeClass->GetName(), *Type->GetName());
@@ -154,5 +154,5 @@ namespace EFTextBuilder
 		return Builder;
 	}
 
-	FText ToText::operator()(const FTextBuilder& Builder) const { return Builder.ToText(); }
+	FText ToText::operator()(FTextBuilder&& Builder) const { return Builder.ToText(); }
 }

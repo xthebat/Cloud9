@@ -1,4 +1,5 @@
-﻿// Copyright 2023 (c) 
+﻿// Copyright (c) 2023 Alexei Gladkikh
+//
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
 // files (the "Software"), to deal in the Software without
@@ -7,8 +8,10 @@
 // copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following
 // conditions:
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 // OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -19,9 +22,9 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
-#include "Cloud9/Cloud9.h"
 
-enum class EDirection : uint8;
+#include "EDirection.h"
+#include "Cloud9/Cloud9.h"
 
 namespace EAActor
 {
@@ -29,7 +32,41 @@ namespace EAActor
 	{
 		explicit ToDirectionVector(EDirection Direction) : Direction(Direction) { }
 
-		FVector operator()(const AActor* Actor) const;
+		FVector operator()(const AActor* Self) const
+		{
+			if (Direction == EDirection::Right)
+			{
+				return Self->GetActorRightVector();
+			}
+
+			if (Direction == EDirection::Left)
+			{
+				return -Self->GetActorRightVector();
+			}
+
+			if (Direction == EDirection::Up)
+			{
+				return Self->GetActorUpVector();
+			}
+
+			if (Direction == EDirection::Down)
+			{
+				return -Self->GetActorUpVector();
+			}
+
+			if (Direction == EDirection::Forward)
+			{
+				return Self->GetActorForwardVector();
+			}
+
+			if (Direction == EDirection::Backward)
+			{
+				return -Self->GetActorForwardVector();
+			}
+
+			TRACE(Fatal, "Invalid value Actor = '%s' Direction = '%d'", *Self->GetName(), Direction);
+			return {};
+		}
 
 	private:
 		EDirection Direction;

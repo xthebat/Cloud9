@@ -32,7 +32,7 @@ namespace EFTextBuilder
 		AppendObject(const UObject* Object, const UStruct* Type)
 			: Object(Object), Type(Type) { }
 
-		FTextBuilder& operator()(FTextBuilder& Builder) const;
+		FTextBuilder& operator()(FTextBuilder&& Builder) const;
 
 	private:
 		const UObject* Object;
@@ -44,15 +44,15 @@ namespace EFTextBuilder
 		AppendProperty(const UObject* Object, const FProperty* Property)
 			: Object(Object), Property(Property) { }
 
-		FTextBuilder& operator()(FTextBuilder& Builder) const;
+		FTextBuilder& operator()(FTextBuilder&& Builder) const;
 
 	private:
 		const UObject* Object;
 		const FProperty* Property;
 	};
-	
+
 	struct ToText : TOperator<ToText>
 	{
-		FText operator()(const FTextBuilder& Builder) const;
+		FText operator()(FTextBuilder&& Builder) const;
 	};
 }

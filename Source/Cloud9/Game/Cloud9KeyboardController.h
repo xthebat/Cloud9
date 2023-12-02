@@ -32,7 +32,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMoveDelegate);
 UCLASS()
 class CLOUD9_API UCloud9KeyboardController
 	: public UActorComponent
-	  , public ICloud9ControllerComponent
+	, public ICloud9ControllerComponent
 {
 	GENERATED_BODY()
 
@@ -44,6 +44,15 @@ public:
 		ELevelTick TickType,
 		FActorComponentTickFunction* ThisTickFunction
 	) override;
+
+
+	void OnPrimaryActionPressed();
+	void OnPrimaryActionReleased();
+
+	void OnSecondaryActionPressed();
+	void OnSecondaryActionReleased();
+
+	void OnUseAction();
 
 	FOnMoveDelegate OnMoveDelegate;
 
@@ -64,12 +73,15 @@ public:
 	void OnSlot3();
 	void OnSlot4();
 	void OnSlot5();
-	void Reload();
+	void OnReload();
 
 protected:
 	float ForwardScale;
 	float RightScale;
 
-	template <typename TGetDirection>
-	void UpdateMove(TGetDirection GetDirection, float Scale);
+	template <typename GetDirectionType>
+	FORCEINLINE void UpdateMove(GetDirectionType GetDirection, float Scale);
+
+	template <class FunctionType>
+	FORCEINLINE void WeaponAction(FunctionType Function);
 };

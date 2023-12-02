@@ -86,7 +86,19 @@ void ACloud9PlayerController::SetupInputComponent()
 	InputComponent->BindAction("Slot4", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot4);
 	InputComponent->BindAction("Slot5", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot5);
 
-	InputComponent->BindAction("Reload", IE_Pressed, KeyboardController, &UCloud9KeyboardController::Reload);
+	InputComponent->BindAction("Reload", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnReload);
+
+	InputComponent->BindAction(
+		"Primary", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnPrimaryActionPressed);
+	InputComponent->BindAction(
+		"Primary", IE_Released, KeyboardController, &UCloud9KeyboardController::OnPrimaryActionReleased);
+	InputComponent->BindAction(
+		"Secondary", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSecondaryActionPressed);
+	InputComponent->BindAction(
+		"Secondary", IE_Released, KeyboardController, &UCloud9KeyboardController::OnSecondaryActionReleased);
+
+	InputComponent->BindAction(
+		"Use", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnUseAction);
 
 	KeyboardController->OnMoveDelegate.AddDynamic(MouseController, &UCloud9MouseController::OnCharacterMove);
 }

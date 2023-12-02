@@ -39,12 +39,18 @@ float UCloud9ToolsLibrary::CalculateCollisionVolumeScale(UStaticMesh* StaticMesh
 	return SimpleCollisionVolume / BoundingBoxVolume;
 }
 
-UWorld* UCloud9ToolsLibrary::GetWorld() { return GEngine->GameViewport->GetWorld(); }
+UWorld* UCloud9ToolsLibrary::GetGameWorld() { return GEngine->GameViewport->GetWorld(); }
 
 ACloud9GameMode* UCloud9ToolsLibrary::GetGameMode()
 {
-	let MyWorld = GetWorld();
-	return Cast<ACloud9GameMode>(UGameplayStatics::GetGameMode(MyWorld));
+	if (let MyWorld = GetGameWorld(); MyWorld != nullptr)
+	{
+		return Cast<ACloud9GameMode>(UGameplayStatics::GetGameMode(MyWorld));
+	}
+
+	TRACE(Error, "Can't get game world now");
+
+	return nullptr;
 }
 
 /**
@@ -54,7 +60,7 @@ FBox UCloud9ToolsLibrary::GetAccurateReferencePoseBounds(const USkeletalMesh* Me
 {
 	var Box = FBox(ForceInitToZero);
 
-	if (!Mesh || !Mesh->GetPhysicsAsset()) { return {}; }
+	if (not Mesh || not Mesh->GetPhysicsAsset()) { return {}; }
 
 	for (let BodySetups : Mesh->GetPhysicsAsset()->SkeletalBodySetups)
 	{
