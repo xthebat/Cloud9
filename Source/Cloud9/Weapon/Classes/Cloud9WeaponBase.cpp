@@ -33,6 +33,9 @@ const FString ACloud9WeaponBase::ActionComponentFormat = TEXT("{0}ActionComponen
 
 ACloud9WeaponBase::ACloud9WeaponBase()
 {
+	// Required for weapon with automatic fire
+	PrimaryActorTick.bCanEverTick = true;
+
 	Class = EWeaponClass::NoClass;
 	Actions = nullptr;
 	bCanBeDropped = true;

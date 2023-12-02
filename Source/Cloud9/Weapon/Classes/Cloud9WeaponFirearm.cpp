@@ -80,7 +80,7 @@ void ACloud9WeaponFirearm::PrimaryAction(bool bIsReleased)
 	if (not bIsReleased)
 	{
 		let WeaponInfo = GetWeaponInfo<FFirearmWeaponInfo>();
-		ExecuteAction(EFirearmAction::Fire, WeaponInfo->CycleTime, [this]
+		ExecuteAction(EFirearmAction::Fire, WeaponInfo->CycleTime, [=]
 		{
 			let Character = GetOwner<ACloud9Character>();
 			let Montage = Montages->GetPoseMontages(Character->bIsCrouched)->PrimaryActionMontage;
@@ -94,9 +94,7 @@ void ACloud9WeaponFirearm::PrimaryAction(bool bIsReleased)
 				return false;
 			}
 
-			let FirearmWeaponInfo = GetWeaponInfo<FFirearmWeaponInfo>();
-
-			if (let FireSound = FirearmWeaponInfo->Sounds.FireSounds | ERange::Random())
+			if (let FireSound = WeaponInfo->Sounds.FireSounds | ERange::Random())
 			{
 				UGameplayStatics::PlaySoundAtLocation(GetWorld(), *FireSound, GetActorLocation(), Settings->Volume);
 			}
