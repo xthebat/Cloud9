@@ -24,8 +24,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9/Tools/Cloud9Direction.h"
 #include "Engine/StaticMeshActor.h"
+#include "Cloud9/Tools/Extensions/EDirection.h"
 #include "Cloud9LinearDoor.generated.h"
 
 

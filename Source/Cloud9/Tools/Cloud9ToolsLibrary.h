@@ -55,23 +55,31 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static float CalculateCollisionVolumeScale(UStaticMesh* StaticMesh);
 
+	/**
+	 * Function try to get current game world or return nullptr if failed.
+	 * NOTE: Only available when world has been created.
+	 */
 	UFUNCTION(BlueprintCallable)
-	static UWorld* GetWorld();
+	static UWorld* GetGameWorld();
 
+	/**
+	 * Function try to get current game mode or return nullptr if failed.
+	 * NOTE: Only available when world has been created.
+	 */
 	UFUNCTION(BlueprintCallable)
 	static ACloud9GameMode* GetGameMode();
 
 	template <class Cls>
 	static Cls* GetActorOfClass()
 	{
-		return Cast<Cls>(UGameplayStatics::GetActorOfClass(GetWorld(), Cls::StaticClass()));
+		return Cast<Cls>(UGameplayStatics::GetActorOfClass(GetGameWorld(), Cls::StaticClass()));
 	}
 
 	template <class Cls>
 	static TArray<Cls*> GetAllActorsOfClass()
 	{
 		TArray<AActor*> Actors = {};
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), Cls::StaticClass(), Actors);
+		UGameplayStatics::GetAllActorsOfClass(GetGameWorld(), Cls::StaticClass(), Actors);
 		return reinterpret_cast<TArray<Cls*>&>(Actors);
 	}
 

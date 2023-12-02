@@ -78,6 +78,7 @@ public:
 	void SetCameraZoomHeight(float Value) const;
 
 	UCloud9Inventory* GetInventory() const;
+	void UseObject();
 
 	// Set by character movement to specify that this Character is currently sneaking.
 	// TODO: replicatedUsing=OnRep_IsSneaking
@@ -85,6 +86,7 @@ public:
 	uint32 bIsSneaking : 1;
 
 private:
+	// TODO: Move to GameInstance
 	UPROPERTY(EditDefaultsOnly)
 	UMaterial* CursorDecal;
 

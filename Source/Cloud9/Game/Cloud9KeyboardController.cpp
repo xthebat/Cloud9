@@ -26,7 +26,7 @@
 #include "Cloud9KeyboardController.h"
 
 #include "Cloud9/Cloud9.h"
-#include "Cloud9/Character/Enums/Cloud9WeaponSlot.h"
+#include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "GameFramework/SpringArmComponent.h"
 
 UCloud9KeyboardController::UCloud9KeyboardController()
@@ -47,7 +47,7 @@ void UCloud9KeyboardController::TickComponent(
 
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
-		if (FMath::Abs(ForwardScale) > 0.0f || FMath::Abs(RightScale) > 0.0f)
+		if (FMath::Abs(ForwardScale) > 0.0f or FMath::Abs(RightScale) > 0.0f)
 		{
 			let FV = ForwardScale * Pawn->GetCameraBoom()->GetForwardVector();
 			let RV = RightScale * Pawn->GetCameraBoom()->GetRightVector();
@@ -63,8 +63,64 @@ void UCloud9KeyboardController::TickComponent(
 	// UpdateMove([](auto Pawn) { return Pawn->GetCameraBoom()->GetRightVector(); }, RightScale);
 }
 
-template <typename TGetDirection>
-void UCloud9KeyboardController::UpdateMove(TGetDirection GetDirection, float Scale)
+template <typename FunctionType>
+void UCloud9KeyboardController::WeaponAction(FunctionType Function)
+{
+	let Pawn = GetCloud9Pawn();
+
+	if (not IsValid(Pawn))
+	{
+		TRACE(Error, "Pawn is invalid")
+		return;
+	}
+
+	let Inventory = Pawn->GetInventory();
+
+	if (not IsValid(Inventory))
+	{
+		TRACE(Error, "Pawn inventory is invalid")
+		return;
+	}
+
+	if (not Inventory->IsWeaponChanging())
+	{
+		let SelectedWeapon = Inventory->GetSelectedWeapon();
+
+		if (not IsValid(SelectedWeapon))
+		{
+			TRACE(Error, "Selected weapon is invalid");
+			return;
+		}
+
+		// Check if any other action in progress on this weapon
+		if (not SelectedWeapon->IsActionInProgress())
+		{
+			Function(SelectedWeapon);
+		}
+	}
+}
+
+void UCloud9KeyboardController::OnPrimaryActionPressed() { WeaponAction([](let It) { It->PrimaryAction(false); }); }
+
+void UCloud9KeyboardController::OnPrimaryActionReleased() { WeaponAction([](let It) { It->PrimaryAction(true); }); }
+
+void UCloud9KeyboardController::OnSecondaryActionPressed() { WeaponAction([](let It) { It->SecondaryAction(false); }); }
+
+void UCloud9KeyboardController::OnSecondaryActionReleased() { WeaponAction([](let It) { It->SecondaryAction(true); }); }
+
+void UCloud9KeyboardController::OnReload() { WeaponAction([](let It) { It->Reload(); }); }
+
+void UCloud9KeyboardController::OnUseAction()
+{
+	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
+	{
+		// TODO: Get overhauled object by mouse
+		Pawn->UseObject();
+	}
+}
+
+template <typename GetDirectionType>
+void UCloud9KeyboardController::UpdateMove(GetDirectionType GetDirection, float Scale)
 {
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn) && FMath::Abs(Scale) > 0.0f)
 	{
@@ -165,13 +221,5 @@ void UCloud9KeyboardController::OnSlot5()
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
 		Pawn->GetInventory()->SelectWeapon(EWeaponSlot::Stuff);
-	}
-}
-
-void UCloud9KeyboardController::Reload()
-{
-	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
-	{
-		// TODO: Reload	
 	}
 }

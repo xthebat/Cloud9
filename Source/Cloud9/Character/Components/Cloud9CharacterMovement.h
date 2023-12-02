@@ -34,7 +34,7 @@ class ACloud9Character;
 UCLASS(Blueprintable)
 class CLOUD9_API UCloud9CharacterMovement
 	: public UCharacterMovementComponent
-	  , public ICloud9CharacterComponent
+	, public ICloud9CharacterComponent
 {
 	GENERATED_BODY()
 

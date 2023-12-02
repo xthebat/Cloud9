@@ -29,7 +29,14 @@
 
 // ReSharper disable once CppPossiblyUninitializedMember
 UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer) {}
+	: Super(ObjectInitializer)
+{
+	bIsShowMouseCursor = 0;
+	bIsDrawDeprojectedCursorLine = 0;
+	bIsDrawHitCursorLine = 0;
+	NetGraph = 0;
+	Volume = 0.1;
+}
 
 const UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
 {
@@ -41,7 +48,8 @@ const UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
 void UCloud9DeveloperSettings::Save()
 {
 	UpdateDefaultConfigFile();
-	Log();
+	let String = this | EUObject::Stringify();
+	TRACE(Display, "%s", *String);
 }
 
 template <typename TValue>
@@ -70,7 +78,7 @@ void UCloud9DeveloperSettings::InitializeCVars()
 {
 	static var bIsConsoleInitialized = false;
 
-	if (!bIsConsoleInitialized)
+	if (not bIsConsoleInitialized)
 	{
 		bIsConsoleInitialized = true;
 
@@ -87,8 +95,8 @@ void UCloud9DeveloperSettings::InitializeCVars()
 		);
 
 		RegisterConsoleVariable(
-			bIsShowMouseCursor,
-			TEXT("r.IsShowMouseCursor"),
+			bIsDrawHitCursorLine,
+			TEXT("r.bIsDrawHitCursorLine"),
 			TEXT("Whether to show mouse cursor on screen or not in game")
 		);
 
@@ -104,14 +112,15 @@ void UCloud9DeveloperSettings::InitializeCVars()
 			TEXT("Configure how smoothly does the camera change its position vertically")
 		);
 
-		Log();
-	}
-}
+		RegisterConsoleVariable(
+			Volume,
+			TEXT("r.Volume"),
+			TEXT("Basic game volume")
+		);
 
-void UCloud9DeveloperSettings::Log() const
-{
-	let String = this | EUObject::Stringify();
-	UE_LOG(LogCloud9, Display, TEXT("%s"), *String);
+		let String = this | EUObject::Stringify();
+		TRACE(Display, "%s", *String);
+	}
 }
 
 #if WITH_EDITOR

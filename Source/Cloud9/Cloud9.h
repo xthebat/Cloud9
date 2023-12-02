@@ -27,28 +27,85 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCloud9, Log, All);
 
+// Simplification of const auto/auto
 #define let const auto
 #define var auto
 
-template <typename TFunction>
+// https://www.kevin-agwaze.com/logging-in-unreal-made-simple-with-helper-macros/
+
+// Current Class Name + Function Name where this is called
+#define TRACE_STR_CUR_CLASS_FUNC (FString(__FUNCTION__))
+
+// Current Class where this is called
+#define TRACE_STR_CUR_CLASS (FString(__FUNCTION__).Left(FString(__FUNCTION__).Find(TEXT(":"))) )
+
+// Current Function Name where this is called
+#define TRACE_STR_CUR_FUNC (FString(__FUNCTION__).Right(FString(__FUNCTION__).Len() - FString(__FUNCTION__).Find(TEXT("::")) - 2 ))
+
+// Current Line Number in the code where this is called
+#define TRACE_STR_CUR_LINE  (FString::FromInt(__LINE__))
+
+// Current Class and Line Number where this is called
+#define TRACE_STR_CUR_CLASS_LINE (TRACE_STR_CUR_CLASS + ":" + TRACE_STR_CUR_LINE + " ")
+
+// Current Class Name + Function Name and Line Number where this is called
+#define TRACE_STR_CUR_CLASS_FUNC_LINE (TRACE_STR_CUR_CLASS_FUNC + ":" + TRACE_STR_CUR_LINE + " ")
+
+// Current Function Signature where this is called
+#define TRACE_STR_CUR_FUNCSIG (FString(__FUNCSIG__))
+
+// Screen Message
+#define SCREEN_MSG(FormatString, ...) ( \
+	GEngine->AddOnScreenDebugMessage( \
+		-1, 10.0f, FColor::Yellow, \
+		*(TRACE_STR_CUR_CLASS_FUNC_LINE + ": " + (FString::Printf(TEXT(FormatString), ##__VA_ARGS__ ))) \
+	) \
+)
+
+// UE LOG
+
+#define TRACE(Severity, FormatString, ...) \
+	UE_LOG(\
+		LogCloud9, \
+		Severity, \
+		TEXT("%s: %s"), \
+		*TRACE_STR_CUR_CLASS_FUNC_LINE, \
+		*FString::Printf(TEXT(FormatString), ##__VA_ARGS__ ) \
+	)
+
+// Operator base class
+
+template <typename FunctionType>
 class TOperator
 {
 public:
-	template <typename TValue>
-	constexpr friend auto operator|(const TValue* Value, const TFunction& Function)
+	template <typename SelfType>
+	constexpr friend auto operator|(SelfType* Self, const FunctionType& Function)
 	{
-		return Function(Value);
-	}
-	
-	template <typename TValue>
-	constexpr friend auto operator|(TValue& Value, const TFunction& Function)
-	{
-		return Function(Value);
+		return Function(Self);
 	}
 
-	template <typename TValue>
-	constexpr friend auto operator|(TValue&& Value, const TFunction& Function)
+	template <typename SelfType>
+	constexpr friend auto operator|(const SelfType* Self, const FunctionType& Function)
 	{
-		return Function(Value);
+		return Function(Self);
+	}
+
+	template <typename SelfType>
+	constexpr friend auto operator|(const SelfType& Self, const FunctionType& Function)
+	{
+		return Function(Self);
+	}
+
+	template <typename SelfType>
+	constexpr friend auto operator|(SelfType& Self, const FunctionType& Function)
+	{
+		return Function(Forward<SelfType>(Self));
+	}
+
+	template <typename SelfType>
+	constexpr friend auto operator|(SelfType&& Self, const FunctionType& Function)
+	{
+		return Function(Forward<SelfType>(Self));
 	}
 };

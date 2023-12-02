@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "FTextBuilder.h"
+#include "UWorld.h"
 #include "Cloud9/Cloud9.h"
 
 namespace EUObject
@@ -30,6 +32,70 @@ namespace EUObject
 	struct Stringify : TOperator<Stringify>
 	{
 	public:
-		FString operator()(const UObject* Object) const;
+		explicit Stringify(const UStruct* Type = nullptr) : Type(Type) { }
+
+		FString operator()(const UObject* Object) const
+		{
+			using namespace EFTextBuilder;
+
+			let Text = FTextBuilder()
+				| AppendObject(Object, Object->GetClass())
+				| ToText();
+			return Text.ToString();
+		}
+
+	private:
+		const UStruct* Type;
+	};
+
+	template <typename FunctionType>
+	struct AsyncAfter : TOperator<AsyncAfter<FunctionType>>
+	{
+		explicit AsyncAfter(FunctionType Function, float InRate, bool bInLoop = false)
+			: Function(Function)
+			, InRate(InRate)
+			, bInLoop(bInLoop) {}
+
+		FORCEINLINE FTimerHandle operator()(const UObject* Self) const
+		{
+			let MyWorld = Self->GetWorld();
+
+			if (not IsValid(MyWorld))
+			{
+				// Should we crash or not crash in this case?
+				TRACE(Fatal, "Timer not set due to game World not exists")
+				return {};
+			}
+
+			return MyWorld | EUWorld::AsyncAfter(Function, InRate, bInLoop);
+		}
+
+	private:
+		FunctionType Function;
+		float InRate;
+		bool bInLoop;
+	};
+
+	struct IsTimerActive : TOperator<IsTimerActive>
+	{
+		explicit IsTimerActive(const FTimerHandle& TimerHandle)
+			: TimerHandle(TimerHandle) {}
+
+		FORCEINLINE bool operator()(const UObject* Self) const
+		{
+			let MyWorld = Self->GetWorld();
+
+			if (not IsValid(MyWorld))
+			{
+				// Should we crash or not crash in this case?
+				TRACE(Fatal, "Timer not set due to game World not exists")
+				return false;
+			}
+
+			return MyWorld | EUWorld::IsTimerActive(TimerHandle);
+		}
+
+	private:
+		FTimerHandle TimerHandle;
 	};
 }

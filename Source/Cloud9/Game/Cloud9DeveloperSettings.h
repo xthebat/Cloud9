@@ -75,6 +75,9 @@ public: // properties
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	FUnUsedStruct UnUsedStruct;
 
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Sound)
+	float Volume;
+
 public: // static functions
 	UFUNCTION(BlueprintCallable, Category=Settings, DisplayName=GetCloud9DeveloperSettings)
 	static const UCloud9DeveloperSettings* Get();
@@ -82,9 +85,6 @@ public: // static functions
 public: // functions
 	UFUNCTION(BlueprintCallable)
 	void Save();
-
-	UFUNCTION(BlueprintCallable)
-	void Log() const;
 
 #if WITH_EDITOR
 	virtual void PostInitProperties() override;

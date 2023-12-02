@@ -25,20 +25,22 @@
 
 #include "CoreMinimal.h"
 #include "Cloud9CharacterComponent.h"
-#include "Cloud9/Character/Enums/Cloud9WeaponSlot.h"
-#include "Cloud9/Character/Enums/Cloud9WeaponType.h"
-#include "Cloud9/Weapon/Cloud9WeaponPistol.h"
+#include "Cloud9/Cloud9.h"
+#include "Cloud9/Weapon/Enums/Cloud9FirearmNames.h"
+#include "Cloud9/Weapon/Enums/Cloud9MeleeNames.h"
+#include "Cloud9/Weapon/Enums/Cloud9WeaponSlot.h"
+#include "Cloud9/Weapon/Enums/Cloud9WeaponType.h"
 #include "Components/ActorComponent.h"
 #include "Cloud9Inventory.generated.h"
 
-
-class ACloud9WeaponKnife;
 class ACloud9WeaponBase;
+class ACloud9WeaponFirearm;
+class ACloud9WeaponMelee;
 
 UCLASS(Blueprintable)
 class CLOUD9_API UCloud9Inventory
 	: public UActorComponent
-	  , public ICloud9CharacterComponent
+	, public ICloud9CharacterComponent
 {
 	GENERATED_BODY()
 
@@ -58,10 +60,16 @@ public:
 	EWeaponSlot GetSelectedWeaponSlot() const;
 
 	UFUNCTION(BlueprintCallable)
-	bool SetWeaponAt(EWeaponSlot Slot, ACloud9WeaponBase* Weapon);
+	ACloud9WeaponBase* GetWeaponAt(EWeaponSlot Slot) const;
 
 	UFUNCTION(BlueprintCallable)
-	ACloud9WeaponBase* GetWeaponAt(EWeaponSlot Slot) const;
+	bool ShoveWeapon(EWeaponSlot Slot, ACloud9WeaponBase* Weapon);
+
+	UFUNCTION(BlueprintCallable)
+	bool DropWeapon(EWeaponSlot Slot);
+
+	UFUNCTION(BlueprintCallable)
+	bool ReplaceWeaponAt(EWeaponSlot Slot, ACloud9WeaponBase* Weapon);
 
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetSelectedWeapon() const;
@@ -73,17 +81,32 @@ public:
 	void OnWeaponChangeFinished();
 
 protected:
+	template <typename WeaponType = ACloud9WeaponBase>
+	WeaponType* WeaponAt(EWeaponSlot Slot) const
+	{
+		let Index = static_cast<int>(Slot);
+		return WeaponSlots[Index];
+	}
+
+	template <typename WeaponType = ACloud9WeaponBase>
+	WeaponType*& WeaponAt(EWeaponSlot Slot)
+	{
+		let Index = static_cast<int>(Slot);
+		return WeaponSlots[Index];
+	}
+
+protected:
 	virtual void BeginPlay() override;
-
-	UPROPERTY(EditDefaultsOnly, Category = Weapons, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<ACloud9WeaponKnife> DefaultKnifeClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = Weapons, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<ACloud9WeaponPistol> DefaultPistolClass;
 
 	UPROPERTY()
 	TArray<ACloud9WeaponBase*> WeaponSlots;
 
 	EWeaponSlot SelectedWeaponSlot;
 	EWeaponSlot PendingWeaponSlot;
+
+	UPROPERTY(EditDefaultsOnly, Category = Weapons, meta = (AllowPrivateAccess = "true"))
+	EMelee DefaultKnifeName;
+
+	UPROPERTY(EditDefaultsOnly, Category = Weapons, meta = (AllowPrivateAccess = "true"))
+	EFirearm DefaultPistolName;
 };

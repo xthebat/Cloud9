@@ -21,6 +21,8 @@ public class Cloud9 : ModuleRules
 			"Niagara"
 		});
 
-		CppStandard = CppStandardVersion.Cpp17;
+		// CppStandard = CppStandardVersion.Cpp17;
+		// Should be changed to Cpp20 but engine hasn't got it
+		CppStandard = CppStandardVersion.Latest;
 	}
 }

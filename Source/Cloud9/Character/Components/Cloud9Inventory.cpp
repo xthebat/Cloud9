@@ -24,85 +24,153 @@
 #include "Cloud9Inventory.h"
 
 #include "Cloud9/Cloud9.h"
-#include "Cloud9/Weapon/Cloud9WeaponBase.h"
-#include "Cloud9/Weapon/Cloud9WeaponKnife.h"
-#include "Cloud9/Weapon/Cloud9WeaponPistol.h"
+#include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Game/Cloud9GameInstance.h"
+#include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
+#include "Cloud9/Weapon/Classes/Cloud9WeaponMelee.h"
+#include "Cloud9/Weapon/Enums/Cloud9WeaponState.h"
 
 
 UCloud9Inventory::UCloud9Inventory()
 {
+	DefaultKnifeName = EMelee::Knife;
+	DefaultPistolName = EFirearm::Deagle;
+
 	SelectedWeaponSlot = EWeaponSlot::NotSelected;
 	PendingWeaponSlot = EWeaponSlot::NotSelected;
 
 	let SlotsNumber = StaticEnum<EWeaponSlot>()->NumEnums();
 	WeaponSlots.SetNum(SlotsNumber);
-
-	DefaultKnifeClass = ACloud9WeaponKnife::StaticClass();
-	DefaultPistolClass = ACloud9WeaponPistol::StaticClass();
 }
 
 void UCloud9Inventory::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = GetOwner();
-	let DefaultKnife = GetWorld()->SpawnActor<ACloud9WeaponBase>(DefaultKnifeClass, SpawnParams);
-	let DefaultPistol = GetWorld()->SpawnActor<ACloud9WeaponBase>(DefaultPistolClass, SpawnParams);
-	// let DefaultMain = GetWorld()->SpawnActor<ACloud9WeaponBase>(ACloud9WeaponSniper::StaticClass(), SpawnParams);
+	if (let MyOwner = GetOwner<ACloud9Character>(); IsValid(MyOwner))
+	{
+		let MyGameInstance = MyOwner->GetGameInstance<UCloud9GameInstance>();
+		let DefaultKnife = MyGameInstance->SpawnMeleeWeapon(DefaultKnifeName);
+		let DefaultPistol = MyGameInstance->SpawnFirearmWeapon(DefaultPistolName);
 
-	SetWeaponAt(EWeaponSlot::Knife, DefaultKnife);
-	SetWeaponAt(EWeaponSlot::Pistol, DefaultPistol);
-	// SetWeaponAt(EWeaponSlot::Main, DefaultMain);
+		if (not ShoveWeapon(EWeaponSlot::Knife, DefaultKnife))
+		{
+			TRACE(Error, "Can't shove default knife into inventory");
+			return;
+		}
 
-	SelectWeapon(EWeaponSlot::Knife);
+		if (not ShoveWeapon(EWeaponSlot::Pistol, DefaultPistol))
+		{
+			TRACE(Error, "Can't shove default pistol into inventory");
+			return;
+		}
+
+		if (not SelectWeapon(EWeaponSlot::Knife))
+		{
+			TRACE(Error, "Can't select default weapon");
+		}
+	}
 }
 
 bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 {
 	if (Slot == EWeaponSlot::NotSelected)
 	{
-		UE_LOG(LogCloud9, Error, TEXT("Should not be called with EWeaponSlot::NotSelected"))
+		TRACE(Error, "Should not be called with EWeaponSlot::NotSelected");
 		return false;
 	}
 
 	if (Slot != SelectedWeaponSlot)
 	{
-		if (let PendingWeapon = GetWeaponAt(Slot))
+		if (let Character = GetOwner<ACloud9Character>(); IsValid(Character))
 		{
+			let PendingWeapon = GetWeaponAt(Slot);
+
+			if (not PendingWeapon)
+			{
+				TRACE(Verbose, "Weapon at slot='%d' not set", Slot);
+				return false;
+			}
+
 			if (let SelectedWeapon = GetWeaponAt(SelectedWeaponSlot))
 			{
-				SelectedWeapon->SetActorHiddenInGame(true);
+				SelectedWeapon->ChangeState(EWeaponState::Holstered);
 			}
-			PendingWeapon->SetActorHiddenInGame(false);
+
+			PendingWeapon->ChangeState(EWeaponState::Armed);
 			PendingWeaponSlot = Slot;
 			return true;
 		}
 
+		TRACE(Error, "Inventory owner wasn't set");
 		return false;
 	}
 
-	return true;
+	return false;
 }
 
-void UCloud9Inventory::OnWeaponChangeFinished() { SelectedWeaponSlot = PendingWeaponSlot; }
-
-bool UCloud9Inventory::SetWeaponAt(EWeaponSlot Slot, ACloud9WeaponBase* Weapon)
+void UCloud9Inventory::OnWeaponChangeFinished()
 {
-	if (GetWeaponAt(Slot))
+	SelectedWeaponSlot = PendingWeaponSlot;
+}
+
+ACloud9WeaponBase* UCloud9Inventory::GetWeaponAt(EWeaponSlot Slot) const { return WeaponAt(Slot); }
+
+bool UCloud9Inventory::ShoveWeapon(EWeaponSlot Slot, ACloud9WeaponBase* Weapon)
+{
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
 	{
+		TRACE(Error, "Inventory owner wasn't set");
 		return false;
 	}
 
-	let Index = static_cast<int>(Slot);
-	WeaponSlots[Index] = Weapon;
+	if (not Weapon->AddToInventory(Character, Slot))
+	{
+		TRACE(Error, "Failed add to inventory weapon '%s'", *Weapon->GetName());
+		return false;
+	}
+
+	WeaponAt(Slot) = Weapon;
 	return true;
 }
 
-ACloud9WeaponBase* UCloud9Inventory::GetWeaponAt(EWeaponSlot Slot) const
+bool UCloud9Inventory::DropWeapon(EWeaponSlot Slot)
 {
-	let Index = static_cast<int>(Slot);
-	return WeaponSlots[Index];
+	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
+	{
+		TRACE(Error, "Inventory owner wasn't set");
+		return false;
+	}
+
+	let Weapon = WeaponAt(Slot);
+
+	if (not Weapon)
+	{
+		TRACE(Error, "Inventory cell for slot '%d' is empty", Slot);
+		return false;
+	}
+
+	if (not Weapon->RemoveFromInventory())
+	{
+		TRACE(Error, "Failed to remove from inventory weapon '%s'", *Weapon->GetName());
+		return false;
+	}
+
+	WeaponAt(Slot) = nullptr; // make TArray cell empty
+	return true;
+}
+
+bool UCloud9Inventory::ReplaceWeaponAt(EWeaponSlot Slot, ACloud9WeaponBase* Weapon)
+{
+	if (not DropWeapon(Slot))
+	{
+		TRACE(Error, "Can't drop weapon at slot='%d'", Slot);
+		return false;
+	}
+
+	return ShoveWeapon(Slot, Weapon);
 }
 
 ACloud9WeaponBase* UCloud9Inventory::GetSelectedWeapon() const { return GetWeaponAt(SelectedWeaponSlot); }
@@ -111,22 +179,14 @@ bool UCloud9Inventory::IsWeaponChanging() const { return SelectedWeaponSlot != P
 
 EWeaponType UCloud9Inventory::GetSelectedWeaponType() const
 {
-	if (let Weapon = GetWeaponAt(SelectedWeaponSlot))
-	{
-		return Weapon->GetWeaponType();
-	}
-
-	return EWeaponType::NoWeapon;
+	let Weapon = GetWeaponAt(SelectedWeaponSlot);
+	return IsValid(Weapon) ? Weapon->GetWeaponType() : EWeaponType::NoWeapon;
 }
 
 EWeaponType UCloud9Inventory::GetPendingWeaponType() const
 {
-	if (let Weapon = GetWeaponAt(PendingWeaponSlot))
-	{
-		return Weapon->GetWeaponType();
-	}
-
-	return EWeaponType::NoWeapon;
+	let Weapon = GetWeaponAt(PendingWeaponSlot);
+	return IsValid(Weapon) ? Weapon->GetWeaponType() : EWeaponType::NoWeapon;
 }
 
 EWeaponSlot UCloud9Inventory::GetSelectedWeaponSlot() const { return SelectedWeaponSlot; }

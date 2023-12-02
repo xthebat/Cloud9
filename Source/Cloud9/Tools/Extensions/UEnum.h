@@ -19,13 +19,119 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
+
 #include "Cloud9/Cloud9.h"
 
 namespace EUEnum
 {
+	template <typename BlockType, typename ResultType>
+	struct AsStaticEnum : TOperator<AsStaticEnum<BlockType, ResultType>>
+	{
+	public:
+		AsStaticEnum(ResultType Default, BlockType Block) : Default(Default), Block(Block) { }
+
+		template <typename EnumValueType>
+		FORCEINLINE auto operator()(EnumValueType Self) const
+		{
+			static_assert(TIsEnum<EnumValueType>::Value, "Should only call this with enum types");
+
+			// https://forums.unrealengine.com/t/how-to-retrieve-uenum-by-type/418501/4
+			if (let EnumClass = StaticEnum<EnumValueType>())
+			{
+				let EnumValue = static_cast<uint8>(Self);
+				return Block(EnumClass, EnumValue);
+			}
+
+			TRACE(Error, "Can't get static enum class for value '%d'", Self);
+
+			return Default;
+		}
+
+	private:
+		ResultType Default;
+		BlockType Block;
+	};
+
+	struct GetEnumName : TOperator<GetEnumName>
+	{
+		template <typename EnumValueType>
+		FORCEINLINE FName operator()(EnumValueType Self) const
+		{
+			return Self | AsStaticEnum(
+				FName(NAME_None),
+				[](let EnumClass, let EnumValue) { return EnumClass->GetEnumName(EnumValue); }
+			);
+		}
+	};
+
+	struct GetEnumFullValueName : TOperator<GetEnumFullValueName>
+	{
+		template <typename EnumValueType>
+		FORCEINLINE FName operator()(EnumValueType Self) const
+		{
+			return Self | AsStaticEnum(
+				FName(NAME_None),
+				[](let EnumClass, let EnumValue) { return EnumClass->GetNameByValue(EnumValue); }
+			);
+		}
+	};
+
+	/**
+	 * Extension returns only name of value unlike standard method of UEnum::GetNameByIndex
+	 *
+	 * @param ValueId Only meaningful when called against UEnum not enum class
+	 * @returns Name of enum value
+	 */
 	struct GetValueName : TOperator<GetValueName>
 	{
-		template <typename TEnumValue>
-		FString operator()(TEnumValue Value) const;
+		explicit GetValueName(int ValueId = -1) : ValueId(ValueId) {}
+
+		FORCEINLINE FName operator()(const UEnum* Self) const
+		{
+			if (ValueId < 0)
+			{
+				TRACE(Error, "GetValueName should not be called with ValueId < 0");
+				return {NAME_None};
+			}
+
+			return GetOnlyValueName(Self, ValueId);
+		}
+
+		template <typename EnumValueType>
+		FORCEINLINE FName operator()(EnumValueType Self) const
+		{
+			return Self | AsStaticEnum(
+				FName(NAME_None),
+				[this](let Enum, let Value) { return GetOnlyValueName(Enum, Value); }
+			);
+		}
+
+	private:
+		int ValueId;
+
+		static FName GetOnlyValueName(const UEnum* Enum, const int Value)
+		{
+			let Name = Enum->GetNameByIndex(Value);
+
+			if (Name.IsNone())
+			{
+				TRACE(Error, "Invalid value name");
+				return {NAME_None};
+			}
+
+			let String = Name.ToString();
+
+			FString EnumNamePtr;
+			FString ValueNamePtr;
+
+			let IsSplit = String.Split(
+				TEXT("::"),
+				&EnumNamePtr,
+				&ValueNamePtr,
+				ESearchCase::CaseSensitive,
+				ESearchDir::FromEnd);
+
+			return IsSplit ? FName{*ValueNamePtr} : FName{Name};
+		}
 	};
 }

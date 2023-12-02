@@ -62,7 +62,7 @@ FVector2D UCloud9MouseController::GetMousePosition() const
 		return MousePosition;
 	}
 
-	UE_LOG(LogCloud9, Fatal, TEXT("Can't get Cloud9PlayerController"));
+	TRACE(Fatal, "Can't get Cloud9PlayerController");
 	return FVector2D::ZeroVector;
 }
 
@@ -79,17 +79,15 @@ float UCloud9MouseController::GetCameraZoomHeightLevel() const
 			MaxCameraZoomAngle,
 			Pawn->GetCameraRotationRoll());
 
-		if (!FMath::IsNearlyEqual(ZoomHeightLevel, ZoomAngleLevel, 0.001f))
+		if (not FMath::IsNearlyEqual(ZoomHeightLevel, ZoomAngleLevel, 0.001f))
 		{
-			UE_LOG(LogCloud9, Error, TEXT("ZoomHeightLevel = %f != ZoomAngleLevel != %f"),
-			       ZoomHeightLevel,
-			       ZoomAngleLevel);
+			TRACE(Error, "ZoomHeightLevel = %f != ZoomAngleLevel != %f", ZoomHeightLevel, ZoomAngleLevel);
 		}
 
 		return ZoomHeightLevel;
 	}
 
-	UE_LOG(LogCloud9, Fatal, TEXT("Can't get Cloud9Pawn"));
+	TRACE(Fatal, "Can't get Cloud9Pawn");
 	return InvalidCameraZoomLevel;
 }
 

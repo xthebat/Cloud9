@@ -45,7 +45,7 @@ ACloud9LinearDoor::ACloud9LinearDoor()
 
 void ACloud9LinearDoor::Open()
 {
-	if (!bIsOpen)
+	if (not bIsOpen)
 	{
 		Toggle();
 	}
@@ -77,13 +77,13 @@ void ACloud9LinearDoor::BeginPlay()
 	if (DirectionVector.IsZero())
 	{
 		SetActorTickEnabled(false);
-		UE_LOG(LogCloud9, Error, TEXT("Door '%s' can't moved due to incorrect direction vector"), *GetName());
+		TRACE(Error, "Door '%s' can't moved due to incorrect direction vector", *GetName());
 	}
 
 	if (Speed <= 0.0f)
 	{
 		SetActorTickEnabled(false);
-		UE_LOG(LogCloud9, Warning, TEXT("Door '%s' can't moved due to speed <= 0.0f"), *GetName());
+		TRACE(Warning, "Door '%s' can't moved due to speed <= 0.0f", *GetName());
 	}
 
 	if (Distance <= 0.0f)
@@ -96,7 +96,7 @@ void ACloud9LinearDoor::BeginPlay()
 
 	let ActualDistance = Distance - Extent;
 
-	UE_LOG(LogCloud9, Display, TEXT("Door '%s' distance = '%f'"), *GetName(), ActualDistance);
+	TRACE(Display, "Door '%s' distance = '%f'", *GetName(), ActualDistance);
 
 	let Sign = bIsOpen ? -1 : 1;
 	OriginPosition = Transform.GetLocation();
@@ -113,7 +113,7 @@ void ACloud9LinearDoor::Tick(float DeltaTime)
 
 		if (FVector::DistSquared(OriginPosition, GetActorLocation()) > FMath::Square(Distance - Extent))
 		{
-			bIsOpen = !bIsOpen;
+			bIsOpen = not bIsOpen;
 			bIsMoving = false;
 			NewPosition = TargetPosition;
 			TargetPosition = OriginPosition;
