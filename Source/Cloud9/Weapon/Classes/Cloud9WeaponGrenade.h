@@ -36,4 +36,7 @@ class CLOUD9_API ACloud9WeaponGrenade : public ACloud9WeaponBase
 
 public:
 	ACloud9WeaponGrenade();
+
+	virtual EWeaponClass GetWeaponClass() const override;
+	virtual const UEnum* GetWeaponActions() const override;
 };

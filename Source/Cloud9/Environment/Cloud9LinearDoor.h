@@ -63,30 +63,30 @@ protected: // variables
 	/**
 	 * Whether door is currently open or closed
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta=(AllowPrivateAccess))
 	bool bIsOpen;
 
 	/**
 	 * Direction where to move door
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta=(AllowPrivateAccess))
 	EDirection Direction;
 
 	/**
 	 * Door moving speed when open or close
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta=(AllowPrivateAccess))
 	float Speed;
 
 	/**
 	 * How far move door from current position
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta=(AllowPrivateAccess))
 	float Distance;
 
 	/**
 	 * Extent when move distance to make door not open on full size (if distance not specified)  
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Door, meta=(AllowPrivateAccess))
 	float Extent;
 };

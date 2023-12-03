@@ -70,7 +70,7 @@ void UCloud9KeyboardController::WeaponAction(FunctionType Function)
 
 	if (not IsValid(Pawn))
 	{
-		TRACE(Error, "Pawn is invalid")
+		log(Error, "Pawn is invalid")
 		return;
 	}
 
@@ -78,7 +78,7 @@ void UCloud9KeyboardController::WeaponAction(FunctionType Function)
 
 	if (not IsValid(Inventory))
 	{
-		TRACE(Error, "Pawn inventory is invalid")
+		log(Error, "Pawn inventory is invalid")
 		return;
 	}
 
@@ -88,7 +88,7 @@ void UCloud9KeyboardController::WeaponAction(FunctionType Function)
 
 		if (not IsValid(SelectedWeapon))
 		{
-			TRACE(Error, "Selected weapon is invalid");
+			log(Error, "Selected weapon is invalid");
 			return;
 		}
 

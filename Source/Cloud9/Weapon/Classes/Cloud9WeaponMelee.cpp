@@ -34,19 +34,18 @@ const FName ACloud9WeaponMelee::WeaponMeshComponentName = TEXT("WeaponMeshCompon
 
 ACloud9WeaponMelee::ACloud9WeaponMelee()
 {
-	Class = EWeaponClass::Melee;
-	Actions = StaticEnum<EMeleeAction>();
-	bCanBeDropped = false;
-
-	bIsSlashing = false;
-	bIsStab = false;
-
 	if (WeaponMesh = CreateMesh(WeaponMeshComponentName); not IsValid(WeaponMesh))
 	{
-		TRACE(Error, "Failed to create WeaponMeshComponent");
+		log(Error, "Failed to create WeaponMeshComponent");
 		return;
 	}
 }
+
+EWeaponClass ACloud9WeaponMelee::GetWeaponClass() const { return EWeaponClass::Melee; }
+
+const UEnum* ACloud9WeaponMelee::GetWeaponActions() const { return StaticEnum<EMeleeAction>(); }
+
+bool ACloud9WeaponMelee::CanBeDropped() const { return false; }
 
 void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 {
@@ -60,11 +59,11 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		return;
 	}
 
-	if (bIsSlashing)
+	if (bIsPrimaryActionActive)
 	{
 		let WeaponInfo = GetWeaponInfo<FMeleeWeaponInfo>();
 
-		ExecuteAction(EMeleeAction::Slash, WeaponInfo->SlashCycleTime, [=]
+		ExecuteAction(EMeleeAction::Slash, WeaponInfo->SlashCycleTime, [&]
 		{
 			let Character = GetOwner<ACloud9Character>();
 			let Montage = Montages->GetPoseMontages(Character->bIsCrouched)->PrimaryActionMontage;
@@ -72,7 +71,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 
 			if (not AnimInstance->Montage_Play(Montage))
 			{
-				TRACE(Error, "Can't play montage for '%s'", *Info->Label.ToString())
+				log(Error, "Can't play montage for '%s'", *Info->Label.ToString())
 				return false;
 			}
 
@@ -84,11 +83,11 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 			return true;
 		});
 	}
-	else if (bIsStab)
+	else if (bIsSecondaryActionActive)
 	{
 		let WeaponInfo = GetWeaponInfo<FMeleeWeaponInfo>();
 
-		ExecuteAction(EMeleeAction::Slash, WeaponInfo->StabCycleTime, [=]
+		ExecuteAction(EMeleeAction::Slash, WeaponInfo->StabCycleTime, [&]
 		{
 			let Character = GetOwner<ACloud9Character>();
 			let Montage = Montages->GetPoseMontages(Character->bIsCrouched)->SecondaryActionMontage;
@@ -96,7 +95,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 
 			if (not AnimInstance->Montage_Play(Montage))
 			{
-				TRACE(Error, "Can't play montage for '%s'", *Info->Label.ToString())
+				log(Error, "Can't play montage for '%s'", *Info->Label.ToString())
 				return false;
 			}
 
@@ -109,28 +108,8 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		});
 
 		// no auto stab
-		bIsStab = false;
+		bIsSecondaryActionActive = false;
 	}
-}
-
-void ACloud9WeaponMelee::PrimaryAction(bool bIsReleased)
-{
-	if (bIsSlashing and bIsReleased)
-	{
-		bIsSlashing = false;
-	}
-	else if (not bIsSlashing and not bIsReleased)
-	{
-		bIsSlashing = true;
-	}
-	// TODO: just for generalization now, should be deleted in future
-	else if (bIsSlashing and not bIsReleased) { }
-	else if (not bIsSlashing and bIsReleased) { }
-}
-
-void ACloud9WeaponMelee::SecondaryAction(bool bIsReleased)
-{
-	bIsStab = not bIsReleased;
 }
 
 void ACloud9WeaponMelee::OnConstruction(const FTransform& Transform)

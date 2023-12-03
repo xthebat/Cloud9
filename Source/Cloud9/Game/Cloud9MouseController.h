@@ -44,17 +44,17 @@ class CLOUD9_API UCloud9MouseController
 
 public:
 	UCloud9MouseController();
-	
+
 	void OnCameraZoom(float Value);
 	void OnCameraRotationPressed();
 	void OnCameraRotationReleased();
 
 	UFUNCTION()
 	void OnCharacterMove();
-	
+
 protected:
 	virtual void BeginPlay() override;
-	
+
 	virtual void TickComponent(
 		float DeltaTime,
 		ELevelTick TickType,
@@ -69,43 +69,43 @@ protected:
 	void ProcessCharacterView() const;
 	void ProcessCameraRotation();
 	void ProcessCameraZoom(float DeltaTime);
-	
+
 private:
 	static constexpr float InvalidCameraZoomLevel = -1.0f;
 	static constexpr float InvalidCameraZoomAngle = -1.0f;
 	static constexpr float MinCameraZoomLevel = 0.0f;
 	static constexpr float MaxCameraZoomLevel = 1.0f;
-	
-	UPROPERTY(EditDefaultsOnly, Category = Sensitivity, meta = (AllowPrivateAccess = "true"))
+
+	UPROPERTY(EditDefaultsOnly, Category = Sensitivity, meta=(AllowPrivateAccess))
 	float CameraRotateSensitivity;
 
-	UPROPERTY(EditDefaultsOnly, Category = Sensitivity, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = Sensitivity, meta=(AllowPrivateAccess))
 	float CameraZoomSensitivity;
 
-	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta=(AllowPrivateAccess))
 	float MinCameraZoomHeight;
 
-	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta=(AllowPrivateAccess))
 	float MaxCameraZoomHeight;
 
-	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta=(AllowPrivateAccess))
 	float MinCameraZoomAngle;
 
-	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta=(AllowPrivateAccess))
 	float MaxCameraZoomAngle;
 
-	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta=(AllowPrivateAccess))
 	float InitialCameraZoomLevel;
 
-	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta=(AllowPrivateAccess))
 	bool bIsCameraChangeAngleEnabled;
-	
-	UPROPERTY(EditDefaultsOnly, Category = Smooth, meta = (AllowPrivateAccess = "true"))
+
+	UPROPERTY(EditDefaultsOnly, Category = Smooth, meta=(AllowPrivateAccess))
 	bool bIsCameraZoomSmoothEnabled;
-	
-	UPROPERTY(EditDefaultsOnly, Category = Smooth, meta = (AllowPrivateAccess = "true"))
+
+	UPROPERTY(EditDefaultsOnly, Category = Smooth, meta=(AllowPrivateAccess))
 	float CameraZoomSmoothSpeed;
-	
+
 	FVector2D CameraRotationBase;
 	float TargetCameraZoomLevel;
 	float TargetCameraZoomSpeed;

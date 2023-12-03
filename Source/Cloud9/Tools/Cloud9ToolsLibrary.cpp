@@ -48,7 +48,7 @@ ACloud9GameMode* UCloud9ToolsLibrary::GetGameMode()
 		return Cast<ACloud9GameMode>(UGameplayStatics::GetGameMode(MyWorld));
 	}
 
-	TRACE(Error, "Can't get game world now");
+	log(Error, "Can't get game world now");
 
 	return nullptr;
 }

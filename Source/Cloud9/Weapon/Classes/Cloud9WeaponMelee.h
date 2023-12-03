@@ -40,8 +40,9 @@ public:
 public:
 	ACloud9WeaponMelee();
 
-	virtual void PrimaryAction(bool bIsReleased) override;
-	virtual void SecondaryAction(bool bIsReleased) override;
+	virtual EWeaponClass GetWeaponClass() const override;
+	virtual const UEnum* GetWeaponActions() const override;
+	virtual bool CanBeDropped() const override;
 
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
@@ -53,10 +54,4 @@ protected:
 	 */
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	UStaticMeshComponent* WeaponMesh;
-
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	bool bIsSlashing;
-
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	bool bIsStab;
 };

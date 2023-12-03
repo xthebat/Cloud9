@@ -42,7 +42,7 @@ namespace EUEnum
 				return Block(EnumClass, EnumValue);
 			}
 
-			TRACE(Error, "Can't get static enum class for value '%d'", Self);
+			log(Error, "Can't get static enum class for value '%d'", Self);
 
 			return Default;
 		}
@@ -90,7 +90,7 @@ namespace EUEnum
 		{
 			if (ValueId < 0)
 			{
-				TRACE(Error, "GetValueName should not be called with ValueId < 0");
+				log(Error, "GetValueName should not be called with ValueId < 0");
 				return {NAME_None};
 			}
 
@@ -115,7 +115,7 @@ namespace EUEnum
 
 			if (Name.IsNone())
 			{
-				TRACE(Error, "Invalid value name");
+				log(Error, "Invalid value name");
 				return {NAME_None};
 			}
 

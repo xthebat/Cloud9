@@ -92,7 +92,7 @@ namespace EFWeaponInfo
 
 			if (not Skin and SkinName == FBaseWeaponSkin::Default)
 			{
-				TRACE(Fatal, "Can't get default skin");
+				log(Fatal, "Can't get default skin");
 				return {};
 			}
 

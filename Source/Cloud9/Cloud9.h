@@ -55,7 +55,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCloud9, Log, All);
 #define TRACE_STR_CUR_FUNCSIG (FString(__FUNCSIG__))
 
 // Screen Message
-#define SCREEN_MSG(FormatString, ...) ( \
+#define screen(FormatString, ...) ( \
 	GEngine->AddOnScreenDebugMessage( \
 		-1, 10.0f, FColor::Yellow, \
 		*(TRACE_STR_CUR_CLASS_FUNC_LINE + ": " + (FString::Printf(TEXT(FormatString), ##__VA_ARGS__ ))) \
@@ -64,7 +64,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCloud9, Log, All);
 
 // UE LOG
 
-#define TRACE(Severity, FormatString, ...) \
+#define log(Severity, FormatString, ...) \
 	UE_LOG(\
 		LogCloud9, \
 		Severity, \
@@ -72,6 +72,11 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCloud9, Log, All);
 		*TRACE_STR_CUR_CLASS_FUNC_LINE, \
 		*FString::Printf(TEXT(FormatString), ##__VA_ARGS__ ) \
 	)
+
+#define assert(Condition) check(Condition)
+
+#define assertf(Condition, FormatString, ...) \
+	checkf(Condition, TEXT(FormatString), ##__VA_ARGS__)
 
 // Operator base class
 

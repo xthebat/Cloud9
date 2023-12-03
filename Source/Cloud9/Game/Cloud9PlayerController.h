@@ -41,21 +41,21 @@ public:
 	static const FName ConsoleName;
 	static const FName KeyboardControllerName;
 	static const FName MouseControllerName;
-	
+
 	ACloud9PlayerController();
 
 protected:
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
 	virtual bool ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor) override;
-	
+
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Console, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Console, meta=(AllowPrivateAccess))
 	UCloud9ConsoleComponent* ConsoleComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Controllers, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Controllers, meta=(AllowPrivateAccess))
 	UCloud9MouseController* MouseController;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Controllers, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Controllers, meta=(AllowPrivateAccess))
 	UCloud9KeyboardController* KeyboardController;
 };

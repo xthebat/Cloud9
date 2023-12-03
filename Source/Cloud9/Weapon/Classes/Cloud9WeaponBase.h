@@ -54,24 +54,22 @@ public:
 	ACloud9WeaponBase();
 
 	UFUNCTION(BlueprintCallable)
+	virtual EWeaponClass GetWeaponClass() const;
+
+	UFUNCTION(BlueprintCallable)
+	virtual const UEnum* GetWeaponActions() const;
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool CanBeDropped() const;
+
+	UFUNCTION(BlueprintCallable)
 	EWeaponType GetWeaponType() const;
-
-	UFUNCTION(BlueprintCallable)
-	EWeaponClass GetWeaponClass() const;
-
-	UFUNCTION(BlueprintCallable)
-	bool CanBeDropped() const;
 
 	template <typename TWeaponInfo>
 	bool Initialize(const TWeaponInfo* NewWeaponInfo, const FWeaponPosesMontages* NewWeaponMontages)
 	{
-		if (Initialized)
-		{
-			TRACE(Fatal, "Weapon '%s' already initialized!", *Info->Label.ToString());
-			return false;
-		}
-
-		Initialized = true;
+		assertf(not bIsInitialized, "Weapon '%ls' already initialized!", *Info->Label.ToString());
+		bIsInitialized = true;
 		Montages = NewWeaponMontages;
 		Info = NewWeaponInfo;
 		return true;
@@ -80,18 +78,7 @@ public:
 	template <typename WeaponInfoType>
 	const WeaponInfoType* GetWeaponInfo() const
 	{
-		if (Info == nullptr)
-		{
-			TRACE(Fatal, "Weapon is not properly initialized!");
-			return nullptr;
-		}
-
-		if (Class == EWeaponClass::NoClass)
-		{
-			TRACE(Fatal, "Invalid weapon class for '%s'", *Info->Label.ToString());
-			return nullptr;
-		}
-
+		// All checks are done in OnConstruction
 		return static_cast<const WeaponInfoType*>(Info);
 	}
 
@@ -100,19 +87,19 @@ public:
 	bool ChangeState(EWeaponState NewState);
 
 	template <typename WeaponActionType, typename FunctionType>
-	FORCEINLINE bool ExecuteAction(WeaponActionType WeaponAction, float Cooldown, FunctionType Function)
+	FORCEINLINE bool ExecuteAction(WeaponActionType WeaponAction, float Cooldown, FunctionType&& Function)
 	{
 		let Index = GetActionIndex(WeaponAction);
 
 		if (Index == AnyActionIndex)
 		{
-			TRACE(Error, "[Weapon='%s'] Action type can't be equal to AnyAction", *GetName());
+			log(Error, "[Weapon='%s'] Action type can't be equal to AnyAction", *GetName());
 			return false;
 		}
 
 		if (IsActionIndexValid(Index))
 		{
-			return not Executors[Index]->Execute(Function, Cooldown);
+			return not Executors[Index]->Execute(MoveTemp(Function), Cooldown);
 		}
 
 		return false;
@@ -148,6 +135,8 @@ public:
 	virtual void Reload();
 
 protected: // functions
+	static bool ChangeActionFlag(bool Flag, bool bIsReleased);
+
 	UStaticMeshComponent* CreateMesh(FName ComponentName, FName SocketName = NAME_None);
 	UNiagaraComponent* CreateEffect(FName ComponentName, FName SocketName);
 
@@ -158,24 +147,47 @@ protected: // functions
 	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void BeginPlay() override;
 
+protected: // properties
+	/**
+	 * Flag sets to true on spawn through GameInstance spawners
+	 * i.e. properties Montages and Info setups to valid values
+	 */
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool bIsInitialized;
+
+	/**
+	 * Base weapon info 
+	 */
+	const FBaseWeaponInfo* Info;
+
+	/**
+	 * Weapon montages
+	 */
+	const FWeaponPosesMontages* Montages;
+
+	/**
+	 * Current weapon slot (main/pistol/knife/grenade)
+	 */
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
 	EWeaponSlot Slot;
 
+	/**
+	 * Current weapon state (armed/holstered/dropped)
+	 */
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
 	EWeaponState State;
 
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
-	bool Initialized;
+	/**
+	 * Is weapon primary action active
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool bIsPrimaryActionActive;
 
-	const UEnum* Actions;
-	const FWeaponPosesMontages* Montages;
-	const FBaseWeaponInfo* Info;
-
-	UPROPERTY(Category=Weapon, BlueprintGetter=GetWeaponClass)
-	EWeaponClass Class;
-
-	UPROPERTY(Category=Weapon, BlueprintGetter=CanBeDropped)
-	bool bCanBeDropped;
+	/**
+	 * Is Weapon secondary action active
+     */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool bIsSecondaryActionActive;
 
 private:
 	template <typename WeaponActionType>

@@ -36,13 +36,9 @@ ACloud9WeaponBase::ACloud9WeaponBase()
 	// Required for weapon with automatic fire
 	PrimaryActorTick.bCanEverTick = true;
 
-	Class = EWeaponClass::NoClass;
-	Actions = nullptr;
-	bCanBeDropped = true;
-
 	State = EWeaponState::Dropped;
 	Slot = EWeaponSlot::NotSelected;
-	Initialized = false;
+	bIsInitialized = false;
 
 	Info = nullptr;
 	Montages = nullptr;
@@ -56,25 +52,22 @@ ACloud9WeaponBase::ACloud9WeaponBase()
 
 void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
 {
-	TRACE(Verbose, "Transform = %s", *Transform.ToString())
-
 	Super::OnConstruction(Transform);
 
 	// Insanity checks just in case
 	static_assert(AnyActionId == 0);
 	static_assert(AnyActionIndex == -1);
 
-	if (Class == EWeaponClass::NoClass)
-	{
-		TRACE(Fatal, "WeaponClass isn't set in constructor for '%s'", *GetName())
-		return;
-	}
+	let Class = GetWeaponClass();
+	let Actions = GetWeaponActions();
 
-	if (not IsValid(Actions))
-	{
-		TRACE(Fatal, "WeaponActions aren't set in constructor for '%s'", *GetName());
-		return;
-	}
+	// Use check to be sure compiler not discard functions calls
+	assert(Class != EWeaponClass::NoClass);
+	assert(Actions != nullptr);
+
+	assertf(bIsInitialized, "Weapon '%ls' wasn't initialized!", *GetName());
+	assertf(Info != nullptr, "Weapon Info for '%ls' wasn't set!", *GetName());
+	assertf(Montages != nullptr, "Weapon Montages '%ls' wasn't set!", *GetName());
 
 	for (int Id = AnyActionId + 1; Id < Actions->NumEnums(); Id++)
 	{
@@ -96,7 +89,7 @@ UStaticMeshComponent* ACloud9WeaponBase::CreateMesh(FName ComponentName, FName S
 
 	if (not IsValid(Mesh))
 	{
-		TRACE(Error, "Can't create mesh '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
+		log(Error, "Can't create mesh '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
 		return nullptr;
 	}
 
@@ -130,7 +123,7 @@ UNiagaraComponent* ACloud9WeaponBase::CreateEffect(FName ComponentName, FName So
 		return Component;
 	}
 
-	TRACE(Error, "Can't create VFX '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
+	log(Error, "Can't create VFX '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
 	return nullptr;
 }
 
@@ -138,7 +131,7 @@ bool ACloud9WeaponBase::IsActionIndexValid(int Index) const
 {
 	if (Index > Executors.Num() or Index < 0)
 	{
-		TRACE(
+		log(
 			Error,
 			"[Weapon='%s'] Invalid action index '%d', should be > 0 and < %d",
 			*GetName(), Index, Executors.Num());
@@ -158,7 +151,7 @@ UCooldownActionComponent* ACloud9WeaponBase::CreateCooldownAction(FName Componen
 
 	if (not IsValid(Component))
 	{
-		TRACE(Error, "Can't cooldown action '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
+		log(Error, "Can't cooldown action '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
 		return nullptr;
 	}
 
@@ -174,7 +167,7 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState
 
 	if (not IsValid(Character))
 	{
-		TRACE(Error, "[Weapon='%s' Slot='%s'] Weapon isn't attach to any one", *GetName(), SLOT_NAME);
+		log(Error, "[Weapon='%s' Slot='%s'] Weapon isn't attach to any one", *GetName(), SLOT_NAME);
 		return false;
 	}
 
@@ -182,7 +175,7 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState
 
 	if (not IsValid(CharacterMesh))
 	{
-		TRACE(Error, "[Weapon='%s' Slot='%s'] Character mesh is invalid", *GetName(), SLOT_NAME);
+		log(Error, "[Weapon='%s' Slot='%s'] Character mesh is invalid", *GetName(), SLOT_NAME);
 		return false;
 	}
 
@@ -192,17 +185,17 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState
 
 	if (SocketName.IsNone())
 	{
-		TRACE(Error, "[Weapon='%s' Slot='%s'] Can't get socket name", *GetName(), SLOT_NAME);
+		log(Error, "[Weapon='%s' Slot='%s'] Can't get socket name", *GetName(), SLOT_NAME);
 		return false;
 	}
 
 	if (not CharacterMesh->GetSocketByName(SocketName))
 	{
-		TRACE(Error, "[Weapon='%s' Slot='%s'] Socket not found in character mesh", *GetName(), SLOT_NAME);
+		log(Error, "[Weapon='%s' Slot='%s'] Socket not found in character mesh", *GetName(), SLOT_NAME);
 		return false;
 	}
 
-	TRACE(
+	log(
 		Display,
 		"[Weapon='%s' Slot='%s'] Update attachment to character '%s' into socket '%s'",
 		*GetName(), SLOT_NAME, *Character->GetName(), *SocketName.ToString());
@@ -219,7 +212,7 @@ bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot 
 {
 	if (let MyOwner = GetOwner<ACloud9Character>())
 	{
-		TRACE(
+		log(
 			Warning,
 			"[Weapon='%s' Slot='%s'] Weapon already in inventory of '%s'",
 			*GetName(), SLOT_NAME, *MyOwner->GetName());
@@ -228,13 +221,13 @@ bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot 
 
 	if (not IsValid(Character))
 	{
-		TRACE(Error, "[Weapon='%s' Slot='%s'] Invalid character", *GetName(), SLOT_NAME);
+		log(Error, "[Weapon='%s' Slot='%s'] Invalid character", *GetName(), SLOT_NAME);
 		return false;
 	}
 
 	if (NewSlot == EWeaponSlot::NotSelected)
 	{
-		TRACE(Error, "[Weapon='%s' Slot='%s'] Invalid slot", *GetName(), SLOT_NAME);
+		log(Error, "[Weapon='%s' Slot='%s'] Invalid slot", *GetName(), SLOT_NAME);
 		return false;
 	}
 
@@ -242,13 +235,13 @@ bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot 
 
 	if (not IsValid(Inventory))
 	{
-		TRACE(Error, "[Weapon='%s' Slot='%s'] Character inventory is invalid", *GetName(), SLOT_NAME);
+		log(Error, "[Weapon='%s' Slot='%s'] Character inventory is invalid", *GetName(), SLOT_NAME);
 		return false;
 	}
 
 	if (Inventory->GetWeaponAt(NewSlot) != nullptr)
 	{
-		TRACE(Error, "[Weapon='%s' Slot='%s'] Weapon slot already occupied", *GetName(), SLOT_NAME);
+		log(Error, "[Weapon='%s' Slot='%s'] Weapon slot already occupied", *GetName(), SLOT_NAME);
 		return false;
 	}
 
@@ -256,7 +249,7 @@ bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot 
 
 	if (not UpdateWeaponAttachment(NewSlot, EWeaponState::Holstered))
 	{
-		TRACE(Error, "Failed to update attachment for weapon '%s' slot '%s'", *GetName(), SLOT_NAME);
+		log(Error, "Failed to update attachment for weapon '%s' slot '%s'", *GetName(), SLOT_NAME);
 		SetOwner(nullptr);
 		return false;
 	}
@@ -268,7 +261,7 @@ bool ACloud9WeaponBase::RemoveFromInventory()
 {
 	if (let Character = GetOwner<ACloud9Character>(); not Character)
 	{
-		TRACE(Error, "[Weapon='%s'] Weapon not in any inventory", *GetName());
+		log(Error, "[Weapon='%s'] Weapon not in any inventory", *GetName());
 		return false;
 	}
 
@@ -295,13 +288,13 @@ bool ACloud9WeaponBase::ChangeState(EWeaponState NewState)
 {
 	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
 	{
-		TRACE(Error, "[Weapon='%s' State='%s'] Weapon not in any inventory", *GetName(), STATE_NAME);
+		log(Error, "[Weapon='%s' State='%s'] Weapon not in any inventory", *GetName(), STATE_NAME);
 		return false;
 	}
 
 	if (NewState == State)
 	{
-		TRACE(Warning, "[Weapon='%s' State='%s'] Weapon state will remain the same", *GetName(), STATE_NAME);
+		log(Warning, "[Weapon='%s' State='%s'] Weapon state will remain the same", *GetName(), STATE_NAME);
 		return false;
 	}
 
@@ -309,12 +302,45 @@ bool ACloud9WeaponBase::ChangeState(EWeaponState NewState)
 	return true;
 }
 
-void ACloud9WeaponBase::PrimaryAction(bool bIsReleased) {}
-void ACloud9WeaponBase::SecondaryAction(bool bIsReleased) {}
+void ACloud9WeaponBase::PrimaryAction(bool bIsReleased)
+{
+	bIsPrimaryActionActive = ChangeActionFlag(bIsPrimaryActionActive, bIsReleased);
+}
+
+void ACloud9WeaponBase::SecondaryAction(bool bIsReleased)
+{
+	bIsSecondaryActionActive = ChangeActionFlag(bIsSecondaryActionActive, bIsReleased);
+}
+
 void ACloud9WeaponBase::Reload() {}
 
-EWeaponClass ACloud9WeaponBase::GetWeaponClass() const { return Class; }
+bool ACloud9WeaponBase::ChangeActionFlag(bool Flag, bool bIsReleased)
+{
+	if (Flag and bIsReleased)
+	{
+		return false;
+	}
+
+	if (not Flag and not bIsReleased)
+	{
+		return true;
+	}
+
+	return Flag;
+}
 
 EWeaponType ACloud9WeaponBase::GetWeaponType() const { return GetWeaponInfo<FBaseWeaponInfo>()->Type; }
 
-bool ACloud9WeaponBase::CanBeDropped() const { return bCanBeDropped; }
+EWeaponClass ACloud9WeaponBase::GetWeaponClass() const
+{
+	log(Fatal, "[Weapon='%s'] Weapon class wasn't override", *GetName())
+	return EWeaponClass::NoClass;
+}
+
+bool ACloud9WeaponBase::CanBeDropped() const { return true; }
+
+const UEnum* ACloud9WeaponBase::GetWeaponActions() const
+{
+	log(Fatal, "[Weapon='%s'] Weapon actions wasn't override", *GetName());
+	return nullptr;
+}

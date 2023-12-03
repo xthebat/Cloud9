@@ -63,7 +63,7 @@ namespace EUObject
 			if (not IsValid(MyWorld))
 			{
 				// Should we crash or not crash in this case?
-				TRACE(Fatal, "Timer not set due to game World not exists")
+				log(Fatal, "Timer not set due to game World not exists")
 				return {};
 			}
 
@@ -88,7 +88,7 @@ namespace EUObject
 			if (not IsValid(MyWorld))
 			{
 				// Should we crash or not crash in this case?
-				TRACE(Fatal, "Timer not set due to game World not exists")
+				log(Fatal, "Timer not set due to game World not exists")
 				return false;
 			}
 

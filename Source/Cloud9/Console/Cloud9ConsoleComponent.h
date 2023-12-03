@@ -51,6 +51,6 @@ protected:
 	virtual void BeginPlay() override;
 
 private: // variables
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Console, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Console, meta=(AllowPrivateAccess))
 	UCloud9Console* Console;
 };
