@@ -23,7 +23,10 @@
 
 #include "Cloud9WeaponGrenade.h"
 
-ACloud9WeaponGrenade::ACloud9WeaponGrenade()
-{
-	Class = EWeaponClass::Grenade;
-}
+#include "Cloud9/Weapon/Enums/Cloud9GrenadeActions.h"
+
+ACloud9WeaponGrenade::ACloud9WeaponGrenade() {}
+
+EWeaponClass ACloud9WeaponGrenade::GetWeaponClass() const { return EWeaponClass::Grenade; }
+
+const UEnum* ACloud9WeaponGrenade::GetWeaponActions() const { return StaticEnum<EGrenadeAction>(); }

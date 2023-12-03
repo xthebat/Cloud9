@@ -62,7 +62,7 @@ FVector2D UCloud9MouseController::GetMousePosition() const
 		return MousePosition;
 	}
 
-	TRACE(Fatal, "Can't get Cloud9PlayerController");
+	log(Fatal, "Can't get Cloud9PlayerController");
 	return FVector2D::ZeroVector;
 }
 
@@ -81,13 +81,13 @@ float UCloud9MouseController::GetCameraZoomHeightLevel() const
 
 		if (not FMath::IsNearlyEqual(ZoomHeightLevel, ZoomAngleLevel, 0.001f))
 		{
-			TRACE(Error, "ZoomHeightLevel = %f != ZoomAngleLevel != %f", ZoomHeightLevel, ZoomAngleLevel);
+			log(Error, "ZoomHeightLevel = %f != ZoomAngleLevel != %f", ZoomHeightLevel, ZoomAngleLevel);
 		}
 
 		return ZoomHeightLevel;
 	}
 
-	TRACE(Fatal, "Can't get Cloud9Pawn");
+	log(Fatal, "Can't get Cloud9Pawn");
 	return InvalidCameraZoomLevel;
 }
 

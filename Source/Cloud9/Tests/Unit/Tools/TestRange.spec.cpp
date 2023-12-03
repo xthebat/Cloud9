@@ -37,7 +37,7 @@ void FRangeSpec::Define()
 	{
 		let Collection = TSet{1, 2, 3, 4, 5};
 
-		It("Random", [=]
+		It("Random", [&]
 		{
 			let Value = Collection | ERange::Random();
 			TestTrue("Value.IsSet()", Value.IsSet());
@@ -49,7 +49,7 @@ void FRangeSpec::Define()
 	{
 		let Collection = TArray{1, 2, 3, 4, 5};
 
-		It("Random", [=]
+		It("Random", [&]
 		{
 			let Value = Collection | ERange::Random();
 			TestTrue("Value.IsSet()", Value.IsSet());

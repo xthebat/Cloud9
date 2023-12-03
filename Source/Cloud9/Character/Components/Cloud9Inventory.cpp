@@ -55,19 +55,19 @@ void UCloud9Inventory::BeginPlay()
 
 		if (not ShoveWeapon(EWeaponSlot::Knife, DefaultKnife))
 		{
-			TRACE(Error, "Can't shove default knife into inventory");
+			log(Error, "Can't shove default knife into inventory");
 			return;
 		}
 
 		if (not ShoveWeapon(EWeaponSlot::Pistol, DefaultPistol))
 		{
-			TRACE(Error, "Can't shove default pistol into inventory");
+			log(Error, "Can't shove default pistol into inventory");
 			return;
 		}
 
 		if (not SelectWeapon(EWeaponSlot::Knife))
 		{
-			TRACE(Error, "Can't select default weapon");
+			log(Error, "Can't select default weapon");
 		}
 	}
 }
@@ -76,7 +76,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 {
 	if (Slot == EWeaponSlot::NotSelected)
 	{
-		TRACE(Error, "Should not be called with EWeaponSlot::NotSelected");
+		log(Error, "Should not be called with EWeaponSlot::NotSelected");
 		return false;
 	}
 
@@ -88,7 +88,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 
 			if (not PendingWeapon)
 			{
-				TRACE(Verbose, "Weapon at slot='%d' not set", Slot);
+				log(Verbose, "Weapon at slot='%d' not set", Slot);
 				return false;
 			}
 
@@ -102,7 +102,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 			return true;
 		}
 
-		TRACE(Error, "Inventory owner wasn't set");
+		log(Error, "Inventory owner wasn't set");
 		return false;
 	}
 
@@ -122,13 +122,13 @@ bool UCloud9Inventory::ShoveWeapon(EWeaponSlot Slot, ACloud9WeaponBase* Weapon)
 
 	if (not IsValid(Character))
 	{
-		TRACE(Error, "Inventory owner wasn't set");
+		log(Error, "Inventory owner wasn't set");
 		return false;
 	}
 
 	if (not Weapon->AddToInventory(Character, Slot))
 	{
-		TRACE(Error, "Failed add to inventory weapon '%s'", *Weapon->GetName());
+		log(Error, "Failed add to inventory weapon '%s'", *Weapon->GetName());
 		return false;
 	}
 
@@ -140,7 +140,7 @@ bool UCloud9Inventory::DropWeapon(EWeaponSlot Slot)
 {
 	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
 	{
-		TRACE(Error, "Inventory owner wasn't set");
+		log(Error, "Inventory owner wasn't set");
 		return false;
 	}
 
@@ -148,13 +148,13 @@ bool UCloud9Inventory::DropWeapon(EWeaponSlot Slot)
 
 	if (not Weapon)
 	{
-		TRACE(Error, "Inventory cell for slot '%d' is empty", Slot);
+		log(Error, "Inventory cell for slot '%d' is empty", Slot);
 		return false;
 	}
 
 	if (not Weapon->RemoveFromInventory())
 	{
-		TRACE(Error, "Failed to remove from inventory weapon '%s'", *Weapon->GetName());
+		log(Error, "Failed to remove from inventory weapon '%s'", *Weapon->GetName());
 		return false;
 	}
 
@@ -166,7 +166,7 @@ bool UCloud9Inventory::ReplaceWeaponAt(EWeaponSlot Slot, ACloud9WeaponBase* Weap
 {
 	if (not DropWeapon(Slot))
 	{
-		TRACE(Error, "Can't drop weapon at slot='%d'", Slot);
+		log(Error, "Can't drop weapon at slot='%d'", Slot);
 		return false;
 	}
 

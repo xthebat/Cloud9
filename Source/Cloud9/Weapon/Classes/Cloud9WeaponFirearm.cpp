@@ -41,27 +41,28 @@ const FName ACloud9WeaponFirearm::MuzzleFlashSocketName = TEXT("MuzzleFlashSocke
 
 ACloud9WeaponFirearm::ACloud9WeaponFirearm()
 {
-	Class = EWeaponClass::Firearm;
-	Actions = StaticEnum<EFirearmAction>();
-
 	if (WeaponMesh = CreateMesh(WeaponMeshComponentName); not IsValid(WeaponMesh))
 	{
-		TRACE(Error, "Failed to create WeaponMeshComponent");
+		log(Error, "Failed to create WeaponMeshComponent");
 		return;
 	}
 
 	if (MagazineMesh = CreateMesh(MagazineMeshComponentName, MagazineSocketName); not IsValid(MagazineMesh))
 	{
-		TRACE(Error, "Failed to create MagazineMeshComponent");
+		log(Error, "Failed to create MagazineMeshComponent");
 		return;
 	}
 
 	if (MuzzleFlash = CreateEffect(MuzzleFlashComponentName, MuzzleFlashSocketName); not IsValid(MuzzleFlash))
 	{
-		TRACE(Error, "Failed to create MuzzleFlashComponent");
+		log(Error, "Failed to create MuzzleFlashComponent");
 		return;
 	}
 }
+
+EWeaponClass ACloud9WeaponFirearm::GetWeaponClass() const { return EWeaponClass::Firearm; }
+
+const UEnum* ACloud9WeaponFirearm::GetWeaponActions() const { return StaticEnum<EFirearmAction>(); }
 
 void ACloud9WeaponFirearm::OnConstruction(const FTransform& Transform)
 {
@@ -73,14 +74,21 @@ void ACloud9WeaponFirearm::OnConstruction(const FTransform& Transform)
 	MuzzleFlash->SetAsset(MyWeaponInfo->Effects.MuzzleFlash);
 }
 
-void ACloud9WeaponFirearm::PrimaryAction(bool bIsReleased)
+void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 {
+	Super::Tick(DeltaSeconds);
+
 	static let Settings = UCloud9DeveloperSettings::Get();
 
-	if (not bIsReleased)
+	if (IsActionInProgress())
+	{
+		return;
+	}
+
+	if (bIsPrimaryActionActive)
 	{
 		let WeaponInfo = GetWeaponInfo<FFirearmWeaponInfo>();
-		ExecuteAction(EFirearmAction::Fire, WeaponInfo->CycleTime, [=]
+		ExecuteAction(EFirearmAction::Fire, WeaponInfo->CycleTime, [&]
 		{
 			let Character = GetOwner<ACloud9Character>();
 			let Montage = Montages->GetPoseMontages(Character->bIsCrouched)->PrimaryActionMontage;
@@ -90,7 +98,7 @@ void ACloud9WeaponFirearm::PrimaryAction(bool bIsReleased)
 
 			if (not AnimInstance->Montage_Play(Montage))
 			{
-				TRACE(Error, "Can't play montage for '%s'", *Info->Label.ToString())
+				log(Error, "Can't play montage for '%s'", *Info->Label.ToString())
 				return false;
 			}
 
@@ -101,6 +109,11 @@ void ACloud9WeaponFirearm::PrimaryAction(bool bIsReleased)
 
 			return true;
 		});
+
+		if (not WeaponInfo->bIsFullAuto)
+		{
+			bIsPrimaryActionActive = false;
+		}
 	}
 	else { }
 }

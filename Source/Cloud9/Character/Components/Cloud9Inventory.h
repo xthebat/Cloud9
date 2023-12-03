@@ -104,9 +104,9 @@ protected:
 	EWeaponSlot SelectedWeaponSlot;
 	EWeaponSlot PendingWeaponSlot;
 
-	UPROPERTY(EditDefaultsOnly, Category = Weapons, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = Weapons, meta=(AllowPrivateAccess))
 	EMelee DefaultKnifeName;
 
-	UPROPERTY(EditDefaultsOnly, Category = Weapons, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = Weapons, meta=(AllowPrivateAccess))
 	EFirearm DefaultPistolName;
 };

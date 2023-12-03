@@ -49,7 +49,7 @@ void UCloud9DeveloperSettings::Save()
 {
 	UpdateDefaultConfigFile();
 	let String = this | EUObject::Stringify();
-	TRACE(Display, "%s", *String);
+	log(Display, "%s", *String);
 }
 
 template <typename TValue>
@@ -119,7 +119,7 @@ void UCloud9DeveloperSettings::InitializeCVars()
 		);
 
 		let String = this | EUObject::Stringify();
-		TRACE(Display, "%s", *String);
+		log(Display, "%s", *String);
 	}
 }
 

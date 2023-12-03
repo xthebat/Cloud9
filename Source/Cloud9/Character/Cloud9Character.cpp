@@ -180,7 +180,7 @@ void ACloud9Character::SetCameraRotationYaw(float Angle) const
 {
 	var Rotation = CameraBoom->GetRelativeRotation();
 	Rotation.Yaw = Angle;
-	TRACE(Display, "SetRelativeRotation Pitch: %s", *Rotation.ToString());
+	log(Display, "SetRelativeRotation Pitch: %s", *Rotation.ToString());
 	CameraBoom->SetRelativeRotation(Rotation);
 }
 
@@ -199,7 +199,7 @@ void ACloud9Character::SetCameraRotationRoll(float Angle) const
 {
 	var Rotation = CameraBoom->GetRelativeRotation();
 	Rotation.Pitch = -Angle;
-	TRACE(Display, "SetRelativeRotation Yaw: %s", *Rotation.ToString());
+	log(Display, "SetRelativeRotation Yaw: %s", *Rotation.ToString());
 	CameraBoom->SetRelativeRotation(Rotation);
 }
 
@@ -229,7 +229,7 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	TRACE(Display, "Contruction transform %s", *Transform.ToString());
+	log(Display, "Contruction transform %s", *Transform.ToString());
 
 	let Rotator = Transform.Rotator();
 
@@ -240,7 +240,7 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 
 	if (IsValid(CursorDecal))
 	{
-		TRACE(Display, "Setup CursorDecal = %s", *CursorDecal->GetName());
+		log(Display, "Setup CursorDecal = %s", *CursorDecal->GetName());
 		CursorToWorld->SetDecalMaterial(CursorDecal);
 		CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
 	}
@@ -248,7 +248,7 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 	if (let MyMesh = GetMesh(); IsValid(MyMesh) && not CameraTargetBoneName.IsNone())
 	{
 		let HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
-		TRACE(Display, "Setup CameraBoom = %s", *HeadBoneLocation.ToString());
+		log(Display, "Setup CameraBoom = %s", *HeadBoneLocation.ToString());
 		CameraBoom->SetWorldLocation(HeadBoneLocation);
 
 		MyMesh->bCastDynamicShadow = true;

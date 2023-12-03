@@ -64,7 +64,7 @@ namespace EAActor
 				return -Self->GetActorForwardVector();
 			}
 
-			TRACE(Fatal, "Invalid value Actor = '%s' Direction = '%d'", *Self->GetName(), Direction);
+			log(Fatal, "Invalid value Actor = '%s' Direction = '%d'", *Self->GetName(), Direction);
 			return {};
 		}
 

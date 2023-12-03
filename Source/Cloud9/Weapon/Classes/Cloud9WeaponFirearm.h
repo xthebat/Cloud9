@@ -47,27 +47,29 @@ public:
 
 	ACloud9WeaponFirearm();
 
-	virtual void PrimaryAction(bool bIsReleased) override;
+	virtual EWeaponClass GetWeaponClass() const override;
+	virtual const UEnum* GetWeaponActions() const override;
 
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 protected: // properties
 	/**
 	 * Weapon mesh
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	UStaticMeshComponent* WeaponMesh;
 
 	/**
 	 * Magazine mesh
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	UStaticMeshComponent* MagazineMesh;
 
 	/**
 	 * Muzzle flash effect to play when shoot
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	UNiagaraComponent* MuzzleFlash;
 };

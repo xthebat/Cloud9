@@ -54,21 +54,21 @@ public:
 	 * finished; also setups timer to wait new cooldown and returns true. 
 	 * Otherwise (if cooldown not finished yet) just return false.
 	 */
-	template <CooldownAction::callable FunctionType>
+	template <typename FunctionType>
 	FORCEINLINE bool Execute(FunctionType&& Function, float OverrideCooldownTime = -1)
 	{
 		if (not bIsActionInProcess)
 		{
 			if (not Function())
 			{
-				TRACE(Warning, "Failed to execute cooldown function in '%s'", *GetName());
+				log(Warning, "Failed to execute cooldown function in '%s'", *GetName());
 				return false;
 			}
 
 			if (let Time = OverrideCooldownTime < 0.0f ? DefaultCooldownTime : OverrideCooldownTime; Time > 0.0f)
 			{
 				bIsActionInProcess = true;
-				ActionTimerHandle = this | EUObject::AsyncAfter([=] { bIsActionInProcess = false; }, Time);
+				ActionTimerHandle = this | EUObject::AsyncAfter([this] { bIsActionInProcess = false; }, Time);
 			}
 
 			return true;

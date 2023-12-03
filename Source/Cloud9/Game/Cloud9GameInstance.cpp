@@ -45,7 +45,7 @@ WeaponActorType* UCloud9GameInstance::SpawnWeaponIntern(
 {
 	if (WeaponsInfoTable == nullptr)
 	{
-		TRACE(Error, "WeaponsInfoTable isn't set");
+		log(Error, "WeaponsInfoTable isn't set");
 		return nullptr;
 	}
 
@@ -53,7 +53,7 @@ WeaponActorType* UCloud9GameInstance::SpawnWeaponIntern(
 
 	if (Name.IsNone())
 	{
-		TRACE(Error, "Can't get weapon identifier name");
+		log(Error, "Can't get weapon identifier name");
 		return nullptr;
 	}
 
@@ -61,14 +61,14 @@ WeaponActorType* UCloud9GameInstance::SpawnWeaponIntern(
 
 	if (WeaponInfo == nullptr)
 	{
-		TRACE(Error, "Can't get weapon info for '%s'", *Name.ToString());
+		log(Error, "Can't get weapon info for '%s'", *Name.ToString());
 		return nullptr;
 	}
 
 	if (not Validator(WeaponInfo->Type))
 	{
 		let TypeName = WeaponInfo->Type | EUEnum::GetEnumFullValueName();
-		TRACE(Fatal, "Specified weapon type '%s' is invalid", *TypeName.ToString());
+		log(Fatal, "Specified weapon type '%s' is invalid", *TypeName.ToString());
 		return nullptr;
 	}
 
@@ -77,7 +77,7 @@ WeaponActorType* UCloud9GameInstance::SpawnWeaponIntern(
 	if (Montages == nullptr)
 	{
 		let WeaponName = WeaponInfo->Type | EUEnum::GetValueName();
-		TRACE(Fatal, "Animation montages not defined for weapon type '%s'", *WeaponName.ToString());
+		log(Fatal, "Animation montages not defined for weapon type '%s'", *WeaponName.ToString());
 		return nullptr;
 	}
 
