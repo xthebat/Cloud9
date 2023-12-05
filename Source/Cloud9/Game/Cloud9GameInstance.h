@@ -28,6 +28,7 @@
 #include "Cloud9/Weapon/Enums/Cloud9GrenadeNames.h"
 #include "Cloud9/Weapon/Enums/Cloud9MeleeNames.h"
 #include "Cloud9/Weapon/Enums/Cloud9WeaponType.h"
+#include "Cloud9/Weapon/Tables/Cloud9WeaponTableBase.h"
 #include "Engine/GameInstance.h"
 #include "Cloud9GameInstance.generated.h"
 
@@ -77,6 +78,7 @@ public: // functions
 	 */
 	ACloud9WeaponFirearm* SpawnFirearmWeapon(
 		EFirearm WeaponId,
+		FName SkinName = FWeaponSkin::Default,
 		ACloud9Character* Character = nullptr,
 		const FTransform& Transform = FTransform::Identity) const;
 
@@ -85,6 +87,7 @@ public: // functions
 	 */
 	ACloud9WeaponMelee* SpawnMeleeWeapon(
 		EMelee WeaponId,
+		FName SkinName = FWeaponSkin::Default,
 		ACloud9Character* Character = nullptr,
 		const FTransform& Transform = FTransform::Identity) const;
 
@@ -93,6 +96,7 @@ public: // functions
 	 */
 	ACloud9WeaponGrenade* SpawnGrenadeWeapon(
 		EGrenade WeaponId,
+		FName SkinName = FWeaponSkin::Default,
 		ACloud9Character* Character = nullptr,
 		const FTransform& Transform = FTransform::Identity) const;
 
@@ -126,5 +130,6 @@ protected: // properties
 		ValidatorType Validator,
 		WeaponEnumType WeaponId,
 		ACloud9Character* Character,
-		const FTransform& Transform) const;
+		const FTransform& Transform,
+		FName SkinName) const;
 };

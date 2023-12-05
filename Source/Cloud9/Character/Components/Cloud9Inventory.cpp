@@ -50,8 +50,8 @@ void UCloud9Inventory::BeginPlay()
 	if (let MyOwner = GetOwner<ACloud9Character>(); IsValid(MyOwner))
 	{
 		let MyGameInstance = MyOwner->GetGameInstance<UCloud9GameInstance>();
-		let DefaultKnife = MyGameInstance->SpawnMeleeWeapon(DefaultKnifeName);
-		let DefaultPistol = MyGameInstance->SpawnFirearmWeapon(DefaultPistolName);
+		let DefaultKnife = MyGameInstance->SpawnMeleeWeapon(DefaultKnifeName, FWeaponSkin::Lore);
+		let DefaultPistol = MyGameInstance->SpawnFirearmWeapon(DefaultPistolName, FWeaponSkin::OceanDrive);
 
 		if (not ShoveWeapon(EWeaponSlot::Knife, DefaultKnife))
 		{

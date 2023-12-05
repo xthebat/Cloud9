@@ -87,24 +87,6 @@ struct FFirearmWeaponEffects
 };
 
 USTRUCT(BlueprintType)
-struct FFirearmWeaponSkin : public FBaseWeaponSkin
-{
-	GENERATED_BODY()
-
-	/**
-	 * Base mesh corpus to show
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
-	UStaticMesh* Weapon = nullptr;
-
-	/**
-	 * Mesh for dropout magazine on reload
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
-	UStaticMesh* Magazine = nullptr;
-};
-
-USTRUCT(BlueprintType)
 struct FFirearmInaccuracy
 {
 	GENERATED_BODY()
@@ -314,10 +296,22 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	FFirearmWeaponSounds Sounds;
 
 	/**
+	 * Base mesh corpus to show
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	UStaticMesh* WeaponModel = nullptr;
+
+	/**
+	 * Mesh for dropout magazine on reload
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	UStaticMesh* MagazineModel = nullptr;
+
+	/**
 	 * Available skins for weapon and it magazines
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)
-	TArray<FFirearmWeaponSkin> Skins;
+	TArray<FWeaponSkin> Skins;
 
 	/**
 	 * Weapon price in buy menu

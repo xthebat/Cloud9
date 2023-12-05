@@ -41,7 +41,7 @@ WeaponActorType* UCloud9GameInstance::SpawnWeaponIntern(
 	ValidatorType Validator,
 	WeaponEnumType WeaponId,
 	ACloud9Character* Character,
-	const FTransform& Transform) const
+	const FTransform& Transform, FName SkinName) const
 {
 	if (WeaponsInfoTable == nullptr)
 	{
@@ -83,7 +83,7 @@ WeaponActorType* UCloud9GameInstance::SpawnWeaponIntern(
 
 	return GetWorld() | EUWorld::SpawnActorInitialized(
 		WeaponInfo->Class,
-		[=](let It) { return It->Initialize(WeaponInfo, Montages); },
+		[=](let It) { return It->Initialize(WeaponInfo, Montages, SkinName); },
 		Transform,
 		Character
 	);
@@ -91,6 +91,7 @@ WeaponActorType* UCloud9GameInstance::SpawnWeaponIntern(
 
 ACloud9WeaponFirearm* UCloud9GameInstance::SpawnFirearmWeapon(
 	EFirearm WeaponId,
+	FName SkinName,
 	ACloud9Character* Character,
 	const FTransform& Transform) const
 {
@@ -99,12 +100,14 @@ ACloud9WeaponFirearm* UCloud9GameInstance::SpawnFirearmWeapon(
 		&UCloud9WeaponType::IsFirearm,
 		WeaponId,
 		Character,
-		Transform
+		Transform,
+		SkinName
 	);
 }
 
 ACloud9WeaponMelee* UCloud9GameInstance::SpawnMeleeWeapon(
 	EMelee WeaponId,
+	FName SkinName,
 	ACloud9Character* Character,
 	const FTransform& Transform) const
 {
@@ -113,12 +116,14 @@ ACloud9WeaponMelee* UCloud9GameInstance::SpawnMeleeWeapon(
 		&UCloud9WeaponType::IsMelee,
 		WeaponId,
 		Character,
-		Transform
+		Transform,
+		SkinName
 	);
 }
 
 ACloud9WeaponGrenade* UCloud9GameInstance::SpawnGrenadeWeapon(
 	EGrenade WeaponId,
+	FName SkinName,
 	ACloud9Character* Character,
 	const FTransform& Transform) const
 {
@@ -127,6 +132,7 @@ ACloud9WeaponGrenade* UCloud9GameInstance::SpawnGrenadeWeapon(
 		&UCloud9WeaponType::IsGrenade,
 		WeaponId,
 		Character,
-		Transform
+		Transform,
+		SkinName
 	);
 }

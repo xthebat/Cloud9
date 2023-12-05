@@ -63,18 +63,6 @@ struct FMeleeWeaponSounds
 	USoundBase* DeploySound = nullptr;
 };
 
-USTRUCT(BlueprintType)
-struct FMeleeWeaponSkin : public FBaseWeaponSkin
-{
-	GENERATED_BODY()
-
-	/**
-	 * Base mesh corpus to show
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
-	UStaticMesh* Weapon = nullptr;
-};
-
 /**
  * Melee weapon description structure.
  */
@@ -178,10 +166,16 @@ struct FMeleeWeaponInfo : public FBaseWeaponInfo
 	FMeleeWeaponSounds Sounds;
 
 	/**
+	 * Base mesh corpus to show
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	UStaticMesh* WeaponModel = nullptr;
+
+	/**
 	 * Available skins for weapon
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)
-	TArray<FMeleeWeaponSkin> Skins;
+	TArray<FWeaponSkin> Skins;
 
 	/**
 	 * Money award for kill enemy with this gun
