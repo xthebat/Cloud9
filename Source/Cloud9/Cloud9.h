@@ -97,12 +97,6 @@ public:
 	}
 
 	template <typename SelfType>
-	constexpr friend auto operator|(const SelfType& Self, const FunctionType& Function)
-	{
-		return Function(Self);
-	}
-
-	template <typename SelfType>
 	constexpr friend auto operator|(SelfType& Self, const FunctionType& Function)
 	{
 		return Function(Forward<SelfType>(Self));

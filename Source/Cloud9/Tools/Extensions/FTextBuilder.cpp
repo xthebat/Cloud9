@@ -29,11 +29,11 @@ auto LexToString(const FText& Text) { return *Text.ToString(); }
 
 namespace EFTextBuilder
 {
-	template <typename TType, typename TResult = typename TType::TCppType>
-	TResult UPropertyGetValue(const void* Object, const TType* Property)
+	template <typename PropertyType, typename ResultType = typename PropertyType::TCppType>
+	ResultType UPropertyGetValue(const void* Object, const PropertyType* Property)
 	{
 		let Ptr = Property->template ContainerPtrToValuePtr<void>(Object);
-		return TType::GetPropertyValue(Ptr);
+		return PropertyType::GetPropertyValue(Ptr);
 	}
 
 	template <>
@@ -42,20 +42,20 @@ namespace EFTextBuilder
 		return Property->GetPropertyValue_InContainer(Object);
 	}
 
-	template <typename TValue>
-	FString Format(const FProperty* Property, TValue Value)
+	template <typename ValueType>
+	FString Format(const FProperty* Property, ValueType Value)
 	{
 		let Name = Property->GetFName();
 		let TypeName = Property->GetCPPType();
 		return FString::Printf(TEXT("%s: %s = %s"), *Name.ToString(), *TypeName, *LexToString(Value));
 	}
 
-	template <typename TType>
+	template <typename PropertyType>
 	bool UPropertyAppendTo(FTextBuilder& Builder, const void* Object, const FProperty* Property)
 	{
-		if (let TypedProperty = CastField<TType>(Property))
+		if (let TypedProperty = CastField<PropertyType>(Property))
 		{
-			let Value = UPropertyGetValue<TType>(Object, TypedProperty);
+			let Value = UPropertyGetValue<PropertyType>(Object, TypedProperty);
 			let String = Format(Property, Value);
 			Builder.AppendLine(String);
 			return true;
@@ -92,10 +92,10 @@ namespace EFTextBuilder
 		return false;
 	}
 
-	template <typename TType>
+	template <typename PropertyType>
 	bool UPropertyNotSupported(FTextBuilder& Builder, const void* Object, const FProperty* Property)
 	{
-		if (let TypedProperty = CastField<TType>(Property))
+		if (let TypedProperty = CastField<PropertyType>(Property))
 		{
 			let String = Format(Property, TEXT("<UNSUPPORTED>"));
 			Builder.AppendLine(String);
@@ -137,8 +137,8 @@ namespace EFTextBuilder
 
 	FTextBuilder& AppendObject::operator()(FTextBuilder&& Builder) const
 	{
-		let TypeClass = Type->GetClass();
-		let Header = FString::Printf(TEXT("%s %s {"), *TypeClass->GetName(), *Type->GetName());
+		let Class = Type->GetClass();
+		let Header = FString::Printf(TEXT("%s %s {"), *Class->GetName(), *Type->GetName());
 
 		Builder.AppendLine(Header);
 		Builder.Indent();

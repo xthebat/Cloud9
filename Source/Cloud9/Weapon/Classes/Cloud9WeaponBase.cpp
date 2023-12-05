@@ -28,7 +28,8 @@
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
 #include "Cloud9/Weapon/Tables/Cloud9WeaponTableBase.h"
 
-const FName ACloud9WeaponBase::MeshCollisionProfile = TEXT("WeaponMesh");
+const FName ACloud9WeaponBase::RootComponentName = TEXT("RootComponent");
+const FName ACloud9WeaponBase::WeaponMeshCollisionProfile = TEXT("WeaponCollisionProfile");
 const FString ACloud9WeaponBase::ActionComponentFormat = TEXT("{0}ActionComponent");
 
 ACloud9WeaponBase::ACloud9WeaponBase()
@@ -43,11 +44,8 @@ ACloud9WeaponBase::ACloud9WeaponBase()
 	Info = nullptr;
 	Montages = nullptr;
 
-	// For now just disable weapon collision when create because it's meshes
-	// can overlap with Character when added to inventory. Should be enabled
-	// only when not attached to character.
-	// TODO: Move SetActorEnableCollision(false); of ACloud9WeaponBase to Add/Remove inventory method
-	SetActorEnableCollision(false);
+	bIsPrimaryActionActive = false;
+	bIsSecondaryActionActive = false;
 }
 
 void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
@@ -85,34 +83,35 @@ void ACloud9WeaponBase::BeginPlay()
 
 UStaticMeshComponent* ACloud9WeaponBase::CreateMesh(FName ComponentName, FName SocketName)
 {
-	let Mesh = CreateDefaultSubobject<UStaticMeshComponent>(ComponentName);
-
-	if (not IsValid(Mesh))
+	if (let Component = CreateDefaultSubobject<UStaticMeshComponent>(ComponentName); IsValid(Component))
 	{
-		log(Error, "Can't create mesh '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
-		return nullptr;
+		Component->bOwnerNoSee = false;
+		Component->AlwaysLoadOnClient = true;
+		Component->AlwaysLoadOnServer = true;
+		Component->bCastDynamicShadow = true;
+		Component->bAffectDynamicIndirectLighting = true;
+		Component->PrimaryComponentTick.TickGroup = TG_PrePhysics;
+		Component->SetCollisionProfileName(WeaponMeshCollisionProfile);
+
+		// TODO: Collision should be enabled by default and disabled when added to inventory
+		// Disable by default Collision and Physics for added mesh
+		Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Component->SetSimulatePhysics(false);
+
+		if (not SocketName.IsNone())
+		{
+			Component->SetupAttachment(RootComponent, SocketName);
+		}
+		else
+		{
+			RootComponent = Component;
+		}
+
+		return Component;
 	}
 
-	Mesh->bOwnerNoSee = false;
-	Mesh->AlwaysLoadOnClient = true;
-	Mesh->AlwaysLoadOnServer = true;
-	Mesh->bCastDynamicShadow = true;
-	Mesh->bAffectDynamicIndirectLighting = true;
-	Mesh->PrimaryComponentTick.TickGroup = TG_PrePhysics;
-	Mesh->SetCollisionProfileName(MeshCollisionProfile);
-	Mesh->SetGenerateOverlapEvents(false);
-	Mesh->SetCanEverAffectNavigation(false);
-
-	if (SocketName.IsNone())
-	{
-		RootComponent = Mesh;
-	}
-	else
-	{
-		Mesh->SetupAttachment(RootComponent, SocketName);
-	}
-
-	return Mesh;
+	log(Error, "Can't create mesh '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
+	return nullptr;
 }
 
 UNiagaraComponent* ACloud9WeaponBase::CreateEffect(FName ComponentName, FName SocketName)
@@ -254,6 +253,8 @@ bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot 
 		return false;
 	}
 
+	OnWeaponAddedToInventory();
+
 	return true;
 }
 
@@ -265,22 +266,16 @@ bool ACloud9WeaponBase::RemoveFromInventory()
 		return false;
 	}
 
-	// let Inventory = Character->GetInventory();
-	//
-	// if (not IsValid(Inventory))
-	// {
-	// 	TRACE(Error, "[Weapon='%s'] Character inventory is invalid", *GetName());
-	// 	return false;
-	// }
-	//
-	// Inventory->WeaponAt(Slot) = nullptr;
-
 	// TODO: Add velocity impulse when weapon dropped
 
 	Slot = EWeaponSlot::NotSelected;
 	State = EWeaponState::Dropped;
+
 	DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
 	SetOwner(nullptr);
+
+	OnWeaponRemovedFromInventory();
+
 	return true;
 }
 
@@ -313,6 +308,18 @@ void ACloud9WeaponBase::SecondaryAction(bool bIsReleased)
 }
 
 void ACloud9WeaponBase::Reload() {}
+
+void ACloud9WeaponBase::OnWeaponAddedToInventory()
+{
+	// CapsuleComponent->SetSimulatePhysics(false);
+	// CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ACloud9WeaponBase::OnWeaponRemovedFromInventory()
+{
+	// CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	// CapsuleComponent->SetSimulatePhysics(true);
+}
 
 bool ACloud9WeaponBase::ChangeActionFlag(bool Flag, bool bIsReleased)
 {

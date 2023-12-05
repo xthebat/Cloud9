@@ -75,8 +75,8 @@ namespace ERange
 	// TArray extensions
 	struct Random : TOperator<Random>
 	{
-		template <typename CollectionType, typename TResult = typename CollectionType::ElementType>
-		constexpr TOptional<TResult> operator()(CollectionType& Self) const
+		template <typename CollectionType, typename ResultType = typename CollectionType::ElementType>
+		constexpr TOptional<ResultType> operator()(CollectionType&& Self) const
 		{
 			if (Self.Num() != 0)
 			{

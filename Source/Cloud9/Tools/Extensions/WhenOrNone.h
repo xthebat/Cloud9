@@ -23,57 +23,57 @@
 
 #pragma once
 
+#include "Cloud9/Cloud9.h"
 #include "TFirstArgumentOf.h"
 #include "TResultOf.h"
-#include "Cloud9/Cloud9.h"
 
-template <typename... TFunctions>
+template <typename...>
 struct WhenOrNone {};
 
-template <typename TFirst, typename... TRest>
-struct WhenOrNone<TFirst, TRest...>
+template <typename FirstType, typename... RestType>
+struct WhenOrNone<FirstType, RestType...>
 {
-	WhenOrNone(TFirst First, TRest... Rest) : First(First), Rest(Rest...) {}
+	WhenOrNone(FirstType First, RestType... Rest) : First(First), Rest(Rest...) {}
 
-	template <typename TValue>
-	friend constexpr auto operator|(TValue Value, WhenOrNone&& Self)
+	template <typename ValueType>
+	friend constexpr auto operator|(ValueType Value, WhenOrNone&& Self)
 	{
 		using ReturnType = typename TResultOf<decltype(Self.First)>::Type;
 		return WhenOrNone::Call<ReturnType>(Value, Self);
 	}
 
-	template <typename TResult, typename TValue, typename... TFunctions>
-	static constexpr TOptional<TResult> Call(TValue Value, WhenOrNone<TFunctions...>& Self)
+	template <typename ResultType, typename ValueType, typename... FunctionTypes>
+	static constexpr TOptional<ResultType> Call(ValueType Value, WhenOrNone<FunctionTypes...>& Self)
 	{
-		if (let Result = WhenOrNone<TFirst>::template Call<TResult>(Value, Self.First))
+		if (let Result = WhenOrNone<FirstType>::template Call<ResultType>(Value, Self.First))
 		{
 			return Result;
 		}
 
-		return WhenOrNone<TRest...>::template Call<TResult>(Value, Self.Rest);
+		return WhenOrNone<RestType...>::template Call<ResultType>(Value, Self.Rest);
 	}
 
-	template <typename TResult, typename TValue, typename TLast>
-	static constexpr TOptional<TResult> Call(TValue Value, WhenOrNone<TLast>& When)
+	template <typename ResultType, typename ValueType, typename LastType>
+	static constexpr TOptional<ResultType> Call(ValueType Value, WhenOrNone<LastType>& When)
 	{
-		return WhenOrNone<TLast>::template Call<TResult>(Value, When.First);
+		return WhenOrNone<LastType>::template Call<ResultType>(Value, When.First);
 	}
 
-	template <typename TResult, typename TValue, typename TFunction>
-	static constexpr TOptional<TResult> Call(TValue Value, TFunction Function)
+	template <typename ResultType, typename ValueType, typename FunctionType>
+	static constexpr TOptional<ResultType> Call(ValueType Value, FunctionType Function)
 	{
-		using ReturnType = typename TResultOf<TFunction>::Type;
-		using ArgType = typename TRemovePointer<typename TFirstArgumentOf<TFunction>::Type>::Type;
-		using ValueType = typename TRemovePointer<TValue>::Type;
-		static_assert(TIsSame<TResult, ReturnType>::Value, "All WhenOrNone branches must return same type");
+		using ReturnType = typename TResultOf<FunctionType>::Type;
+		using ArgType = typename TRemovePointer<typename TFirstArgumentOf<FunctionType>::Type>::Type;
+		using InnerType = typename TRemovePointer<ValueType>::Type;
+		static_assert(TIsSame<ResultType, ReturnType>::Value, "All WhenOrNone branches must return same type");
 
 		ArgType* Casted;
 
-		if constexpr (TIsSame<ValueType, FProperty>::Value)
+		if constexpr (TIsSame<InnerType, FProperty>::Value)
 		{
 			Casted = CastField<ArgType>(Value);
 		}
-		else if constexpr (TIsSame<ValueType, UObject>::Value)
+		else if constexpr (TIsSame<InnerType, UObject>::Value)
 		{
 			Casted = Cast<ArgType>(Value);
 		}
@@ -93,9 +93,9 @@ struct WhenOrNone<TFirst, TRest...>
 	}
 
 private:
-	TFirst First;
+	FirstType First;
 
-	WhenOrNone<TRest...> Rest;
+	WhenOrNone<RestType...> Rest;
 };
 
 template <typename... Ts>
