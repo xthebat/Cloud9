@@ -43,19 +43,19 @@ const FName ACloud9WeaponFirearm::MuzzleFlashSocketName = TEXT("MuzzleFlashSocke
 
 ACloud9WeaponFirearm::ACloud9WeaponFirearm()
 {
-	if (WeaponMesh = CreateMesh(WeaponMeshComponentName); not IsValid(WeaponMesh))
+	if (WeaponMesh = CreateMeshComponent(WeaponMeshComponentName); not IsValid(WeaponMesh))
 	{
 		log(Error, "Failed to create WeaponMeshComponent");
 		return;
 	}
 
-	if (MagazineMesh = CreateMesh(MagazineMeshComponentName, MagazineSocketName); not IsValid(MagazineMesh))
+	if (MagazineMesh = CreateMeshComponent(MagazineMeshComponentName, MagazineSocketName); not IsValid(MagazineMesh))
 	{
 		log(Error, "Failed to create MagazineMeshComponent");
 		return;
 	}
 
-	if (MuzzleFlash = CreateEffect(MuzzleFlashComponentName, MuzzleFlashSocketName); not IsValid(MuzzleFlash))
+	if (MuzzleFlash = CreateEffectComponent(MuzzleFlashComponentName, MuzzleFlashSocketName); not IsValid(MuzzleFlash))
 	{
 		log(Error, "Failed to create MuzzleFlashComponent");
 		return;
@@ -70,10 +70,10 @@ void ACloud9WeaponFirearm::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 	let MyWeaponInfo = GetWeaponInfo<FFirearmWeaponInfo>();
-	let Skin = MyWeaponInfo | EFWeaponInfo::GetSkinByName<FFirearmWeaponSkin>();
-	WeaponMesh->SetStaticMesh(Skin->Weapon);
-	MagazineMesh->SetStaticMesh(Skin->Magazine);
-	MuzzleFlash->SetAsset(MyWeaponInfo->Effects.MuzzleFlash);
+	let SkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByName(SkinName);
+	InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, SkinInfo);
+	InitializeMeshComponent(MagazineMesh, MyWeaponInfo->MagazineModel, SkinInfo);
+	InitializeEffectComponent(MuzzleFlash, MyWeaponInfo->Effects.MuzzleFlash);
 }
 
 void ACloud9WeaponFirearm::Tick(float DeltaSeconds)

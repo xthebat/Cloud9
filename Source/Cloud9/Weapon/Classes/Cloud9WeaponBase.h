@@ -68,12 +68,16 @@ public:
 	EWeaponType GetWeaponType() const;
 
 	template <typename TWeaponInfo>
-	bool Initialize(const TWeaponInfo* NewWeaponInfo, const FWeaponPosesMontages* NewWeaponMontages)
+	bool Initialize(
+		const TWeaponInfo* NewWeaponInfo,
+		const FWeaponPosesMontages* NewWeaponMontages,
+		FName NewSkinName)
 	{
 		assertf(not bIsInitialized, "Weapon '%ls' already initialized!", *Info->Label.ToString());
 		bIsInitialized = true;
 		Montages = NewWeaponMontages;
 		Info = NewWeaponInfo;
+		SkinName = NewSkinName;
 		return true;
 	}
 
@@ -151,8 +155,16 @@ protected: // functions
 
 	static bool ChangeActionFlag(bool Flag, bool bIsReleased);
 
-	UStaticMeshComponent* CreateMesh(FName ComponentName, FName SocketName = NAME_None);
-	UNiagaraComponent* CreateEffect(FName ComponentName, FName SocketName);
+	UStaticMeshComponent* CreateMeshComponent(FName ComponentName, FName SocketName = NAME_None);
+	UNiagaraComponent* CreateEffectComponent(FName ComponentName, FName SocketName);
+
+	bool InitializeMeshComponent(
+		UStaticMeshComponent* Component,
+		UStaticMesh* Mesh,
+		TOptional<FWeaponSkin> SkinInfo
+	) const;
+
+	bool InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect) const;
 
 	bool UpdateWeaponAttachment(
 		EWeaponSlot NewSlot,
@@ -178,6 +190,12 @@ protected: // properties
 	 * Weapon montages
 	 */
 	const FWeaponPosesMontages* Montages;
+
+	/**
+	 * Current weapon skin name
+	 */
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
+	FName SkinName;
 
 	/**
 	 * Current weapon slot (main/pistol/knife/grenade)

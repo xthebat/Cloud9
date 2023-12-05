@@ -43,6 +43,7 @@ ACloud9WeaponBase::ACloud9WeaponBase()
 
 	Info = nullptr;
 	Montages = nullptr;
+	SkinName = FWeaponSkin::Default;
 
 	bIsPrimaryActionActive = false;
 	bIsSecondaryActionActive = false;
@@ -81,7 +82,7 @@ void ACloud9WeaponBase::BeginPlay()
 	Super::BeginPlay();
 }
 
-UStaticMeshComponent* ACloud9WeaponBase::CreateMesh(FName ComponentName, FName SocketName)
+UStaticMeshComponent* ACloud9WeaponBase::CreateMeshComponent(FName ComponentName, FName SocketName)
 {
 	if (let Component = CreateDefaultSubobject<UStaticMeshComponent>(ComponentName); IsValid(Component))
 	{
@@ -114,7 +115,7 @@ UStaticMeshComponent* ACloud9WeaponBase::CreateMesh(FName ComponentName, FName S
 	return nullptr;
 }
 
-UNiagaraComponent* ACloud9WeaponBase::CreateEffect(FName ComponentName, FName SocketName)
+UNiagaraComponent* ACloud9WeaponBase::CreateEffectComponent(FName ComponentName, FName SocketName)
 {
 	if (let Component = CreateDefaultSubobject<UNiagaraComponent>(ComponentName); IsValid(Component))
 	{
@@ -124,6 +125,47 @@ UNiagaraComponent* ACloud9WeaponBase::CreateEffect(FName ComponentName, FName So
 
 	log(Error, "Can't create VFX '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
 	return nullptr;
+}
+
+bool ACloud9WeaponBase::InitializeMeshComponent(
+	UStaticMeshComponent* Component,
+	UStaticMesh* Mesh,
+	TOptional<FWeaponSkin> SkinInfo) const
+{
+	if (not SkinInfo.IsSet())
+	{
+		log(Error, "[Weapon='%s'] Skin is invalid", *GetName());
+		return false;
+	}
+
+	if (SkinInfo->Material == nullptr)
+	{
+		log(Error, "[Weapon='%s'] Skin material is invalid", *GetName());
+		return false;
+	}
+
+	if (Mesh == nullptr)
+	{
+		log(Error, "[Weapon='%s'] Mesh is invalid", *GetName());
+		return false;
+	}
+
+	Component->SetStaticMesh(Mesh);
+	Component->SetMaterial(0, SkinInfo->Material);
+
+	return true;
+}
+
+bool ACloud9WeaponBase::InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect) const
+{
+	if (Effect == nullptr)
+	{
+		log(Error, "[Weapon='%s'] Effect is invalid", *GetName());
+		return false;
+	}
+
+	Component->SetAsset(Effect);
+	return true;
 }
 
 bool ACloud9WeaponBase::IsActionIndexValid(int Index) const

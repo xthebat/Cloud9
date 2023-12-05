@@ -83,18 +83,6 @@ struct FGrenadeWeaponEffects
 	UNiagaraSystem* Action = nullptr;
 };
 
-USTRUCT(BlueprintType)
-struct FGrenadeWeaponSkin : public FBaseWeaponSkin
-{
-	GENERATED_BODY()
-
-	/**
-	 * Base mesh corpus to show
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
-	UStaticMesh* Weapon = nullptr;
-};
-
 /**
  * Grenade weapon description structure.
  */
@@ -199,10 +187,16 @@ struct FGrenadeWeaponInfo : public FBaseWeaponInfo
 	FGrenadeWeaponSounds Sounds;
 
 	/**
+	 * Base mesh corpus to show
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	UStaticMesh* WeaponModel = nullptr;
+
+	/**
 	 * Available skins for weapon and it magazines
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)
-	TArray<FGrenadeWeaponSkin> Skins;
+	TArray<FWeaponSkin> Skins;
 
 	/**
 	 * Weapon price in buy menu

@@ -29,11 +29,13 @@
 #include "Cloud9WeaponTableBase.generated.h"
 
 USTRUCT(BlueprintType)
-struct FBaseWeaponSkin
+struct FWeaponSkin
 {
 	GENERATED_BODY()
 
 	inline static const FName Default = TEXT("default");
+	inline static const FName OceanDrive = TEXT("ocean_drive");
+	inline static const FName Lore = TEXT("lore");
 
 	/**
 	 * Unique name of skin
@@ -52,6 +54,12 @@ struct FBaseWeaponSkin
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Base)
 	FText Description;
+
+	/**
+	 * Skin material to be used
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	UMaterialInstance* Material;
 };
 
 USTRUCT(BlueprintType)
@@ -80,23 +88,22 @@ struct FBaseWeaponInfo : public FTableRowBase
 
 namespace EFWeaponInfo
 {
-	template <typename SkinInfoType>
-	struct GetSkinByName : TOperator<GetSkinByName<SkinInfoType>>
+	struct GetSkinByName : TOperator<GetSkinByName>
 	{
-		explicit GetSkinByName(FName SkinName = FBaseWeaponSkin::Default) : SkinName(SkinName) { }
+		explicit GetSkinByName(FName SkinName = FWeaponSkin::Default) : SkinName(SkinName) { }
 
 		template <typename WeaponInfoType>
-		TOptional<SkinInfoType> operator()(WeaponInfoType Self) const
+		TOptional<FWeaponSkin> operator()(WeaponInfoType Self) const
 		{
 			let Skin = Self->Skins.FindByPredicate([this](let& It) { return It.Name == SkinName; });
 
-			if (not Skin and SkinName == FBaseWeaponSkin::Default)
+			if (not Skin and SkinName == FWeaponSkin::Default)
 			{
 				log(Fatal, "Can't get default skin");
 				return {};
 			}
 
-			return *static_cast<const SkinInfoType*>(Skin);
+			return *Skin;
 		}
 
 	private:

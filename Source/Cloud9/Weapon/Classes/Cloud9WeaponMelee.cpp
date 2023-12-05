@@ -29,13 +29,12 @@
 #include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Enums/Cloud9MeleeActions.h"
 #include "Cloud9/Weapon/Tables/Cloud9WeaponTableMelee.h"
-#include "Kismet/GameplayStatics.h"
 
 const FName ACloud9WeaponMelee::WeaponMeshComponentName = TEXT("WeaponMeshComponent");
 
 ACloud9WeaponMelee::ACloud9WeaponMelee()
 {
-	if (WeaponMesh = CreateMesh(WeaponMeshComponentName); not IsValid(WeaponMesh))
+	if (WeaponMesh = CreateMeshComponent(WeaponMeshComponentName); not IsValid(WeaponMesh))
 	{
 		log(Error, "Failed to create WeaponMeshComponent");
 		return;
@@ -110,6 +109,6 @@ void ACloud9WeaponMelee::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 	let MyWeaponInfo = GetWeaponInfo<FMeleeWeaponInfo>();
-	let Skin = MyWeaponInfo | EFWeaponInfo::GetSkinByName<FMeleeWeaponSkin>();
-	WeaponMesh->SetStaticMesh(Skin->Weapon);
+	let SkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByName(SkinName);
+	InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, SkinInfo);
 }
