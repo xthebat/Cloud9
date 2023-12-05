@@ -23,14 +23,16 @@
 
 #include "Cloud9WeaponFirearm.h"
 
+#include "DrawDebugHelpers.h"
 #include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Tools/Extensions/Range.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Game/Cloud9PlayerController.h"
+#include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Enums/Cloud9FirearmActions.h"
 #include "Cloud9/Weapon/Tables/Cloud9WeaponTableFirearm.h"
-#include "Kismet/GameplayStatics.h"
 
 const FName ACloud9WeaponFirearm::WeaponMeshComponentName = TEXT("WeaponMeshComponent");
 const FName ACloud9WeaponFirearm::MagazineMeshComponentName = TEXT("MagazineMeshComponent");
@@ -85,18 +87,18 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 		return;
 	}
 
+	let WeaponInfo = GetWeaponInfo<FFirearmWeaponInfo>();
+	let Character = GetOwner<ACloud9Character>();
+	let AnimInstance = Character->GetMesh()->GetAnimInstance();
+	let PoseMontages = Montages->GetPoseMontages(Character->bIsCrouched);
+
 	if (bIsPrimaryActionActive)
 	{
-		let WeaponInfo = GetWeaponInfo<FFirearmWeaponInfo>();
 		ExecuteAction(EFirearmAction::Fire, WeaponInfo->CycleTime, [&]
 		{
-			let Character = GetOwner<ACloud9Character>();
-			let Montage = Montages->GetPoseMontages(Character->bIsCrouched)->PrimaryActionMontage;
-			let AnimInstance = Character->GetMesh()->GetAnimInstance();
-
 			MuzzleFlash->Activate(true);
 
-			if (not AnimInstance->Montage_Play(Montage))
+			if (not AnimInstance->Montage_Play(PoseMontages->PrimaryActionMontage))
 			{
 				log(Error, "Can't play montage for '%s'", *Info->Label.ToString())
 				return false;
@@ -104,7 +106,54 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 			if (let FireSound = WeaponInfo->Sounds.FireSounds | ERange::Random())
 			{
-				UGameplayStatics::PlaySoundAtLocation(GetWorld(), *FireSound, GetActorLocation(), Settings->Volume);
+				*FireSound | EUSoundBase::Play(GetActorLocation(), Settings->Volume);
+			}
+
+			let Controller = Character->GetCloud9Controller();
+
+			if (not IsValid(Controller))
+			{
+				log(Error, "Can't hit object because player controller isn't valid")
+				return false;
+			}
+
+			FHitResult CursorHit;
+			if (not Controller->GetHitResultUnderCursor(ECC_Visibility, true, CursorHit))
+			{
+				log(Error, "Cursor not hit anything")
+				return true;
+			}
+
+			let StartLocation = MuzzleFlash->GetComponentLocation();
+			let EndLocation = CursorHit.Location;
+
+			FHitResult LineHit;
+			FCollisionQueryParams TraceParams(FName(TEXT("LineTraceSingle")), true);
+
+			let bHit = GetWorld()->LineTraceSingleByChannel(
+				LineHit,
+				StartLocation,
+				EndLocation,
+				ECC_Visibility,
+				TraceParams
+			);
+
+			if (not bHit)
+			{
+				log(Error, "LineTraceSingleByChannel not hit anything")
+				return true;
+			}
+
+			let Target = LineHit.Component;
+
+			log(Error, "Target = %s Owner = %s", *Target->GetName(), *Target->GetOwner()->GetName());
+
+			if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
+			{
+				var Direction = LineHit.Location - StartLocation;
+				log(Error, "Direction = %s", *Direction.ToString())
+				Direction.Normalize();
+				Target->AddImpulse(1000.0 * Direction, NAME_None, true);
 			}
 
 			return true;

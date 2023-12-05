@@ -26,6 +26,7 @@
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Tools/Extensions/Range.h"
+#include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Enums/Cloud9MeleeActions.h"
 #include "Cloud9/Weapon/Tables/Cloud9WeaponTableMelee.h"
 #include "Kismet/GameplayStatics.h"
@@ -59,17 +60,16 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		return;
 	}
 
+	let WeaponInfo = GetWeaponInfo<FMeleeWeaponInfo>();
+	let Character = GetOwner<ACloud9Character>();
+	let AnimInstance = Character->GetMesh()->GetAnimInstance();
+	let PoseMontages = Montages->GetPoseMontages(Character->bIsCrouched);
+
 	if (bIsPrimaryActionActive)
 	{
-		let WeaponInfo = GetWeaponInfo<FMeleeWeaponInfo>();
-
 		ExecuteAction(EMeleeAction::Slash, WeaponInfo->SlashCycleTime, [&]
 		{
-			let Character = GetOwner<ACloud9Character>();
-			let Montage = Montages->GetPoseMontages(Character->bIsCrouched)->PrimaryActionMontage;
-			let AnimInstance = Character->GetMesh()->GetAnimInstance();
-
-			if (not AnimInstance->Montage_Play(Montage))
+			if (not AnimInstance->Montage_Play(PoseMontages->PrimaryActionMontage))
 			{
 				log(Error, "Can't play montage for '%s'", *Info->Label.ToString())
 				return false;
@@ -77,7 +77,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 
 			if (let FireSound = WeaponInfo->Sounds.SlashSounds | ERange::Random())
 			{
-				UGameplayStatics::PlaySoundAtLocation(GetWorld(), *FireSound, GetActorLocation(), Settings->Volume);
+				*FireSound | EUSoundBase::Play(GetActorLocation(), Settings->Volume);
 			}
 
 			return true;
@@ -85,15 +85,9 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	}
 	else if (bIsSecondaryActionActive)
 	{
-		let WeaponInfo = GetWeaponInfo<FMeleeWeaponInfo>();
-
 		ExecuteAction(EMeleeAction::Slash, WeaponInfo->StabCycleTime, [&]
 		{
-			let Character = GetOwner<ACloud9Character>();
-			let Montage = Montages->GetPoseMontages(Character->bIsCrouched)->SecondaryActionMontage;
-			let AnimInstance = Character->GetMesh()->GetAnimInstance();
-
-			if (not AnimInstance->Montage_Play(Montage))
+			if (not AnimInstance->Montage_Play(PoseMontages->SecondaryActionMontage))
 			{
 				log(Error, "Can't play montage for '%s'", *Info->Label.ToString())
 				return false;
@@ -101,7 +95,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 
 			if (let FireSound = WeaponInfo->Sounds.StabSounds | ERange::Random())
 			{
-				UGameplayStatics::PlaySoundAtLocation(GetWorld(), *FireSound, GetActorLocation(), Settings->Volume);
+				*FireSound | EUSoundBase::Play(GetActorLocation(), Settings->Volume);
 			}
 
 			return true;

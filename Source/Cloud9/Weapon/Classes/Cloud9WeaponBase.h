@@ -45,8 +45,10 @@ class CLOUD9_API ACloud9WeaponBase : public AActor
 	GENERATED_BODY()
 
 public:
-	static const FName MeshCollisionProfile;
+	static const FName RootComponentName;
+	static const FName WeaponMeshCollisionProfile;
 	static const FString ActionComponentFormat;
+
 	static constexpr int AnyActionId = 0;
 	static constexpr int AnyActionIndex = AnyActionId - 1;
 
@@ -135,6 +137,18 @@ public:
 	virtual void Reload();
 
 protected: // functions
+	/**
+	 * Function called whenever weapon added to inventory and should
+	 * process collision changes when weapon attached to character
+	 */
+	virtual void OnWeaponAddedToInventory();
+
+	/**
+	 * Function called whenever weapon removed from inventory and should
+	 * process collision changes when weapon detached from character
+	 */
+	virtual void OnWeaponRemovedFromInventory();
+
 	static bool ChangeActionFlag(bool Flag, bool bIsReleased);
 
 	UStaticMeshComponent* CreateMesh(FName ComponentName, FName SocketName = NAME_None);
