@@ -25,114 +25,60 @@
 
 #include "Cloud9/Tools/Extensions/UEnum.h"
 #include "Cloud9/Tools/Extensions/UWorld.h"
-#include "Cloud9/Weapon/Enums/Cloud9WeaponType.h"
-#include "Cloud9/Weapon/Tables/Cloud9WeaponTableFirearm.h"
-#include "Cloud9/Weapon/Tables/Cloud9WeaponTableGrenade.h"
-#include "Cloud9/Weapon/Tables/Cloud9WeaponTableMelee.h"
+#include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
+#include "Cloud9/Weapon/Tables/WeaponTableGrenade.h"
+#include "Cloud9/Weapon/Tables/WeaponTableMelee.h"
 
-template <
-	typename WeaponActorType,
-	typename WeaponInfoType,
-	typename WeaponEnumType,
-	typename ValidatorType
->
-WeaponActorType* UCloud9GameInstance::SpawnWeaponIntern(
+template <typename WeaponInfoType, typename ValidatorType>
+TOptional<FWeaponInstance> UCloud9GameInstance::GetWeaponInstance(
 	UDataTable* WeaponsInfoTable,
 	ValidatorType Validator,
-	WeaponEnumType WeaponId,
-	ACloud9Character* Character,
-	const FTransform& Transform, FName SkinName) const
+	FName WeaponName) const
 {
 	if (WeaponsInfoTable == nullptr)
 	{
 		log(Error, "WeaponsInfoTable isn't set");
-		return nullptr;
+		return {};
 	}
 
-	let Name = WeaponId | EUEnum::GetValueName();
-
-	if (Name.IsNone())
-	{
-		log(Error, "Can't get weapon identifier name");
-		return nullptr;
-	}
-
-	let WeaponInfo = WeaponsInfoTable->FindRow<WeaponInfoType>(Name, "", false);
+	let WeaponInfo = WeaponsInfoTable->FindRow<WeaponInfoType>(WeaponName, "", false);
 
 	if (WeaponInfo == nullptr)
 	{
-		log(Error, "Can't get weapon info for '%s'", *Name.ToString());
-		return nullptr;
+		log(Error, "Can't get weapon info for '%s'", *WeaponName.ToString());
+		return {};
 	}
 
 	if (not Validator(WeaponInfo->Type))
 	{
 		let TypeName = WeaponInfo->Type | EUEnum::GetEnumFullValueName();
-		log(Fatal, "Specified weapon type '%s' is invalid", *TypeName.ToString());
-		return nullptr;
+		log(Error, "Specified weapon type '%s' is invalid", *TypeName.ToString());
+		return {};
 	}
 
 	let Montages = WeaponActionMontages.Find(WeaponInfo->Type);
 
 	if (Montages == nullptr)
 	{
-		let WeaponName = WeaponInfo->Type | EUEnum::GetValueName();
-		log(Fatal, "Animation montages not defined for weapon type '%s'", *WeaponName.ToString());
-		return nullptr;
+		let TypeName = WeaponInfo->Type | EUEnum::GetValueName();
+		log(Error, "Animation montages not defined for weapon type '%s'", *TypeName.ToString());
+		return {};
 	}
 
-	return GetWorld() | EUWorld::SpawnActorInitialized(
-		WeaponInfo->Class,
-		[=](let It) { return It->Initialize(WeaponInfo, Montages, SkinName); },
-		Transform,
-		Character
-	);
+	return FWeaponInstance{WeaponInfo, Montages, FirearmTracer};
 }
 
-ACloud9WeaponFirearm* UCloud9GameInstance::SpawnFirearmWeapon(
-	EFirearm WeaponId,
-	FName SkinName,
-	ACloud9Character* Character,
-	const FTransform& Transform) const
+TOptional<FWeaponInstance> UCloud9GameInstance::GetWeaponInstance(EWeaponClass WeaponClass, FName WeaponName) const
 {
-	return SpawnWeaponIntern<ACloud9WeaponFirearm, FFirearmWeaponInfo>(
-		FirearmsWeaponsInfoTable,
-		&UCloud9WeaponType::IsFirearm,
-		WeaponId,
-		Character,
-		Transform,
-		SkinName
-	);
-}
-
-ACloud9WeaponMelee* UCloud9GameInstance::SpawnMeleeWeapon(
-	EMelee WeaponId,
-	FName SkinName,
-	ACloud9Character* Character,
-	const FTransform& Transform) const
-{
-	return SpawnWeaponIntern<ACloud9WeaponMelee, FMeleeWeaponInfo>(
-		MeleeWeaponsInfoTable,
-		&UCloud9WeaponType::IsMelee,
-		WeaponId,
-		Character,
-		Transform,
-		SkinName
-	);
-}
-
-ACloud9WeaponGrenade* UCloud9GameInstance::SpawnGrenadeWeapon(
-	EGrenade WeaponId,
-	FName SkinName,
-	ACloud9Character* Character,
-	const FTransform& Transform) const
-{
-	return SpawnWeaponIntern<ACloud9WeaponGrenade, FGrenadeWeaponInfo>(
-		GrenadeWeaponInfoTable,
-		&UCloud9WeaponType::IsGrenade,
-		WeaponId,
-		Character,
-		Transform,
-		SkinName
-	);
+	switch (WeaponClass)
+	{
+	case EWeaponClass::Firearm:
+		return GetWeaponInstance<FFirearmWeaponInfo>(FirearmsWeaponsInfoTable, &UWeaponType::IsFirearm, WeaponName);
+	case EWeaponClass::Melee:
+		return GetWeaponInstance<FMeleeWeaponInfo>(MeleeWeaponsInfoTable, &UWeaponType::IsMelee, WeaponName);
+	case EWeaponClass::Grenade:
+		return GetWeaponInstance<FGrenadeWeaponInfo>(GrenadeWeaponInfoTable, &UWeaponType::IsGrenade, WeaponName);
+	default:
+		return {};
+	}
 }

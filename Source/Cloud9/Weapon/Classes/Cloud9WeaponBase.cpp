@@ -24,9 +24,9 @@
 #include "Cloud9WeaponBase.h"
 
 #include "Cloud9/Cloud9.h"
+#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
-#include "Cloud9/Weapon/Tables/Cloud9WeaponTableBase.h"
 
 const FName ACloud9WeaponBase::RootComponentName = TEXT("RootComponent");
 const FName ACloud9WeaponBase::WeaponMeshCollisionProfile = TEXT("WeaponCollisionProfile");
@@ -39,11 +39,8 @@ ACloud9WeaponBase::ACloud9WeaponBase()
 
 	State = EWeaponState::Dropped;
 	Slot = EWeaponSlot::NotSelected;
-	bIsInitialized = false;
 
-	Info = nullptr;
-	Montages = nullptr;
-	SkinName = FWeaponSkin::Default;
+	Skin = FWeaponSkin::Default;
 
 	bIsPrimaryActionActive = false;
 	bIsSecondaryActionActive = false;
@@ -57,16 +54,17 @@ void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
 	static_assert(AnyActionId == 0);
 	static_assert(AnyActionIndex == -1);
 
-	let Class = GetWeaponClass();
+	WeaponInstance = GetGameInstance<UCloud9GameInstance>()->GetWeaponInstance(GetWeaponClass(), Name);
+
+	WEAPON_IS_INITIALIZED_GUARD();
+
 	let Actions = GetWeaponActions();
 
-	// Use check to be sure compiler not discard functions calls
-	assert(Class != EWeaponClass::NoClass);
-	assert(Actions != nullptr);
-
-	assertf(bIsInitialized, "Weapon '%ls' wasn't initialized!", *GetName());
-	assertf(Info != nullptr, "Weapon Info for '%ls' wasn't set!", *GetName());
-	assertf(Montages != nullptr, "Weapon Montages '%ls' wasn't set!", *GetName());
+	if (not IsValid(Actions))
+	{
+		log(Error, "[Weapon='%s'] Actions not specified", *GetName());
+		return;
+	}
 
 	for (int Id = AnyActionId + 1; Id < Actions->NumEnums(); Id++)
 	{
@@ -77,9 +75,16 @@ void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
 	}
 }
 
+void ACloud9WeaponBase::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	WEAPON_IS_INITIALIZED_GUARD();
+}
+
 void ACloud9WeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
+	WEAPON_IS_INITIALIZED_GUARD();
 }
 
 UStaticMeshComponent* ACloud9WeaponBase::CreateMeshComponent(FName ComponentName, FName SocketName)
@@ -130,15 +135,9 @@ UNiagaraComponent* ACloud9WeaponBase::CreateEffectComponent(FName ComponentName,
 bool ACloud9WeaponBase::InitializeMeshComponent(
 	UStaticMeshComponent* Component,
 	UStaticMesh* Mesh,
-	TOptional<FWeaponSkin> SkinInfo) const
+	const FWeaponSkin& SkinInfo) const
 {
-	if (not SkinInfo.IsSet())
-	{
-		log(Error, "[Weapon='%s'] Skin is invalid", *GetName());
-		return false;
-	}
-
-	if (SkinInfo->Material == nullptr)
+	if (SkinInfo.Material == nullptr)
 	{
 		log(Error, "[Weapon='%s'] Skin material is invalid", *GetName());
 		return false;
@@ -151,7 +150,7 @@ bool ACloud9WeaponBase::InitializeMeshComponent(
 	}
 
 	Component->SetStaticMesh(Mesh);
-	Component->SetMaterial(0, SkinInfo->Material);
+	Component->SetMaterial(0, SkinInfo.Material);
 
 	return true;
 }
@@ -199,8 +198,8 @@ UCooldownActionComponent* ACloud9WeaponBase::CreateCooldownAction(FName Componen
 	return Component;
 }
 
-#define SLOT_NAME *UCloud9WeaponSlot::ToString(NewSlot)
-#define STATE_NAME *UCloud9WeaponState::ToString(NewState)
+#define SLOT_NAME *UWeaponSlot::ToString(NewSlot)
+#define STATE_NAME *UWeaponState::ToString(NewState)
 
 bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState NewState)
 {
@@ -221,8 +220,8 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState
 	}
 
 	let SocketName = NewState == EWeaponState::Armed
-		                 ? UCloud9WeaponSlot::EquippedSocket()
-		                 : UCloud9WeaponSlot::HolsteredSocket(NewSlot);
+		                 ? UWeaponSlot::EquippedSocket()
+		                 : UWeaponSlot::HolsteredSocket(NewSlot);
 
 	if (SocketName.IsNone())
 	{
@@ -378,7 +377,11 @@ bool ACloud9WeaponBase::ChangeActionFlag(bool Flag, bool bIsReleased)
 	return Flag;
 }
 
-EWeaponType ACloud9WeaponBase::GetWeaponType() const { return GetWeaponInfo<FBaseWeaponInfo>()->Type; }
+EWeaponType ACloud9WeaponBase::GetWeaponType() const
+{
+	assertf(WeaponInstance.IsSet(), "[Weapon='%ls'] Not initialized", *GetName());
+	return WeaponInstance->GetWeaponInfo()->Type;
+}
 
 EWeaponClass ACloud9WeaponBase::GetWeaponClass() const
 {

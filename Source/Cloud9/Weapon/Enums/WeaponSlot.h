@@ -26,7 +26,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Cloud9/Tools/Extensions/FName.h"
 #include "Cloud9/Tools/Extensions/UEnum.h"
-#include "Cloud9WeaponSlot.generated.h"
+#include "WeaponSlot.generated.h"
 
 UENUM(BlueprintType)
 enum class EWeaponSlot : uint8
@@ -44,7 +44,7 @@ enum class EWeaponSlot : uint8
  * Function to work with EWeaponType.
  */
 UCLASS()
-class CLOUD9_API UCloud9WeaponSlot : public UBlueprintFunctionLibrary
+class CLOUD9_API UWeaponSlot : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 

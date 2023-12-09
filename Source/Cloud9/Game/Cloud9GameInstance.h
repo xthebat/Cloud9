@@ -24,12 +24,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9/Weapon/Enums/Cloud9FirearmNames.h"
-#include "Cloud9/Weapon/Enums/Cloud9GrenadeNames.h"
-#include "Cloud9/Weapon/Enums/Cloud9MeleeNames.h"
-#include "Cloud9/Weapon/Enums/Cloud9WeaponType.h"
-#include "Cloud9/Weapon/Tables/Cloud9WeaponTableBase.h"
 #include "Engine/GameInstance.h"
+#include "Cloud9/Weapon/Enums/WeaponClass.h"
+#include "Cloud9/Weapon/Tables/WeaponMontages.h"
+#include "Cloud9/Weapon/Structures/WeaponInstance.h"
 #include "Cloud9GameInstance.generated.h"
 
 class UDataTable;
@@ -38,78 +36,36 @@ class ACloud9WeaponMelee;
 class ACloud9WeaponGrenade;
 class ACloud9WeaponFirearm;
 
-USTRUCT(BlueprintType)
-struct FWeaponActionMontages
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Action)
-	UAnimMontage* PrimaryActionMontage = nullptr;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Action)
-	UAnimMontage* SecondaryActionMontage = nullptr;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Reload)
-	UAnimMontage* ReloadMontage = nullptr;
-};
-
-USTRUCT(BlueprintType)
-struct FWeaponPosesMontages
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FWeaponActionMontages OnStand;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	FWeaponActionMontages OnCrouch;
-
-	const FWeaponActionMontages* GetPoseMontages(bool bIsCrouch) const { return bIsCrouch ? &OnCrouch : &OnStand; }
-};
-
 UCLASS()
 class CLOUD9_API UCloud9GameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
 public: // functions
-	/**
-	 * Function spawns firearm weapon to given owner (Character)
-	 */
-	ACloud9WeaponFirearm* SpawnFirearmWeapon(
-		EFirearm WeaponId,
-		FName SkinName = FWeaponSkin::Default,
-		ACloud9Character* Character = nullptr,
-		const FTransform& Transform = FTransform::Identity) const;
-
-	/**
-	 * Function spawns melee weapon to given owner (Character)
-	 */
-	ACloud9WeaponMelee* SpawnMeleeWeapon(
-		EMelee WeaponId,
-		FName SkinName = FWeaponSkin::Default,
-		ACloud9Character* Character = nullptr,
-		const FTransform& Transform = FTransform::Identity) const;
-
-	/**
-	 * Function spawns grenade weapon to given owner (Character)
-	 */
-	ACloud9WeaponGrenade* SpawnGrenadeWeapon(
-		EGrenade WeaponId,
-		FName SkinName = FWeaponSkin::Default,
-		ACloud9Character* Character = nullptr,
-		const FTransform& Transform = FTransform::Identity) const;
+	TOptional<FWeaponInstance> GetWeaponInstance(EWeaponClass WeaponClass, FName WeaponName) const;
 
 protected: // properties
+	/**
+	 * Weapon info table for firearms
+	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
 	UDataTable* FirearmsWeaponsInfoTable;
 
+	/**
+	 * Weapon info table for melee
+	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
 	UDataTable* MeleeWeaponsInfoTable;
 
+	/**
+	 * Weapon info table for grenades
+	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
 	UDataTable* GrenadeWeaponInfoTable;
 
+	/**
+	 * Weapon montages for different types
+	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
 	TMap<EWeaponType, FWeaponPosesMontages> WeaponActionMontages;
 
@@ -117,19 +73,12 @@ protected: // properties
 	 * Weapon tracer
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
-	UParticleSystem* FirearmTracer = nullptr;
+	UParticleSystem* FirearmTracer;
 
-	template <
-		typename WeaponActorType,
-		typename WeaponInfoType,
-		typename WeaponEnumType,
-		typename ValidatorType
-	>
-	WeaponActorType* SpawnWeaponIntern(
+private:
+	template <class WeaponInfoType, class ValidatorType>
+	FORCEINLINE TOptional<FWeaponInstance> GetWeaponInstance(
 		UDataTable* WeaponsInfoTable,
 		ValidatorType Validator,
-		WeaponEnumType WeaponId,
-		ACloud9Character* Character,
-		const FTransform& Transform,
-		FName SkinName) const;
+		FName WeaponName) const;
 };

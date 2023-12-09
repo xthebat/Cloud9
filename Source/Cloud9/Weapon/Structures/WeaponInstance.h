@@ -23,30 +23,37 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Cloud9/Tools/Extensions/FName.h"
-#include "Cloud9/Tools/Extensions/UEnum.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
-#include "Cloud9WeaponState.generated.h"
+#include "Cloud9/Weapon/Tables/WeaponTableBase.h"
+#include "Cloud9/Weapon/Tables/WeaponMontages.h"
+#include "WeaponInstance.generated.h"
 
-UENUM(BlueprintType)
-enum class EWeaponState : uint8
-{
-	Armed UMETA(DisplayName = "Weapon Armed"),
-	Holstered UMETA(DisplayName = "Weapon Holstered"),
-	Dropped UMETA(DisplayName = "Weapon Dropped"),
-	// TODO: Add Hidden EWeaponState if needed
-};
-
-/**
- * Function to work with EWeaponState.
- */
-UCLASS()
-class CLOUD9_API UCloud9WeaponState : public UBlueprintFunctionLibrary
+USTRUCT()
+struct FWeaponInstance
 {
 	GENERATED_BODY()
 
-public:
-	UFUNCTION(BlueprintCallable)
-	static FString ToString(EWeaponState State) { return State | EUEnum::GetEnumFullValueName() | EFName::ToString(); }
+	FWeaponInstance() = default;
+
+	FWeaponInstance(
+		const FBaseWeaponInfo* Info,
+		const FWeaponPosesMontages* Montages,
+		UParticleSystem* Tracer
+	) : Info(Info)
+	  , Montages(Montages)
+	  , Tracer(Tracer) {}
+
+	template <typename WeaponInfoType = FBaseWeaponInfo>
+	FORCEINLINE const WeaponInfoType* GetWeaponInfo() const { return static_cast<const WeaponInfoType*>(Info); }
+
+	FORCEINLINE const FWeaponActionMontages* GetPoseMontages(bool bIsCrouch) const
+	{
+		return not bIsCrouch ? &Montages->OnStand : &Montages->OnCrouch;
+	}
+
+private:
+	const FBaseWeaponInfo* Info;
+	const FWeaponPosesMontages* Montages;
+
+	UPROPERTY()
+	UParticleSystem* Tracer;
 };

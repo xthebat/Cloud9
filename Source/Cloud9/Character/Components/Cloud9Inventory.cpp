@@ -25,10 +25,8 @@
 
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponMelee.h"
-#include "Cloud9/Weapon/Enums/Cloud9WeaponState.h"
 
 
 UCloud9Inventory::UCloud9Inventory()
@@ -49,9 +47,14 @@ void UCloud9Inventory::BeginPlay()
 
 	if (let MyOwner = GetOwner<ACloud9Character>(); IsValid(MyOwner))
 	{
-		let MyGameInstance = MyOwner->GetGameInstance<UCloud9GameInstance>();
-		let DefaultKnife = MyGameInstance->SpawnMeleeWeapon(DefaultKnifeName, FWeaponSkin::Lore);
-		let DefaultPistol = MyGameInstance->SpawnFirearmWeapon(DefaultPistolName, FWeaponSkin::OceanDrive);
+		let DefaultKnife = GetWorld() | EUWorld::SpawnActor<ACloud9WeaponMelee>(
+			[this](let It)
+			{
+				return It->OnSpawn(DefaultKnifeName, FWeaponSkin::Lore);
+			});
+
+		let DefaultPistol = GetWorld() | EUWorld::SpawnActor<ACloud9WeaponFirearm>(
+			[this](let It) { return It->OnSpawn(DefaultPistolName, FWeaponSkin::OceanDrive); });
 
 		if (not ShoveWeapon(EWeaponSlot::Knife, DefaultKnife))
 		{

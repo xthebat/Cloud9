@@ -21,12 +21,33 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#include "Cloud9WeaponGrenade.h"
+#pragma once
 
-#include "Cloud9/Weapon/Enums/GrenadeActions.h"
+#include "WeaponMontages.generated.h"
 
-ACloud9WeaponGrenade::ACloud9WeaponGrenade() {}
+USTRUCT(BlueprintType)
+struct FWeaponActionMontages
+{
+	GENERATED_BODY()
 
-EWeaponClass ACloud9WeaponGrenade::GetWeaponClass() const { return EWeaponClass::Grenade; }
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Action)
+	UAnimMontage* PrimaryActionMontage = nullptr;
 
-const UEnum* ACloud9WeaponGrenade::GetWeaponActions() const { return StaticEnum<EGrenadeAction>(); }
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Action)
+	UAnimMontage* SecondaryActionMontage = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Reload)
+	UAnimMontage* ReloadMontage = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FWeaponPosesMontages
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FWeaponActionMontages OnStand;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FWeaponActionMontages OnCrouch;
+};

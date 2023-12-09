@@ -27,27 +27,26 @@
 
 namespace EUWorld
 {
-	template <typename TClass, typename TInitializer>
-	struct SpawnActorInitialized : TOperator<SpawnActorInitialized<TClass, TInitializer>>
+	template <typename ClassType>
+	struct SpawnActor : TOperator<SpawnActor<ClassType>>
 	{
 	public:
-		SpawnActorInitialized(
-			UClass* Class,
-			TInitializer Initializer,
+		using FInitializerType = TFunction<bool(ClassType*)>;
+
+		FORCEINLINE explicit SpawnActor(
+			FInitializerType Initializer,
 			const FTransform& Transform = {},
 			AActor* Owner = nullptr,
 			APawn* Instigator = nullptr
-		)
-			: Class(Class)
-			, Initializer(Initializer)
-			, Transform(Transform)
-			, Owner(Owner)
-			, Instigator(Instigator) { }
+		) : Initializer(Initializer)
+		  , Transform(Transform)
+		  , Owner(Owner)
+		  , Instigator(Instigator) {}
 
-		TClass* operator()(UWorld* World) const
+		FORCEINLINE ClassType* operator()(UWorld* Self) const
 		{
-			let Actor = World->SpawnActorDeferred<TClass>(Class, Transform, Owner, Instigator);
-			if (IsValid(Actor) && Initializer(Actor))
+			let Actor = Self->SpawnActorDeferred<ClassType>(ClassType::StaticClass(), Transform, Owner, Instigator);
+			if (IsValid(Actor) and Initializer(Actor))
 			{
 				Actor->FinishSpawning(Transform);
 				return Actor;
@@ -56,18 +55,11 @@ namespace EUWorld
 		}
 
 	private:
-		UClass* Class;
-		TInitializer Initializer;
+		FInitializerType Initializer;
 		const FTransform& Transform;
 		AActor* Owner = nullptr;
 		APawn* Instigator = nullptr;
 	};
-
-	template <template<typename> typename TClassInfo, typename TClass, typename TInit>
-	SpawnActorInitialized(
-		TClassInfo<TClass> Class,
-		TInit Init,
-		...) -> SpawnActorInitialized<TClass, TInit>;
 
 	template <typename FunctionType>
 	struct AsyncAfter : TOperator<AsyncAfter<FunctionType>>

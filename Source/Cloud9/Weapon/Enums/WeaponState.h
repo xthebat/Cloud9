@@ -21,12 +21,32 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#include "Cloud9WeaponGrenade.h"
+#pragma once
 
-#include "Cloud9/Weapon/Enums/GrenadeActions.h"
+#include "CoreMinimal.h"
+#include "Cloud9/Tools/Extensions/FName.h"
+#include "Cloud9/Tools/Extensions/UEnum.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
+#include "WeaponState.generated.h"
 
-ACloud9WeaponGrenade::ACloud9WeaponGrenade() {}
+UENUM(BlueprintType)
+enum class EWeaponState : uint8
+{
+	Armed UMETA(DisplayName = "Weapon Armed"),
+	Holstered UMETA(DisplayName = "Weapon Holstered"),
+	Dropped UMETA(DisplayName = "Weapon Dropped"),
+	// TODO: Add Hidden EWeaponState if needed
+};
 
-EWeaponClass ACloud9WeaponGrenade::GetWeaponClass() const { return EWeaponClass::Grenade; }
+/**
+ * Function to work with EWeaponState.
+ */
+UCLASS()
+class CLOUD9_API UWeaponState : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
 
-const UEnum* ACloud9WeaponGrenade::GetWeaponActions() const { return StaticEnum<EGrenadeAction>(); }
+public:
+	UFUNCTION(BlueprintCallable)
+	static FString ToString(EWeaponState State) { return State | EUEnum::GetEnumFullValueName() | EFName::ToString(); }
+};
