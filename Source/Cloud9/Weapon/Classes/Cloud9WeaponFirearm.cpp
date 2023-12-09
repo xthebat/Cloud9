@@ -24,8 +24,6 @@
 #include "Cloud9WeaponFirearm.h"
 
 #include "Cloud9/Tools/Extensions/AActor.h"
-#include "Cloud9/Tools/Extensions/Range.h"
-#include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
@@ -93,75 +91,30 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	WEAPON_IS_INITIALIZED_GUARD();
+	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 
 	static let Settings = UCloud9DeveloperSettings::Get();
 
-	if (IsActionInProgress())
-	{
-		return;
-	}
-
-	let WeaponInfo = WeaponInstance->GetWeaponInfo<FFirearmWeaponInfo>();
 	let Character = GetOwner<ACloud9Character>();
-	let AnimInstance = Character->GetMesh()->GetAnimInstance();
+	let WeaponInfo = WeaponInstance->GetWeaponInfo<FFirearmWeaponInfo>();
 	let PoseMontages = WeaponInstance->GetPoseMontages(Character->bIsCrouched);
 
 	if (bIsPrimaryActionActive)
 	{
-		ExecuteAction(EFirearmAction::Fire, WeaponInfo->CycleTime, [&]
-		{
-			if (not AnimInstance->Montage_Play(PoseMontages->PrimaryActionMontage))
+		ExecuteAction(
+			EFirearmAction::Fire,
+			WeaponInfo->CycleTime, [&]
 			{
-				log(Error, "[Weapon='%s'] Can't play montage for ", *GetName());
+				if (PlayMontage(PoseMontages->PrimaryActionMontage) and
+					PlayRandomSound(WeaponInfo->Sounds.FireSounds, Settings->Volume))
+				{
+					MuzzleFlash->Activate(true);
+					return Fire();
+				}
+
 				return false;
 			}
-
-			MuzzleFlash->Activate(true);
-
-			if (let FireSound = WeaponInfo->Sounds.FireSounds | ERange::Random())
-			{
-				*FireSound | EUSoundBase::Play(GetActorLocation(), Settings->Volume);
-			}
-
-			let Controller = Character->GetCloud9Controller();
-
-			if (not IsValid(Controller))
-			{
-				log(Error, "Can't hit object because player controller isn't valid")
-				return false;
-			}
-
-			FHitResult CursorHit;
-			if (not Controller->GetHitResultUnderCursor(ECC_Visibility, true, CursorHit))
-			{
-				log(Error, "Cursor not hit anything")
-				return true;
-			}
-
-			let StartLocation = MuzzleFlash->GetComponentLocation();
-			let EndLocation = CursorHit.Location;
-
-			FHitResult LineHit;
-			if (not GetWorld()->LineTraceSingleByChannel(LineHit, StartLocation, EndLocation, ECC_Visibility))
-			{
-				log(Error, "LineTraceSingleByChannel not hit anything")
-				return true;
-			}
-
-			let Target = LineHit.Component;
-
-			log(Error, "Target = %s Owner = %s", *Target->GetName(), *Target->GetOwner()->GetName());
-
-			if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
-			{
-				var Direction = LineHit.Location - StartLocation;
-				log(Error, "Direction = %s", *Direction.ToString())
-				Direction.Normalize();
-				Target->AddImpulse(1000.0 * Direction, NAME_None, true);
-			}
-
-			return true;
-		});
+		);
 
 		if (not WeaponInfo->bIsFullAuto)
 		{
@@ -169,4 +122,53 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 		}
 	}
 	else {}
+}
+
+bool ACloud9WeaponFirearm::Fire() const
+{
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
+	{
+		log(Error, "Character is invalid")
+		return false;
+	}
+
+	let Controller = Character->GetCloud9Controller();
+
+	if (not IsValid(Controller))
+	{
+		log(Error, "Can't hit object because player controller isn't valid")
+		return false;
+	}
+
+	FHitResult CursorHit;
+	if (not Controller->GetHitResultUnderCursor(ECC_Visibility, true, CursorHit))
+	{
+		log(Error, "Cursor not hit anything")
+		return true;
+	}
+
+	let StartLocation = MuzzleFlash->GetComponentLocation();
+	let EndLocation = CursorHit.Location;
+
+	FHitResult LineHit;
+	if (not GetWorld()->LineTraceSingleByChannel(LineHit, StartLocation, EndLocation, ECC_Visibility))
+	{
+		log(Error, "LineTraceSingleByChannel not hit anything")
+		return true;
+	}
+
+	let Target = LineHit.Component;
+
+	log(Verbose, "Target = %s Owner = %s", *Target->GetName(), *Target->GetOwner()->GetName());
+
+	if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
+	{
+		var Direction = LineHit.Location - StartLocation;
+		Direction.Normalize();
+		Target->AddImpulse(1000.0 * Direction, NAME_None, true);
+	}
+
+	return true;
 }

@@ -74,55 +74,35 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	WEAPON_IS_INITIALIZED_GUARD();
+	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 
 	static let Settings = UCloud9DeveloperSettings::Get();
 
-	// Check if any other action in progress on this weapon
-	if (IsActionInProgress())
-	{
-		return;
-	}
-
-	let WeaponInfo = WeaponInstance->GetWeaponInfo<FMeleeWeaponInfo>();
 	let Character = GetOwner<ACloud9Character>();
-	let AnimInstance = Character->GetMesh()->GetAnimInstance();
+	let WeaponInfo = WeaponInstance->GetWeaponInfo<FMeleeWeaponInfo>();
 	let PoseMontages = WeaponInstance->GetPoseMontages(Character->bIsCrouched);
 
 	if (bIsPrimaryActionActive)
 	{
-		ExecuteAction(EMeleeAction::Slash, WeaponInfo->SlashCycleTime, [&]
-		{
-			if (not AnimInstance->Montage_Play(PoseMontages->PrimaryActionMontage))
+		ExecuteAction(
+			EMeleeAction::Slash,
+			WeaponInfo->SlashCycleTime, [&]
 			{
-				log(Error, "[Weapon='%s'] Can't play montage", *GetName())
-				return false;
+				return PlayMontage(PoseMontages->PrimaryActionMontage) and
+					PlayRandomSound(WeaponInfo->Sounds.SlashSounds, Settings->Volume);
 			}
-
-			if (let FireSound = WeaponInfo->Sounds.SlashSounds | ERange::Random())
-			{
-				*FireSound | EUSoundBase::Play(GetActorLocation(), Settings->Volume);
-			}
-
-			return true;
-		});
+		);
 	}
 	else if (bIsSecondaryActionActive)
 	{
-		ExecuteAction(EMeleeAction::Slash, WeaponInfo->StabCycleTime, [&]
-		{
-			if (not AnimInstance->Montage_Play(PoseMontages->SecondaryActionMontage))
+		ExecuteAction(
+			EMeleeAction::Slash,
+			WeaponInfo->StabCycleTime, [&]
 			{
-				log(Error, "[Weapon='%s'] Can't play montage", *GetName())
-				return false;
+				return PlayMontage(PoseMontages->SecondaryActionMontage) and
+					PlayRandomSound(WeaponInfo->Sounds.StabSounds, Settings->Volume);
 			}
-
-			if (let FireSound = WeaponInfo->Sounds.StabSounds | ERange::Random())
-			{
-				*FireSound | EUSoundBase::Play(GetActorLocation(), Settings->Volume);
-			}
-
-			return true;
-		});
+		);
 
 		// no auto stab
 		bIsSecondaryActionActive = false;

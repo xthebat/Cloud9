@@ -79,4 +79,53 @@ namespace ETOptional
 
 	template <typename T> requires not std::invocable<T>
 	Get(const T&) -> Get<T>;
+
+	template <typename BlockType>
+	struct OnNull : TOperator<OnNull<BlockType>>
+	{
+	public:
+		constexpr explicit OnNull(BlockType Block) : Block(Block) {}
+
+		template <typename ValueType>
+		constexpr const TOptional<ValueType>& operator()(const TOptional<ValueType>& Self)
+		{
+			if (not Self.IsSet())
+			{
+				Block();
+			}
+
+			return Self;
+		}
+
+	private:
+		BlockType Block;
+	};
+
+	template <typename BlockType>
+	struct OnSet : TOperator<OnSet<BlockType>>
+	{
+	public:
+		constexpr explicit OnSet(BlockType Block) : Block(Block) {}
+
+		template <typename ValueType>
+		constexpr const TOptional<ValueType>& operator()(const TOptional<ValueType>& Self)
+		{
+			if (Self.IsSet())
+			{
+				Block(*Self);
+			}
+
+			return Self;
+		}
+
+	private:
+		BlockType Block;
+	};
+
+	struct IsSet : TOperator<IsSet>
+	{
+	public:
+		template <typename ValueType>
+		constexpr bool operator()(const TOptional<ValueType>& Self) { return Self.IsSet(); }
+	};
 }
