@@ -27,6 +27,9 @@
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
+#include "Cloud9/Tools/Extensions/Range.h"
+#include "Cloud9/Tools/Extensions/TOptional.h"
+#include "Cloud9/Tools/Extensions/USoundBase.h"
 
 const FName ACloud9WeaponBase::RootComponentName = TEXT("RootComponent");
 const FName ACloud9WeaponBase::WeaponMeshCollisionProfile = TEXT("WeaponCollisionProfile");
@@ -73,18 +76,6 @@ void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
 		let CooldownActionComponent = CreateCooldownAction(FName(ComponentName));
 		Executors.Add(CooldownActionComponent);
 	}
-}
-
-void ACloud9WeaponBase::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-	WEAPON_IS_INITIALIZED_GUARD();
-}
-
-void ACloud9WeaponBase::BeginPlay()
-{
-	Super::BeginPlay();
-	WEAPON_IS_INITIALIZED_GUARD();
 }
 
 UStaticMeshComponent* ACloud9WeaponBase::CreateMeshComponent(FName ComponentName, FName SocketName)
@@ -165,6 +156,47 @@ bool ACloud9WeaponBase::InitializeEffectComponent(UNiagaraComponent* Component, 
 
 	Component->SetAsset(Effect);
 	return true;
+}
+
+bool ACloud9WeaponBase::PlayMontage(UAnimMontage* Montage) const
+{
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
+	{
+		log(Error, "[Weapon='%s'] Character is invalid", *GetName());
+		return false;
+	}
+
+	let Mesh = Character->GetMesh();
+
+	if (not IsValid(Mesh))
+	{
+		log(Error, "[Weapon='%s'] Mesh is invalid", *GetName());
+		return false;
+	}
+
+	let AnimInstance = Mesh->GetAnimInstance();
+
+	if (not AnimInstance->Montage_Play(Montage))
+	{
+		log(Error, "[Weapon='%s'] Can't play montage", *GetName());
+		return false;
+	}
+
+	return true;
+}
+
+bool ACloud9WeaponBase::PlayRandomSound(const TArray<USoundBase*>& Sounds, float Volume) const
+{
+	using namespace ERange;
+	using namespace ETOptional;
+
+	return Sounds
+		| Random()
+		| OnNull([&] { log(Error, "[Weapon='%s'] Can't play sound for ", *GetName()) })
+		| OnSet([&](let& It) { It | EUSoundBase::Play(GetActorLocation(), Volume); })
+		| IsSet();
 }
 
 bool ACloud9WeaponBase::IsActionIndexValid(int Index) const

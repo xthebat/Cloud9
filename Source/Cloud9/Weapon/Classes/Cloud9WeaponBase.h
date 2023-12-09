@@ -161,19 +161,27 @@ protected: // functions
 
 	bool InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect) const;
 
+	bool PlayMontage(UAnimMontage* Montage) const;
+	bool PlayRandomSound(const TArray<USoundBase*>& Sounds, float Volume) const;
+
 	bool UpdateWeaponAttachment(
 		EWeaponSlot NewSlot,
 		EWeaponState NewState);
 
 	virtual void OnConstruction(const FTransform& Transform) override;
-	virtual void Tick(float DeltaSeconds) override;
-	virtual void BeginPlay() override;
 
 #define WEAPON_IS_INITIALIZED_GUARD() \
 	if (not IsWeaponInitialized()) \
 	{ \
 		SetActorTickEnabled(false); \
 		log(Error, "[Weapon='%s'] Not initialized and Tick() will be disabled", *GetName()); \
+		return; \
+	}
+
+#define WEAPON_IS_ACTION_IN_PROGRESS_GUARD() \
+	if (IsActionInProgress()) \
+	{ \
+		log(Verbose, "[Weapon='%s'] Action already in progress during Tick", *GetName()); \
 		return; \
 	}
 

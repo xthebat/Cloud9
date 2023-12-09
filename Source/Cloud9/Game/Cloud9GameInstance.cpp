@@ -35,6 +35,12 @@ TOptional<FWeaponInstance> UCloud9GameInstance::GetWeaponInstance(
 	ValidatorType Validator,
 	FName WeaponName) const
 {
+	if (WeaponName.IsNone())
+	{
+		log(Error, "WeaponName is invalid");
+		return {};
+	}
+
 	if (WeaponsInfoTable == nullptr)
 	{
 		log(Error, "WeaponsInfoTable isn't set");
