@@ -24,9 +24,9 @@
 #pragma once
 
 #include "NiagaraComponent.h"
-#include "Cloud9WeaponTableBase.h"
+#include "WeaponTableBase.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
-#include "Cloud9WeaponTableFirearm.generated.h"
+#include "WeaponTableFirearm.generated.h"
 
 class ACloud9WeaponFirearm;
 

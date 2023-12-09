@@ -24,11 +24,12 @@
 #include "Cloud9WeaponMelee.h"
 
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Tools/Extensions/Range.h"
+#include "Cloud9/Tools/Extensions/TOptional.h"
 #include "Cloud9/Tools/Extensions/USoundBase.h"
-#include "Cloud9/Weapon/Enums/Cloud9MeleeActions.h"
-#include "Cloud9/Weapon/Tables/Cloud9WeaponTableMelee.h"
+#include "Cloud9/Weapon/Enums/MeleeActions.h"
+#include "Cloud9/Weapon/Tables/WeaponTableMelee.h"
+#include "Cloud9/Weapon/Structures/WeaponInstance.h"
 
 const FName ACloud9WeaponMelee::WeaponMeshComponentName = TEXT("WeaponMeshComponent");
 
@@ -47,9 +48,32 @@ const UEnum* ACloud9WeaponMelee::GetWeaponActions() const { return StaticEnum<EM
 
 bool ACloud9WeaponMelee::CanBeDropped() const { return false; }
 
+void ACloud9WeaponMelee::OnConstruction(const FTransform& Transform)
+{
+	using namespace ETOptional;
+	using namespace EFWeaponInfo;
+	Super::OnConstruction(Transform);
+	WEAPON_IS_INITIALIZED_GUARD();
+	let MyWeaponInfo = WeaponInstance->GetWeaponInfo<FMeleeWeaponInfo>();
+	let SkinInfo = MyWeaponInfo
+		| GetSkinByName(Skin)
+		| Get([&]
+			{
+				log(Error, "[Weapon='%s'] Skin '%s' not found", *GetName(), *Skin.ToString());
+				return MyWeaponInfo
+					| GetSkinByName()
+					| Get();
+			}
+		);
+
+	InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, SkinInfo);
+}
+
 void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	WEAPON_IS_INITIALIZED_GUARD();
 
 	static let Settings = UCloud9DeveloperSettings::Get();
 
@@ -59,10 +83,10 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		return;
 	}
 
-	let WeaponInfo = GetWeaponInfo<FMeleeWeaponInfo>();
+	let WeaponInfo = WeaponInstance->GetWeaponInfo<FMeleeWeaponInfo>();
 	let Character = GetOwner<ACloud9Character>();
 	let AnimInstance = Character->GetMesh()->GetAnimInstance();
-	let PoseMontages = Montages->GetPoseMontages(Character->bIsCrouched);
+	let PoseMontages = WeaponInstance->GetPoseMontages(Character->bIsCrouched);
 
 	if (bIsPrimaryActionActive)
 	{
@@ -70,7 +94,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		{
 			if (not AnimInstance->Montage_Play(PoseMontages->PrimaryActionMontage))
 			{
-				log(Error, "Can't play montage for '%s'", *Info->Label.ToString())
+				log(Error, "[Weapon='%s'] Can't play montage", *GetName())
 				return false;
 			}
 
@@ -88,7 +112,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		{
 			if (not AnimInstance->Montage_Play(PoseMontages->SecondaryActionMontage))
 			{
-				log(Error, "Can't play montage for '%s'", *Info->Label.ToString())
+				log(Error, "[Weapon='%s'] Can't play montage", *GetName())
 				return false;
 			}
 
@@ -103,12 +127,4 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		// no auto stab
 		bIsSecondaryActionActive = false;
 	}
-}
-
-void ACloud9WeaponMelee::OnConstruction(const FTransform& Transform)
-{
-	Super::OnConstruction(Transform);
-	let MyWeaponInfo = GetWeaponInfo<FMeleeWeaponInfo>();
-	let SkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByName(SkinName);
-	InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, SkinInfo);
 }

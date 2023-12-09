@@ -25,8 +25,8 @@
 
 #include "Engine/DataTable.h"
 #include "Cloud9/Cloud9.h"
-#include "Cloud9/Weapon/Enums/Cloud9WeaponType.h"
-#include "Cloud9WeaponTableBase.generated.h"
+#include "Cloud9/Weapon/Enums/WeaponType.h"
+#include "WeaponTableBase.generated.h"
 
 USTRUCT(BlueprintType)
 struct FWeaponSkin
@@ -90,16 +90,21 @@ namespace EFWeaponInfo
 {
 	struct GetSkinByName : TOperator<GetSkinByName>
 	{
-		explicit GetSkinByName(FName SkinName = FWeaponSkin::Default) : SkinName(SkinName) { }
+		explicit GetSkinByName(FName SkinName = FWeaponSkin::Default) : SkinName(SkinName) {}
 
 		template <typename WeaponInfoType>
 		TOptional<FWeaponSkin> operator()(WeaponInfoType Self) const
 		{
 			let Skin = Self->Skins.FindByPredicate([this](let& It) { return It.Name == SkinName; });
 
-			if (not Skin and SkinName == FWeaponSkin::Default)
+			if (Skin == nullptr)
 			{
-				log(Fatal, "Can't get default skin");
+				if (SkinName == FWeaponSkin::Default)
+				{
+					// Crash if have no even default skin
+					log(Fatal, "Can't get default skin");
+				}
+
 				return {};
 			}
 

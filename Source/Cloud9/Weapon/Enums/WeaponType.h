@@ -24,10 +24,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "Cloud9/Tools/Extensions/FName.h"
 #include "Cloud9/Tools/Extensions/UEnum.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
-#include "Cloud9WeaponType.generated.h"
+#include "WeaponType.generated.h"
 
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
@@ -52,7 +52,7 @@ enum class EWeaponType : uint8
  * Function to work with EWeaponType.
  */
 UCLASS()
-class CLOUD9_API UCloud9WeaponType : public UBlueprintFunctionLibrary
+class CLOUD9_API UWeaponType : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 

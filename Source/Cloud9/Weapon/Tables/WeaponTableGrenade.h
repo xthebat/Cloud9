@@ -24,9 +24,9 @@
 #pragma once
 
 #include "NiagaraComponent.h"
-#include "Cloud9WeaponTableBase.h"
+#include "Cloud9/Weapon/Tables/WeaponTableBase.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponGrenade.h"
-#include "Cloud9WeaponTableGrenade.generated.h"
+#include "WeaponTableGrenade.generated.h"
 
 
 USTRUCT(BlueprintType)

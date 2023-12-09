@@ -23,9 +23,8 @@
 
 #pragma once
 
-#include "Cloud9WeaponTableBase.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponMelee.h"
-#include "Cloud9WeaponTableMelee.generated.h"
+#include "WeaponTableMelee.generated.h"
 
 USTRUCT(BlueprintType)
 struct FMeleeWeaponSounds

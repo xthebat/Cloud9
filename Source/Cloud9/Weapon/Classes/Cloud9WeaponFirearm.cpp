@@ -23,16 +23,16 @@
 
 #include "Cloud9WeaponFirearm.h"
 
-#include "DrawDebugHelpers.h"
 #include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Tools/Extensions/Range.h"
+#include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
-#include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
-#include "Cloud9/Tools/Extensions/USoundBase.h"
-#include "Cloud9/Weapon/Enums/Cloud9FirearmActions.h"
-#include "Cloud9/Weapon/Tables/Cloud9WeaponTableFirearm.h"
+#include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Tools/Extensions/TOptional.h"
+#include "Cloud9/Weapon/Enums/FirearmActions.h"
+#include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
 
 const FName ACloud9WeaponFirearm::WeaponMeshComponentName = TEXT("WeaponMeshComponent");
 const FName ACloud9WeaponFirearm::MagazineMeshComponentName = TEXT("MagazineMeshComponent");
@@ -68,9 +68,21 @@ const UEnum* ACloud9WeaponFirearm::GetWeaponActions() const { return StaticEnum<
 
 void ACloud9WeaponFirearm::OnConstruction(const FTransform& Transform)
 {
+	using namespace ETOptional;
+	using namespace EFWeaponInfo;
 	Super::OnConstruction(Transform);
-	let MyWeaponInfo = GetWeaponInfo<FFirearmWeaponInfo>();
-	let SkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByName(SkinName);
+	WEAPON_IS_INITIALIZED_GUARD();
+	let MyWeaponInfo = WeaponInstance->GetWeaponInfo<FFirearmWeaponInfo>();
+	let SkinInfo = MyWeaponInfo
+		| GetSkinByName(Skin)
+		| Get([&]
+			{
+				log(Error, "[Weapon='%s'] Skin '%s' not found", *GetName(), *Skin.ToString());
+				return MyWeaponInfo
+					| GetSkinByName()
+					| Get();
+			}
+		);
 	InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, SkinInfo);
 	InitializeMeshComponent(MagazineMesh, MyWeaponInfo->MagazineModel, SkinInfo);
 	InitializeEffectComponent(MuzzleFlash, MyWeaponInfo->Effects.MuzzleFlash);
@@ -80,6 +92,8 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	WEAPON_IS_INITIALIZED_GUARD();
+
 	static let Settings = UCloud9DeveloperSettings::Get();
 
 	if (IsActionInProgress())
@@ -87,22 +101,22 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 		return;
 	}
 
-	let WeaponInfo = GetWeaponInfo<FFirearmWeaponInfo>();
+	let WeaponInfo = WeaponInstance->GetWeaponInfo<FFirearmWeaponInfo>();
 	let Character = GetOwner<ACloud9Character>();
 	let AnimInstance = Character->GetMesh()->GetAnimInstance();
-	let PoseMontages = Montages->GetPoseMontages(Character->bIsCrouched);
+	let PoseMontages = WeaponInstance->GetPoseMontages(Character->bIsCrouched);
 
 	if (bIsPrimaryActionActive)
 	{
 		ExecuteAction(EFirearmAction::Fire, WeaponInfo->CycleTime, [&]
 		{
-			MuzzleFlash->Activate(true);
-
 			if (not AnimInstance->Montage_Play(PoseMontages->PrimaryActionMontage))
 			{
-				log(Error, "Can't play montage for '%s'", *Info->Label.ToString())
+				log(Error, "[Weapon='%s'] Can't play montage for ", *GetName());
 				return false;
 			}
+
+			MuzzleFlash->Activate(true);
 
 			if (let FireSound = WeaponInfo->Sounds.FireSounds | ERange::Random())
 			{
@@ -128,17 +142,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			let EndLocation = CursorHit.Location;
 
 			FHitResult LineHit;
-			FCollisionQueryParams TraceParams(FName(TEXT("LineTraceSingle")), true);
-
-			let bHit = GetWorld()->LineTraceSingleByChannel(
-				LineHit,
-				StartLocation,
-				EndLocation,
-				ECC_Visibility,
-				TraceParams
-			);
-
-			if (not bHit)
+			if (not GetWorld()->LineTraceSingleByChannel(LineHit, StartLocation, EndLocation, ECC_Visibility))
 			{
 				log(Error, "LineTraceSingleByChannel not hit anything")
 				return true;
@@ -164,5 +168,5 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			bIsPrimaryActionActive = false;
 		}
 	}
-	else { }
+	else {}
 }

@@ -28,16 +28,13 @@
 #include "GameFramework/Actor.h"
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
-#include "Cloud9/Weapon/Enums/Cloud9WeaponClass.h"
-#include "Cloud9/Weapon/Enums/Cloud9WeaponSlot.h"
-#include "Cloud9/Weapon/Enums/Cloud9WeaponState.h"
-#include "Cloud9/Weapon/Enums/Cloud9WeaponType.h"
-#include "Cloud9/Weapon/Tables/Cloud9WeaponTableBase.h"
+#include "Cloud9/Weapon/Enums/WeaponState.h"
+#include "Cloud9/Weapon/Structures/WeaponInstance.h"
 #include "Cloud9WeaponBase.generated.h"
 
 class UCloud9Inventory;
-struct FWeaponPosesMontages;
 
 UCLASS()
 class CLOUD9_API ACloud9WeaponBase : public AActor
@@ -67,26 +64,24 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EWeaponType GetWeaponType() const;
 
-	template <typename TWeaponInfo>
-	bool Initialize(
-		const TWeaponInfo* NewWeaponInfo,
-		const FWeaponPosesMontages* NewWeaponMontages,
-		FName NewSkinName)
+	template <typename WeaponNameType>
+	bool OnSpawn(WeaponNameType WeaponName, FName WeaponSkin = FWeaponSkin::Default)
 	{
-		assertf(not bIsInitialized, "Weapon '%ls' already initialized!", *Info->Label.ToString());
-		bIsInitialized = true;
-		Montages = NewWeaponMontages;
-		Info = NewWeaponInfo;
-		SkinName = NewSkinName;
+		assertf(Name.IsNone(), "Weapon '%ls' already initialized!", *GetName());
+
+		Name = WeaponName | EUEnum::GetValueName();
+
+		if (Name.IsNone())
+		{
+			log(Error, "Can't get weapon identifier name");
+			return false;
+		}
+
+		Skin = WeaponSkin;
 		return true;
 	}
 
-	template <typename WeaponInfoType>
-	const WeaponInfoType* GetWeaponInfo() const
-	{
-		// All checks are done in OnConstruction
-		return static_cast<const WeaponInfoType*>(Info);
-	}
+	bool IsWeaponInitialized() const { return WeaponInstance.IsSet(); }
 
 	bool AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot);
 	bool RemoveFromInventory();
@@ -161,7 +156,7 @@ protected: // functions
 	bool InitializeMeshComponent(
 		UStaticMeshComponent* Component,
 		UStaticMesh* Mesh,
-		TOptional<FWeaponSkin> SkinInfo
+		const FWeaponSkin& SkinInfo
 	) const;
 
 	bool InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect) const;
@@ -171,31 +166,34 @@ protected: // functions
 		EWeaponState NewState);
 
 	virtual void OnConstruction(const FTransform& Transform) override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
+
+#define WEAPON_IS_INITIALIZED_GUARD() \
+	if (not IsWeaponInitialized()) \
+	{ \
+		SetActorTickEnabled(false); \
+		log(Error, "[Weapon='%s'] Not initialized and Tick() will be disabled", *GetName()); \
+		return; \
+	}
 
 protected: // properties
 	/**
-	 * Flag sets to true on spawn through GameInstance spawners
-	 * i.e. properties Montages and Info setups to valid values
+	 * Current weapon identifier
 	 */
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
-	bool bIsInitialized;
-
-	/**
-	 * Base weapon info 
-	 */
-	const FBaseWeaponInfo* Info;
-
-	/**
-	 * Weapon montages
-	 */
-	const FWeaponPosesMontages* Montages;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta=(AllowPrivateAccess))
+	FName Name;
 
 	/**
 	 * Current weapon skin name
 	 */
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
-	FName SkinName;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta=(AllowPrivateAccess))
+	FName Skin;
+
+	/**
+	 * Weapon cumulative data
+	 */
+	TOptional<FWeaponInstance> WeaponInstance;
 
 	/**
 	 * Current weapon slot (main/pistol/knife/grenade)
