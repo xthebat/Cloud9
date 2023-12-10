@@ -40,6 +40,14 @@ public:
 public:
 	ACloud9WeaponMelee();
 
+	bool OnSpawn(EMelee WeaponName, FName WeaponSkin = FWeaponSkin::Default)
+	{
+		Name = WeaponName;
+		Skin = WeaponSkin;
+		return true;
+	}
+
+	virtual FName GetWeaponName() const override;
 	virtual EWeaponClass GetWeaponClass() const override;
 	virtual const UEnum* GetWeaponActions() const override;
 	virtual bool CanBeDropped() const override;
@@ -49,6 +57,12 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 
 protected:
+	/**
+	 * Weapon Identifier
+	 */
+	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
+	EMelee Name;
+
 	/**
 	 * Weapon mesh
 	 */

@@ -25,7 +25,6 @@
 
 #include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Tools/Extensions/TOptional.h"
@@ -59,6 +58,8 @@ ACloud9WeaponFirearm::ACloud9WeaponFirearm()
 		return;
 	}
 }
+
+FName ACloud9WeaponFirearm::GetWeaponName() const { return Name | EUEnum::GetValueName(); }
 
 EWeaponClass ACloud9WeaponFirearm::GetWeaponClass() const { return EWeaponClass::Firearm; }
 

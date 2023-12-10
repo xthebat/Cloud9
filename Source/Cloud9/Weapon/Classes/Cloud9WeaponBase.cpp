@@ -75,7 +75,7 @@ void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
 		return;
 	}
 
-	WeaponDefinition = WeaponDefinitionsAsset->GetWeaponDefinition(GetWeaponClass(), Name);
+	WeaponDefinition = WeaponDefinitionsAsset->GetWeaponDefinition(GetWeaponClass(), GetWeaponName());
 
 	if (not IsWeaponInitialized())
 	{
@@ -431,6 +431,12 @@ bool ACloud9WeaponBase::ChangeActionFlag(bool Flag, bool bIsReleased)
 	}
 
 	return Flag;
+}
+
+FName ACloud9WeaponBase::GetWeaponName() const
+{
+	log(Fatal, "[Weapon='%s'] Weapon name wasn't override", *GetName())
+	return NAME_None;
 }
 
 EWeaponType ACloud9WeaponBase::GetWeaponType() const
