@@ -25,60 +25,10 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "Cloud9/Weapon/Enums/WeaponClass.h"
-#include "Cloud9/Weapon/Tables/WeaponMontages.h"
-#include "Cloud9/Weapon/Structures/WeaponInstance.h"
 #include "Cloud9GameInstance.generated.h"
-
-class UDataTable;
-class ACloud9Character;
-class ACloud9WeaponMelee;
-class ACloud9WeaponGrenade;
-class ACloud9WeaponFirearm;
 
 UCLASS()
 class CLOUD9_API UCloud9GameInstance : public UGameInstance
 {
 	GENERATED_BODY()
-
-public: // functions
-	TOptional<FWeaponInstance> GetWeaponInstance(EWeaponClass WeaponClass, FName WeaponName) const;
-
-protected: // properties
-	/**
-	 * Weapon info table for firearms
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
-	UDataTable* FirearmsWeaponsInfoTable;
-
-	/**
-	 * Weapon info table for melee
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
-	UDataTable* MeleeWeaponsInfoTable;
-
-	/**
-	 * Weapon info table for grenades
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
-	UDataTable* GrenadeWeaponInfoTable;
-
-	/**
-	 * Weapon montages for different types
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
-	TMap<EWeaponType, FWeaponPosesMontages> WeaponActionMontages;
-
-	/**
-	 * Weapon tracer
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
-	UParticleSystem* FirearmTracer;
-
-private:
-	template <class WeaponInfoType, class ValidatorType>
-	FORCEINLINE TOptional<FWeaponInstance> GetWeaponInstance(
-		UDataTable* WeaponsInfoTable,
-		ValidatorType Validator,
-		FName WeaponName) const;
 };

@@ -28,10 +28,11 @@
 #include "GameFramework/Actor.h"
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
+#include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
+#include "Cloud9/Weapon/Enums/WeaponClass.h"
 #include "Cloud9/Weapon/Enums/WeaponState.h"
-#include "Cloud9/Weapon/Structures/WeaponInstance.h"
+#include "Cloud9/Weapon/Structures/WeaponDefinition.h"
 #include "Cloud9WeaponBase.generated.h"
 
 class UCloud9Inventory;
@@ -81,7 +82,7 @@ public:
 		return true;
 	}
 
-	bool IsWeaponInitialized() const { return WeaponInstance.IsSet(); }
+	bool IsWeaponInitialized() const { return WeaponDefinition.IsSet(); }
 
 	bool AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot);
 	bool RemoveFromInventory();
@@ -148,6 +149,8 @@ protected: // functions
 	 */
 	virtual void OnWeaponRemovedFromInventory();
 
+	static UWeaponDefinitionsAsset* GetWeaponDefinitionsAsset();
+
 	static bool ChangeActionFlag(bool Flag, bool bIsReleased);
 
 	UStaticMeshComponent* CreateMeshComponent(FName ComponentName, FName SocketName = NAME_None);
@@ -173,7 +176,6 @@ protected: // functions
 #define WEAPON_IS_INITIALIZED_GUARD() \
 	if (not IsWeaponInitialized()) \
 	{ \
-		SetActorTickEnabled(false); \
 		log(Error, "[Weapon='%s'] Not initialized and Tick() will be disabled", *GetName()); \
 		return; \
 	}
@@ -201,7 +203,7 @@ protected: // properties
 	/**
 	 * Weapon cumulative data
 	 */
-	TOptional<FWeaponInstance> WeaponInstance;
+	TOptional<FWeaponDefinition> WeaponDefinition;
 
 	/**
 	 * Current weapon slot (main/pistol/knife/grenade)
