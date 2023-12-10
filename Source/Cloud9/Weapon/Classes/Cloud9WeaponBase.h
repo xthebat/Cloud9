@@ -173,6 +173,8 @@ protected: // functions
 		return; \
 	}
 
+	bool IsActionIndexValid(int Index) const;
+
 protected: // properties
 	/**
 	 * Current weapon skin name
@@ -216,7 +218,6 @@ private:
 		return static_cast<int>(WeaponAction) - 1;
 	}
 
-	FORCEINLINE bool IsActionIndexValid(int Index) const;
 
 	UCooldownActionComponent* CreateCooldownAction(FName ComponentName);
 
