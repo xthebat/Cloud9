@@ -54,6 +54,9 @@ public:
 	ACloud9WeaponBase();
 
 	UFUNCTION(BlueprintCallable)
+	virtual FName GetWeaponName() const;
+
+	UFUNCTION(BlueprintCallable)
 	virtual EWeaponClass GetWeaponClass() const;
 
 	UFUNCTION(BlueprintCallable)
@@ -64,23 +67,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	EWeaponType GetWeaponType() const;
-
-	template <typename WeaponNameType>
-	bool OnSpawn(WeaponNameType WeaponName, FName WeaponSkin = FWeaponSkin::Default)
-	{
-		assertf(Name.IsNone(), "Weapon '%ls' already initialized!", *GetName());
-
-		Name = WeaponName | EUEnum::GetValueName();
-
-		if (Name.IsNone())
-		{
-			log(Error, "Can't get weapon identifier name");
-			return false;
-		}
-
-		Skin = WeaponSkin;
-		return true;
-	}
 
 	bool IsWeaponInitialized() const { return WeaponDefinition.IsSet(); }
 
@@ -176,7 +162,7 @@ protected: // functions
 #define WEAPON_IS_INITIALIZED_GUARD() \
 	if (not IsWeaponInitialized()) \
 	{ \
-		log(Error, "[Weapon='%s'] Not initialized and Tick() will be disabled", *GetName()); \
+		log(Error, "[Weapon='%s'] Not initialized", *GetName()); \
 		return; \
 	}
 
@@ -189,15 +175,9 @@ protected: // functions
 
 protected: // properties
 	/**
-	 * Current weapon identifier
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta=(AllowPrivateAccess))
-	FName Name;
-
-	/**
 	 * Current weapon skin name
 	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, EditDefaultsOnly, meta=(AllowPrivateAccess))
 	FName Skin;
 
 	/**
@@ -208,13 +188,13 @@ protected: // properties
 	/**
 	 * Current weapon slot (main/pistol/knife/grenade)
 	 */
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	EWeaponSlot Slot;
 
 	/**
 	 * Current weapon state (armed/holstered/dropped)
 	 */
-	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	EWeaponState State;
 
 	/**

@@ -42,6 +42,8 @@ ACloud9WeaponMelee::ACloud9WeaponMelee()
 	}
 }
 
+FName ACloud9WeaponMelee::GetWeaponName() const { return Name | EUEnum::GetValueName(); }
+
 EWeaponClass ACloud9WeaponMelee::GetWeaponClass() const { return EWeaponClass::Melee; }
 
 const UEnum* ACloud9WeaponMelee::GetWeaponActions() const { return StaticEnum<EMeleeAction>(); }

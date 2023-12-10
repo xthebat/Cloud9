@@ -47,6 +47,14 @@ public:
 
 	ACloud9WeaponFirearm();
 
+	bool OnSpawn(EFirearm WeaponName, FName WeaponSkin = FWeaponSkin::Default)
+	{
+		Name = WeaponName;
+		Skin = WeaponSkin;
+		return true;
+	}
+
+	virtual FName GetWeaponName() const override;
 	virtual EWeaponClass GetWeaponClass() const override;
 	virtual const UEnum* GetWeaponActions() const override;
 
@@ -56,6 +64,12 @@ protected:
 	bool Fire() const;
 
 protected: // properties
+	/**
+	 * Weapon Identifier
+	 */
+	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
+	EFirearm Name;
+
 	/**
 	 * Weapon mesh
 	 */

@@ -48,13 +48,13 @@ void UCloud9Inventory::BeginPlay()
 	if (let MyOwner = GetOwner<ACloud9Character>(); IsValid(MyOwner))
 	{
 		let DefaultKnife = GetWorld() | EUWorld::SpawnActor<ACloud9WeaponMelee>(
-			[this](let It)
-			{
-				return It->OnSpawn(DefaultKnifeName, FWeaponSkin::Lore);
-			});
+			[this](let It) { return It->OnSpawn(DefaultKnifeName, FWeaponSkin::Lore); });
 
 		let DefaultPistol = GetWorld() | EUWorld::SpawnActor<ACloud9WeaponFirearm>(
 			[this](let It) { return It->OnSpawn(DefaultPistolName, FWeaponSkin::OceanDrive); });
+
+		let DefaultMain = GetWorld() | EUWorld::SpawnActor<ACloud9WeaponFirearm>(
+			[this](let It) { return It->OnSpawn(EFirearm::Ak47); });
 
 		if (not ShoveWeapon(EWeaponSlot::Knife, DefaultKnife))
 		{
@@ -63,6 +63,12 @@ void UCloud9Inventory::BeginPlay()
 		}
 
 		if (not ShoveWeapon(EWeaponSlot::Pistol, DefaultPistol))
+		{
+			log(Error, "Can't shove default pistol into inventory");
+			return;
+		}
+
+		if (not ShoveWeapon(EWeaponSlot::Main, DefaultMain))
 		{
 			log(Error, "Can't shove default pistol into inventory");
 			return;
