@@ -68,9 +68,18 @@ void ACloud9WeaponFirearm::OnConstruction(const FTransform& Transform)
 {
 	using namespace ETOptional;
 	using namespace EFWeaponInfo;
+
 	Super::OnConstruction(Transform);
-	WEAPON_IS_INITIALIZED_GUARD();
-	let MyWeaponInfo = WeaponInstance->GetWeaponInfo<FFirearmWeaponInfo>();
+
+	if (not IsWeaponInitialized())
+	{
+		WeaponMesh->SetStaticMesh(nullptr);
+		MagazineMesh->SetStaticMesh(nullptr);
+		MuzzleFlash->SetAsset(nullptr);
+		return;
+	}
+
+	let MyWeaponInfo = WeaponDefinition->GetWeaponInfo<FFirearmWeaponInfo>();
 	let SkinInfo = MyWeaponInfo
 		| GetSkinByName(Skin)
 		| Get([&]
@@ -81,6 +90,7 @@ void ACloud9WeaponFirearm::OnConstruction(const FTransform& Transform)
 					| Get();
 			}
 		);
+
 	InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, SkinInfo);
 	InitializeMeshComponent(MagazineMesh, MyWeaponInfo->MagazineModel, SkinInfo);
 	InitializeEffectComponent(MuzzleFlash, MyWeaponInfo->Effects.MuzzleFlash);
@@ -96,8 +106,8 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	static let Settings = UCloud9DeveloperSettings::Get();
 
 	let Character = GetOwner<ACloud9Character>();
-	let WeaponInfo = WeaponInstance->GetWeaponInfo<FFirearmWeaponInfo>();
-	let PoseMontages = WeaponInstance->GetPoseMontages(Character->bIsCrouched);
+	let WeaponInfo = WeaponDefinition->GetWeaponInfo<FFirearmWeaponInfo>();
+	let PoseMontages = WeaponDefinition->GetPoseMontages(Character->bIsCrouched);
 
 	if (bIsPrimaryActionActive)
 	{

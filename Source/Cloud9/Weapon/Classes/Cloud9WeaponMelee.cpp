@@ -26,10 +26,10 @@
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Tools/Extensions/Range.h"
 #include "Cloud9/Tools/Extensions/TOptional.h"
-#include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Enums/MeleeActions.h"
+#include "Cloud9/Weapon/Enums/WeaponClass.h"
 #include "Cloud9/Weapon/Tables/WeaponTableMelee.h"
-#include "Cloud9/Weapon/Structures/WeaponInstance.h"
+#include "Cloud9/Weapon/Structures/WeaponDefinition.h"
 
 const FName ACloud9WeaponMelee::WeaponMeshComponentName = TEXT("WeaponMeshComponent");
 
@@ -52,9 +52,16 @@ void ACloud9WeaponMelee::OnConstruction(const FTransform& Transform)
 {
 	using namespace ETOptional;
 	using namespace EFWeaponInfo;
+
 	Super::OnConstruction(Transform);
-	WEAPON_IS_INITIALIZED_GUARD();
-	let MyWeaponInfo = WeaponInstance->GetWeaponInfo<FMeleeWeaponInfo>();
+
+	if (not IsWeaponInitialized())
+	{
+		WeaponMesh->SetStaticMesh(nullptr);
+		return;
+	}
+
+	let MyWeaponInfo = WeaponDefinition->GetWeaponInfo<FMeleeWeaponInfo>();
 	let SkinInfo = MyWeaponInfo
 		| GetSkinByName(Skin)
 		| Get([&]
@@ -79,8 +86,8 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	static let Settings = UCloud9DeveloperSettings::Get();
 
 	let Character = GetOwner<ACloud9Character>();
-	let WeaponInfo = WeaponInstance->GetWeaponInfo<FMeleeWeaponInfo>();
-	let PoseMontages = WeaponInstance->GetPoseMontages(Character->bIsCrouched);
+	let WeaponInfo = WeaponDefinition->GetWeaponInfo<FMeleeWeaponInfo>();
+	let PoseMontages = WeaponDefinition->GetPoseMontages(Character->bIsCrouched);
 
 	if (bIsPrimaryActionActive)
 	{

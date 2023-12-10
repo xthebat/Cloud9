@@ -23,6 +23,7 @@
 
 #include "Cloud9WeaponGrenade.h"
 
+#include "Cloud9/Weapon/Enums/WeaponClass.h"
 #include "Cloud9/Weapon/Enums/GrenadeActions.h"
 
 ACloud9WeaponGrenade::ACloud9WeaponGrenade() {}

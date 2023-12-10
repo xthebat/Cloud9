@@ -24,12 +24,14 @@
 #include "Cloud9WeaponBase.h"
 
 #include "Cloud9/Cloud9.h"
-#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Game/Cloud9AssetManager.h"
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
 #include "Cloud9/Tools/Extensions/Range.h"
 #include "Cloud9/Tools/Extensions/TOptional.h"
 #include "Cloud9/Tools/Extensions/USoundBase.h"
+#include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
+#include "Cloud9/Weapon/Enums/WeaponClass.h"
 
 const FName ACloud9WeaponBase::RootComponentName = TEXT("RootComponent");
 const FName ACloud9WeaponBase::WeaponMeshCollisionProfile = TEXT("WeaponCollisionProfile");
@@ -47,6 +49,14 @@ ACloud9WeaponBase::ACloud9WeaponBase()
 
 	bIsPrimaryActionActive = false;
 	bIsSecondaryActionActive = false;
+
+	SetActorTickEnabled(false);
+}
+
+UWeaponDefinitionsAsset* ACloud9WeaponBase::GetWeaponDefinitionsAsset()
+{
+	let WeaponDefinitionsAsset = UCloud9AssetManager::GetOrLoadAssetSync<UWeaponDefinitionsAsset>();
+	return IsValid(WeaponDefinitionsAsset) ? WeaponDefinitionsAsset : nullptr;
 }
 
 void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
@@ -57,9 +67,21 @@ void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
 	static_assert(AnyActionId == 0);
 	static_assert(AnyActionIndex == -1);
 
-	WeaponInstance = GetGameInstance<UCloud9GameInstance>()->GetWeaponInstance(GetWeaponClass(), Name);
+	let WeaponDefinitionsAsset = GetWeaponDefinitionsAsset();
 
-	WEAPON_IS_INITIALIZED_GUARD();
+	if (not WeaponDefinitionsAsset)
+	{
+		log(Error, "[Weapon='%s'] WeaponDefinitionsAsset not loaded", *GetName());
+		return;
+	}
+
+	WeaponDefinition = WeaponDefinitionsAsset->GetWeaponDefinition(GetWeaponClass(), Name);
+
+	if (not IsWeaponInitialized())
+	{
+		log(Error, "[Weapon='%s'] Not initialized and Tick() will be disabled", *GetName());
+		return;
+	}
 
 	let Actions = GetWeaponActions();
 
@@ -76,6 +98,8 @@ void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
 		let CooldownActionComponent = CreateCooldownAction(FName(ComponentName));
 		Executors.Add(CooldownActionComponent);
 	}
+
+	SetActorTickEnabled(true);
 }
 
 UStaticMeshComponent* ACloud9WeaponBase::CreateMeshComponent(FName ComponentName, FName SocketName)
@@ -411,8 +435,8 @@ bool ACloud9WeaponBase::ChangeActionFlag(bool Flag, bool bIsReleased)
 
 EWeaponType ACloud9WeaponBase::GetWeaponType() const
 {
-	assertf(WeaponInstance.IsSet(), "[Weapon='%ls'] Not initialized", *GetName());
-	return WeaponInstance->GetWeaponInfo()->Type;
+	assertf(WeaponDefinition.IsSet(), "[Weapon='%ls'] Not initialized", *GetName());
+	return WeaponDefinition->GetWeaponInfo()->Type;
 }
 
 EWeaponClass ACloud9WeaponBase::GetWeaponClass() const
