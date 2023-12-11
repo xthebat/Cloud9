@@ -202,6 +202,12 @@ bool ACloud9WeaponBase::PlayMontage(UAnimMontage* Montage) const
 
 	let AnimInstance = Mesh->GetAnimInstance();
 
+	if (not IsValid(AnimInstance))
+	{
+		log(Error, "[Weapon='%s'] AnimInstance is invalid", *GetName());
+		return false;
+	}
+
 	if (not AnimInstance->Montage_Play(Montage))
 	{
 		log(Error, "[Weapon='%s'] Can't play montage", *GetName());
@@ -368,6 +374,9 @@ bool ACloud9WeaponBase::RemoveFromInventory()
 	Slot = EWeaponSlot::NotSelected;
 	State = EWeaponState::Dropped;
 
+	bIsPrimaryActionActive = false;
+	bIsSecondaryActionActive = false;
+
 	DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
 	SetOwner(nullptr);
 
@@ -388,6 +397,12 @@ bool ACloud9WeaponBase::ChangeState(EWeaponState NewState)
 	{
 		log(Warning, "[Weapon='%s' State='%s'] Weapon state will remain the same", *GetName(), STATE_NAME);
 		return false;
+	}
+
+	if (NewState != EWeaponState::Armed)
+	{
+		bIsPrimaryActionActive = false;
+		bIsSecondaryActionActive = false;
 	}
 
 	UpdateWeaponAttachment(Slot, NewState);

@@ -83,6 +83,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	WEAPON_IS_INITIALIZED_GUARD();
+	WEAPON_IS_DISARMED_GUARD();
 	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 
 	static let Settings = UCloud9DeveloperSettings::Get();
@@ -93,9 +94,10 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 
 	if (bIsPrimaryActionActive)
 	{
+		let Cooldown = FMath::Max(WeaponInfo->SlashCycleTime, PoseMontages->PrimaryActionMontage->GetPlayLength());
 		ExecuteAction(
 			EMeleeAction::Slash,
-			WeaponInfo->SlashCycleTime, [&]
+			Cooldown, [&]
 			{
 				return PlayMontage(PoseMontages->PrimaryActionMontage) and
 					PlayRandomSound(WeaponInfo->Sounds.SlashSounds, Settings->Volume);
@@ -104,9 +106,10 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	}
 	else if (bIsSecondaryActionActive)
 	{
+		let Cooldown = FMath::Max(WeaponInfo->StabCycleTime, PoseMontages->PrimaryActionMontage->GetPlayLength());
 		ExecuteAction(
 			EMeleeAction::Slash,
-			WeaponInfo->StabCycleTime, [&]
+			Cooldown, [&]
 			{
 				return PlayMontage(PoseMontages->SecondaryActionMontage) and
 					PlayRandomSound(WeaponInfo->Sounds.StabSounds, Settings->Volume);

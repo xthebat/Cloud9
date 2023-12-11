@@ -118,6 +118,9 @@ public:
 		return false;
 	}
 
+	FORCEINLINE bool IsWeaponArmed() const { return State == EWeaponState::Armed; }
+	FORCEINLINE bool IsWeaponDisarmed() const { return State != EWeaponState::Armed; }
+
 	virtual void PrimaryAction(bool bIsReleased);
 	virtual void SecondaryAction(bool bIsReleased);
 	virtual void Reload();
@@ -170,6 +173,12 @@ protected: // functions
 	if (IsActionInProgress()) \
 	{ \
 		log(Verbose, "[Weapon='%s'] Action already in progress during Tick", *GetName()); \
+		return; \
+	}
+
+#define WEAPON_IS_DISARMED_GUARD() \
+	if (IsWeaponDisarmed()) \
+	{ \
 		return; \
 	}
 

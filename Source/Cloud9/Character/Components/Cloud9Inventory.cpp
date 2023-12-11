@@ -89,6 +89,12 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 		return false;
 	}
 
+	if (IsWeaponChanging())
+	{
+		log(Verbose, "[Weapon='%s'] Switching already in progress", *GetName());
+		return false;
+	}
+
 	if (Slot != SelectedWeaponSlot)
 	{
 		if (let Character = GetOwner<ACloud9Character>(); IsValid(Character))
@@ -101,8 +107,20 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 				return false;
 			}
 
-			if (let SelectedWeapon = GetWeaponAt(SelectedWeaponSlot))
+			if (PendingWeapon->IsActionInProgress())
 			{
+				log(Verbose, "[Weapon='%s'] Other action in progress", *GetName());
+				return false;
+			}
+
+			if (let SelectedWeapon = GetWeaponAt(SelectedWeaponSlot); IsValid(SelectedWeapon))
+			{
+				if (SelectedWeapon->IsActionInProgress())
+				{
+					log(Verbose, "[Weapon='%s'] Other action in progress", *GetName());
+					return false;
+				}
+
 				SelectedWeapon->ChangeState(EWeaponState::Holstered);
 			}
 
