@@ -102,6 +102,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	WEAPON_IS_INITIALIZED_GUARD();
+	WEAPON_IS_DISARMED_GUARD();
 	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 
 	static let Settings = UCloud9DeveloperSettings::Get();
@@ -112,9 +113,10 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 	if (bIsPrimaryActionActive)
 	{
+		let Cooldown = FMath::Max(WeaponInfo->CycleTime, PoseMontages->PrimaryActionMontage->GetPlayLength());
 		ExecuteAction(
 			EFirearmAction::Fire,
-			WeaponInfo->CycleTime, [&]
+			Cooldown, [&]
 			{
 				if (PlayMontage(PoseMontages->PrimaryActionMontage) and
 					PlayRandomSound(WeaponInfo->Sounds.FireSounds, Settings->Volume))
