@@ -95,42 +95,38 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 		return false;
 	}
 
-	if (Slot != SelectedWeaponSlot)
+	if (Slot == SelectedWeaponSlot)
 	{
-		if (let Character = GetOwner<ACloud9Character>(); IsValid(Character))
+		log(Verbose, "[Weapon='%s'] No switching will be performed", *GetName());
+		return false;
+	}
+
+	let PendingWeapon = GetWeaponAt(Slot);
+
+	if (not IsValid(PendingWeapon))
+	{
+		log(Verbose, "[Weapon='%s'] Weapon at slot='%d' not set", *GetName(), Slot);
+		return false;
+	}
+
+	if (SelectedWeaponSlot == EWeaponSlot::NotSelected)
+	{
+		if (PendingWeapon->ChangeState(EWeaponState::Armed))
 		{
-			let PendingWeapon = GetWeaponAt(Slot);
-
-			if (not PendingWeapon)
-			{
-				log(Verbose, "Weapon at slot='%d' not set", Slot);
-				return false;
-			}
-
-			if (PendingWeapon->IsActionInProgress())
-			{
-				log(Verbose, "[Weapon='%s'] Other action in progress", *GetName());
-				return false;
-			}
-
-			if (let SelectedWeapon = GetWeaponAt(SelectedWeaponSlot); IsValid(SelectedWeapon))
-			{
-				if (SelectedWeapon->IsActionInProgress())
-				{
-					log(Verbose, "[Weapon='%s'] Other action in progress", *GetName());
-					return false;
-				}
-
-				SelectedWeapon->ChangeState(EWeaponState::Holstered);
-			}
-
-			PendingWeapon->ChangeState(EWeaponState::Armed);
 			PendingWeaponSlot = Slot;
 			return true;
 		}
 
-		log(Error, "Inventory owner wasn't set");
+		log(Error, "[Weapon='%s'] Can't select starting weapon", *GetName())
 		return false;
+	}
+
+	if (let SelectedWeapon = GetWeaponAt(SelectedWeaponSlot); IsValid(SelectedWeapon)
+		and SelectedWeapon->ChangeState(EWeaponState::Holstered)
+		and PendingWeapon->ChangeState(EWeaponState::Armed))
+	{
+		PendingWeaponSlot = Slot;
+		return true;
 	}
 
 	return false;
@@ -217,3 +213,5 @@ EWeaponType UCloud9Inventory::GetPendingWeaponType() const
 }
 
 EWeaponSlot UCloud9Inventory::GetSelectedWeaponSlot() const { return SelectedWeaponSlot; }
+
+EWeaponSlot UCloud9Inventory::GetPendingWeaponSlot() const { return PendingWeaponSlot; }

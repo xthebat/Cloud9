@@ -182,14 +182,14 @@ bool ACloud9WeaponBase::InitializeEffectComponent(UNiagaraComponent* Component, 
 	return true;
 }
 
-bool ACloud9WeaponBase::PlayMontage(UAnimMontage* Montage) const
+UAnimInstance* ACloud9WeaponBase::GetAnimInstance() const
 {
 	let Character = GetOwner<ACloud9Character>();
 
 	if (not IsValid(Character))
 	{
 		log(Error, "[Weapon='%s'] Character is invalid", *GetName());
-		return false;
+		return nullptr;
 	}
 
 	let Mesh = Character->GetMesh();
@@ -197,10 +197,15 @@ bool ACloud9WeaponBase::PlayMontage(UAnimMontage* Montage) const
 	if (not IsValid(Mesh))
 	{
 		log(Error, "[Weapon='%s'] Mesh is invalid", *GetName());
-		return false;
+		return nullptr;
 	}
 
-	let AnimInstance = Mesh->GetAnimInstance();
+	return Mesh->GetAnimInstance();
+}
+
+bool ACloud9WeaponBase::PlayAnimMontage(UAnimMontage* Montage) const
+{
+	let AnimInstance = GetAnimInstance();
 
 	if (not IsValid(AnimInstance))
 	{
@@ -215,6 +220,19 @@ bool ACloud9WeaponBase::PlayMontage(UAnimMontage* Montage) const
 	}
 
 	return true;
+}
+
+bool ACloud9WeaponBase::IsAnyMontagePlaying() const
+{
+	let AnimInstance = GetAnimInstance();
+
+	if (not IsValid(AnimInstance))
+	{
+		log(Error, "[Weapon='%s'] AnimInstance is invalid", *GetName());
+		return false;
+	}
+
+	return AnimInstance->IsAnyMontagePlaying();
 }
 
 bool ACloud9WeaponBase::PlayRandomSound(const TArray<USoundBase*>& Sounds, float Volume) const
@@ -399,14 +417,13 @@ bool ACloud9WeaponBase::ChangeState(EWeaponState NewState)
 		return false;
 	}
 
-	if (NewState != EWeaponState::Armed)
+	if (not IsAnyMontagePlaying() and not IsActionInProgress())
 	{
-		bIsPrimaryActionActive = false;
-		bIsSecondaryActionActive = false;
+		UpdateWeaponAttachment(Slot, NewState);
+		return true;
 	}
 
-	UpdateWeaponAttachment(Slot, NewState);
-	return true;
+	return false;
 }
 
 void ACloud9WeaponBase::PrimaryAction(bool bIsReleased)
