@@ -94,24 +94,22 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 
 	if (bIsPrimaryActionActive)
 	{
-		let Cooldown = FMath::Max(WeaponInfo->SlashCycleTime, PoseMontages->PrimaryActionMontage->GetPlayLength());
 		ExecuteAction(
 			EMeleeAction::Slash,
-			Cooldown, [&]
+			WeaponInfo->SlashCycleTime, [&]
 			{
-				return PlayMontage(PoseMontages->PrimaryActionMontage) and
+				return PlayAnimMontage(PoseMontages->PrimaryActionMontage) and
 					PlayRandomSound(WeaponInfo->Sounds.SlashSounds, Settings->Volume);
 			}
 		);
 	}
 	else if (bIsSecondaryActionActive)
 	{
-		let Cooldown = FMath::Max(WeaponInfo->StabCycleTime, PoseMontages->PrimaryActionMontage->GetPlayLength());
 		ExecuteAction(
 			EMeleeAction::Slash,
-			Cooldown, [&]
+			WeaponInfo->StabCycleTime, [&]
 			{
-				return PlayMontage(PoseMontages->SecondaryActionMontage) and
+				return PlayAnimMontage(PoseMontages->SecondaryActionMontage) and
 					PlayRandomSound(WeaponInfo->Sounds.StabSounds, Settings->Volume);
 			}
 		);

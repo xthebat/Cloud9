@@ -113,12 +113,11 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 	if (bIsPrimaryActionActive)
 	{
-		let Cooldown = FMath::Max(WeaponInfo->CycleTime, PoseMontages->PrimaryActionMontage->GetPlayLength());
 		ExecuteAction(
 			EFirearmAction::Fire,
-			Cooldown, [&]
+			WeaponInfo->CycleTime, [&]
 			{
-				if (PlayMontage(PoseMontages->PrimaryActionMontage) and
+				if (PlayAnimMontage(PoseMontages->PrimaryActionMontage) and
 					PlayRandomSound(WeaponInfo->Sounds.FireSounds, Settings->Volume))
 				{
 					MuzzleFlash->Activate(true);

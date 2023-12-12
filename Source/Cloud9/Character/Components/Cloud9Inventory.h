@@ -60,6 +60,9 @@ public:
 	EWeaponSlot GetSelectedWeaponSlot() const;
 
 	UFUNCTION(BlueprintCallable)
+	EWeaponSlot GetPendingWeaponSlot() const;
+	
+	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetWeaponAt(EWeaponSlot Slot) const;
 
 	UFUNCTION(BlueprintCallable)

@@ -153,7 +153,10 @@ protected: // functions
 
 	bool InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect) const;
 
-	bool PlayMontage(UAnimMontage* Montage) const;
+	UAnimInstance* GetAnimInstance() const;
+	bool IsAnyMontagePlaying() const;
+	bool PlayAnimMontage(UAnimMontage* Montage) const;
+
 	bool PlayRandomSound(const TArray<USoundBase*>& Sounds, float Volume) const;
 
 	bool UpdateWeaponAttachment(
@@ -226,7 +229,6 @@ private:
 	{
 		return static_cast<int>(WeaponAction) - 1;
 	}
-
 
 	UCooldownActionComponent* CreateCooldownAction(FName ComponentName);
 
