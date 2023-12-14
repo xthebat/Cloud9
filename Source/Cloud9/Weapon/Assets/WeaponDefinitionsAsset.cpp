@@ -71,7 +71,11 @@ TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(
 		return {};
 	}
 
-	return FWeaponDefinition{WeaponInfo, Montages, FirearmTracer};
+	return FWeaponDefinition{
+		MakeShared<WeaponInfoType>(*WeaponInfo),
+		MakeShared<FWeaponPosesMontages>(*Montages),
+		FirearmTracer
+	};
 }
 
 TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(

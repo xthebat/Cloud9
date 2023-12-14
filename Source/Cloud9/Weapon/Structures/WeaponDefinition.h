@@ -32,27 +32,20 @@ struct FWeaponDefinition
 {
 	GENERATED_BODY()
 
-	FWeaponDefinition() = default;
-
-	FWeaponDefinition(
-		const FBaseWeaponInfo* Info,
-		const FWeaponPosesMontages* Montages,
-		UParticleSystem* Tracer
-	) : Info(Info)
-	  , Montages(Montages)
-	  , Tracer(Tracer) {}
-
 	template <typename WeaponInfoType = FBaseWeaponInfo>
-	FORCEINLINE const WeaponInfoType* GetWeaponInfo() const { return static_cast<const WeaponInfoType*>(Info); }
+	FORCEINLINE TSharedPtr<WeaponInfoType> GetWeaponInfo() const
+	{
+		return StaticCastSharedPtr<WeaponInfoType>(Info);
+	}
 
 	FORCEINLINE const FWeaponActionMontages* GetPoseMontages(bool bIsCrouch) const
 	{
 		return not bIsCrouch ? &Montages->OnStand : &Montages->OnCrouch;
 	}
 
-private:
-	const FBaseWeaponInfo* Info;
-	const FWeaponPosesMontages* Montages;
+	TSharedPtr<FBaseWeaponInfo> Info;
+
+	TSharedPtr<FWeaponPosesMontages> Montages;
 
 	UPROPERTY()
 	UParticleSystem* Tracer;

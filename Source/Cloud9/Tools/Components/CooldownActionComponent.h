@@ -49,6 +49,12 @@ public:
 	UCooldownActionComponent* Initialize(float NewDefaultCooldownTime);
 
 public:
+	virtual void TickComponent(
+		float DeltaTime,
+		ELevelTick TickType,
+		FActorComponentTickFunction* ThisTickFunction
+	) override;
+
 	/**
 	 * Function executes new action with specified function if cooldown
 	 * finished; also setups timer to wait new cooldown and returns true. 
@@ -65,13 +71,14 @@ public:
 				return false;
 			}
 
-			if (let Time = OverrideCooldownTime < 0.0f ? DefaultCooldownTime : OverrideCooldownTime; Time > 0.0f)
+			RemainTime = OverrideCooldownTime < 0.0f ? DefaultCooldownTime : OverrideCooldownTime;
+
+			if (RemainTime > 0.0f)
 			{
 				bIsActionInProcess = true;
-				ActionTimerHandle = this | EUObject::AsyncAfter([this] { bIsActionInProcess = false; }, Time);
+				SetComponentTickEnabled(true);
+				return true;
 			}
-
-			return true;
 		}
 
 		return false;
@@ -85,18 +92,18 @@ protected:
 	/**
 	 * Cooldown time - next action will be executed only after it
 	 */
-	UPROPERTY(Category=Timer, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(Category=Timer, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	float DefaultCooldownTime;
 
 	/**
-	 * Action timer cooldown
+	 * Remain cooldown time
 	 */
-	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
-	FTimerHandle ActionTimerHandle;
+	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	float RemainTime;
 
 	/**
 	 * Whether or not action currently in process
 	 */
-	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	bool bIsActionInProcess;
 };

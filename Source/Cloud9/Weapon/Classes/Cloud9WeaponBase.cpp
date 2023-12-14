@@ -55,8 +55,17 @@ ACloud9WeaponBase::ACloud9WeaponBase()
 
 UWeaponDefinitionsAsset* ACloud9WeaponBase::GetWeaponDefinitionsAsset()
 {
-	let WeaponDefinitionsAsset = UCloud9AssetManager::GetOrLoadAssetSync<UWeaponDefinitionsAsset>();
-	return IsValid(WeaponDefinitionsAsset) ? WeaponDefinitionsAsset : nullptr;
+	// Without static won't work in packaged game
+	static let WeaponDefinitionsAsset = UCloud9AssetManager::GetOrLoadAssetSync<UWeaponDefinitionsAsset>();
+
+	if (not IsValid(WeaponDefinitionsAsset))
+	{
+		// We have nothing to do if assets wasn't loaded
+		log(Fatal, "WeaponDefinitionsAsset loading failure");
+		return nullptr;
+	}
+
+	return WeaponDefinitionsAsset;
 }
 
 void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
@@ -67,15 +76,7 @@ void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
 	static_assert(AnyActionId == 0);
 	static_assert(AnyActionIndex == -1);
 
-	let WeaponDefinitionsAsset = GetWeaponDefinitionsAsset();
-
-	if (not WeaponDefinitionsAsset)
-	{
-		log(Error, "[Weapon='%s'] WeaponDefinitionsAsset not loaded", *GetName());
-		return;
-	}
-
-	WeaponDefinition = WeaponDefinitionsAsset->GetWeaponDefinition(GetWeaponClass(), GetWeaponName());
+	WeaponDefinition = GetWeaponDefinitionsAsset()->GetWeaponDefinition(GetWeaponClass(), GetWeaponName());
 
 	if (not IsWeaponInitialized())
 	{
