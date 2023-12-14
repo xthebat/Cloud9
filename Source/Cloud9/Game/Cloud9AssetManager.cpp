@@ -28,13 +28,21 @@ UObject* UCloud9AssetManager::GetOrLoadAssetSync(FPrimaryAssetId PrimaryAssetId)
 {
 	static var& Manager = Get();
 
-	let Path = Manager.GetPrimaryAssetPath(PrimaryAssetId);
+	let Future = Manager.LoadPrimaryAsset(PrimaryAssetId);
 
-	if (not Path.IsValid())
+	if (not Future)
 	{
 		log(Error, "Can't find asset: '%s'", *PrimaryAssetId.ToString())
 		return nullptr;
 	}
 
-	return Path.TryLoad();
+	if (Future->WaitUntilComplete() == EAsyncPackageState::Complete)
+	{
+		let Asset = Future->GetLoadedAsset();
+		Asset->AddToRoot(); // Prevent GC destroy asset
+		return Asset;
+	}
+
+	log(Error, "Failed to loading asset: '%s'", *PrimaryAssetId.ToString())
+	return nullptr;
 }

@@ -28,6 +28,7 @@ UCooldownActionComponent::UCooldownActionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	DefaultCooldownTime = 0.0f;
+	RemainTime = 0.0f;
 	bIsActionInProcess = false;
 }
 
@@ -37,7 +38,21 @@ UCooldownActionComponent* UCooldownActionComponent::Initialize(float NewDefaultC
 	return this;
 }
 
-bool UCooldownActionComponent::IsExecuting() const
+void UCooldownActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+                                             FActorComponentTickFunction* ThisTickFunction)
 {
-	return this | EUObject::IsTimerActive(ActionTimerHandle);
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (bIsActionInProcess)
+	{
+		RemainTime -= DeltaTime;
+
+		if (RemainTime <= 0.0f)
+		{
+			bIsActionInProcess = false;
+			SetComponentTickEnabled(false);
+		}
+	}
 }
+
+bool UCooldownActionComponent::IsExecuting() const { return bIsActionInProcess; }
