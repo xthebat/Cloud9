@@ -30,7 +30,7 @@ for third person and thus all animation made in character models.
 - Извлечь VPK-архив CS:GO <!--- TODO: Write MD for VPK archive extraction -->
 - Удалить все объекты, созданные в Blender при старте
 - Открыть консольное окно Blender (необязательно, но процесс импорта можно отслеживать)
-  * `Окно->Toggle System Console`
+    * `Окно->Toggle System Console`
 
 ### 2. Импорт
 
@@ -90,6 +90,10 @@ for third person and thus all animation made in character models.
   импорта в Unreal Engine у всех моделей была в нуле (модель в Blender'е при этом станет не корректной).
 - Сохранить модель в blend-файл.
 - Извлечь ресурсы текстур модели из blend-файла [делается по аналогии с картами, п.3](Maps.MD)
+
+- **ВНИМАНИЕ: МАСШТАБ МОДЕЛИ ДЛЯ 1-ГО ЛИЦА МОЖЕТ ОТЛИЧАТЬСЯ ОТ МАСШТАБА МОДЕЛИ ДЛЯ 3-ГО ЛИЦА**
+    - Для deagle отличие составляло около 1.276 раза (модель 3-го лица должна быть больше на этот коэффициент)
+    - Для ak47 и m4a1s выглядит так что отличия нет
 
 **4. Blender export to fbx**
 
