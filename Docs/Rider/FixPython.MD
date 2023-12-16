@@ -1,4 +1,4 @@
-﻿### Fix Python plugin in JetBrains Rider
+﻿# Fix Python plugin in JetBrains Rider
 
 JetBrains Rider may incorrectly determine the Python interpreter or even ignore the configured Python interpreter. 
 This is because JetBrains Rider does not have a default module system like other JetBrains IDEs. 

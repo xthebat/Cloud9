@@ -1,4 +1,4 @@
-﻿## CS:GO Extractions and importing software
+﻿# CS:GO Extractions and importing software
 
 - Full list on [developer.valvesoftware.com](https://developer.valvesoftware.com/wiki/Category:Third_Party_Tools)
 - Map extractor [bspsrc](../../Programs/bspsrc_1.4.3.zip)
