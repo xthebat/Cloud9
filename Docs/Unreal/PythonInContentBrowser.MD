@@ -1,4 +1,4 @@
-﻿### Enable Python Content Browser Integration
+﻿# Enable Python Content Browser Integration
 
 By default, the only method to run a Python script is to use `File -> Execute Python script`. 
 This may not be a convenient way to use Python scripts. But there is a simple fix in UE4 

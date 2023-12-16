@@ -1,4 +1,4 @@
-﻿### Original character speed
+﻿# Original character speed
 
 With Knife:
 - Run    = 250

@@ -1,4 +1,4 @@
-﻿### Install CS:GO on 14.10.2023 (in CS2 Era)
+﻿# Install CS:GO on 14.10.2023 (in CS2 Era)
 
 - Do the right click on Counter-Strike 2 in Steam library
 - Go to properties
