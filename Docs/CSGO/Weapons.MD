@@ -28,6 +28,9 @@ for third person and thus all animation made in character models.
 ### 1. Подготовка
 
 - Извлечь VPK-архив CS:GO <!--- TODO: Write MD for VPK archive extraction -->
+- Удалить все объекты, созданные в Blender при старте
+- Открыть консольное окно Blender (необязательно, но процесс импорта можно отслеживать)
+  * `Окно->Toggle System Console`
 
 ### 2. Импорт
 
