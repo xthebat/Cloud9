@@ -25,6 +25,8 @@ for third person and thus all animation made in character models.
 Это руководство предназначено только для использования моделей высокого разрешения (FOV) для третьего лица и,
 следовательно, все анимации созданы в моделях персонажей.
 
+[Видео на YouTube с ужасным звуком](https://www.youtube.com/watch?v=5n6vObcgKjw)
+
 ### 1. Подготовка
 
 - Извлечь VPK-архив CS:GO <!--- TODO: Write MD for VPK archive extraction -->
