@@ -61,7 +61,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	EWeaponSlot GetPendingWeaponSlot() const;
-	
+
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetWeaponAt(EWeaponSlot Slot) const;
 
@@ -76,6 +76,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetSelectedWeapon() const;
+
+	UFUNCTION(BlueprintCallable)
+	ACloud9WeaponBase* GetPendingWeapon() const;
 
 	UFUNCTION(BlueprintCallable)
 	bool IsWeaponChanging() const;
@@ -104,12 +107,15 @@ protected:
 	UPROPERTY()
 	TArray<ACloud9WeaponBase*> WeaponSlots;
 
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	EWeaponSlot SelectedWeaponSlot;
+
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	EWeaponSlot PendingWeaponSlot;
 
-	UPROPERTY(EditDefaultsOnly, Category = Weapons, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
 	EMelee DefaultKnifeName;
 
-	UPROPERTY(EditDefaultsOnly, Category = Weapons, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
 	EFirearm DefaultPistolName;
 };

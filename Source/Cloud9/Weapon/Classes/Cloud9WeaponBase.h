@@ -68,6 +68,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EWeaponType GetWeaponType() const;
 
+	UFUNCTION(BlueprintCallable)
+	virtual const UStaticMeshSocket* GetSocketByName(FName SocketName) const;
+
+	UFUNCTION(BlueprintCallable)
+	virtual const UStaticMeshComponent* GetWeaponMesh() const;
+	
 	bool IsWeaponInitialized() const { return WeaponDefinition.IsSet(); }
 
 	bool AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot);

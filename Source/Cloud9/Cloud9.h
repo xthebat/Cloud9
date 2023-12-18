@@ -99,7 +99,7 @@ public:
 	template <typename SelfType>
 	constexpr friend auto operator|(SelfType& Self, FunctionType&& Function)
 	{
-		return Function(Forward<SelfType>(Self));
+		return Function(Forward<SelfType>(Self)); // TODO: May be use Function(MoveTempIfPossible(Self)) ???
 	}
 
 	template <typename SelfType>

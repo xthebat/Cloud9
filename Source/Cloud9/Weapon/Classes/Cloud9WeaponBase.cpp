@@ -468,7 +468,7 @@ bool ACloud9WeaponBase::ChangeActionFlag(bool Flag, bool bIsReleased)
 
 FName ACloud9WeaponBase::GetWeaponName() const
 {
-	log(Fatal, "[Weapon='%s'] Weapon name wasn't override", *GetName())
+	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName())
 	return NAME_None;
 }
 
@@ -478,9 +478,21 @@ EWeaponType ACloud9WeaponBase::GetWeaponType() const
 	return WeaponDefinition->GetWeaponInfo()->Type;
 }
 
+const UStaticMeshSocket* ACloud9WeaponBase::GetSocketByName(FName SocketName) const
+{
+	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName())
+	return nullptr;
+}
+
+const UStaticMeshComponent* ACloud9WeaponBase::GetWeaponMesh() const
+{
+	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName())
+	return nullptr;
+}
+
 EWeaponClass ACloud9WeaponBase::GetWeaponClass() const
 {
-	log(Fatal, "[Weapon='%s'] Weapon class wasn't override", *GetName())
+	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName())
 	return EWeaponClass::NoClass;
 }
 
@@ -488,6 +500,6 @@ bool ACloud9WeaponBase::CanBeDropped() const { return true; }
 
 const UEnum* ACloud9WeaponBase::GetWeaponActions() const
 {
-	log(Fatal, "[Weapon='%s'] Weapon actions wasn't override", *GetName());
+	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName());
 	return nullptr;
 }
