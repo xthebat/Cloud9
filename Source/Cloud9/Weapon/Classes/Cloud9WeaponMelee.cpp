@@ -50,6 +50,13 @@ const UEnum* ACloud9WeaponMelee::GetWeaponActions() const { return StaticEnum<EM
 
 bool ACloud9WeaponMelee::CanBeDropped() const { return false; }
 
+const UStaticMeshSocket* ACloud9WeaponMelee::GetSocketByName(FName SocketName) const
+{
+	return WeaponMesh->GetSocketByName(SocketName);
+}
+
+const UStaticMeshComponent* ACloud9WeaponMelee::GetWeaponMesh() const { return WeaponMesh; }
+
 void ACloud9WeaponMelee::OnConstruction(const FTransform& Transform)
 {
 	using namespace ETOptional;

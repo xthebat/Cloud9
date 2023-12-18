@@ -57,6 +57,8 @@ public:
 	virtual FName GetWeaponName() const override;
 	virtual EWeaponClass GetWeaponClass() const override;
 	virtual const UEnum* GetWeaponActions() const override;
+	virtual const UStaticMeshSocket* GetSocketByName(FName SocketName) const override;
+	virtual const UStaticMeshComponent* GetWeaponMesh() const override;
 
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;

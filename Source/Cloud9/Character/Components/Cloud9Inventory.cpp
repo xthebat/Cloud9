@@ -198,6 +198,8 @@ bool UCloud9Inventory::ReplaceWeaponAt(EWeaponSlot Slot, ACloud9WeaponBase* Weap
 
 ACloud9WeaponBase* UCloud9Inventory::GetSelectedWeapon() const { return GetWeaponAt(SelectedWeaponSlot); }
 
+ACloud9WeaponBase* UCloud9Inventory::GetPendingWeapon() const { return GetWeaponAt(PendingWeaponSlot); }
+
 bool UCloud9Inventory::IsWeaponChanging() const { return SelectedWeaponSlot != PendingWeaponSlot; }
 
 EWeaponType UCloud9Inventory::GetSelectedWeaponType() const

@@ -65,6 +65,13 @@ EWeaponClass ACloud9WeaponFirearm::GetWeaponClass() const { return EWeaponClass:
 
 const UEnum* ACloud9WeaponFirearm::GetWeaponActions() const { return StaticEnum<EFirearmAction>(); }
 
+const UStaticMeshSocket* ACloud9WeaponFirearm::GetSocketByName(FName SocketName) const
+{
+	return WeaponMesh->GetSocketByName(SocketName);
+}
+
+const UStaticMeshComponent* ACloud9WeaponFirearm::GetWeaponMesh() const { return WeaponMesh; }
+
 void ACloud9WeaponFirearm::OnConstruction(const FTransform& Transform)
 {
 	using namespace ETOptional;
