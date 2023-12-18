@@ -30,7 +30,6 @@
 #include "Cloud9/Weapon/Enums/FirearmNames.h"
 #include "Cloud9/Weapon/Enums/MeleeNames.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
-#include "Cloud9/Weapon/Enums/WeaponType.h"
 #include "Cloud9Inventory.generated.h"
 
 class ACloud9WeaponBase;
@@ -49,18 +48,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool SelectWeapon(EWeaponSlot Slot);
-
-	UFUNCTION(BlueprintCallable)
-	EWeaponType GetSelectedWeaponType() const;
-
-	UFUNCTION(BlueprintCallable)
-	EWeaponType GetPendingWeaponType() const;
-
-	UFUNCTION(BlueprintCallable)
-	EWeaponSlot GetSelectedWeaponSlot() const;
-
-	UFUNCTION(BlueprintCallable)
-	EWeaponSlot GetPendingWeaponSlot() const;
 
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetWeaponAt(EWeaponSlot Slot) const;
@@ -107,15 +94,15 @@ protected:
 	UPROPERTY()
 	TArray<ACloud9WeaponBase*> WeaponSlots;
 
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Weapon, BlueprintReadOnly)
 	EWeaponSlot SelectedWeaponSlot;
 
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Weapon, BlueprintReadOnly)
 	EWeaponSlot PendingWeaponSlot;
 
-	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Weapon, EditDefaultsOnly)
 	EMelee DefaultKnifeName;
 
-	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Weapon, EditDefaultsOnly)
 	EFirearm DefaultPistolName;
 };
