@@ -201,19 +201,3 @@ ACloud9WeaponBase* UCloud9Inventory::GetSelectedWeapon() const { return GetWeapo
 ACloud9WeaponBase* UCloud9Inventory::GetPendingWeapon() const { return GetWeaponAt(PendingWeaponSlot); }
 
 bool UCloud9Inventory::IsWeaponChanging() const { return SelectedWeaponSlot != PendingWeaponSlot; }
-
-EWeaponType UCloud9Inventory::GetSelectedWeaponType() const
-{
-	let Weapon = GetWeaponAt(SelectedWeaponSlot);
-	return IsValid(Weapon) ? Weapon->GetWeaponType() : EWeaponType::NoWeapon;
-}
-
-EWeaponType UCloud9Inventory::GetPendingWeaponType() const
-{
-	let Weapon = GetWeaponAt(PendingWeaponSlot);
-	return IsValid(Weapon) ? Weapon->GetWeaponType() : EWeaponType::NoWeapon;
-}
-
-EWeaponSlot UCloud9Inventory::GetSelectedWeaponSlot() const { return SelectedWeaponSlot; }
-
-EWeaponSlot UCloud9Inventory::GetPendingWeaponSlot() const { return PendingWeaponSlot; }
