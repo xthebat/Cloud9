@@ -25,6 +25,7 @@
 
 #include "CoreMinimal.h"
 #include "Cloud9WeaponBase.h"
+#include "Cloud9/Weapon/Enums/MeleeNames.h"
 #include "Cloud9WeaponMelee.generated.h"
 
 struct FMeleeWeaponInfo;

@@ -32,9 +32,9 @@ namespace EUObject
 	struct Stringify : TOperator<Stringify>
 	{
 	public:
-		explicit Stringify(const UStruct* Type = nullptr) : Type(Type) { }
+		explicit Stringify(const UStruct* Type = nullptr) : Type(Type) {}
 
-		FString operator()(const UObject* Object) const
+		FORCEINLINE FString operator()(const UObject* Object) const
 		{
 			using namespace EFTextBuilder;
 

@@ -27,9 +27,8 @@
 #include "Components/ActorComponent.h"
 #include "Cloud9CharacterComponent.h"
 #include "Cloud9/Cloud9.h"
-#include "Cloud9/Weapon/Enums/FirearmNames.h"
-#include "Cloud9/Weapon/Enums/MeleeNames.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
+#include "Cloud9/Weapon/Utils/DefaultWeaponConfig.h"
 #include "Cloud9Inventory.generated.h"
 
 class ACloud9WeaponBase;
@@ -101,8 +100,8 @@ protected:
 	EWeaponSlot PendingWeaponSlot;
 
 	UPROPERTY(Category=Weapon, EditDefaultsOnly)
-	EMelee DefaultKnifeName;
+	TArray<FDefaultWeaponConfig> DefaultWeaponConfigs;
 
 	UPROPERTY(Category=Weapon, EditDefaultsOnly)
-	EFirearm DefaultPistolName;
+	EWeaponSlot InitialWeaponSlot;
 };

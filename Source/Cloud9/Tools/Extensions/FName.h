@@ -26,6 +26,19 @@ namespace EFName
 {
 	struct ToString : TOperator<ToString>
 	{
-		FString operator()(FName Self) const { return Self.ToString(); }
+		FORCEINLINE FString operator()(FName Self) const { return Self.ToString(); }
+	};
+
+	struct ToCStr : TOperator<ToCStr>
+	{
+	public:
+		FORCEINLINE const TCHAR* operator()(const FName& Self)
+		{
+			String = Self.ToString();
+			return *String;
+		}
+
+	private:
+		FString String;
 	};
 }
