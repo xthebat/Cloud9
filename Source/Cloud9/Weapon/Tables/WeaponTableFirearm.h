@@ -354,7 +354,7 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	 * The number of bullets (pellets for a shotgun) fired from a cartridge
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Additional, AdvancedDisplay,
-		meta=(EditCondition="Type == EWeaponType::Smg", UIMin="1", UIMax="10", ClampMin="0", ClampMax="10"))
+		meta=(EditCondition="Type == EWeaponType::Shotgun", UIMin="1", UIMax="10", ClampMin="0", ClampMax="10"))
 	int BulletsPerShot = 1;
 
 	/**

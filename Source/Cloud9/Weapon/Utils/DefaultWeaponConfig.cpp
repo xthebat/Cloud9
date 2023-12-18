@@ -19,25 +19,7 @@
 // HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-// OTHER DEALINGS IN THE SOFTWARE. 
+// OTHER DEALINGS IN THE SOFTWARE.
 
-#pragma once
 
-#include "CoreMinimal.h"
-#include "Cloud9WeaponBase.h"
-#include "Cloud9/Weapon/Enums/GrenadeNames.h"
-#include "Cloud9WeaponGrenade.generated.h"
-
-struct FGrenadeWeaponInfo;
-
-UCLASS()
-class CLOUD9_API ACloud9WeaponGrenade : public ACloud9WeaponBase
-{
-	GENERATED_BODY()
-
-public:
-	ACloud9WeaponGrenade();
-
-	virtual EWeaponClass GetWeaponClass() const override;
-	virtual const UEnum* GetWeaponActions() const override;
-};
+#include "DefaultWeaponConfig.h"

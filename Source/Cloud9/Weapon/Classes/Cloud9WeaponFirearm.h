@@ -26,6 +26,7 @@
 #include "CoreMinimal.h"
 #include "NiagaraComponent.h"
 #include "Cloud9WeaponBase.h"
+#include "Cloud9/Weapon/Enums/FirearmNames.h"
 #include "Cloud9WeaponFirearm.generated.h"
 
 class UCooldownActionComponent;

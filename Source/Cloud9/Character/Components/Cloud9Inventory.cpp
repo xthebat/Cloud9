@@ -27,12 +27,11 @@
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponMelee.h"
-
+#include "Cloud9/Weapon/Utils/DefaultWeaponConfig.h"
 
 UCloud9Inventory::UCloud9Inventory()
 {
-	DefaultKnifeName = EMelee::Knife;
-	DefaultPistolName = EFirearm::Deagle;
+	InitialWeaponSlot = EWeaponSlot::Knife;
 
 	SelectedWeaponSlot = EWeaponSlot::NotSelected;
 	PendingWeaponSlot = EWeaponSlot::NotSelected;
@@ -47,36 +46,34 @@ void UCloud9Inventory::BeginPlay()
 
 	if (let MyOwner = GetOwner<ACloud9Character>(); IsValid(MyOwner))
 	{
-		let DefaultKnife = GetWorld() | EUWorld::SpawnActor<ACloud9WeaponMelee>(
-			[this](let It) { return It->OnSpawn(DefaultKnifeName, FWeaponSkin::Lore); });
+		// TODO: Refactor inventory starting configuration
 
-		let DefaultPistol = GetWorld() | EUWorld::SpawnActor<ACloud9WeaponFirearm>(
-			[this](let It) { return It->OnSpawn(DefaultPistolName, FWeaponSkin::OceanDrive); });
-
-		let DefaultMain = GetWorld() | EUWorld::SpawnActor<ACloud9WeaponFirearm>(
-			[this](let It) { return It->OnSpawn(EFirearm::Ak47); });
-
-		if (not ShoveWeapon(EWeaponSlot::Knife, DefaultKnife))
+		for (let& Config : DefaultWeaponConfigs)
 		{
-			log(Error, "Can't shove default knife into inventory");
-			return;
+			ACloud9WeaponBase* Weapon = nullptr;
+
+			if (Config.IsMeleeWeapon())
+			{
+				Weapon = GetWorld() | EUWorld::SpawnActor<ACloud9WeaponMelee>(
+					[&](let It) { return It->OnSpawn(Config.GetMeleeWeaponName(), Config.GetSkinName()); });
+			}
+			else if (Config.IsFirearmWeapon())
+			{
+				Weapon = GetWorld() | EUWorld::SpawnActor<ACloud9WeaponFirearm>(
+					[&](let It) { return It->OnSpawn(Config.GetFirearmWeaponName(), Config.GetSkinName()); });
+			}
+
+			if (not ShoveWeapon(Config.GetWeaponSlot(), Weapon))
+			{
+				log(Error, "Can't spawn default weapon: %s", *Config.ToString());
+			}
 		}
 
-		if (not ShoveWeapon(EWeaponSlot::Pistol, DefaultPistol))
+		if (not SelectWeapon(InitialWeaponSlot))
 		{
-			log(Error, "Can't shove default pistol into inventory");
-			return;
-		}
-
-		if (not ShoveWeapon(EWeaponSlot::Main, DefaultMain))
-		{
-			log(Error, "Can't shove default pistol into inventory");
-			return;
-		}
-
-		if (not SelectWeapon(EWeaponSlot::Knife))
-		{
-			log(Error, "Can't select default weapon");
+			log(Error,
+			    "Can't select default weapon slot='%s'",
+			    InitialWeaponSlot | EUEnum::GetValueName() | EFName::ToCStr());
 		}
 	}
 }
@@ -141,6 +138,12 @@ ACloud9WeaponBase* UCloud9Inventory::GetWeaponAt(EWeaponSlot Slot) const { retur
 
 bool UCloud9Inventory::ShoveWeapon(EWeaponSlot Slot, ACloud9WeaponBase* Weapon)
 {
+	if (not IsValid(Weapon))
+	{
+		log(Error, "Weapon is invalid to shove into inventory");
+		return false;
+	}
+
 	let Character = GetOwner<ACloud9Character>();
 
 	if (not IsValid(Character))
