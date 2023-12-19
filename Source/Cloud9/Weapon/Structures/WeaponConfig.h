@@ -168,41 +168,41 @@ protected:
 	/**
 	 * Weapon configured class
 	 */
-	UPROPERTY(Category=Weapon, EditDefaultsOnly)
+	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(EditCondition="bIsEnabled", EditConditionHides))
 	EWeaponClass WeaponClass = EWeaponClass::NoClass;
 
 	/**
 	 * Melee weapon name (if melee class selected)
 	 */
 	UPROPERTY(Category=Weapon, EditDefaultsOnly,
-		meta=(EditCondition="WeaponClass == EWeaponClass::Melee", EditConditionHides))
+		meta=(EditCondition="bIsEnabled && WeaponClass == EWeaponClass::Melee", EditConditionHides))
 	EMelee MeleeWeaponName = EMelee::Knife;
 
 	/**
 	 * Firearm weapon name (if firearm class selected)
 	 */
 	UPROPERTY(Category=Weapon, EditDefaultsOnly,
-		meta=(EditCondition="WeaponClass == EWeaponClass::Firearm", EditConditionHides))
+		meta=(EditCondition="bIsEnabled && WeaponClass == EWeaponClass::Firearm", EditConditionHides))
 	EFirearm FirearmWeaponName = EFirearm::Ak47;
 
 	/**
 	 * Grenade weapon name (if grenade class selected)
 	 */
 	UPROPERTY(Category=Weapon, EditDefaultsOnly,
-		meta=(EditCondition="WeaponClass == EWeaponClass::Grenade", EditConditionHides))
+		meta=(EditCondition="bIsEnabled && WeaponClass == EWeaponClass::Grenade", EditConditionHides))
 	EGrenade GrenadeWeaponName = EGrenade::Explosive;
 
 	/**
 	 * Is firearm in primary or in secondary slot (i.e. main or pistol) 
 	 */
 	UPROPERTY(Category=Weapon, EditDefaultsOnly,
-		meta=(EditCondition="WeaponClass == EWeaponClass::Firearm", EditConditionHides))
+		meta=(EditCondition="bIsEnabled && WeaponClass == EWeaponClass::Firearm", EditConditionHides))
 	bool bIsPrimary = false;
 
 	/**
 	 * Skin name of the weapon 
 	 */
-	UPROPERTY(Category=Weapon, EditDefaultsOnly)
+	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(EditCondition="bIsEnabled", EditConditionHides))
 	FName SkinName = FWeaponSkin::Default;
 
 private:
