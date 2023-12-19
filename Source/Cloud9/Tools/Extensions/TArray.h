@@ -57,16 +57,13 @@ namespace ETArray
 		{
 			using ElementType = typename TDecay<ContainerType>::Type::ElementType;
 
-			TFilterIterator(ContainerType&& Container, Filter&& Operator)
+			constexpr TFilterIterator(ContainerType&& Container, Filter&& Operator)
 				: Container(Container)
 				, Iterator(Container.CreateConstIterator())
 				, Operator(Operator)
 				, bIsFound(false) {}
 
-			void Initialize()
-			{
-				FindNext();
-			}
+			constexpr void Initialize() { FindNext(); }
 
 			constexpr TFilterIterator& operator++()
 			{
@@ -108,14 +105,6 @@ namespace ETArray
 			bool bIsFound;
 		};
 
-		template <typename RangeType>
-		constexpr auto operator()(RangeType&& Range)
-		{
-			using FIterator = TFilterIterator<RangeType>;
-			var Iterator = FIterator(Forward<RangeType>(Range), MoveTemp(*this));
-			return Sequence::TSequence<typename FIterator::ElementType, FIterator>(MoveTemp(Iterator));
-		}
-
-		OPERATOR_BODY(Filter)
+		SEQUENCE_OPERATOR_BODY(Filter, TFilterIterator)
 	};
 }

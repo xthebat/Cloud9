@@ -77,9 +77,9 @@ namespace Sequence
 			return *Iterator;
 		}
 
-		bool operator!=([[maybe_unused]] FEndTag Other) const { return not Iterator; }
+		constexpr bool operator!=([[maybe_unused]] FEndTag Other) const { return not Iterator; }
 
-		bool operator==([[maybe_unused]] FEndTag Other) const { return !!Iterator; }
+		constexpr bool operator==([[maybe_unused]] FEndTag Other) const { return not this->operator!=(Other); }
 
 	private:
 		void Initialize()
@@ -95,13 +95,13 @@ namespace Sequence
 		bool bIsInitialized;
 	};
 
-#define SEQUENCE_OPERATOR_BODY(OperatorType, DelegateType)\
-	template <typename RangeType> \
-	constexpr auto operator()(RangeType&& Range) \
+#define SEQUENCE_OPERATOR_BODY(OperatorType, IteratorType)\
+	template <typename RangeType>\
+	constexpr auto operator()(RangeType&& Range)\
 	{\
-		using D = DelegateType<RangeType, OperatorType>;\
-		var Delegate = D{Forward<RangeType>(Range), MoveTemp(*this)};\
-		return Sequence::TSequence<typename D::ElementType, D>(MoveTemp(Delegate));\
+		using FIterator = IteratorType<RangeType>;\
+		var Iterator = FIterator(Forward<RangeType>(Range), MoveTemp(*this));\
+		return Sequence::TSequence<typename FIterator::ElementType, FIterator>(MoveTemp(Iterator));\
 	}\
 	OPERATOR_BODY(OperatorType)
 }
