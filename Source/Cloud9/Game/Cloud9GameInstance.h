@@ -24,6 +24,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9/Weapon/Structures/WeaponConfig.h"
 #include "Engine/GameInstance.h"
 #include "Cloud9GameInstance.generated.h"
 
@@ -31,4 +32,19 @@ UCLASS()
 class CLOUD9_API UCloud9GameInstance : public UGameInstance
 {
 	GENERATED_BODY()
+
+public:
+	const TArray<FWeaponConfig>& GetDefaultWeaponsConfig() const { return DefaultWeaponsConfig; }
+
+	EWeaponSlot GetInitialWeaponSlot() const { return InitialWeaponSlot; }
+
+protected: // properties
+
+	// TODO: May better to move these into GameMode?
+
+	UPROPERTY(Category=Weapon, EditDefaultsOnly)
+	TArray<FWeaponConfig> DefaultWeaponsConfig;
+
+	UPROPERTY(Category=Weapon, EditDefaultsOnly)
+	EWeaponSlot InitialWeaponSlot;
 };
