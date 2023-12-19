@@ -25,14 +25,11 @@
 
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
-#include "Cloud9/Weapon/Classes/Cloud9WeaponMelee.h"
-#include "Cloud9/Weapon/Utils/DefaultWeaponConfig.h"
+#include "Cloud9/Game/Cloud9GameInstance.h"
+#include "Cloud9/Tools/Extensions/TArray.h"
 
 UCloud9Inventory::UCloud9Inventory()
 {
-	InitialWeaponSlot = EWeaponSlot::Knife;
-
 	SelectedWeaponSlot = EWeaponSlot::NotSelected;
 	PendingWeaponSlot = EWeaponSlot::NotSelected;
 
@@ -44,37 +41,33 @@ void UCloud9Inventory::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (let MyOwner = GetOwner<ACloud9Character>(); IsValid(MyOwner))
+	let MyOwner = GetOwner<ACloud9Character>();
+
+	if (not IsValid(MyOwner))
 	{
-		// TODO: Refactor inventory starting configuration
+		log(Error, "[Actor='%s'] ACloud9Character isn't valid", *GetName());
+		return;
+	}
 
-		for (let& Config : DefaultWeaponConfigs)
-		{
-			ACloud9WeaponBase* Weapon = nullptr;
+	let GameInstance = MyOwner->GetGameInstance<UCloud9GameInstance>();
 
-			if (Config.IsMeleeWeapon())
-			{
-				Weapon = GetWorld() | EUWorld::SpawnActor<ACloud9WeaponMelee>(
-					[&](let It) { return It->OnSpawn(Config.GetMeleeWeaponName(), Config.GetSkinName()); });
-			}
-			else if (Config.IsFirearmWeapon())
-			{
-				Weapon = GetWorld() | EUWorld::SpawnActor<ACloud9WeaponFirearm>(
-					[&](let It) { return It->OnSpawn(Config.GetFirearmWeaponName(), Config.GetSkinName()); });
-			}
+	if (not IsValid(GameInstance))
+	{
+		log(Error, "[Actor='%s'] UCloud9GameInstance isn't valid", *GetName());
+		return;
+	}
 
-			if (not ShoveWeapon(Config.GetWeaponSlot(), Weapon))
-			{
-				log(Error, "Can't spawn default weapon: %s", *Config.ToString());
-			}
-		}
+	GameInstance->GetDefaultWeaponsConfig()
+		| ETArray::Filter{[this](let& Config) { return Config.IsEnabled(); }}
+		| ETArray::ForEach{[this](let& Config) { Config.AddToInventory(this); }};
 
-		if (not SelectWeapon(InitialWeaponSlot))
-		{
-			log(Error,
-			    "Can't select default weapon slot='%s'",
-			    InitialWeaponSlot | EUEnum::GetValueName() | EFName::ToCStr());
-		}
+	let InitialWeaponSlot = GameInstance->GetInitialWeaponSlot();
+
+	if (not SelectWeapon(InitialWeaponSlot))
+	{
+		log(Error,
+		    "[Actor='%s'] Can't select default weapon slot='%s'",
+		    *GetName(), InitialWeaponSlot | EUEnum::GetValueName() | EFName::ToCStr());
 	}
 }
 

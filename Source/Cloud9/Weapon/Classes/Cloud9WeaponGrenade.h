@@ -40,4 +40,18 @@ public:
 
 	virtual EWeaponClass GetWeaponClass() const override;
 	virtual const UEnum* GetWeaponActions() const override;
+
+	bool OnSpawn(EGrenade WeaponName, FName WeaponSkin = FWeaponSkin::Default)
+	{
+		Name = WeaponName;
+		Skin = WeaponSkin;
+		return true;
+	}
+
+protected:
+	/**
+	 * Weapon Identifier
+	 */
+	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
+	EGrenade Name;
 };

@@ -108,3 +108,29 @@ public:
 		return Function(Forward<SelfType>(Self));
 	}
 };
+
+
+#define OPERATOR_BODY(OperatorType) \
+	template <typename SelfType> \
+	constexpr friend auto operator|(SelfType* Self, OperatorType&& Operator)\
+	{\
+		return Operator(Self);\
+	}\
+	\
+	template <typename SelfType>\
+	constexpr friend auto operator|(const SelfType* Self, OperatorType&& Operator)\
+	{\
+		return Operator(Self);\
+	}\
+	\
+	template <typename SelfType>\
+	constexpr friend auto operator|(SelfType& Self, OperatorType&& Operator)\
+	{\
+		return Operator(Forward<SelfType>(Self));\
+	}\
+	\
+	template <typename SelfType>\
+	constexpr friend auto operator|(SelfType&& Self, OperatorType&& Operator)\
+	{\
+		return Operator(Forward<SelfType>(Self));\
+	}

@@ -28,7 +28,6 @@
 #include "Cloud9CharacterComponent.h"
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
-#include "Cloud9/Weapon/Utils/DefaultWeaponConfig.h"
 #include "Cloud9Inventory.generated.h"
 
 class ACloud9WeaponBase;
@@ -98,10 +97,4 @@ protected:
 
 	UPROPERTY(Category=Weapon, BlueprintReadOnly)
 	EWeaponSlot PendingWeaponSlot;
-
-	UPROPERTY(Category=Weapon, EditDefaultsOnly)
-	TArray<FDefaultWeaponConfig> DefaultWeaponConfigs;
-
-	UPROPERTY(Category=Weapon, EditDefaultsOnly)
-	EWeaponSlot InitialWeaponSlot;
 };
