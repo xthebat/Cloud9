@@ -70,6 +70,12 @@ public:
 	using TIterator = TSequence;
 	using TConstIterator = TSequence<const ElementType, IteratorType>;
 
+	constexpr TConstIterator& CreateConstIterator()
+	{
+		Initialize();
+		return *reinterpret_cast<TConstIterator*>(this);
+	}
+
 	// Compatability with stl-like for-based loop
 
 	/**
@@ -124,7 +130,7 @@ private:
 	template <typename RangeType>\
 	constexpr auto operator()(RangeType&& Range)\
 	{\
-		using FIterator = IteratorType<RangeType>;\
+		using FIterator = IteratorType<OperatorType, RangeType>;\
 		var Iterator = FIterator(Forward<RangeType>(Range), MoveTemp(*this));\
 		return TSequence<typename FIterator::ElementType, FIterator>(MoveTemp(Iterator));\
 	}\

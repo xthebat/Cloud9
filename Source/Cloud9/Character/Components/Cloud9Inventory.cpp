@@ -26,7 +26,7 @@
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
-#include "Cloud9/Tools/Extensions/TArray.h"
+#include "Cloud9/Tools/Extensions/TContainer.h"
 
 UCloud9Inventory::UCloud9Inventory()
 {
@@ -58,8 +58,8 @@ void UCloud9Inventory::BeginPlay()
 	}
 
 	GameInstance->GetDefaultWeaponsConfig()
-		| ETArray::Filter{[this](let& Config) { return Config.IsEnabled(); }}
-		| ETArray::ForEach{[this](let& Config) { Config.AddToInventory(this); }};
+		| ETContainer::Filter{[this](let& Config) { return Config.IsEnabled(); }}
+		| ETContainer::ForEach{[this](let& Config) { Config.AddToInventory(this); }};
 
 	let InitialWeaponSlot = GameInstance->GetInitialWeaponSlot();
 
