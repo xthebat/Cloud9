@@ -31,6 +31,8 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCloud9, Log, All);
 #define let const auto
 #define var auto
 
+// TODO: logger macro should be extracted from Cloud9.h
+
 // https://www.kevin-agwaze.com/logging-in-unreal-made-simple-with-helper-macros/
 
 // Current Class Name + Function Name where this is called
@@ -80,6 +82,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCloud9, Log, All);
 
 // Operator base class
 
+// TODO: TOperator should be replaced with OPERATOR_BODY macro
 template <typename FunctionType>
 class TOperator
 {
@@ -108,29 +111,3 @@ public:
 		return Function(Forward<SelfType>(Self));
 	}
 };
-
-
-#define OPERATOR_BODY(OperatorType) \
-	template <typename SelfType> \
-	constexpr friend auto operator|(SelfType* Self, OperatorType&& Operator)\
-	{\
-		return Operator(Self);\
-	}\
-	\
-	template <typename SelfType>\
-	constexpr friend auto operator|(const SelfType* Self, OperatorType&& Operator)\
-	{\
-		return Operator(Self);\
-	}\
-	\
-	template <typename SelfType>\
-	constexpr friend auto operator|(SelfType& Self, OperatorType&& Operator)\
-	{\
-		return Operator(Forward<SelfType>(Self));\
-	}\
-	\
-	template <typename SelfType>\
-	constexpr friend auto operator|(SelfType&& Self, OperatorType&& Operator)\
-	{\
-		return Operator(Forward<SelfType>(Self));\
-	}

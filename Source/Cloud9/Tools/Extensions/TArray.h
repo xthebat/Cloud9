@@ -23,10 +23,8 @@
 
 #pragma once
 
-#include "Sequence.h"
 #include "Cloud9/Cloud9.h"
-
-namespace Private_ETArray {}
+#include "Cloud9/Tools/Containers/Sequence.h"
 
 namespace ETArray
 {
@@ -35,10 +33,10 @@ namespace ETArray
 	{
 		const BlockType& Block;
 
-		template <typename RangeType>
-		constexpr void operator()(RangeType&& Range) const
+		template <typename ContainerType>
+		constexpr void operator()(ContainerType&& Container) const
 		{
-			for (let& It : Range)
+			for (let& It : Container)
 			{
 				Block(It);
 			}
