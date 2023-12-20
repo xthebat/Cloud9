@@ -41,7 +41,7 @@ public:
 public:
 	ACloud9WeaponMelee();
 
-	bool OnSpawn(EMelee WeaponName, FName WeaponSkin = FWeaponSkin::Default)
+	bool Configure(EMelee WeaponName, FName WeaponSkin = FWeaponSkin::Default)
 	{
 		Name = WeaponName;
 		Skin = WeaponSkin;
@@ -54,6 +54,7 @@ public:
 	virtual bool CanBeDropped() const override;
 	virtual const UStaticMeshSocket* GetSocketByName(FName SocketName) const override;
 	virtual const UStaticMeshComponent* GetWeaponMesh() const override;
+	virtual bool Initialize() override;
 
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;

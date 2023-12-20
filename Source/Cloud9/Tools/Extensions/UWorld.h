@@ -24,24 +24,20 @@
 #pragma once
 
 #include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Macro/Operator.h"
 
 namespace EUWorld
 {
 	template <typename ClassType>
-	struct SpawnActor : TOperator<SpawnActor<ClassType>>
+	struct SpawnActor
 	{
 	public:
 		using FInitializerType = TFunction<bool(ClassType*)>;
 
-		FORCEINLINE explicit SpawnActor(
-			FInitializerType Initializer,
-			const FTransform& Transform = {},
-			AActor* Owner = nullptr,
-			APawn* Instigator = nullptr
-		) : Initializer(Initializer)
-		  , Transform(Transform)
-		  , Owner(Owner)
-		  , Instigator(Instigator) {}
+		FInitializerType Initializer;
+		const FTransform& Transform = {};
+		AActor* Owner = nullptr;
+		APawn* Instigator = nullptr;
 
 		FORCEINLINE ClassType* operator()(UWorld* Self) const
 		{
@@ -54,11 +50,7 @@ namespace EUWorld
 			return nullptr;
 		}
 
-	private:
-		FInitializerType Initializer;
-		const FTransform& Transform;
-		AActor* Owner = nullptr;
-		APawn* Instigator = nullptr;
+		OPERATOR_BODY(SpawnActor)
 	};
 
 	template <typename FunctionType>

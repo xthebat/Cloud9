@@ -24,8 +24,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9/Weapon/Structures/WeaponConfig.h"
 #include "Engine/GameInstance.h"
+#include "Cloud9/Weapon/Enums/WeaponSlot.h"
+#include "Cloud9/Weapon/Structures/WeaponConfig.h"
 #include "Cloud9GameInstance.generated.h"
 
 UCLASS()

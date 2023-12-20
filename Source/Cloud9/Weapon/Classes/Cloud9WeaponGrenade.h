@@ -40,8 +40,9 @@ public:
 
 	virtual EWeaponClass GetWeaponClass() const override;
 	virtual const UEnum* GetWeaponActions() const override;
+	virtual bool Initialize() override;
 
-	bool OnSpawn(EGrenade WeaponName, FName WeaponSkin = FWeaponSkin::Default)
+	bool Configure(EGrenade WeaponName, FName WeaponSkin = FWeaponSkin::Default)
 	{
 		Name = WeaponName;
 		Skin = WeaponSkin;

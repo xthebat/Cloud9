@@ -31,3 +31,8 @@ ACloud9WeaponGrenade::ACloud9WeaponGrenade() {}
 EWeaponClass ACloud9WeaponGrenade::GetWeaponClass() const { return EWeaponClass::Grenade; }
 
 const UEnum* ACloud9WeaponGrenade::GetWeaponActions() const { return StaticEnum<EGrenadeAction>(); }
+
+bool ACloud9WeaponGrenade::Initialize()
+{
+	return Super::Initialize();
+}

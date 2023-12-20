@@ -27,6 +27,7 @@
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
+#include "Cloud9/Weapon/Utils/WeaponConfigUtils.h"
 
 UCloud9Inventory::UCloud9Inventory()
 {
@@ -35,6 +36,27 @@ UCloud9Inventory::UCloud9Inventory()
 
 	let SlotsNumber = StaticEnum<EWeaponSlot>()->NumEnums();
 	WeaponSlots.SetNum(SlotsNumber);
+}
+
+bool UCloud9Inventory::AddWeaponByConfig(const FWeaponConfig& Config)
+{
+	let Weapon = UWeaponConfigUtils::Spawn(Config, GetWorld());
+
+	if (not IsValid(Weapon))
+	{
+		log(Error, "Can't spawn weapon by config: %s", *UWeaponConfigUtils::ToString(Config));
+		return false;
+	}
+
+	if (not ShoveWeapon(UWeaponConfigUtils::GetWeaponSlot(Config), Weapon))
+	{
+		log(Error, "Can't shove weapon by config: %s", *UWeaponConfigUtils::ToString(Config));
+		return false;
+	}
+
+	log(Display, "Add configured weapon = '%s'", *UWeaponConfigUtils::ToString(Config));
+
+	return true;
 }
 
 void UCloud9Inventory::BeginPlay()
@@ -58,8 +80,8 @@ void UCloud9Inventory::BeginPlay()
 	}
 
 	GameInstance->GetDefaultWeaponsConfig()
-		| ETContainer::Filter{[this](let& Config) { return Config.IsEnabled(); }}
-		| ETContainer::ForEach{[this](let& Config) { Config.AddToInventory(this); }};
+		| ETContainer::Filter{[this](let& Config) { return Config.bIsEnabled; }}
+		| ETContainer::ForEach{[this](let& Config) { AddWeaponByConfig(Config); }};
 
 	let InitialWeaponSlot = GameInstance->GetInitialWeaponSlot();
 

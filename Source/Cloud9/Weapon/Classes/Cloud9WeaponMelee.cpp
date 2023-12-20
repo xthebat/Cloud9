@@ -56,17 +56,15 @@ const UStaticMeshSocket* ACloud9WeaponMelee::GetSocketByName(FName SocketName) c
 
 const UStaticMeshComponent* ACloud9WeaponMelee::GetWeaponMesh() const { return WeaponMesh; }
 
-void ACloud9WeaponMelee::OnConstruction(const FTransform& Transform)
+bool ACloud9WeaponMelee::Initialize()
 {
 	using namespace ETOptional;
 	using namespace EFWeaponInfo;
 
-	Super::OnConstruction(Transform);
-
-	if (not IsWeaponInitialized())
+	if (not Super::Initialize() or not IsWeaponDefined())
 	{
 		WeaponMesh->SetStaticMesh(nullptr);
-		return;
+		return false;
 	}
 
 	let MyWeaponInfo = WeaponDefinition->GetWeaponInfo<FMeleeWeaponInfo>();
@@ -81,14 +79,19 @@ void ACloud9WeaponMelee::OnConstruction(const FTransform& Transform)
 			}
 		);
 
-	InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, SkinInfo);
+	return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, SkinInfo);
+}
+
+void ACloud9WeaponMelee::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
 }
 
 void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	WEAPON_IS_INITIALIZED_GUARD();
+	WEAPON_IS_DEFINED_GUARD();
 	WEAPON_IS_DISARMED_GUARD();
 	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 

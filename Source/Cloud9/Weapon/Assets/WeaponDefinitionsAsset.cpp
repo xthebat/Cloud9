@@ -79,7 +79,8 @@ TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(
 }
 
 TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(
-	EWeaponClass WeaponClass, FName WeaponName) const
+	EWeaponClass WeaponClass,
+	FName WeaponName) const
 {
 	switch (WeaponClass)
 	{
