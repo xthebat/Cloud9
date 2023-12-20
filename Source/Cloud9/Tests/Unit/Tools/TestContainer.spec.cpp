@@ -23,7 +23,8 @@
 
 
 #include "Cloud9/Cloud9.h"
-#include "Cloud9/Tools/Extensions/Range.h"
+#include "Cloud9/Tools/Extensions/TContainer.h"
+
 BEGIN_DEFINE_SPEC(
 	FRangeSpec,
 	"Range.Unit",
@@ -33,27 +34,62 @@ END_DEFINE_SPEC(FRangeSpec)
 
 void FRangeSpec::Define()
 {
+	// Capture by value because otherwise Container maybe destroyed in test
+
 	Describe("TSet", [this]
 	{
-		let Collection = TSet{1, 2, 3, 4, 5};
+		let Container = TSet{1, 2, 3, 4, 5};
 
-		It("Random", [&]
+		It("Random", [=]
 		{
-			let Value = Collection | ERange::Random();
+			let Value = Container | ETContainer::Random();
 			TestTrue("Value.IsSet()", Value.IsSet());
-			TestTrue("Collection.Contains(Value)", Collection.Contains(*Value));
+			TestTrue("Collection.Contains(Value)", Container.Contains(*Value));
 		});
 	});
 
 	Describe("TArray", [this]
 	{
-		let Collection = TArray{1, 2, 3, 4, 5};
+		let Container = TArray{1, 2, 3, 4, 5};
 
-		It("Random", [&]
+		It("Random", [=]
 		{
-			let Value = Collection | ERange::Random();
+			let Value = Container | ETContainer::Random();
 			TestTrue("Value.IsSet()", Value.IsSet());
-			TestTrue("Collection.Contains(Value)", Collection.Contains(*Value));
+			TestTrue("Collection.Contains(Value)", Container.Contains(*Value));
+		});
+
+		It("ForEach", [=]
+		{
+			var Result = 0;
+			Container | ETContainer::ForEach{[&](let It) { Result += It; }};
+			TestEqual("Result == 15", Result, 15);
+		});
+
+		It("ToArray", [=]
+		{
+			{
+				let Result = Container | ETContainer::ToArray{.ToDrop = 3, .ToTake = 1};
+				TestEqual("Result == {4}", Result, {4});
+			}
+
+			{
+				let Result = Container | ETContainer::ToArray{.ToTake = 0};
+				TestEqual("Take Result == {}", Result, {});
+			}
+
+			{
+				let Result = Container | ETContainer::ToArray{.ToDrop = 100500};
+				TestEqual("Drop Result == {}", Result, {});
+			}
+		});
+
+		It("Filter", [=]
+		{
+			let Result = Container
+				| ETContainer::Filter{[&](let It) { return It > 2; }}
+				| ETContainer::ToArray{};
+			TestEqual("Result == {3, 4, 5}", Result, {3, 4, 5});
 		});
 	});
 }

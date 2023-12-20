@@ -23,7 +23,7 @@
 
 
 #include "Cloud9/Cloud9.h"
-#include "Cloud9/Tools/Extensions/TArray.h"
+#include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Macro/Operator.h"
 
 BEGIN_DEFINE_SPEC(
@@ -39,14 +39,14 @@ void FOperatorSpec::Define()
 	{
 		It("FilterIsOperator", [&]
 		{
-			constexpr let Filter = ETArray::Filter{[] { return true; }};
+			constexpr let Filter = ETContainer::Filter{[] { return true; }};
 			TestTrue("TIsOperator<decltype(Filter)>::Value", TIsOperator<decltype(Filter)>::Value);
 		});
 
 		It("TArrayIsNotOperator", [&]
 		{
 			let Array = TArray{1, 2, 3};
-			TestTrue("TIsOperator<decltype(Array)>::Value)", TIsOperator<decltype(Array)>::Value);
+			TestTrue("not TIsOperator<decltype(Array)>::Value)", not TIsOperator<decltype(Array)>::Value);
 		});
 	});
 }

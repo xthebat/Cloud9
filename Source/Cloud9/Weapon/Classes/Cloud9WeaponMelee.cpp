@@ -24,7 +24,6 @@
 #include "Cloud9WeaponMelee.h"
 
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Tools/Extensions/Range.h"
 #include "Cloud9/Tools/Extensions/TOptional.h"
 #include "Cloud9/Weapon/Enums/MeleeActions.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
