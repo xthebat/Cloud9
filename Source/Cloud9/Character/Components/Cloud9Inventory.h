@@ -28,6 +28,7 @@
 #include "Cloud9CharacterComponent.h"
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
+#include "Cloud9/Weapon/Structures/WeaponConfig.h"
 #include "Cloud9Inventory.generated.h"
 
 class ACloud9WeaponBase;
@@ -72,6 +73,8 @@ public:
 	void OnWeaponChangeFinished();
 
 protected:
+	bool AddWeaponByConfig(const FWeaponConfig& Config);
+
 	template <typename WeaponType = ACloud9WeaponBase>
 	WeaponType* WeaponAt(EWeaponSlot Slot) const
 	{

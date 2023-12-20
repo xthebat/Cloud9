@@ -56,14 +56,24 @@ ACloud9WeaponBase::ACloud9WeaponBase()
 UWeaponDefinitionsAsset* ACloud9WeaponBase::GetWeaponDefinitionsAsset()
 {
 	// Without static won't work in packaged game
-	static let WeaponDefinitionsAsset = UCloud9AssetManager::GetOrLoadAssetSync<UWeaponDefinitionsAsset>();
+	static UWeaponDefinitionsAsset* WeaponDefinitionsAsset;
 
-	if (not IsValid(WeaponDefinitionsAsset))
+	if (IsValid(WeaponDefinitionsAsset))
 	{
-		// We have nothing to do if assets wasn't loaded
-		log(Fatal, "WeaponDefinitionsAsset loading failure");
+		return WeaponDefinitionsAsset;
+	}
+
+	let Asset = UCloud9AssetManager::GetOrLoadAssetSync<UWeaponDefinitionsAsset>();
+
+	if (not IsValid(Asset))
+	{
+		// Try reload later then ... this will haven in PIE
+		// if some object required this asset placed on level
+		log(Error, "WeaponDefinitionsAsset loading failure");
 		return nullptr;
 	}
+
+	WeaponDefinitionsAsset = Asset;
 
 	return WeaponDefinitionsAsset;
 }
@@ -75,32 +85,6 @@ void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
 	// Insanity checks just in case
 	static_assert(AnyActionId == 0);
 	static_assert(AnyActionIndex == -1);
-
-	WeaponDefinition = GetWeaponDefinitionsAsset()->GetWeaponDefinition(GetWeaponClass(), GetWeaponName());
-
-	if (not IsWeaponInitialized())
-	{
-		log(Error, "[Weapon='%s'] Not initialized and Tick() will be disabled", *GetName());
-		return;
-	}
-
-	let Actions = GetWeaponActions();
-
-	if (not IsValid(Actions))
-	{
-		log(Error, "[Weapon='%s'] Actions not specified", *GetName());
-		return;
-	}
-
-	for (int Id = AnyActionId + 1; Id < Actions->NumEnums(); Id++)
-	{
-		let CooldownActionName = Actions | EUEnum::GetValueName(Id);
-		let ComponentName = FString::Format(*ActionComponentFormat, {CooldownActionName.ToString()});
-		let CooldownActionComponent = CreateCooldownAction(FName(ComponentName));
-		Executors.Add(CooldownActionComponent);
-	}
-
-	SetActorTickEnabled(true);
 }
 
 UStaticMeshComponent* ACloud9WeaponBase::CreateMeshComponent(FName ComponentName, FName SocketName)
@@ -180,6 +164,7 @@ bool ACloud9WeaponBase::InitializeEffectComponent(UNiagaraComponent* Component, 
 	}
 
 	Component->SetAsset(Effect);
+	Component->Deactivate();
 	return true;
 }
 
@@ -488,6 +473,45 @@ const UStaticMeshComponent* ACloud9WeaponBase::GetWeaponMesh() const
 {
 	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName())
 	return nullptr;
+}
+
+bool ACloud9WeaponBase::Initialize()
+{
+	let Asset = GetWeaponDefinitionsAsset();
+
+	if (not IsValid(Asset))
+	{
+		log(Error, "[Weapon='%s'] Can't get weapon definitions asset", *GetName());
+		return false;
+	}
+
+	WeaponDefinition = Asset->GetWeaponDefinition(GetWeaponClass(), GetWeaponName());
+
+	if (not IsWeaponDefined())
+	{
+		log(Error, "[Weapon='%s'] Not initialized and Tick() will be disabled", *GetName());
+		return false;
+	}
+
+	let Actions = GetWeaponActions();
+
+	if (not IsValid(Actions))
+	{
+		log(Error, "[Weapon='%s'] Actions not specified", *GetName());
+		return false;
+	}
+
+	for (int Id = AnyActionId + 1; Id < Actions->NumEnums(); Id++)
+	{
+		let CooldownActionName = Actions | EUEnum::GetValueName(Id);
+		let ComponentName = FString::Format(*ActionComponentFormat, {CooldownActionName.ToString()});
+		let CooldownActionComponent = CreateCooldownAction(FName(ComponentName));
+		Executors.Add(CooldownActionComponent);
+	}
+
+	SetActorTickEnabled(true);
+
+	return true;
 }
 
 EWeaponClass ACloud9WeaponBase::GetWeaponClass() const

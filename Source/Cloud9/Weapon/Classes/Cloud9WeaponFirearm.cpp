@@ -72,22 +72,21 @@ const UStaticMeshSocket* ACloud9WeaponFirearm::GetSocketByName(FName SocketName)
 
 const UStaticMeshComponent* ACloud9WeaponFirearm::GetWeaponMesh() const { return WeaponMesh; }
 
-void ACloud9WeaponFirearm::OnConstruction(const FTransform& Transform)
+bool ACloud9WeaponFirearm::Initialize()
 {
 	using namespace ETOptional;
 	using namespace EFWeaponInfo;
 
-	Super::OnConstruction(Transform);
-
-	if (not IsWeaponInitialized())
+	if (not Super::Initialize() or not IsWeaponDefined())
 	{
 		WeaponMesh->SetStaticMesh(nullptr);
 		MagazineMesh->SetStaticMesh(nullptr);
 		MuzzleFlash->SetAsset(nullptr);
-		return;
+		return false;
 	}
 
 	let MyWeaponInfo = WeaponDefinition->GetWeaponInfo<FFirearmWeaponInfo>();
+
 	let SkinInfo = MyWeaponInfo
 		| GetSkinByName(Skin)
 		| Get([&]
@@ -99,16 +98,21 @@ void ACloud9WeaponFirearm::OnConstruction(const FTransform& Transform)
 			}
 		);
 
-	InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, SkinInfo);
-	InitializeMeshComponent(MagazineMesh, MyWeaponInfo->MagazineModel, SkinInfo);
-	InitializeEffectComponent(MuzzleFlash, MyWeaponInfo->Effects.MuzzleFlash);
+	return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, SkinInfo)
+		and InitializeMeshComponent(MagazineMesh, MyWeaponInfo->MagazineModel, SkinInfo)
+		and InitializeEffectComponent(MuzzleFlash, MyWeaponInfo->Effects.MuzzleFlash);
+}
+
+void ACloud9WeaponFirearm::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
 }
 
 void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	WEAPON_IS_INITIALIZED_GUARD();
+	WEAPON_IS_DEFINED_GUARD();
 	WEAPON_IS_DISARMED_GUARD();
 	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 

@@ -73,8 +73,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual const UStaticMeshComponent* GetWeaponMesh() const;
-	
-	bool IsWeaponInitialized() const { return WeaponDefinition.IsSet(); }
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool Initialize();
+
+	bool IsWeaponDefined() const { return WeaponDefinition.IsSet(); }
 
 	bool AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot);
 	bool RemoveFromInventory();
@@ -171,10 +174,10 @@ protected: // functions
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 
-#define WEAPON_IS_INITIALIZED_GUARD() \
-	if (not IsWeaponInitialized()) \
+#define WEAPON_IS_DEFINED_GUARD() \
+	if (not IsWeaponDefined()) \
 	{ \
-		log(Error, "[Weapon='%s'] Not initialized", *GetName()); \
+		log(Error, "[Weapon='%s'] Not defined", *GetName()); \
 		return; \
 	}
 

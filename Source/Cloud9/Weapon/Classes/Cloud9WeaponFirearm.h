@@ -48,7 +48,7 @@ public:
 
 	ACloud9WeaponFirearm();
 
-	bool OnSpawn(EFirearm WeaponName, FName WeaponSkin = FWeaponSkin::Default)
+	bool Configure(EFirearm WeaponName, FName WeaponSkin = FWeaponSkin::Default)
 	{
 		Name = WeaponName;
 		Skin = WeaponSkin;
@@ -60,6 +60,7 @@ public:
 	virtual const UEnum* GetWeaponActions() const override;
 	virtual const UStaticMeshSocket* GetSocketByName(FName SocketName) const override;
 	virtual const UStaticMeshComponent* GetWeaponMesh() const override;
+	virtual bool Initialize() override;
 
 protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
