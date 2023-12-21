@@ -95,7 +95,7 @@ namespace EFWeaponInfo
 		FName SkinName = FWeaponSkin::Default;
 
 		template <typename WeaponInfoType>
-		TOptional<FWeaponSkin> operator()(WeaponInfoType Self) const
+		TOptional<FWeaponSkin> operator()(WeaponInfoType&& Self) const
 		{
 			let Skin = Self->Skins.FindByPredicate([this](let& It) { return It.Name == SkinName; });
 
@@ -121,7 +121,7 @@ namespace EFWeaponInfo
 		FName SkinName = FWeaponSkin::Default;
 
 		template <typename WeaponInfoType>
-		FWeaponSkin operator()(WeaponInfoType Self) const
+		FWeaponSkin operator()(WeaponInfoType&& Self) const
 		{
 			using namespace ETOptional;
 
@@ -129,7 +129,7 @@ namespace EFWeaponInfo
 				| GetSkinByNameOrNull(SkinName)
 				| Get([&]
 					{
-						log(Error, "Weapon skin '%s' not found", *SkinName.ToString());
+						log(Error, "Weapon skin '%s' not found -> try to get default skin", *SkinName.ToString());
 						return Self
 							| GetSkinByNameOrNull()
 							| Get();

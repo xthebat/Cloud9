@@ -136,6 +136,7 @@ struct FWeaponConfig
 			return false;
 		}
 
+		log(Display, "[Config='%s'] Initializing weapon...", *ToString());
 		return Weapon->Initialize(GetWeaponId(), GetSkinName());
 	}
 
