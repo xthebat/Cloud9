@@ -23,17 +23,16 @@
 
 #include "WeaponInitializerComponent.h"
 
-// #include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
-//
-// void UWeaponInitializerComponent::SetWeaponConfig(const FWeaponConfig& Config)
-// {
-// 	if (IsValid(Config))
-// 	{
-// 		SetChildActorClass(Config.GetWeaponStaticClass());
-//
-// 		if (not Config.Configure(GetChildActor()))
-// 		{
-// 			DestroyChildActor();
-// 		}
-// 	}
-// }
+#include "Cloud9/Weapon/Structures/WeaponConfig.h"
+
+void UWeaponInitializerComponent::SetWeaponConfig(const FWeaponConfig& Config)
+{
+	if (IsValid(Config))
+	{
+		SetChildActorClass(Config.GetWeaponStaticClass());
+		if (not Config.Initialize(GetChildActor()))
+		{
+			DestroyChildActor();
+		}
+	}
+}

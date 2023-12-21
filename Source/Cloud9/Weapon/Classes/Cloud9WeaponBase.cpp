@@ -33,6 +33,7 @@
 #include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
+#include "Cloud9/Weapon/Extensions/EWeaponId.h"
 
 const FName ACloud9WeaponBase::RootComponentName = TEXT("RootComponent");
 const FName ACloud9WeaponBase::WeaponMeshCollisionProfile = TEXT("WeaponCollisionProfile");
@@ -124,25 +125,20 @@ UNiagaraComponent* ACloud9WeaponBase::CreateEffectComponent(FName ComponentName,
 	return nullptr;
 }
 
-bool ACloud9WeaponBase::InitializeName(const FWeaponId& NewWeaponId)
+void ACloud9WeaponBase::InitializeName(const FWeaponId& NewWeaponId)
 {
-	bool bIsInitialized = false;
-
 	Visit(
-		[&]<typename T>(T Id)
+		[&]<typename WeaponIdType>(WeaponIdType Id)
 		{
-			if constexpr (not TIsSame<T, EBadWeapon>::Value)
+			if constexpr (not TIsSame<WeaponIdType, EBadWeapon>::Value)
 			{
-				using WeaponClassType = typename EFWeaponId::WeaponClass<T>::Type;
+				using WeaponClassType = typename EFWeaponId::WeaponClass<WeaponIdType>::Type;
 				var This = static_cast<WeaponClassType*>(this);
 				This->WeaponId = Id;
-				bIsInitialized = true;
 			}
 		},
 		NewWeaponId
 	);
-
-	return bIsInitialized;
 }
 
 bool ACloud9WeaponBase::InitializeMeshComponent(
@@ -445,6 +441,7 @@ bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeapon
 	if (not OnInitialize(NewWeaponId, NewWeaponSkin))
 	{
 		log(Error, "[Weapon='%s'] Weapon initialization failure", *GetName());
+		SetActorTickEnabled(false);
 		DeInitialize();
 		return false;
 	}
@@ -495,7 +492,7 @@ bool ACloud9WeaponBase::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeap
 	return true;
 }
 
-bool ACloud9WeaponBase::DeInitialize()
+void ACloud9WeaponBase::DeInitialize()
 {
 	WeaponSkin = FWeaponSkin::Default;
 	Slot = EWeaponSlot::NotSelected;
@@ -504,7 +501,6 @@ bool ACloud9WeaponBase::DeInitialize()
 	bIsSecondaryActionActive = false;
 	WeaponDefinition.Reset();
 	Executors.Reset();
-	return true;
 }
 
 void ACloud9WeaponBase::OnWeaponAddedToInventory()

@@ -153,7 +153,7 @@ public:
 protected: // functions
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
 
-	virtual bool DeInitialize();
+	virtual void DeInitialize();
 
 	/**
 	 * Function called whenever weapon added to inventory and should
@@ -174,23 +174,7 @@ protected: // functions
 	UStaticMeshComponent* CreateMeshComponent(FName ComponentName, FName SocketName = NAME_None);
 	UNiagaraComponent* CreateEffectComponent(FName ComponentName, FName SocketName);
 
-	// template <typename WeaponIdType, typename ImplementationType>
-	// bool InitializeName(ImplementationType This, const FWeaponId& WeaponId)
-	// {
-	// 	if (not WeaponId.IsType<WeaponIdType>())
-	// 	{
-	// 		log(Error, "[Weapon='%s'] Invalid type specified for weapon name", *GetName());
-	// 		return false;
-	// 	}
-	// 	
-	// 	Cast<ImplementationType>(this)
-	// 	
-	// 	This->WeaponId = WeaponId.Get<WeaponIdType>();
-	// 	
-	// 	return true;
-	// }
-
-	bool InitializeName(const FWeaponId& NewWeaponId);
+	void InitializeName(const FWeaponId& NewWeaponId);
 	bool InitializeMeshComponent(UStaticMeshComponent* Component, UStaticMesh* Mesh, const FWeaponSkin& SkinInfo) const;
 	bool InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect) const;
 

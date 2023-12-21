@@ -57,7 +57,7 @@ public:
 
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
-	virtual bool DeInitialize() override;
+	virtual void DeInitialize() override;
 	virtual void Tick(float DeltaSeconds) override;
 	bool Fire() const;
 
