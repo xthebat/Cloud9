@@ -29,6 +29,7 @@
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Extensions/TOptional.h"
+#include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
@@ -45,7 +46,7 @@ ACloud9WeaponBase::ACloud9WeaponBase()
 	State = EWeaponState::Dropped;
 	Slot = EWeaponSlot::NotSelected;
 
-	Skin = FWeaponSkin::Default;
+	WeaponSkin = FWeaponSkin::Default;
 
 	bIsPrimaryActionActive = false;
 	bIsSecondaryActionActive = false;
@@ -76,15 +77,6 @@ UWeaponDefinitionsAsset* ACloud9WeaponBase::GetWeaponDefinitionsAsset()
 	WeaponDefinitionsAsset = Asset;
 
 	return WeaponDefinitionsAsset;
-}
-
-void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
-{
-	Super::OnConstruction(Transform);
-
-	// Insanity checks just in case
-	static_assert(AnyActionId == 0);
-	static_assert(AnyActionIndex == -1);
 }
 
 UStaticMeshComponent* ACloud9WeaponBase::CreateMeshComponent(FName ComponentName, FName SocketName)
@@ -130,6 +122,27 @@ UNiagaraComponent* ACloud9WeaponBase::CreateEffectComponent(FName ComponentName,
 
 	log(Error, "Can't create VFX '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
 	return nullptr;
+}
+
+bool ACloud9WeaponBase::InitializeName(const FWeaponId& NewWeaponId)
+{
+	bool bIsInitialized = false;
+
+	Visit(
+		[&]<typename T>(T Id)
+		{
+			if constexpr (not TIsSame<T, EBadWeapon>::Value)
+			{
+				using WeaponClassType = typename EFWeaponId::WeaponClass<T>::Type;
+				var This = static_cast<WeaponClassType*>(this);
+				This->WeaponId = Id;
+				bIsInitialized = true;
+			}
+		},
+		NewWeaponId
+	);
+
+	return bIsInitialized;
 }
 
 bool ACloud9WeaponBase::InitializeMeshComponent(
@@ -424,6 +437,76 @@ void ACloud9WeaponBase::SecondaryAction(bool bIsReleased)
 
 void ACloud9WeaponBase::Reload() {}
 
+bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
+{
+	InitializeName(NewWeaponId);
+	WeaponSkin = NewWeaponSkin;
+
+	if (not OnInitialize(NewWeaponId, NewWeaponSkin))
+	{
+		log(Error, "[Weapon='%s'] Weapon initialization failure", *GetName());
+		DeInitialize();
+		return false;
+	}
+
+	SetActorTickEnabled(true);
+
+	return true;
+}
+
+bool ACloud9WeaponBase::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
+{
+	let Asset = GetWeaponDefinitionsAsset();
+
+	if (not IsValid(Asset))
+	{
+		log(Error, "[Weapon='%s'] Can't get weapon definitions asset", *GetName());
+		return false;
+	}
+
+	WeaponDefinition = Asset->GetWeaponDefinition(GetWeaponId());
+
+	if (not IsWeaponDefined())
+	{
+		log(Error, "[Weapon='%s'] Not initialized and Tick() will be disabled", *GetName());
+		return false;
+	}
+
+	let Actions = GetWeaponActions();
+
+	if (not IsValid(Actions))
+	{
+		log(Error, "[Weapon='%s'] Actions not specified", *GetName());
+		return false;
+	}
+
+	// Insanity checks just in case
+	static_assert(AnyActionId == 0);
+	static_assert(AnyActionIndex == -1);
+
+	for (int Id = AnyActionId + 1; Id < Actions->NumEnums(); Id++)
+	{
+		let CooldownActionName = Actions | EUEnum::GetValueName(Id);
+		let ComponentName = FString::Format(*ActionComponentFormat, {CooldownActionName.ToString()});
+		let CooldownActionComponent = CreateCooldownAction(FName(ComponentName));
+		Executors.Add(CooldownActionComponent);
+	}
+
+	return true;
+}
+
+bool ACloud9WeaponBase::DeInitialize()
+{
+	WeaponSkin = FWeaponSkin::Default;
+	Slot = EWeaponSlot::NotSelected;
+	State = EWeaponState::Dropped;
+	bIsPrimaryActionActive = false;
+	bIsSecondaryActionActive = false;
+	WeaponDefinition.Reset();
+	Executors.Reset();
+	return true;
+}
+
 void ACloud9WeaponBase::OnWeaponAddedToInventory()
 {
 	// CapsuleComponent->SetSimulatePhysics(false);
@@ -451,10 +534,13 @@ bool ACloud9WeaponBase::ChangeActionFlag(bool Flag, bool bIsReleased)
 	return Flag;
 }
 
-FName ACloud9WeaponBase::GetWeaponName() const
+FName ACloud9WeaponBase::GetWeaponName() const { return GetWeaponId() | EFWeaponId::ToName(); }
+
+FWeaponId ACloud9WeaponBase::GetWeaponId() const
 {
+	static let EmptyWeaponName = ETVariant::Convert<FWeaponId>(EBadWeapon::NoClass);
 	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName())
-	return NAME_None;
+	return EmptyWeaponName;
 }
 
 EWeaponType ACloud9WeaponBase::GetWeaponType() const
@@ -475,49 +561,10 @@ const UStaticMeshComponent* ACloud9WeaponBase::GetWeaponMesh() const
 	return nullptr;
 }
 
-bool ACloud9WeaponBase::Initialize()
-{
-	let Asset = GetWeaponDefinitionsAsset();
-
-	if (not IsValid(Asset))
-	{
-		log(Error, "[Weapon='%s'] Can't get weapon definitions asset", *GetName());
-		return false;
-	}
-
-	WeaponDefinition = Asset->GetWeaponDefinition(GetWeaponClass(), GetWeaponName());
-
-	if (not IsWeaponDefined())
-	{
-		log(Error, "[Weapon='%s'] Not initialized and Tick() will be disabled", *GetName());
-		return false;
-	}
-
-	let Actions = GetWeaponActions();
-
-	if (not IsValid(Actions))
-	{
-		log(Error, "[Weapon='%s'] Actions not specified", *GetName());
-		return false;
-	}
-
-	for (int Id = AnyActionId + 1; Id < Actions->NumEnums(); Id++)
-	{
-		let CooldownActionName = Actions | EUEnum::GetValueName(Id);
-		let ComponentName = FString::Format(*ActionComponentFormat, {CooldownActionName.ToString()});
-		let CooldownActionComponent = CreateCooldownAction(FName(ComponentName));
-		Executors.Add(CooldownActionComponent);
-	}
-
-	SetActorTickEnabled(true);
-
-	return true;
-}
-
 EWeaponClass ACloud9WeaponBase::GetWeaponClass() const
 {
-	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName())
-	return EWeaponClass::NoClass;
+	let WeaponName = GetWeaponId();
+	return static_cast<EWeaponClass>(WeaponName.GetIndex());
 }
 
 bool ACloud9WeaponBase::CanBeDropped() const { return true; }

@@ -35,9 +35,9 @@ class CLOUD9_API UCloud9GameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	const TArray<FWeaponConfig>& GetDefaultWeaponsConfig() const { return DefaultWeaponsConfig; }
+	const TArray<FWeaponConfig>& GetDefaultWeaponsConfig() const;
 
-	EWeaponSlot GetInitialWeaponSlot() const { return InitialWeaponSlot; }
+	EWeaponSlot GetInitialWeaponSlot() const;
 
 protected: // properties
 

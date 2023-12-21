@@ -38,6 +38,8 @@ class CLOUD9_API ACloud9WeaponFirearm : public ACloud9WeaponBase
 {
 	GENERATED_BODY()
 
+	friend class ACloud9WeaponBase;
+
 public:
 	static const FName WeaponMeshComponentName;
 	static const FName MagazineMeshComponentName;
@@ -48,22 +50,14 @@ public:
 
 	ACloud9WeaponFirearm();
 
-	bool Configure(EFirearm WeaponName, FName WeaponSkin = FWeaponSkin::Default)
-	{
-		Name = WeaponName;
-		Skin = WeaponSkin;
-		return true;
-	}
-
-	virtual FName GetWeaponName() const override;
-	virtual EWeaponClass GetWeaponClass() const override;
+	virtual FWeaponId GetWeaponId() const override;
 	virtual const UEnum* GetWeaponActions() const override;
 	virtual const UStaticMeshSocket* GetSocketByName(FName SocketName) const override;
 	virtual const UStaticMeshComponent* GetWeaponMesh() const override;
-	virtual bool Initialize() override;
 
 protected:
-	virtual void OnConstruction(const FTransform& Transform) override;
+	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
+	virtual bool DeInitialize() override;
 	virtual void Tick(float DeltaSeconds) override;
 	bool Fire() const;
 
@@ -72,7 +66,7 @@ protected: // properties
 	 * Weapon Identifier
 	 */
 	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
-	EFirearm Name;
+	EFirearm WeaponId;
 
 	/**
 	 * Weapon mesh

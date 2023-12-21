@@ -61,10 +61,10 @@ public:
 	static bool IsFirearm(EWeaponType Type)
 	{
 		return Type == EWeaponType::Pistol
-			|| Type == EWeaponType::Smg
-			|| Type == EWeaponType::Shotgun
-			|| Type == EWeaponType::Rifle
-			|| Type == EWeaponType::Sniper;
+			or Type == EWeaponType::Smg
+			or Type == EWeaponType::Shotgun
+			or Type == EWeaponType::Rifle
+			or Type == EWeaponType::Sniper;
 	}
 
 	UFUNCTION(BlueprintCallable)

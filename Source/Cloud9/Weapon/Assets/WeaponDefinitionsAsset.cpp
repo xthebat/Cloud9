@@ -29,15 +29,19 @@
 
 const FPrimaryAssetId UWeaponDefinitionsAsset::PrimaryAssetId = FPrimaryAssetId("Weapon:Definitions");
 
-template <typename WeaponInfoType, typename ValidatorType>
+template <typename WeaponIdType, typename ValidatorType>
 TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(
 	UDataTable* WeaponsInfoTable,
 	ValidatorType Validator,
-	FName WeaponName) const
+	WeaponIdType WeaponId) const
 {
+	using WeaponInfoType = typename EFWeaponId::WeaponInfo<WeaponIdType>::Type;
+
+	let WeaponName = WeaponId | EUEnum::GetValueName();
+
 	if (WeaponName.IsNone())
 	{
-		log(Error, "WeaponName is invalid");
+		log(Error, "WeaponName/WeaponId is invalid");
 		return {};
 	}
 
@@ -78,30 +82,16 @@ TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(
 	};
 }
 
-TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(
-	EWeaponClass WeaponClass,
-	FName WeaponName) const
+TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(const FWeaponId& WeaponId) const
 {
-	switch (WeaponClass)
-	{
-	case EWeaponClass::Firearm:
-		return GetWeaponDefinition<FFirearmWeaponInfo>(
-			FirearmsWeaponsInfoTable,
-			UWeaponType::IsFirearm,
-			WeaponName);
-	case EWeaponClass::Melee:
-		return GetWeaponDefinition<FMeleeWeaponInfo>(
-			MeleeWeaponsInfoTable,
-			UWeaponType::IsMelee,
-			WeaponName);
-	case EWeaponClass::Grenade:
-		return GetWeaponDefinition<FGrenadeWeaponInfo>(
-			GrenadeWeaponInfoTable,
-			UWeaponType::IsGrenade,
-			WeaponName);
-	default:
-		return {};
-	}
+	return Visit(
+		ETVariant::Overloaded{
+			[&](EFirearm Id) { return GetWeaponDefinition(FirearmsWeaponsInfoTable, UWeaponType::IsFirearm, Id); },
+			[&](EMelee Id) { return GetWeaponDefinition(MeleeWeaponsInfoTable, UWeaponType::IsMelee, Id); },
+			[&](EGrenade Id) { return GetWeaponDefinition(GrenadeWeaponInfoTable, UWeaponType::IsGrenade, Id); },
+			[](auto) { return TOptional<FWeaponDefinition>(); }
+		}, WeaponId
+	);
 }
 
 FPrimaryAssetId UWeaponDefinitionsAsset::GetPrimaryAssetId() const { return PrimaryAssetId; }

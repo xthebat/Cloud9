@@ -25,9 +25,10 @@
 
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
-#include "Cloud9/Weapon/Utils/WeaponConfigUtils.h"
+#include "Cloud9/Game/Cloud9GameInstance.h"
+#include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
+#include "Cloud9/Weapon/Enums/WeaponState.h"
 
 UCloud9Inventory::UCloud9Inventory()
 {
@@ -36,27 +37,6 @@ UCloud9Inventory::UCloud9Inventory()
 
 	let SlotsNumber = StaticEnum<EWeaponSlot>()->NumEnums();
 	WeaponSlots.SetNum(SlotsNumber);
-}
-
-bool UCloud9Inventory::AddWeaponByConfig(const FWeaponConfig& Config)
-{
-	let Weapon = UWeaponConfigUtils::Spawn(Config, GetWorld());
-
-	if (not IsValid(Weapon))
-	{
-		log(Error, "Can't spawn weapon by config: %s", *UWeaponConfigUtils::ToString(Config));
-		return false;
-	}
-
-	if (not ShoveWeapon(UWeaponConfigUtils::GetWeaponSlot(Config), Weapon))
-	{
-		log(Error, "Can't shove weapon by config: %s", *UWeaponConfigUtils::ToString(Config));
-		return false;
-	}
-
-	log(Display, "Add configured weapon = '%s'", *UWeaponConfigUtils::ToString(Config));
-
-	return true;
 }
 
 void UCloud9Inventory::BeginPlay()
@@ -76,12 +56,11 @@ void UCloud9Inventory::BeginPlay()
 	if (not IsValid(GameInstance))
 	{
 		log(Error, "[Actor='%s'] UCloud9GameInstance isn't valid", *GetName());
-		return;
 	}
 
 	GameInstance->GetDefaultWeaponsConfig()
-		| ETContainer::Filter{[this](let& Config) { return Config.bIsEnabled; }}
-		| ETContainer::ForEach{[this](let& Config) { AddWeaponByConfig(Config); }};
+		| ETContainer::Filter{[this](let& Config) { return IsValid(Config); }}
+		| ETContainer::ForEach{[this](let& Config) { AddWeapon(Config); }};
 
 	let InitialWeaponSlot = GameInstance->GetInitialWeaponSlot();
 
@@ -174,6 +153,27 @@ bool UCloud9Inventory::ShoveWeapon(EWeaponSlot Slot, ACloud9WeaponBase* Weapon)
 	}
 
 	WeaponAt(Slot) = Weapon;
+	return true;
+}
+
+bool UCloud9Inventory::AddWeapon(const FWeaponConfig& Config)
+{
+	let Weapon = Config.Spawn(GetWorld());
+
+	if (not IsValid(Weapon))
+	{
+		log(Error, "Can't spawn weapon by config: %s", *Config.ToString());
+		return false;
+	}
+
+	if (not ShoveWeapon(Config.GetWeaponSlot(), Weapon))
+	{
+		log(Error, "Can't shove weapon by config: %s", *Config.ToString());
+		return false;
+	}
+
+	log(Display, "Add configured weapon = '%s'", *Config.ToString());
+
 	return true;
 }
 
