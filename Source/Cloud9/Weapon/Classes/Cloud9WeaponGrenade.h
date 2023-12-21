@@ -35,24 +35,22 @@ class CLOUD9_API ACloud9WeaponGrenade : public ACloud9WeaponBase
 {
 	GENERATED_BODY()
 
+	friend class ACloud9WeaponBase;
+
 public:
 	ACloud9WeaponGrenade();
 
-	virtual EWeaponClass GetWeaponClass() const override;
+	virtual FWeaponId GetWeaponId() const override;
 	virtual const UEnum* GetWeaponActions() const override;
-	virtual bool Initialize() override;
 
-	bool Configure(EGrenade WeaponName, FName WeaponSkin = FWeaponSkin::Default)
-	{
-		Name = WeaponName;
-		Skin = WeaponSkin;
-		return true;
-	}
+protected:
+	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
+	virtual bool DeInitialize() override;
 
 protected:
 	/**
 	 * Weapon Identifier
 	 */
 	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
-	EGrenade Name;
+	EGrenade WeaponId;
 };

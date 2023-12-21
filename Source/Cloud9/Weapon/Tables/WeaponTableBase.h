@@ -25,6 +25,8 @@
 
 #include "Engine/DataTable.h"
 #include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Extensions/TOptional.h"
+#include "Cloud9/Tools/Macro/Operator.h"
 #include "Cloud9/Weapon/Enums/WeaponType.h"
 #include "WeaponTableBase.generated.h"
 
@@ -88,9 +90,9 @@ struct FBaseWeaponInfo : public FTableRowBase
 
 namespace EFWeaponInfo
 {
-	struct GetSkinByName : TOperator<GetSkinByName>
+	struct GetSkinByNameOrNull
 	{
-		explicit GetSkinByName(FName SkinName = FWeaponSkin::Default) : SkinName(SkinName) {}
+		FName SkinName = FWeaponSkin::Default;
 
 		template <typename WeaponInfoType>
 		TOptional<FWeaponSkin> operator()(WeaponInfoType Self) const
@@ -111,7 +113,30 @@ namespace EFWeaponInfo
 			return *Skin;
 		}
 
-	private:
-		FName SkinName;
+		OPERATOR_BODY(GetSkinByNameOrNull)
+	};
+
+	struct GetSkinByNameOrThrow
+	{
+		FName SkinName = FWeaponSkin::Default;
+
+		template <typename WeaponInfoType>
+		FWeaponSkin operator()(WeaponInfoType Self) const
+		{
+			using namespace ETOptional;
+
+			return Self
+				| GetSkinByNameOrNull(SkinName)
+				| Get([&]
+					{
+						log(Error, "Weapon skin '%s' not found", *SkinName.ToString());
+						return Self
+							| GetSkinByNameOrNull()
+							| Get();
+					}
+				);
+		}
+
+		OPERATOR_BODY(GetSkinByNameOrThrow)
 	};
 }

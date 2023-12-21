@@ -27,7 +27,7 @@
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Tools/Extensions/TOptional.h"
+#include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Weapon/Enums/FirearmActions.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
 
@@ -59,9 +59,7 @@ ACloud9WeaponFirearm::ACloud9WeaponFirearm()
 	}
 }
 
-FName ACloud9WeaponFirearm::GetWeaponName() const { return Name | EUEnum::GetValueName(); }
-
-EWeaponClass ACloud9WeaponFirearm::GetWeaponClass() const { return EWeaponClass::Firearm; }
+FWeaponId ACloud9WeaponFirearm::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
 
 const UEnum* ACloud9WeaponFirearm::GetWeaponActions() const { return StaticEnum<EFirearmAction>(); }
 
@@ -72,40 +70,27 @@ const UStaticMeshSocket* ACloud9WeaponFirearm::GetSocketByName(FName SocketName)
 
 const UStaticMeshComponent* ACloud9WeaponFirearm::GetWeaponMesh() const { return WeaponMesh; }
 
-bool ACloud9WeaponFirearm::Initialize()
+bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {
-	using namespace ETOptional;
-	using namespace EFWeaponInfo;
-
-	if (not Super::Initialize() or not IsWeaponDefined())
+	if (Super::OnInitialize(NewWeaponId, NewWeaponSkin))
 	{
-		WeaponMesh->SetStaticMesh(nullptr);
-		MagazineMesh->SetStaticMesh(nullptr);
-		MuzzleFlash->SetAsset(nullptr);
-		return false;
+		let MyWeaponInfo = WeaponDefinition->GetWeaponInfo<FFirearmWeaponInfo>();
+		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(NewWeaponSkin);
+
+		return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo)
+			and InitializeMeshComponent(MagazineMesh, MyWeaponInfo->MagazineModel, MySkinInfo)
+			and InitializeEffectComponent(MuzzleFlash, MyWeaponInfo->Effects.MuzzleFlash);
 	}
 
-	let MyWeaponInfo = WeaponDefinition->GetWeaponInfo<FFirearmWeaponInfo>();
-
-	let SkinInfo = MyWeaponInfo
-		| GetSkinByName(Skin)
-		| Get([&]
-			{
-				log(Error, "[Weapon='%s'] Skin '%s' not found", *GetName(), *Skin.ToString());
-				return MyWeaponInfo
-					| GetSkinByName()
-					| Get();
-			}
-		);
-
-	return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, SkinInfo)
-		and InitializeMeshComponent(MagazineMesh, MyWeaponInfo->MagazineModel, SkinInfo)
-		and InitializeEffectComponent(MuzzleFlash, MyWeaponInfo->Effects.MuzzleFlash);
+	return false;
 }
 
-void ACloud9WeaponFirearm::OnConstruction(const FTransform& Transform)
+bool ACloud9WeaponFirearm::DeInitialize()
 {
-	Super::OnConstruction(Transform);
+	WeaponMesh->SetStaticMesh(nullptr);
+	MagazineMesh->SetStaticMesh(nullptr);
+	MuzzleFlash->SetAsset(nullptr);
+	return Super::DeInitialize();
 }
 
 void ACloud9WeaponFirearm::Tick(float DeltaSeconds)

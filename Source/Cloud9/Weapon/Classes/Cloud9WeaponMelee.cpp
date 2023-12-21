@@ -23,10 +23,10 @@
 
 #include "Cloud9WeaponMelee.h"
 
+#include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Tools/Extensions/TOptional.h"
+#include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Weapon/Enums/MeleeActions.h"
-#include "Cloud9/Weapon/Enums/WeaponClass.h"
 #include "Cloud9/Weapon/Tables/WeaponTableMelee.h"
 #include "Cloud9/Weapon/Structures/WeaponDefinition.h"
 
@@ -41,9 +41,7 @@ ACloud9WeaponMelee::ACloud9WeaponMelee()
 	}
 }
 
-FName ACloud9WeaponMelee::GetWeaponName() const { return Name | EUEnum::GetValueName(); }
-
-EWeaponClass ACloud9WeaponMelee::GetWeaponClass() const { return EWeaponClass::Melee; }
+FWeaponId ACloud9WeaponMelee::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
 
 const UEnum* ACloud9WeaponMelee::GetWeaponActions() const { return StaticEnum<EMeleeAction>(); }
 
@@ -56,35 +54,22 @@ const UStaticMeshSocket* ACloud9WeaponMelee::GetSocketByName(FName SocketName) c
 
 const UStaticMeshComponent* ACloud9WeaponMelee::GetWeaponMesh() const { return WeaponMesh; }
 
-bool ACloud9WeaponMelee::Initialize()
+bool ACloud9WeaponMelee::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {
-	using namespace ETOptional;
-	using namespace EFWeaponInfo;
-
-	if (not Super::Initialize() or not IsWeaponDefined())
+	if (Super::OnInitialize(NewWeaponId, NewWeaponSkin))
 	{
-		WeaponMesh->SetStaticMesh(nullptr);
-		return false;
+		let MyWeaponInfo = WeaponDefinition->GetWeaponInfo<FMeleeWeaponInfo>();
+		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(NewWeaponSkin);
+		return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo);
 	}
 
-	let MyWeaponInfo = WeaponDefinition->GetWeaponInfo<FMeleeWeaponInfo>();
-	let SkinInfo = MyWeaponInfo
-		| GetSkinByName(Skin)
-		| Get([&]
-			{
-				log(Error, "[Weapon='%s'] Skin '%s' not found", *GetName(), *Skin.ToString());
-				return MyWeaponInfo
-					| GetSkinByName()
-					| Get();
-			}
-		);
-
-	return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, SkinInfo);
+	return false;
 }
 
-void ACloud9WeaponMelee::OnConstruction(const FTransform& Transform)
+bool ACloud9WeaponMelee::DeInitialize()
 {
-	Super::OnConstruction(Transform);
+	WeaponMesh->SetStaticMesh(nullptr);
+	return Super::DeInitialize();
 }
 
 void ACloud9WeaponMelee::Tick(float DeltaSeconds)

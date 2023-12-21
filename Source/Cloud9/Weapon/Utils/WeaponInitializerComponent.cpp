@@ -23,23 +23,17 @@
 
 #include "WeaponInitializerComponent.h"
 
-#include "WeaponConfigUtils.h"
-#include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
-
-void UWeaponInitializerComponent::SetWeaponConfig(const FWeaponConfig& Config)
-{
-	if (UWeaponConfigUtils::IsValid(Config))
-	{
-		log(Display, "Try to create child actor...");
-		if (UWeaponConfigUtils::IsFirearmWeapon(Config))
-		{
-			SetChildActorClass(UWeaponConfigUtils::GetWeaponStaticClass(Config));
-			let Weapon = Cast<ACloud9WeaponFirearm>(GetChildActor());
-			if (not Weapon->Configure(Config.FirearmWeaponName, Config.SkinName) or not Weapon->Initialize())
-			{
-				log(Error, "Child actor is invalid")
-				DestroyChildActor();
-			}
-		}
-	}
-}
+// #include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
+//
+// void UWeaponInitializerComponent::SetWeaponConfig(const FWeaponConfig& Config)
+// {
+// 	if (IsValid(Config))
+// 	{
+// 		SetChildActorClass(Config.GetWeaponStaticClass());
+//
+// 		if (not Config.Configure(GetChildActor()))
+// 		{
+// 			DestroyChildActor();
+// 		}
+// 	}
+// }

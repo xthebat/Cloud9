@@ -22,3 +22,7 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Cloud9GameInstance.h"
+
+const TArray<FWeaponConfig>& UCloud9GameInstance::GetDefaultWeaponsConfig() const { return DefaultWeaponsConfig; }
+
+EWeaponSlot UCloud9GameInstance::GetInitialWeaponSlot() const { return InitialWeaponSlot; }

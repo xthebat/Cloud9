@@ -23,16 +23,24 @@
 
 #include "Cloud9WeaponGrenade.h"
 
-#include "Cloud9/Weapon/Enums/WeaponClass.h"
+#include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Weapon/Enums/GrenadeActions.h"
 
-ACloud9WeaponGrenade::ACloud9WeaponGrenade() {}
+ACloud9WeaponGrenade::ACloud9WeaponGrenade()
+{
+	WeaponId = EGrenade::Explosive;
+}
 
-EWeaponClass ACloud9WeaponGrenade::GetWeaponClass() const { return EWeaponClass::Grenade; }
+FWeaponId ACloud9WeaponGrenade::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
 
 const UEnum* ACloud9WeaponGrenade::GetWeaponActions() const { return StaticEnum<EGrenadeAction>(); }
 
-bool ACloud9WeaponGrenade::Initialize()
+bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {
-	return Super::Initialize();
+	return Super::OnInitialize(NewWeaponId, NewWeaponSkin);
+}
+
+bool ACloud9WeaponGrenade::DeInitialize()
+{
+	return Super::DeInitialize();
 }

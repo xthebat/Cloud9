@@ -28,7 +28,6 @@
 #include "Camera/CameraComponent.h"
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -260,10 +259,6 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 void ACloud9Character::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// FTransform Transform = FTransform::Identity;
-	// Transform.SetLocation({50, 329, -330});
-	// GetGameInstance<UCloud9GameInstance>()->SpawnFirearmWeapon(EFirearm::Deagle);
 }
 
 void ACloud9Character::Tick(float DeltaSeconds)

@@ -24,9 +24,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9/Cloud9.h"
 #include "Components/ActorComponent.h"
 #include "Cloud9CharacterComponent.h"
-#include "Cloud9/Cloud9.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
 #include "Cloud9Inventory.generated.h"
@@ -51,11 +51,30 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetWeaponAt(EWeaponSlot Slot) const;
 
+	/**
+	 * Function shoves existed weapon into inventory
+	 * 
+	 * @param Slot Weapon slot to shove existed weapon
+	 * @param Weapon Existed weapon object
+	 */
 	UFUNCTION(BlueprintCallable)
 	bool ShoveWeapon(EWeaponSlot Slot, ACloud9WeaponBase* Weapon);
 
+	/**
+	 * Function drops to the ground weapon from inventory by defined slot
+	 * 
+	 * @param Slot Weapon slot to drop weapon from
+	 */
 	UFUNCTION(BlueprintCallable)
 	bool DropWeapon(EWeaponSlot Slot);
+
+	/**
+	 * Function creates and add weapon to the inventory by specified config
+	 * 
+	 * @param Config Parameter to creates and shove weapon into inventory
+	 */
+	UFUNCTION(BlueprintCallable)
+	bool AddWeapon(const FWeaponConfig& Config);
 
 	UFUNCTION(BlueprintCallable)
 	bool ReplaceWeaponAt(EWeaponSlot Slot, ACloud9WeaponBase* Weapon);
@@ -73,7 +92,7 @@ public:
 	void OnWeaponChangeFinished();
 
 protected:
-	bool AddWeaponByConfig(const FWeaponConfig& Config);
+	virtual void BeginPlay() override;
 
 	template <typename WeaponType = ACloud9WeaponBase>
 	WeaponType* WeaponAt(EWeaponSlot Slot) const
@@ -90,8 +109,6 @@ protected:
 	}
 
 protected:
-	virtual void BeginPlay() override;
-
 	UPROPERTY()
 	TArray<ACloud9WeaponBase*> WeaponSlots;
 

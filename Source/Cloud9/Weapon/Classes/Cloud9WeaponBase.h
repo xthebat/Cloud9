@@ -27,14 +27,16 @@
 #include "NiagaraComponent.h"
 #include "GameFramework/Actor.h"
 #include "Cloud9/Cloud9.h"
-#include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
+#include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
+#include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Enums/WeaponState.h"
 #include "Cloud9/Weapon/Structures/WeaponDefinition.h"
 #include "Cloud9WeaponBase.generated.h"
 
+class ACloud9Character;
 class UCloud9Inventory;
 
 UCLASS()
@@ -54,10 +56,18 @@ public:
 	ACloud9WeaponBase();
 
 	UFUNCTION(BlueprintCallable)
-	virtual FName GetWeaponName() const;
+	EWeaponClass GetWeaponClass() const;
 
+	/**
+	 * Function returns weapon unique name as enum variant (identifier from weapon asset table)
+	 */
+	virtual FWeaponId GetWeaponId() const;
+
+	/**
+	 * Function returns weapon unique name as string (identifier from weapon asset table)
+	 */
 	UFUNCTION(BlueprintCallable)
-	virtual EWeaponClass GetWeaponClass() const;
+	FName GetWeaponName() const;
 
 	UFUNCTION(BlueprintCallable)
 	virtual const UEnum* GetWeaponActions() const;
@@ -74,8 +84,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual const UStaticMeshComponent* GetWeaponMesh() const;
 
-	UFUNCTION(BlueprintCallable)
-	virtual bool Initialize();
+	bool Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
+
+	template <typename WeaponIdType>
+	bool Initialize(WeaponIdType NewWeaponName, FName NewWeaponSkin)
+	{
+		let Variant = ETVariant::Convert<FWeaponId>(NewWeaponName);
+		return Initialize(Variant, NewWeaponSkin);
+	}
 
 	bool IsWeaponDefined() const { return WeaponDefinition.IsSet(); }
 
@@ -135,6 +151,10 @@ public:
 	virtual void Reload();
 
 protected: // functions
+	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
+
+	virtual bool DeInitialize();
+
 	/**
 	 * Function called whenever weapon added to inventory and should
 	 * process collision changes when weapon attached to character
@@ -154,12 +174,24 @@ protected: // functions
 	UStaticMeshComponent* CreateMeshComponent(FName ComponentName, FName SocketName = NAME_None);
 	UNiagaraComponent* CreateEffectComponent(FName ComponentName, FName SocketName);
 
-	bool InitializeMeshComponent(
-		UStaticMeshComponent* Component,
-		UStaticMesh* Mesh,
-		const FWeaponSkin& SkinInfo
-	) const;
+	// template <typename WeaponIdType, typename ImplementationType>
+	// bool InitializeName(ImplementationType This, const FWeaponId& WeaponId)
+	// {
+	// 	if (not WeaponId.IsType<WeaponIdType>())
+	// 	{
+	// 		log(Error, "[Weapon='%s'] Invalid type specified for weapon name", *GetName());
+	// 		return false;
+	// 	}
+	// 	
+	// 	Cast<ImplementationType>(this)
+	// 	
+	// 	This->WeaponId = WeaponId.Get<WeaponIdType>();
+	// 	
+	// 	return true;
+	// }
 
+	bool InitializeName(const FWeaponId& NewWeaponId);
+	bool InitializeMeshComponent(UStaticMeshComponent* Component, UStaticMesh* Mesh, const FWeaponSkin& SkinInfo) const;
 	bool InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect) const;
 
 	UAnimInstance* GetAnimInstance() const;
@@ -171,8 +203,6 @@ protected: // functions
 	bool UpdateWeaponAttachment(
 		EWeaponSlot NewSlot,
 		EWeaponState NewState);
-
-	virtual void OnConstruction(const FTransform& Transform) override;
 
 #define WEAPON_IS_DEFINED_GUARD() \
 	if (not IsWeaponDefined()) \
@@ -201,7 +231,7 @@ protected: // properties
 	 * Current weapon skin name
 	 */
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, EditDefaultsOnly, meta=(AllowPrivateAccess))
-	FName Skin;
+	FName WeaponSkin;
 
 	/**
 	 * Weapon cumulative data

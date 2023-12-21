@@ -24,7 +24,7 @@
 #pragma once
 
 #include "Engine/DataTable.h"
-#include "Cloud9/Weapon/Enums/WeaponClass.h"
+#include "Cloud9/Weapon/Enums/WeaponId.h"
 #include "Cloud9/Weapon/Enums/WeaponType.h"
 #include "Cloud9/Weapon/Structures/WeaponDefinition.h"
 #include "Cloud9/Weapon/Tables/WeaponMontages.h"
@@ -39,7 +39,7 @@ public:
 	static const FPrimaryAssetId PrimaryAssetId;
 
 public: // functions
-	TOptional<FWeaponDefinition> GetWeaponDefinition(EWeaponClass WeaponClass, FName WeaponName) const;
+	TOptional<FWeaponDefinition> GetWeaponDefinition(const FWeaponId& WeaponId) const;
 
 protected: // functions
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override;
@@ -76,9 +76,9 @@ protected: // properties
 	UParticleSystem* FirearmTracer;
 
 private: // functions
-	template <class WeaponInfoType, class ValidatorType>
-	FORCEINLINE TOptional<FWeaponDefinition> GetWeaponDefinition(
+	template <typename WeaponIdType, typename ValidatorType>
+	TOptional<FWeaponDefinition> GetWeaponDefinition(
 		UDataTable* WeaponsInfoTable,
 		ValidatorType Validator,
-		FName WeaponName) const;
+		WeaponIdType WeaponId) const;
 };
