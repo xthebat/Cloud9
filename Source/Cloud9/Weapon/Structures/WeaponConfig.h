@@ -26,16 +26,16 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "Cloud9/Tools/Extensions/UWorld.h"
-#include "Cloud9/Tools/Extensions/WhenOrNone.h"
-#include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
-#include "Cloud9/Weapon/Classes/Cloud9WeaponGrenade.h"
-#include "Cloud9/Weapon/Classes/Cloud9WeaponMelee.h"
 #include "Cloud9/Weapon/Enums/FirearmNames.h"
 #include "Cloud9/Weapon/Enums/GrenadeNames.h"
 #include "Cloud9/Weapon/Enums/MeleeNames.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
+#include "Cloud9/Weapon/Enums/WeaponId.h"
+#include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Tables/WeaponTableBase.h"
 #include "WeaponConfig.generated.h"
+
+class ACloud9WeaponBase;
 
 USTRUCT(BlueprintType)
 struct FWeaponConfig
@@ -55,77 +55,17 @@ struct FWeaponConfig
 
 	FName GetClassName() const { return WeaponClass | EUEnum::GetValueName(); }
 
-	EWeaponSlot GetWeaponSlot() const
-	{
-		switch (WeaponClass)
-		{
-		case EWeaponClass::Melee:
-			return EWeaponSlot::Knife;
-		case EWeaponClass::Firearm:
-			return bIsPrimary ? EWeaponSlot::Main : EWeaponSlot::Pistol;
-		case EWeaponClass::Grenade:
-			return EWeaponSlot::Grenade;
-		default:
-			return EWeaponSlot::NotSelected;
-		}
-	}
+	EWeaponSlot GetWeaponSlot() const;
 
-	FWeaponId GetWeaponId() const
-	{
-		switch (WeaponClass)
-		{
-		case EWeaponClass::Melee:
-			return ETVariant::Convert<FWeaponId>(MeleeWeaponId);
-		case EWeaponClass::Firearm:
-			return ETVariant::Convert<FWeaponId>(FirearmWeaponId);
-		case EWeaponClass::Grenade:
-			return ETVariant::Convert<FWeaponId>(GrenadeWeaponId);
-		default:
-			return ETVariant::Convert<FWeaponId>(EBadWeapon::NoClass);
-		}
-	}
+	FWeaponId GetWeaponId() const;
 
-	FName GetWeaponName() const { return GetWeaponId() | EFWeaponId::ToName(); }
+	FName GetWeaponName() const;
 
 	FName GetSkinName() const { return SkinName; }
 
-	TSubclassOf<ACloud9WeaponBase> GetWeaponStaticClass() const
-	{
-		switch (WeaponClass)
-		{
-		case EWeaponClass::Melee:
-			return ACloud9WeaponMelee::StaticClass();
-		case EWeaponClass::Firearm:
-			return ACloud9WeaponFirearm::StaticClass();
-		case EWeaponClass::Grenade:
-			return ACloud9WeaponGrenade::StaticClass();
-		default:
-			return nullptr;
-		}
-	}
+	TSubclassOf<AActor> GetWeaponStaticClass() const;
 
-	bool Initialize(AActor* Actor) const
-	{
-		if (not IsValid(Actor))
-		{
-			log(Error, "Actor is invalid")
-			return false;
-		}
-
-		let IsInitialized = Actor | WhenOrNone{
-			[this](ACloud9WeaponMelee* It) { return Initialize(It); },
-			[this](ACloud9WeaponFirearm* It) { return Initialize(It); },
-			[this](ACloud9WeaponGrenade* It) { return Initialize(It); }
-		};
-
-		if (not IsInitialized.Get(false))
-		{
-			log(Error, "[Actor='%s' Config='%s'] Weapon initialization failure", *Actor->GetName(), *ToString());
-			return false;
-		}
-
-		return true;
-	}
+	bool Initialize(AActor* Actor) const;
 
 	template <typename WeaponClassType>
 	bool Initialize(WeaponClassType* Weapon) const
@@ -140,38 +80,17 @@ struct FWeaponConfig
 		return Weapon->Initialize(GetWeaponId(), GetSkinName());
 	}
 
-	ACloud9WeaponBase* Spawn(UWorld* World) const
-	{
-		switch (WeaponClass)
-		{
-		case EWeaponClass::Melee:
-			return SpawnIntern<ACloud9WeaponMelee>(World);
-		case EWeaponClass::Firearm:
-			return SpawnIntern<ACloud9WeaponFirearm>(World);
-		case EWeaponClass::Grenade:
-			return SpawnIntern<ACloud9WeaponGrenade>(World);
-		default:
-			return nullptr;
-		}
-	}
+	ACloud9WeaponBase* Spawn(UWorld* World) const;
 
 	template <typename WeaponClassType>
-	ACloud9WeaponBase* SpawnIntern(UWorld* World) const
+	WeaponClassType* Spawn(UWorld* World) const
 	{
 		return World | EUWorld::SpawnActor<WeaponClassType>{
 			.Initializer = [this](let It) { return Initialize<WeaponClassType>(It); },
 		};
 	}
 
-	FString ToString() const
-	{
-		return FString::Printf(
-			TEXT("WeaponConfig { Class='%s' Name='%s' Skin='%s' }"),
-			GetClassName() | EFName::ToCStr(),
-			GetWeaponName() | EFName::ToCStr(),
-			GetSkinName() | EFName::ToCStr()
-		);
-	}
+	FString ToString() const;
 
 protected:
 	/**

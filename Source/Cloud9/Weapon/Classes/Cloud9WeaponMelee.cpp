@@ -66,10 +66,10 @@ bool ACloud9WeaponMelee::OnInitialize(const FWeaponId& NewWeaponId, FName NewWea
 	return false;
 }
 
-bool ACloud9WeaponMelee::DeInitialize()
+void ACloud9WeaponMelee::DeInitialize()
 {
+	Super::DeInitialize();
 	WeaponMesh->SetStaticMesh(nullptr);
-	return Super::DeInitialize();
 }
 
 void ACloud9WeaponMelee::Tick(float DeltaSeconds)

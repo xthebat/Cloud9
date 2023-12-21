@@ -34,7 +34,7 @@ class CLOUD9_API UWeaponInitializerComponent : public UChildActorComponent
 {
 	GENERATED_BODY()
 
-public:
-	// UFUNCTION(BlueprintCallable)
-	// void SetWeaponConfig(const FWeaponConfig& Config);
+public: // functions
+	UFUNCTION(BlueprintCallable)
+	void SetWeaponConfig(const FWeaponConfig& Config);
 };

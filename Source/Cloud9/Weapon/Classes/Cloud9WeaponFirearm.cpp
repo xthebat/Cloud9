@@ -85,12 +85,12 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 	return false;
 }
 
-bool ACloud9WeaponFirearm::DeInitialize()
+void ACloud9WeaponFirearm::DeInitialize()
 {
+	Super::DeInitialize();
 	WeaponMesh->SetStaticMesh(nullptr);
 	MagazineMesh->SetStaticMesh(nullptr);
 	MuzzleFlash->SetAsset(nullptr);
-	return Super::DeInitialize();
 }
 
 void ACloud9WeaponFirearm::Tick(float DeltaSeconds)

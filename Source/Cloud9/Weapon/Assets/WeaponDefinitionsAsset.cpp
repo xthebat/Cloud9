@@ -23,9 +23,7 @@
 
 #include "WeaponDefinitionsAsset.h"
 
-#include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
-#include "Cloud9/Weapon/Tables/WeaponTableGrenade.h"
-#include "Cloud9/Weapon/Tables/WeaponTableMelee.h"
+#include "Cloud9/Weapon/Extensions/EWeaponId.h"
 
 const FPrimaryAssetId UWeaponDefinitionsAsset::PrimaryAssetId = FPrimaryAssetId("Weapon:Definitions");
 
