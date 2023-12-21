@@ -23,8 +23,10 @@
 
 #pragma once
 
-#include "Cloud9/Weapon/Classes/Cloud9WeaponMelee.h"
+#include "WeaponTableBase.h"
 #include "WeaponTableMelee.generated.h"
+
+class ACloud9WeaponMelee;
 
 USTRUCT(BlueprintType)
 struct FMeleeWeaponSounds
@@ -104,7 +106,7 @@ struct FMeleeWeaponInfo : public FBaseWeaponInfo
 	 * Actual weapon class (if overloaded)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Base)
-	TSubclassOf<ACloud9WeaponMelee> Class = ACloud9WeaponMelee::StaticClass();
+	TSubclassOf<ACloud9WeaponMelee> Class;
 
 	/**
 	 * Amount of damage inflicted by slash on unarmored character

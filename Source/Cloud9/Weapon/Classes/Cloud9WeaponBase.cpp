@@ -441,7 +441,6 @@ bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeapon
 	if (not OnInitialize(NewWeaponId, NewWeaponSkin))
 	{
 		log(Error, "[Weapon='%s'] Weapon initialization failure", *GetName());
-		SetActorTickEnabled(false);
 		DeInitialize();
 		return false;
 	}
@@ -461,9 +460,7 @@ bool ACloud9WeaponBase::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeap
 		return false;
 	}
 
-	WeaponDefinition = Asset->GetWeaponDefinition(GetWeaponId());
-
-	if (not IsWeaponDefined())
+	if (not Asset->GetWeaponDefinition(GetWeaponId(), WeaponDefinition))
 	{
 		log(Error, "[Weapon='%s'] Not initialized and Tick() will be disabled", *GetName());
 		return false;
@@ -499,8 +496,9 @@ void ACloud9WeaponBase::DeInitialize()
 	State = EWeaponState::Dropped;
 	bIsPrimaryActionActive = false;
 	bIsSecondaryActionActive = false;
-	WeaponDefinition.Reset();
+	// WeaponDefinition.Reset(); // TODO: Make reset for WeaponDefinition
 	Executors.Reset();
+	SetActorTickEnabled(false);
 }
 
 void ACloud9WeaponBase::OnWeaponAddedToInventory()
@@ -541,8 +539,8 @@ FWeaponId ACloud9WeaponBase::GetWeaponId() const
 
 EWeaponType ACloud9WeaponBase::GetWeaponType() const
 {
-	assertf(WeaponDefinition.IsSet(), "[Weapon='%ls'] Not initialized", *GetName());
-	return WeaponDefinition->GetWeaponInfo()->Type;
+	assertf(IsValid(WeaponDefinition), "[Weapon='%ls'] Not initialized", *GetName());
+	return WeaponDefinition.GetWeaponInfo()->Type;
 }
 
 const UStaticMeshSocket* ACloud9WeaponBase::GetSocketByName(FName SocketName) const

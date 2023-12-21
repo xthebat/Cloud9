@@ -73,16 +73,12 @@ TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(
 		return {};
 	}
 
-	return FWeaponDefinition{
-		MakeShared<WeaponInfoType>(*WeaponInfo),
-		MakeShared<FWeaponPosesMontages>(*Montages),
-		FirearmTracer
-	};
+	return FWeaponDefinition(*WeaponInfo, *Montages, FirearmTracer);
 }
 
-TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(const FWeaponId& WeaponId) const
+bool UWeaponDefinitionsAsset::GetWeaponDefinition(const FWeaponId& WeaponId, FWeaponDefinition& WeaponDefinition) const
 {
-	return Visit(
+	var Found = Visit(
 		ETVariant::Overloaded{
 			[&](EFirearm Id) { return GetWeaponDefinition(FirearmsWeaponsInfoTable, UWeaponType::IsFirearm, Id); },
 			[&](EMelee Id) { return GetWeaponDefinition(MeleeWeaponsInfoTable, UWeaponType::IsMelee, Id); },
@@ -90,6 +86,16 @@ TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(const 
 			[](auto) { return TOptional<FWeaponDefinition>(); }
 		}, WeaponId
 	);
+
+	if (not Found.IsSet())
+	{
+		log(Error, "Can't get weapon definition for WeaponId='%s'", WeaponId | EFWeaponId::ToName() | EFName::ToCStr());
+		return false;
+	}
+
+	WeaponDefinition = MoveTemp(*Found);
+
+	return true;
 }
 
 FPrimaryAssetId UWeaponDefinitionsAsset::GetPrimaryAssetId() const { return PrimaryAssetId; }
