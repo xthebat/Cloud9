@@ -24,10 +24,10 @@
 #pragma once
 
 #include "NiagaraComponent.h"
-#include "Cloud9/Weapon/Tables/WeaponTableBase.h"
-#include "Cloud9/Weapon/Classes/Cloud9WeaponGrenade.h"
+#include "WeaponTableBase.h"
 #include "WeaponTableGrenade.generated.h"
 
+class ACloud9WeaponGrenade;
 
 USTRUCT(BlueprintType)
 struct FGrenadeWeaponSounds
@@ -95,7 +95,7 @@ struct FGrenadeWeaponInfo : public FBaseWeaponInfo
 	 * Actual weapon class (if overloaded)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Base)
-	TSubclassOf<ACloud9WeaponGrenade> Class = ACloud9WeaponGrenade::StaticClass();
+	TSubclassOf<ACloud9WeaponGrenade> Class;
 
 	/**
 	 * --

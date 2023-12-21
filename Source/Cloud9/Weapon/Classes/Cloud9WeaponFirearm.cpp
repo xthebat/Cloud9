@@ -74,7 +74,7 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 {
 	if (Super::OnInitialize(NewWeaponId, NewWeaponSkin))
 	{
-		let MyWeaponInfo = WeaponDefinition->GetWeaponInfo<FFirearmWeaponInfo>();
+		let MyWeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(NewWeaponSkin);
 
 		return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo)
@@ -104,8 +104,8 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	static let Settings = UCloud9DeveloperSettings::Get();
 
 	let Character = GetOwner<ACloud9Character>();
-	let WeaponInfo = WeaponDefinition->GetWeaponInfo<FFirearmWeaponInfo>();
-	let PoseMontages = WeaponDefinition->GetPoseMontages(Character->bIsCrouched);
+	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
+	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 
 	if (bIsPrimaryActionActive)
 	{

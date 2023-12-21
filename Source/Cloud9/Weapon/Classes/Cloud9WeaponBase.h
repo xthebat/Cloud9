@@ -93,7 +93,7 @@ public:
 		return Initialize(Variant, NewWeaponSkin);
 	}
 
-	bool IsWeaponDefined() const { return WeaponDefinition.IsSet(); }
+	bool IsWeaponDefined() const { return IsValid(WeaponDefinition); }
 
 	bool AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot);
 	bool RemoveFromInventory();
@@ -220,7 +220,8 @@ protected: // properties
 	/**
 	 * Weapon cumulative data
 	 */
-	TOptional<FWeaponDefinition> WeaponDefinition;
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	FWeaponDefinition WeaponDefinition;
 
 	/**
 	 * Current weapon slot (main/pistol/knife/grenade)

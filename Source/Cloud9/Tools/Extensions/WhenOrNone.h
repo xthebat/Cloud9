@@ -73,8 +73,9 @@ struct WhenOrNone<FirstType, RestType...>
 		{
 			Casted = CastField<ArgType>(Value);
 		}
-		else if constexpr (TIsSame<InnerType, UObject>::Value)
+		else if constexpr (TIsDerivedFrom<InnerType, UObject>::Value)
 		{
+			log(Error, "Try to cast '%s'", *ArgType::StaticClass()->GetName())
 			Casted = Cast<ArgType>(Value);
 		}
 		// else

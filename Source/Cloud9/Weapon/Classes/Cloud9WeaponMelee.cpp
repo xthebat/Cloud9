@@ -58,7 +58,7 @@ bool ACloud9WeaponMelee::OnInitialize(const FWeaponId& NewWeaponId, FName NewWea
 {
 	if (Super::OnInitialize(NewWeaponId, NewWeaponSkin))
 	{
-		let MyWeaponInfo = WeaponDefinition->GetWeaponInfo<FMeleeWeaponInfo>();
+		let MyWeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
 		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(NewWeaponSkin);
 		return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo);
 	}
@@ -83,8 +83,8 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	static let Settings = UCloud9DeveloperSettings::Get();
 
 	let Character = GetOwner<ACloud9Character>();
-	let WeaponInfo = WeaponDefinition->GetWeaponInfo<FMeleeWeaponInfo>();
-	let PoseMontages = WeaponDefinition->GetPoseMontages(Character->bIsCrouched);
+	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
+	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 
 	if (bIsPrimaryActionActive)
 	{

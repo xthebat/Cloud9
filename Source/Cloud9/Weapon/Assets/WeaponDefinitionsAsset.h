@@ -39,7 +39,7 @@ public:
 	static const FPrimaryAssetId PrimaryAssetId;
 
 public: // functions
-	TOptional<FWeaponDefinition> GetWeaponDefinition(const FWeaponId& WeaponId) const;
+	bool GetWeaponDefinition(const FWeaponId& WeaponId, FWeaponDefinition& WeaponDefinition) const;
 
 protected: // functions
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override;

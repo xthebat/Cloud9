@@ -25,7 +25,6 @@
 
 #include "NiagaraComponent.h"
 #include "WeaponTableBase.h"
-#include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
 #include "WeaponTableFirearm.generated.h"
 
 class ACloud9WeaponFirearm;
@@ -175,7 +174,7 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	 * Actual weapon class (if overloaded)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Base)
-	TSubclassOf<ACloud9WeaponFirearm> Class = ACloud9WeaponFirearm::StaticClass();
+	TSubclassOf<ACloud9WeaponFirearm> Class;
 
 	/**
 	 * Amount of damage inflicted per bullet before any modifiers
