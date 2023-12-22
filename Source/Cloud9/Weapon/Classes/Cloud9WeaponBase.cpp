@@ -54,7 +54,7 @@ ACloud9WeaponBase::ACloud9WeaponBase()
 	bIsPrimaryActionActive = false;
 	bIsSecondaryActionActive = false;
 	bIsThirdActionActive = false;
-	bIsDeployed = false;
+	bIsDeploying = false;
 
 	SetActorTickEnabled(false);
 }
@@ -306,6 +306,8 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState
 	Slot = NewSlot;
 	State = NewState;
 
+	bIsDeploying = State == EWeaponState::Armed;
+
 	return true;
 }
 
@@ -431,33 +433,6 @@ void ACloud9WeaponBase::Reload() {}
 void ACloud9WeaponBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	WEAPON_IS_DEFINED_GUARD();
-
-	static let Settings = UCloud9DeveloperSettings::Get();
-
-	let Character = GetOwner<ACloud9Character>();
-	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
-	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
-
-	if (bIsDeployed)
-	{
-		ExecuteAction(
-			EWeaponAction::Deploy,
-			WeaponInfo->DeployTime,
-			[&]
-			{
-				PlayAnimMontage(PoseMontages->DeployMontage);
-				WeaponInfo->Sounds.DeploySound | EUSoundBase::Play{GetActorLocation(), Settings->Volume};
-				return false;
-			},
-			[&]
-			{
-				Character->GetInventory()->WeaponChangeFinished(true);
-				bIsDeployed = false;
-			}
-		);
-	}
 }
 
 bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
@@ -523,7 +498,7 @@ void ACloud9WeaponBase::DeInitialize()
 	bIsPrimaryActionActive = false;
 	bIsSecondaryActionActive = false;
 	bIsThirdActionActive = false;
-	bIsDeployed = false;
+	bIsDeploying = false;
 	WeaponDefinition.Reset();
 	Executors.Reset();
 	SetActorTickEnabled(false);

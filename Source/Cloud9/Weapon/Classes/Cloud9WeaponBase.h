@@ -27,9 +27,11 @@
 #include "NiagaraComponent.h"
 #include "GameFramework/Actor.h"
 #include "Cloud9/Cloud9.h"
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
+#include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
 #include "Cloud9/Weapon/Enums/WeaponActions.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
@@ -105,7 +107,10 @@ public:
 		OnExecuteType&& OnExecute,
 		OnCompleteType&& OnComplete = {})
 	{
-		return Executors[GetWeaponActionIndex(Action)]->Execute(CooldownTime, OnExecute, OnComplete);
+		return Executors[GetWeaponActionIndex(Action)]->Execute(
+			CooldownTime,
+			MoveTemp(OnExecute),
+			MoveTemp(OnComplete));
 	}
 
 	FORCEINLINE bool IsActionInProgress(EWeaponAction Action) const
@@ -234,7 +239,7 @@ protected: // properties
 	 * Weapon currently deployed
 	 */
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	bool bIsDeployed;
+	bool bIsDeploying;
 
 private:
 	static constexpr int GetWeaponActionIndex(EWeaponAction WeaponAction) { return static_cast<int>(WeaponAction); }
