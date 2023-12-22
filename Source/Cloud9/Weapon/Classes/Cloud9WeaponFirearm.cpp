@@ -187,6 +187,7 @@ bool ACloud9WeaponFirearm::Fire() const
 	{
 		var Direction = LineHit.Location - StartLocation;
 		Direction.Normalize();
+		// TODO: Add impulse based on weapon type (weapon power)
 		Target->AddImpulse(1000.0 * Direction, NAME_None, true);
 	}
 

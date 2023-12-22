@@ -403,17 +403,26 @@ bool ACloud9WeaponBase::ChangeState(EWeaponState NewState)
 
 	if (NewState == State)
 	{
-		log(Warning, "[Weapon='%s' State='%s'] Weapon state will remain the same", *GetName(), STATE_NAME);
+		log(
+			Warning,
+			"[Weapon='%s' State='%s'] Weapon state='%s' will remain the same",
+			*GetName(), *UWeaponState::ToString(State), STATE_NAME);
 		return false;
 	}
 
-	if (not IsAnyMontagePlaying() and not IsActionInProgress())
+	if (IsAnyMontagePlaying())
 	{
-		UpdateWeaponAttachment(Slot, NewState);
-		return true;
+		log(Error, "[Weapon='%s' State='%s'] Montage is playing now", *GetName(), STATE_NAME);
+		return false;
 	}
 
-	return false;
+	if (IsActionInProgress())
+	{
+		log(Error, "[Weapon='%s' State='%s'] Some action is in progress", *GetName(), STATE_NAME);
+		return false;
+	}
+
+	return UpdateWeaponAttachment(Slot, NewState);
 }
 
 void ACloud9WeaponBase::PrimaryAction(bool bIsReleased)
