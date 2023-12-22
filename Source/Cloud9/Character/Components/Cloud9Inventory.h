@@ -45,8 +45,14 @@ class CLOUD9_API UCloud9Inventory
 public:
 	UCloud9Inventory();
 
+	/**
+	 * Function selects weapon in new slot.
+	 * 
+	 * @param Slot New slot weapon slot.
+	 * @param Instant If set then no animation will be shown and switching will be instant.
+	 */
 	UFUNCTION(BlueprintCallable)
-	bool SelectWeapon(EWeaponSlot Slot);
+	bool SelectWeapon(EWeaponSlot Slot, bool Instant = false);
 
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetWeaponAt(EWeaponSlot Slot) const;
@@ -72,12 +78,11 @@ public:
 	 * Function creates and add weapon to the inventory by specified config
 	 * 
 	 * @param Config Parameter to creates and shove weapon into inventory
-	 * @param IgnoreNotSelected If set then function will ignore not selected weapon
-	 *							on add otherwise try to select added weapon 
+	 * @param Select If set then function will select added weapon 
 	 * @param Force Remote weapon if slot already occupied
 	 */
 	UFUNCTION(BlueprintCallable)
-	bool AddWeapon(const FWeaponConfig& Config, bool IgnoreNotSelected = false, bool Force = false);
+	bool AddWeapon(const FWeaponConfig& Config, bool Select = false, bool Force = false);
 
 	UFUNCTION(BlueprintCallable)
 	bool RemoveWeapon(EWeaponSlot Slot);
@@ -94,8 +99,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsWeaponChanging() const;
 
+	/**
+	 * Function should be called to signal that weapon switching is over or not
+	 * 
+	 * @param State If true then changing process is over
+	 */
 	UFUNCTION(BlueprintCallable)
-	void OnWeaponChangeFinished();
+	void WeaponChangeFinished(bool State);
 
 protected:
 	virtual void BeginPlay() override;

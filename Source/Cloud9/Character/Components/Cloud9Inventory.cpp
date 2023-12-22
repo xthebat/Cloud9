@@ -60,7 +60,7 @@ void UCloud9Inventory::BeginPlay()
 
 	GameInstance->GetDefaultWeaponsConfig()
 		| ETContainer::Filter{[this](let& Config) { return IsValid(Config); }}
-		| ETContainer::ForEach{[this](let& Config) { AddWeapon(Config, true); }};
+		| ETContainer::ForEach{[this](let& Config) { AddWeapon(Config); }};
 
 	let InitialWeaponSlot = GameInstance->GetInitialWeaponSlot();
 
@@ -72,7 +72,7 @@ void UCloud9Inventory::BeginPlay()
 	}
 }
 
-bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
+bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
 {
 	if (Slot == EWeaponSlot::NotSelected)
 	{
@@ -96,7 +96,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 
 	if (not IsValid(PendingWeapon))
 	{
-		log(Error, "[Weapon='%s'] Weapon at slot='%d' not set", *GetName(), Slot);
+		log(Error, "[Weapon='%s'] Weapon at requested slot='%d' not set or invalid", *GetName(), Slot);
 		return false;
 	}
 
@@ -105,27 +105,38 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 		if (PendingWeapon->ChangeState(EWeaponState::Armed))
 		{
 			PendingWeaponSlot = Slot;
+			WeaponChangeFinished(Instant);
 			return true;
 		}
 
-		log(Error, "[Weapon='%s'] Can't select starting weapon", *GetName())
+		log(Error, "[Weapon='%s'] Can't select starting weapon", *GetName());
 		return false;
 	}
 
-	if (let SelectedWeapon = GetWeaponAt(SelectedWeaponSlot); IsValid(SelectedWeapon)
-		and SelectedWeapon->ChangeState(EWeaponState::Holstered)
-		and PendingWeapon->ChangeState(EWeaponState::Armed))
+	let SelectedWeapon = GetWeaponAt(SelectedWeaponSlot);
+
+	if (not IsValid(SelectedWeapon))
+	{
+		log(Error, "[Weapon='%s'] Weapon at selected slot='%d' not set or invalid", *GetName(), SelectedWeaponSlot);
+		return false;
+	}
+
+	if (SelectedWeapon->ChangeState(EWeaponState::Holstered) and PendingWeapon->ChangeState(EWeaponState::Armed))
 	{
 		PendingWeaponSlot = Slot;
+		WeaponChangeFinished(Instant);
 		return true;
 	}
 
 	return false;
 }
 
-void UCloud9Inventory::OnWeaponChangeFinished()
+void UCloud9Inventory::WeaponChangeFinished(bool State)
 {
-	SelectedWeaponSlot = PendingWeaponSlot;
+	if (State)
+	{
+		SelectedWeaponSlot = PendingWeaponSlot;
+	}
 }
 
 ACloud9WeaponBase* UCloud9Inventory::GetWeaponAt(EWeaponSlot Slot) const { return WeaponAt(Slot); }
@@ -182,11 +193,20 @@ bool UCloud9Inventory::DropWeapon(EWeaponSlot Slot)
 	return true;
 }
 
-bool UCloud9Inventory::AddWeapon(const FWeaponConfig& Config, bool IgnoreNotSelected, bool Force)
+bool UCloud9Inventory::AddWeapon(const FWeaponConfig& Config, bool Select, bool Force)
 {
 	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
 	{
 		log(Error, "[Inventory='%s'] Owner wasn't set", *GetName());
+		return false;
+	}
+
+	if (IsWeaponChanging())
+	{
+		log(
+			Error,
+			"[Inventory='%s'] Can't add weapon while weapon is changing, config='%s'",
+			*GetName(), *Config.ToString());
 		return false;
 	}
 
@@ -200,7 +220,11 @@ bool UCloud9Inventory::AddWeapon(const FWeaponConfig& Config, bool IgnoreNotSele
 			return false;
 		}
 
-		RemoveWeapon(Slot);
+		if (not RemoveWeapon(Slot))
+		{
+			log(Error, "[Inventory='%s'] Can't remove weapon", *GetName());
+			return false;
+		}
 	}
 
 	let Weapon = Config.SpawnWeapon(GetWorld());
@@ -217,9 +241,13 @@ bool UCloud9Inventory::AddWeapon(const FWeaponConfig& Config, bool IgnoreNotSele
 		return false;
 	}
 
-	if (not IgnoreNotSelected and not IsWeaponSelected())
+	if (Select)
 	{
-		SelectWeapon(Slot);
+		if (not SelectWeapon(Slot))
+		{
+			log(Error, "[Inventory='%s'] New weapon selection failure: %s", *GetName(), *Config.ToString());
+			return false;
+		}
 	}
 
 	log(Display, "[Inventory='%s'] Added configured weapon = '%s'", *GetName(), *Config.ToString());
@@ -231,29 +259,39 @@ bool UCloud9Inventory::RemoveWeapon(EWeaponSlot Slot)
 {
 	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
 	{
-		log(Error, "Inventory owner wasn't set");
+		log(Error, "[Inventory='%s'] Owner is invalid", *GetName());
 		return false;
 	}
 
 	if (not WeaponAt(Slot))
 	{
-		log(Error, "Inventory cell for slot '%d' is empty", Slot);
+		log(Error, "[Inventory='%s'] Cell for slot '%d' is empty", *GetName(), Slot);
 		return false;
 	}
 
-	WeaponAt(Slot)->Destroy();
-	WeaponAt(Slot) = nullptr;
+	if (IsWeaponChanging())
+	{
+		log(Error, "[Inventory='%s'] Can't remove weapon from slot '%d' while weapon is changing", *GetName(), Slot);
+		return false;
+	}
 
 	if (Slot == SelectedWeaponSlot)
 	{
 		EWeaponSlot NewSlot = EWeaponSlot::NotSelected;
 		let Found = WeaponSlots
-			| ETContainer::Find{[](let It) { return IsValid(It); }}
+			| ETContainer::Find{[&](let It) { return IsValid(It) and It->GetWeaponSlot() != Slot; }}
 			| ETOptional::OnSet{[&](let It) { NewSlot = It->GetWeaponSlot(); }};
-		// Change without animation(?)
-		SelectedWeaponSlot = NewSlot;
-		PendingWeaponSlot = NewSlot;
+
+		log(
+			Display,
+			"[Inventory='%s'] Change selected/pending slot to '%s'",
+			*GetName(), *UWeaponSlot::ToString(NewSlot));
+
+		SelectWeapon(NewSlot, true);
 	}
+
+	WeaponAt(Slot)->Destroy();
+	WeaponAt(Slot) = nullptr;
 
 	return true;
 }
