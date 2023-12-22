@@ -24,7 +24,6 @@
 #include "Cloud9WeaponGrenade.h"
 
 #include "Cloud9/Tools/Extensions/TVariant.h"
-#include "Cloud9/Weapon/Enums/GrenadeActions.h"
 
 ACloud9WeaponGrenade::ACloud9WeaponGrenade()
 {
@@ -32,8 +31,6 @@ ACloud9WeaponGrenade::ACloud9WeaponGrenade()
 }
 
 FWeaponId ACloud9WeaponGrenade::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
-
-const UEnum* ACloud9WeaponGrenade::GetWeaponActions() const { return StaticEnum<EGrenadeAction>(); }
 
 bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {

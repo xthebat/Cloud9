@@ -28,8 +28,10 @@
 #include "GameFramework/Actor.h"
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
+#include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
+#include "Cloud9/Weapon/Enums/WeaponActions.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Enums/WeaponState.h"
@@ -49,9 +51,6 @@ public:
 	static const FName WeaponMeshCollisionProfile;
 	static const FString ActionComponentFormat;
 
-	static constexpr int AnyActionId = 0;
-	static constexpr int AnyActionIndex = AnyActionId - 1;
-
 public:
 	ACloud9WeaponBase();
 
@@ -68,9 +67,6 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable)
 	FName GetWeaponName() const;
-
-	UFUNCTION(BlueprintCallable)
-	virtual const UEnum* GetWeaponActions() const;
 
 	UFUNCTION(BlueprintCallable)
 	virtual bool CanBeDropped() const;
@@ -102,48 +98,37 @@ public:
 	bool RemoveFromInventory();
 	bool ChangeState(EWeaponState NewState);
 
-	template <typename WeaponActionType, typename FunctionType>
-	FORCEINLINE bool ExecuteAction(WeaponActionType WeaponAction, float Cooldown, FunctionType&& Function)
+	template <typename FunctionType>
+	FORCEINLINE UCooldownActionComponent* ExecuteAction(
+		EWeaponAction WeaponAction,
+		float Cooldown,
+		FunctionType&& Function)
 	{
-		let Index = GetActionIndex(WeaponAction);
-
-		if (Index == AnyActionIndex)
+		if (WeaponAction == EWeaponAction::Any)
 		{
-			log(Error, "[Weapon='%s'] Action type can't be equal to AnyAction", *GetName());
-			return false;
+			log(Fatal, "[Weapon='%s'] Action type can't be equal to Any", *GetName());
+			return nullptr;
 		}
 
-		if (IsActionIndexValid(Index))
-		{
-			return not Executors[Index]->Execute(MoveTemp(Function), Cooldown);
-		}
-
-		return false;
+		return Executors[GetWeaponActionIndex(WeaponAction)]->Execute(MoveTemp(Function), Cooldown);
 	}
 
-	template <typename WeaponActionType, typename FunctionType>
-	FORCEINLINE bool ExecuteAction(WeaponActionType WeaponAction, FunctionType Function)
+	template <typename FunctionType>
+	FORCEINLINE bool ExecuteAction(EWeaponAction WeaponAction, FunctionType&& Function)
 	{
-		return ExecuteAction(WeaponAction, -1, Function);
+		return ExecuteAction(WeaponAction, -1, MoveTemp(Function));
 	}
 
-	template <typename WeaponActionType = int>
-	FORCEINLINE bool IsActionInProgress(WeaponActionType WeaponAction = AnyActionId) const
+	FORCEINLINE bool IsActionInProgress(EWeaponAction WeaponAction = EWeaponAction::Any) const
 	{
-		let Index = GetActionIndex(WeaponAction);
-
-		if (Index == AnyActionIndex)
+		if (WeaponAction == EWeaponAction::Any)
 		{
-			let Executor = Executors.FindByPredicate([](let It) { return It->IsExecuting(); });
-			return Executor != nullptr;
+			return Executors | ETContainer::Any{
+				[](let It) { return It->IsExecuting(); }
+			};
 		}
 
-		if (IsActionIndexValid(Index))
-		{
-			return not Executors[Index]->IsExecuting();
-		}
-
-		return false;
+		return not Executors[GetWeaponActionIndex(WeaponAction)]->IsExecuting();
 	}
 
 	FORCEINLINE bool IsWeaponArmed() const { return State == EWeaponState::Armed; }
@@ -154,6 +139,8 @@ public:
 	virtual void Reload();
 
 protected: // functions
+	virtual void Tick(float DeltaSeconds) override;
+
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
 
 	virtual void DeInitialize();
@@ -213,8 +200,6 @@ protected: // functions
 		return; \
 	}
 
-	bool IsActionIndexValid(int Index) const;
-
 protected: // properties
 	/**
 	 * Current weapon skin name
@@ -252,12 +237,20 @@ protected: // properties
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	bool bIsSecondaryActionActive;
 
+	/**
+	 * Is Weapon third action active
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool bIsThirdActionActive;
+
+	/**
+	 * Weapon currently deployed
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool bIsDeployed;
+
 private:
-	template <typename WeaponActionType>
-	static constexpr int GetActionIndex(WeaponActionType WeaponAction)
-	{
-		return static_cast<int>(WeaponAction) - 1;
-	}
+	static constexpr int GetWeaponActionIndex(EWeaponAction WeaponAction) { return static_cast<int>(WeaponAction); }
 
 	UCooldownActionComponent* CreateCooldownAction(FName ComponentName);
 

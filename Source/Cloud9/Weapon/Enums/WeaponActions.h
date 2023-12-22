@@ -24,10 +24,14 @@
 #pragma once
 
 UENUM(BlueprintType)
-enum class EFirearmAction : uint8
+enum class EWeaponAction : uint8
 {
 	Any = 0 UMETA(DisplayName="Any"),
-	Fire = 1 UMETA(DisplayName="Fire"),
-	Zoom = 2 UMETA(DisplayName="Zoom"),
-	Reload = 3 UMETA(DisplayName="Reload"),
+
+	Deploy = 1 UMETA(DisplayName = "Deploy"),
+	Reload = 2 UMETA(DisplayName="Reload"),
+
+	Primary = 3 UMETA(DisplayName="Fire"),
+	Secondary = 4 UMETA(DisplayName="Zoom"),
+	Third = 5 UMETA(DisplayName="Third"),
 };

@@ -24,11 +24,10 @@
 #include "Cloud9WeaponFirearm.h"
 
 #include "Cloud9/Tools/Extensions/AActor.h"
+#include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Tools/Extensions/TVariant.h"
-#include "Cloud9/Weapon/Enums/FirearmActions.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
 
 const FName ACloud9WeaponFirearm::WeaponMeshComponentName = TEXT("WeaponMeshComponent");
@@ -60,8 +59,6 @@ ACloud9WeaponFirearm::ACloud9WeaponFirearm()
 }
 
 FWeaponId ACloud9WeaponFirearm::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
-
-const UEnum* ACloud9WeaponFirearm::GetWeaponActions() const { return StaticEnum<EFirearmAction>(); }
 
 const UStaticMeshSocket* ACloud9WeaponFirearm::GetSocketByName(FName SocketName) const
 {
@@ -122,7 +119,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	if (bIsPrimaryActionActive)
 	{
 		ExecuteAction(
-			EFirearmAction::Fire,
+			EWeaponAction::Primary,
 			WeaponInfo->CycleTime, [&]
 			{
 				if (PlayAnimMontage(PoseMontages->PrimaryActionMontage) and

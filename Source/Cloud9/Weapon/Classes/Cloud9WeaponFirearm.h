@@ -51,7 +51,6 @@ public:
 	ACloud9WeaponFirearm();
 
 	virtual FWeaponId GetWeaponId() const override;
-	virtual const UEnum* GetWeaponActions() const override;
 	virtual const UStaticMeshSocket* GetSocketByName(FName SocketName) const override;
 	virtual const UStaticMeshComponent* GetWeaponMesh() const override;
 

@@ -41,7 +41,6 @@ public:
 	ACloud9WeaponGrenade();
 
 	virtual FWeaponId GetWeaponId() const override;
-	virtual const UEnum* GetWeaponActions() const override;
 
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
