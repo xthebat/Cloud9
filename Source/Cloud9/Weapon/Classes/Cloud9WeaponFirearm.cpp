@@ -116,7 +116,25 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 
-	if (bIsPrimaryActionActive)
+	if (bIsDeploying)
+	{
+		ExecuteAction(
+			EWeaponAction::Deploy,
+			WeaponInfo->DeployTime,
+			[&]
+			{
+				PlayAnimMontage(PoseMontages->DeployMontage);
+				WeaponInfo->Sounds.DeploySound | EUSoundBase::Play{GetActorLocation(), Settings->Volume};
+				Character->GetInventory()->WeaponChangeFinished(true);
+				return true;
+			},
+			[this]
+			{
+				bIsDeploying = false;
+			}
+		);
+	}
+	else if (bIsPrimaryActionActive)
 	{
 		ExecuteAction(
 			EWeaponAction::Primary,
@@ -130,7 +148,8 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 				}
 
 				return false;
-			}
+			},
+			[] {}
 		);
 
 		if (not WeaponInfo->bIsFullAuto)

@@ -51,7 +51,7 @@ public:
 	FORCEINLINE bool Execute(
 		float CooldownTime,
 		OnExecuteType&& OnExecute,
-		OnCompleteType&& OnComplete = {})
+		OnCompleteType&& OnComplete)
 	{
 		if (not bIsExecuting)
 		{
@@ -64,8 +64,9 @@ public:
 
 			bIsExecuting = true;
 
+			// lambda should be copied otherwise GC fuckup objects inside it
 			TimerHandle = GetWorld() | EUWorld::AsyncAfter{
-				[&]
+				[this, OnComplete]
 				{
 					OnComplete();
 					bIsExecuting = false;
