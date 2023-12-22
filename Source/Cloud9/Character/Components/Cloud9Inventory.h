@@ -72,18 +72,24 @@ public:
 	 * Function creates and add weapon to the inventory by specified config
 	 * 
 	 * @param Config Parameter to creates and shove weapon into inventory
+	 * @param IgnoreNotSelected If set then function will ignore not selected weapon
+	 *							on add otherwise try to select added weapon 
+	 * @param Force Remote weapon if slot already occupied
 	 */
 	UFUNCTION(BlueprintCallable)
-	bool AddWeapon(const FWeaponConfig& Config);
+	bool AddWeapon(const FWeaponConfig& Config, bool IgnoreNotSelected = false, bool Force = false);
 
 	UFUNCTION(BlueprintCallable)
-	bool ReplaceWeaponAt(EWeaponSlot Slot, ACloud9WeaponBase* Weapon);
+	bool RemoveWeapon(EWeaponSlot Slot);
 
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetSelectedWeapon() const;
 
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetPendingWeapon() const;
+
+	UFUNCTION(BlueprintCallable)
+	bool IsWeaponSelected() const;
 
 	UFUNCTION(BlueprintCallable)
 	bool IsWeaponChanging() const;

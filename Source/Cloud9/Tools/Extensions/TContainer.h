@@ -140,6 +140,30 @@ namespace ETContainer
 		SEQUENCE_OPERATOR_BODY(Filter, Private_ETContainer::TFilterIterator)
 	};
 
+	template <typename PredicateType>
+	struct Find
+	{
+		const PredicateType& Predicate;
+
+		template <typename ContainerType>
+		constexpr auto operator()(ContainerType&& Self) const
+		{
+			using ElementType = typename TDecay<ContainerType>::Type::ElementType;
+
+			for (let& It : Self)
+			{
+				if (Predicate(It))
+				{
+					return TOptional<ElementType>(It);
+				}
+			}
+
+			return TOptional<ElementType>();
+		}
+
+		OPERATOR_BODY(Find)
+	};
+
 	struct Drop
 	{
 		int Count = 0;

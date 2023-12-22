@@ -79,6 +79,9 @@ public:
 	EWeaponType GetWeaponType() const;
 
 	UFUNCTION(BlueprintCallable)
+	EWeaponSlot GetWeaponSlot() const;
+
+	UFUNCTION(BlueprintCallable)
 	virtual const UStaticMeshSocket* GetSocketByName(FName SocketName) const;
 
 	UFUNCTION(BlueprintCallable)
@@ -170,6 +173,8 @@ protected: // functions
 	static UWeaponDefinitionsAsset* GetWeaponDefinitionsAsset();
 
 	static bool ChangeActionFlag(bool Flag, bool bIsReleased);
+
+	static void ChangeMeshCollisionState(UStaticMeshComponent* Mesh, bool bIsEnabled);
 
 	UStaticMeshComponent* CreateMeshComponent(FName ComponentName, FName SocketName = NAME_None);
 	UNiagaraComponent* CreateEffectComponent(FName ComponentName, FName SocketName);

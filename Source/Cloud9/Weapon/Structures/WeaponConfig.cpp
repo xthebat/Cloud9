@@ -97,16 +97,16 @@ bool FWeaponConfig::Initialize(AActor* Actor) const
 	return true;
 }
 
-ACloud9WeaponBase* FWeaponConfig::Spawn(UWorld* World) const
+ACloud9WeaponBase* FWeaponConfig::SpawnWeapon(UWorld* World) const
 {
 	switch (WeaponClass)
 	{
 	case EWeaponClass::Melee:
-		return Spawn<ACloud9WeaponMelee>(World);
+		return SpawnWeapon<ACloud9WeaponMelee>(World);
 	case EWeaponClass::Firearm:
-		return Spawn<ACloud9WeaponFirearm>(World);
+		return SpawnWeapon<ACloud9WeaponFirearm>(World);
 	case EWeaponClass::Grenade:
-		return Spawn<ACloud9WeaponGrenade>(World);
+		return SpawnWeapon<ACloud9WeaponGrenade>(World);
 	default:
 		return nullptr;
 	}

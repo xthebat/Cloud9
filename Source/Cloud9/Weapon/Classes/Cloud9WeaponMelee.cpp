@@ -72,6 +72,13 @@ void ACloud9WeaponMelee::DeInitialize()
 	WeaponMesh->SetStaticMesh(nullptr);
 }
 
+void ACloud9WeaponMelee::OnWeaponAddedToInventory()
+{
+	ChangeMeshCollisionState(WeaponMesh, false);
+}
+
+void ACloud9WeaponMelee::OnWeaponRemovedFromInventory() { ChangeMeshCollisionState(WeaponMesh, true); }
+
 void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

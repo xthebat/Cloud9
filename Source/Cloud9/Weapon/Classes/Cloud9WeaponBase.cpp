@@ -92,11 +92,6 @@ UStaticMeshComponent* ACloud9WeaponBase::CreateMeshComponent(FName ComponentName
 		Component->PrimaryComponentTick.TickGroup = TG_PrePhysics;
 		Component->SetCollisionProfileName(WeaponMeshCollisionProfile);
 
-		// TODO: Collision should be enabled by default and disabled when added to inventory
-		// Disable by default Collision and Physics for added mesh
-		Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		Component->SetSimulatePhysics(false);
-
 		if (not SocketName.IsNone())
 		{
 			Component->SetupAttachment(RootComponent, SocketName);
@@ -237,9 +232,9 @@ bool ACloud9WeaponBase::PlayRandomSound(const TArray<USoundBase*>& Sounds, float
 
 	return Sounds
 		| Random()
-		| OnNull([&] { log(Error, "[Weapon='%s'] Can't play sound for ", *GetName()) })
-		| OnSet([&](let& It) { It | EUSoundBase::Play(GetActorLocation(), Volume); })
-		| IsSet();
+		| OnNull{[&] { log(Error, "[Weapon='%s'] Can't play sound for ", *GetName()) }}
+		| OnSet{[&](let& It) { It | EUSoundBase::Play(GetActorLocation(), Volume); }}
+		| IsSet{};
 }
 
 bool ACloud9WeaponBase::IsActionIndexValid(int Index) const
@@ -496,22 +491,14 @@ void ACloud9WeaponBase::DeInitialize()
 	State = EWeaponState::Dropped;
 	bIsPrimaryActionActive = false;
 	bIsSecondaryActionActive = false;
-	// WeaponDefinition.Reset(); // TODO: Make reset for WeaponDefinition
+	WeaponDefinition.Reset();
 	Executors.Reset();
 	SetActorTickEnabled(false);
 }
 
-void ACloud9WeaponBase::OnWeaponAddedToInventory()
-{
-	// CapsuleComponent->SetSimulatePhysics(false);
-	// CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-}
+void ACloud9WeaponBase::OnWeaponAddedToInventory() {}
 
-void ACloud9WeaponBase::OnWeaponRemovedFromInventory()
-{
-	// CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	// CapsuleComponent->SetSimulatePhysics(true);
-}
+void ACloud9WeaponBase::OnWeaponRemovedFromInventory() {}
 
 bool ACloud9WeaponBase::ChangeActionFlag(bool Flag, bool bIsReleased)
 {
@@ -528,6 +515,13 @@ bool ACloud9WeaponBase::ChangeActionFlag(bool Flag, bool bIsReleased)
 	return Flag;
 }
 
+void ACloud9WeaponBase::ChangeMeshCollisionState(UStaticMeshComponent* Mesh, bool bIsEnabled)
+{
+	let CollisionType = bIsEnabled ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision;
+	Mesh->SetSimulatePhysics(bIsEnabled);
+	Mesh->SetCollisionEnabled(CollisionType);
+}
+
 FName ACloud9WeaponBase::GetWeaponName() const { return GetWeaponId() | EFWeaponId::ToName(); }
 
 FWeaponId ACloud9WeaponBase::GetWeaponId() const
@@ -542,6 +536,8 @@ EWeaponType ACloud9WeaponBase::GetWeaponType() const
 	assertf(IsValid(WeaponDefinition), "[Weapon='%ls'] Not initialized", *GetName());
 	return WeaponDefinition.GetWeaponInfo()->Type;
 }
+
+EWeaponSlot ACloud9WeaponBase::GetWeaponSlot() const { return Slot; }
 
 const UStaticMeshSocket* ACloud9WeaponBase::GetSocketByName(FName SocketName) const
 {

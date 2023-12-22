@@ -60,7 +60,7 @@ void UCloud9Inventory::BeginPlay()
 
 	GameInstance->GetDefaultWeaponsConfig()
 		| ETContainer::Filter{[this](let& Config) { return IsValid(Config); }}
-		| ETContainer::ForEach{[this](let& Config) { AddWeapon(Config); }};
+		| ETContainer::ForEach{[this](let& Config) { AddWeapon(Config, true); }};
 
 	let InitialWeaponSlot = GameInstance->GetInitialWeaponSlot();
 
@@ -82,13 +82,13 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 
 	if (IsWeaponChanging())
 	{
-		log(Verbose, "[Weapon='%s'] Switching already in progress", *GetName());
+		log(Error, "[Weapon='%s'] Switching already in progress", *GetName());
 		return false;
 	}
 
 	if (Slot == SelectedWeaponSlot)
 	{
-		log(Verbose, "[Weapon='%s'] No switching will be performed", *GetName());
+		log(Error, "[Weapon='%s'] No switching will be performed", *GetName());
 		return false;
 	}
 
@@ -96,7 +96,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot)
 
 	if (not IsValid(PendingWeapon))
 	{
-		log(Verbose, "[Weapon='%s'] Weapon at slot='%d' not set", *GetName(), Slot);
+		log(Error, "[Weapon='%s'] Weapon at slot='%d' not set", *GetName(), Slot);
 		return false;
 	}
 
@@ -156,27 +156,6 @@ bool UCloud9Inventory::ShoveWeapon(EWeaponSlot Slot, ACloud9WeaponBase* Weapon)
 	return true;
 }
 
-bool UCloud9Inventory::AddWeapon(const FWeaponConfig& Config)
-{
-	let Weapon = Config.Spawn(GetWorld());
-
-	if (not IsValid(Weapon))
-	{
-		log(Error, "Can't spawn weapon by config: %s", *Config.ToString());
-		return false;
-	}
-
-	if (not ShoveWeapon(Config.GetWeaponSlot(), Weapon))
-	{
-		log(Error, "Can't shove weapon by config: %s", *Config.ToString());
-		return false;
-	}
-
-	log(Display, "Add configured weapon = '%s'", *Config.ToString());
-
-	return true;
-}
-
 bool UCloud9Inventory::DropWeapon(EWeaponSlot Slot)
 {
 	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
@@ -203,19 +182,89 @@ bool UCloud9Inventory::DropWeapon(EWeaponSlot Slot)
 	return true;
 }
 
-bool UCloud9Inventory::ReplaceWeaponAt(EWeaponSlot Slot, ACloud9WeaponBase* Weapon)
+bool UCloud9Inventory::AddWeapon(const FWeaponConfig& Config, bool IgnoreNotSelected, bool Force)
 {
-	if (not DropWeapon(Slot))
+	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
 	{
-		log(Error, "Can't drop weapon at slot='%d'", Slot);
+		log(Error, "[Inventory='%s'] Owner wasn't set", *GetName());
 		return false;
 	}
 
-	return ShoveWeapon(Slot, Weapon);
+	let Slot = Config.GetWeaponSlot();
+
+	if (WeaponAt(Slot))
+	{
+		if (not Force)
+		{
+			log(Error, "[Inventory='%s'] Weapon slot already occupied", *GetName());
+			return false;
+		}
+
+		RemoveWeapon(Slot);
+	}
+
+	let Weapon = Config.SpawnWeapon(GetWorld());
+
+	if (not IsValid(Weapon))
+	{
+		log(Error, "[Inventory='%s'] Can't spawn weapon by config: %s", *GetName(), *Config.ToString());
+		return false;
+	}
+
+	if (not ShoveWeapon(Slot, Weapon))
+	{
+		log(Error, "[Inventory='%s'] Can't shove weapon by config: %s", *GetName(), *Config.ToString());
+		return false;
+	}
+
+	if (not IgnoreNotSelected and not IsWeaponSelected())
+	{
+		SelectWeapon(Slot);
+	}
+
+	log(Display, "[Inventory='%s'] Added configured weapon = '%s'", *GetName(), *Config.ToString());
+
+	return true;
+}
+
+bool UCloud9Inventory::RemoveWeapon(EWeaponSlot Slot)
+{
+	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
+	{
+		log(Error, "Inventory owner wasn't set");
+		return false;
+	}
+
+	if (not WeaponAt(Slot))
+	{
+		log(Error, "Inventory cell for slot '%d' is empty", Slot);
+		return false;
+	}
+
+	WeaponAt(Slot)->Destroy();
+	WeaponAt(Slot) = nullptr;
+
+	if (Slot == SelectedWeaponSlot)
+	{
+		EWeaponSlot NewSlot = EWeaponSlot::NotSelected;
+		let Found = WeaponSlots
+			| ETContainer::Find{[](let It) { return IsValid(It); }}
+			| ETOptional::OnSet{[&](let It) { NewSlot = It->GetWeaponSlot(); }};
+		// Change without animation(?)
+		SelectedWeaponSlot = NewSlot;
+		PendingWeaponSlot = NewSlot;
+	}
+
+	return true;
 }
 
 ACloud9WeaponBase* UCloud9Inventory::GetSelectedWeapon() const { return GetWeaponAt(SelectedWeaponSlot); }
 
 ACloud9WeaponBase* UCloud9Inventory::GetPendingWeapon() const { return GetWeaponAt(PendingWeaponSlot); }
+
+bool UCloud9Inventory::IsWeaponSelected() const
+{
+	return IsWeaponChanging() or SelectedWeaponSlot != EWeaponSlot::NotSelected;
+}
 
 bool UCloud9Inventory::IsWeaponChanging() const { return SelectedWeaponSlot != PendingWeaponSlot; }
