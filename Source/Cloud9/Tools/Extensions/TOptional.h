@@ -81,10 +81,10 @@ namespace ETOptional
 	Get(const T&) -> Get<T>;
 
 	template <typename BlockType>
-	struct OnNull : TOperator<OnNull<BlockType>>
+	struct OnNull
 	{
 	public:
-		constexpr explicit OnNull(BlockType Block) : Block(Block) {}
+		const BlockType& Block;
 
 		template <typename ValueType>
 		constexpr const TOptional<ValueType>& operator()(const TOptional<ValueType>& Self)
@@ -97,15 +97,13 @@ namespace ETOptional
 			return Self;
 		}
 
-	private:
-		BlockType Block;
+		OPERATOR_BODY(OnNull)
 	};
 
 	template <typename BlockType>
-	struct OnSet : TOperator<OnSet<BlockType>>
+	struct OnSet
 	{
-	public:
-		constexpr explicit OnSet(BlockType Block) : Block(Block) {}
+		const BlockType& Block;
 
 		template <typename ValueType>
 		constexpr const TOptional<ValueType>& operator()(const TOptional<ValueType>& Self)
@@ -118,14 +116,15 @@ namespace ETOptional
 			return Self;
 		}
 
-	private:
-		BlockType Block;
+		OPERATOR_BODY(OnSet)
 	};
 
-	struct IsSet : TOperator<IsSet>
+	struct IsSet
 	{
 	public:
 		template <typename ValueType>
 		constexpr bool operator()(const TOptional<ValueType>& Self) { return Self.IsSet(); }
+
+		OPERATOR_BODY(IsSet)
 	};
 }

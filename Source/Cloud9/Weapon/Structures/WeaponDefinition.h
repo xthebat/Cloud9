@@ -61,6 +61,7 @@ struct FWeaponDefinition
 		, Montages(MoveTemp(Montages))
 		, Tracer(Tracer) {}
 
+	// TODO: Refactor FWeaponDefinition somehow...
 	template <typename WeaponInfoType = FBaseWeaponInfo>
 	FORCEINLINE const WeaponInfoType* GetWeaponInfo() const
 	{
@@ -113,6 +114,27 @@ struct FWeaponDefinition
 	FORCEINLINE const FWeaponActionMontages* GetPoseMontages(bool bIsCrouch) const
 	{
 		return not bIsCrouch ? &Montages.OnStand : &Montages.OnCrouch;
+	}
+
+	void Reset()
+	{
+		if (WeaponClass == EWeaponClass::Melee)
+		{
+			MeleeWeaponInfo = {};
+		}
+
+		if (WeaponClass == EWeaponClass::Firearm)
+		{
+			FirearmWeaponInfo = {};
+		}
+
+		if (WeaponClass == EWeaponClass::Grenade)
+		{
+			GrenadeWeaponInfo = {};
+		}
+
+		WeaponClass = EWeaponClass::NoClass;
+		Tracer = nullptr;
 	}
 
 protected:

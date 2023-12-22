@@ -80,10 +80,10 @@ struct FWeaponConfig
 		return Weapon->Initialize(GetWeaponId(), GetSkinName());
 	}
 
-	ACloud9WeaponBase* Spawn(UWorld* World) const;
+	ACloud9WeaponBase* SpawnWeapon(UWorld* World) const;
 
 	template <typename WeaponClassType>
-	WeaponClassType* Spawn(UWorld* World) const
+	WeaponClassType* SpawnWeapon(UWorld* World) const
 	{
 		return World | EUWorld::SpawnActor<WeaponClassType>{
 			.Initializer = [this](let It) { return Initialize<WeaponClassType>(It); },

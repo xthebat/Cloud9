@@ -199,7 +199,7 @@ void ACloud9Character::SetCameraRotationRoll(float Angle) const
 {
 	var Rotation = CameraBoom->GetRelativeRotation();
 	Rotation.Pitch = -Angle;
-	log(Display, "SetRelativeRotation Yaw: %s", *Rotation.ToString());
+	log(Verbose, "SetRelativeRotation Yaw: %s", *Rotation.ToString());
 	CameraBoom->SetRelativeRotation(Rotation);
 }
 

@@ -30,9 +30,15 @@ void UWeaponInitializerComponent::SetWeaponConfig(const FWeaponConfig& Config)
 	if (IsValid(Config))
 	{
 		SetChildActorClass(Config.GetWeaponStaticClass());
-		if (not Config.Initialize(GetChildActor()))
+
+		let MyChildActor = GetChildActor();
+
+		if (not Config.Initialize(MyChildActor))
 		{
 			DestroyChildActor();
 		}
+
+		// Remove actor collision
+		MyChildActor->SetActorEnableCollision(false);
 	}
 }

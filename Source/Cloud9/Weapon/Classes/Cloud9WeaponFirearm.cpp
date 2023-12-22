@@ -93,6 +93,18 @@ void ACloud9WeaponFirearm::DeInitialize()
 	MuzzleFlash->SetAsset(nullptr);
 }
 
+void ACloud9WeaponFirearm::OnWeaponAddedToInventory()
+{
+	ChangeMeshCollisionState(WeaponMesh, false);
+	ChangeMeshCollisionState(MagazineMesh, false);
+}
+
+void ACloud9WeaponFirearm::OnWeaponRemovedFromInventory()
+{
+	ChangeMeshCollisionState(WeaponMesh, true);
+	ChangeMeshCollisionState(MagazineMesh, true);
+}
+
 void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
