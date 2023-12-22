@@ -24,16 +24,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9/Tools/Extensions/UObject.h"
 #include "Components/ActorComponent.h"
+#include "Cloud9/Tools/Extensions/UObject.h"
 #include "CooldownActionComponent.generated.h"
 
-namespace CooldownAction
-{
-	template <typename FunctionType>
-	concept callable = std::invocable<FunctionType> && std::same_as<bool, TInvokeResult_T<FunctionType>>;
-}
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCooldownActionCompleteDelegate);
 
 UCLASS(BlueprintType)
 class CLOUD9_API UCooldownActionComponent : public UActorComponent
@@ -61,32 +56,40 @@ public:
 	 * Otherwise (if cooldown not finished yet) just return false.
 	 */
 	template <typename FunctionType>
-	FORCEINLINE bool Execute(FunctionType&& Function, float OverrideCooldownTime = -1)
+	FORCEINLINE UCooldownActionComponent* Execute(FunctionType&& Function, float OverrideCooldownTime = -1)
 	{
 		if (not bIsActionInProcess)
 		{
 			if (not Function())
 			{
 				log(Warning, "Failed to execute cooldown function in '%s'", *GetName());
-				return false;
+				bIsSuccess = false;
+				return this;
 			}
 
+			bIsSuccess = true;
 			RemainTime = OverrideCooldownTime < 0.0f ? DefaultCooldownTime : OverrideCooldownTime;
 
 			if (RemainTime > 0.0f)
 			{
 				bIsActionInProcess = true;
 				SetComponentTickEnabled(true);
-				return true;
+				return this;
 			}
 		}
 
-		return false;
+		return this;
 	}
 
-	bool IsExecuting() const;
+	template <typename FunctionType>
+	void OnComplete(FunctionType&& Function)
+	{
+		OnCompleteDelegate = TDelegate<void()>::CreateLambda(Function);
+	}
 
-	// TODO: Add blueprint bindings
+	bool IsSuccess() const { return bIsSuccess; }
+
+	bool IsExecuting() const;
 
 protected:
 	/**
@@ -101,9 +104,15 @@ protected:
 	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	float RemainTime;
 
+	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool bIsSuccess;
+
 	/**
 	 * Whether or not action currently in process
 	 */
 	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	bool bIsActionInProcess;
+
+	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	FOnCooldownActionCompleteDelegate OnCompleteDelegate;
 };

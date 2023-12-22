@@ -21,6 +21,7 @@
 #pragma once
 
 #include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Extensions/TOptional.h"
 #include "Cloud9/Tools/Containers/Sequence.h"
 
 namespace Concepts
@@ -111,7 +112,7 @@ namespace ETContainer
 		OPERATOR_BODY(Random)
 	};
 
-	template <class BlockType>
+	template <typename BlockType>
 	struct ForEach
 	{
 		const BlockType& Block;
@@ -163,6 +164,29 @@ namespace ETContainer
 
 		OPERATOR_BODY(Find)
 	};
+
+	template <typename PredicateType>
+	struct Any
+	{
+		const PredicateType& Predicate;
+
+		template <typename ContainerType>
+		constexpr bool operator()(ContainerType&& Self) const
+		{
+			return Self | Find{Predicate} | ETOptional::IsSet();
+		}
+
+		OPERATOR_BODY(Any)
+	};
+
+	template <typename BlockType>
+	void Repeat(int Count, const BlockType& Block)
+	{
+		for (int i = 0; i < Count; ++i)
+		{
+			Block(i);
+		}
+	}
 
 	struct Drop
 	{

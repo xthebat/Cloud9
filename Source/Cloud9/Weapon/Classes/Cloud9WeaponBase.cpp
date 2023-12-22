@@ -26,12 +26,14 @@
 #include "Cloud9/Cloud9.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9AssetManager.h"
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Extensions/TOptional.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
+#include "Cloud9/Weapon/Enums/WeaponActions.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
 #include "Cloud9/Weapon/Extensions/EWeaponId.h"
 
@@ -51,6 +53,8 @@ ACloud9WeaponBase::ACloud9WeaponBase()
 
 	bIsPrimaryActionActive = false;
 	bIsSecondaryActionActive = false;
+	bIsThirdActionActive = false;
+	bIsDeployed = false;
 
 	SetActorTickEnabled(false);
 }
@@ -233,21 +237,8 @@ bool ACloud9WeaponBase::PlayRandomSound(const TArray<USoundBase*>& Sounds, float
 	return Sounds
 		| Random()
 		| OnNull{[&] { log(Error, "[Weapon='%s'] Can't play sound for ", *GetName()) }}
-		| OnSet{[&](let& It) { It | EUSoundBase::Play(GetActorLocation(), Volume); }}
+		| OnSet{[&](let& It) { It | EUSoundBase::Play{GetActorLocation(), Volume}; }}
 		| IsSet{};
-}
-
-bool ACloud9WeaponBase::IsActionIndexValid(int Index) const
-{
-	if (Index > Executors.Num() or Index < 0)
-	{
-		log(
-			Error,
-			"[Weapon='%s'] Invalid action index '%d', should be > 0 and < %d",
-			*GetName(), Index, Executors.Num());
-		return false;
-	}
-	return true;
 }
 
 UCooldownActionComponent* ACloud9WeaponBase::CreateCooldownAction(FName ComponentName)
@@ -437,6 +428,32 @@ void ACloud9WeaponBase::SecondaryAction(bool bIsReleased)
 
 void ACloud9WeaponBase::Reload() {}
 
+void ACloud9WeaponBase::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	WEAPON_IS_DEFINED_GUARD();
+
+	static let Settings = UCloud9DeveloperSettings::Get();
+
+	let Character = GetOwner<ACloud9Character>();
+	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
+	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
+
+	if (bIsDeployed)
+	{
+		ExecuteAction(
+			EWeaponAction::Deploy,
+			WeaponInfo->DeployTime, [&]
+			{
+				PlayAnimMontage(PoseMontages->DeployMontage);
+				WeaponInfo->Sounds.DeploySound | EUSoundBase::Play{GetActorLocation(), Settings->Volume};
+				return false;
+			}
+		)->OnComplete([Character] { Character->GetInventory()->WeaponChangeFinished(true); });
+	}
+}
+
 bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {
 	InitializeName(NewWeaponId);
@@ -470,7 +487,7 @@ bool ACloud9WeaponBase::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeap
 		return false;
 	}
 
-	let Actions = GetWeaponActions();
+	let Actions = StaticEnum<EWeaponAction>();
 
 	if (not IsValid(Actions))
 	{
@@ -478,17 +495,16 @@ bool ACloud9WeaponBase::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeap
 		return false;
 	}
 
-	// Insanity checks just in case
-	static_assert(AnyActionId == 0);
-	static_assert(AnyActionIndex == -1);
-
-	for (int Id = AnyActionId + 1; Id < Actions->NumEnums(); Id++)
-	{
-		let CooldownActionName = Actions | EUEnum::GetValueName(Id);
-		let ComponentName = FString::Format(*ActionComponentFormat, {CooldownActionName.ToString()});
-		let CooldownActionComponent = CreateCooldownAction(FName(ComponentName));
-		Executors.Add(CooldownActionComponent);
-	}
+	ETContainer::Repeat(
+		Actions->NumEnums(),
+		[&](let Id)
+		{
+			let CooldownActionName = Actions | EUEnum::GetValueName(Id);
+			let ComponentName = FString::Format(*ActionComponentFormat, {CooldownActionName.ToString()});
+			let CooldownActionComponent = CreateCooldownAction(FName(ComponentName));
+			Executors.Add(CooldownActionComponent);
+		}
+	);
 
 	return true;
 }
@@ -500,6 +516,8 @@ void ACloud9WeaponBase::DeInitialize()
 	State = EWeaponState::Dropped;
 	bIsPrimaryActionActive = false;
 	bIsSecondaryActionActive = false;
+	bIsThirdActionActive = false;
+	bIsDeployed = false;
 	WeaponDefinition.Reset();
 	Executors.Reset();
 	SetActorTickEnabled(false);
@@ -567,9 +585,3 @@ EWeaponClass ACloud9WeaponBase::GetWeaponClass() const
 }
 
 bool ACloud9WeaponBase::CanBeDropped() const { return true; }
-
-const UEnum* ACloud9WeaponBase::GetWeaponActions() const
-{
-	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName());
-	return nullptr;
-}

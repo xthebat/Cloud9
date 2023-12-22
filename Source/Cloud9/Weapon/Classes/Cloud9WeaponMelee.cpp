@@ -26,7 +26,6 @@
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
-#include "Cloud9/Weapon/Enums/MeleeActions.h"
 #include "Cloud9/Weapon/Tables/WeaponTableMelee.h"
 #include "Cloud9/Weapon/Structures/WeaponDefinition.h"
 
@@ -42,8 +41,6 @@ ACloud9WeaponMelee::ACloud9WeaponMelee()
 }
 
 FWeaponId ACloud9WeaponMelee::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
-
-const UEnum* ACloud9WeaponMelee::GetWeaponActions() const { return StaticEnum<EMeleeAction>(); }
 
 bool ACloud9WeaponMelee::CanBeDropped() const { return false; }
 
@@ -96,7 +93,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	if (bIsPrimaryActionActive)
 	{
 		ExecuteAction(
-			EMeleeAction::Slash,
+			EWeaponAction::Primary,
 			WeaponInfo->SlashCycleTime, [&]
 			{
 				return PlayAnimMontage(PoseMontages->PrimaryActionMontage) and
@@ -107,7 +104,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	else if (bIsSecondaryActionActive)
 	{
 		ExecuteAction(
-			EMeleeAction::Slash,
+			EWeaponAction::Secondary,
 			WeaponInfo->StabCycleTime, [&]
 			{
 				return PlayAnimMontage(PoseMontages->SecondaryActionMontage) and

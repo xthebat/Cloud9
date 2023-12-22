@@ -26,19 +26,13 @@
 
 namespace EUSoundBase
 {
-	struct Play : TOperator<Play>
+	struct Play
 	{
-		explicit Play(
-			FVector Location,
-			float VolumeMultiplier = 1.f,
-			float PitchMultiplier = 1.f,
-			float StartTime = 0.f,
-			const UObject* World = nullptr)
-			: Location(Location)
-			, VolumeMultiplier(VolumeMultiplier)
-			, PitchMultiplier(PitchMultiplier)
-			, StartTime(StartTime)
-			, World(World) {}
+		FVector Location;
+		float VolumeMultiplier = 1.f;
+		float PitchMultiplier = 1.f;
+		float StartTime = 0.f;
+		const UObject* World = nullptr;
 
 		FORCEINLINE void operator()(USoundBase* Self) const
 		{
@@ -52,11 +46,6 @@ namespace EUSoundBase
 				StartTime);
 		}
 
-	private:
-		FVector Location;
-		float VolumeMultiplier;
-		float PitchMultiplier;
-		float StartTime;
-		const UObject* World;
+		OPERATOR_BODY(Play)
 	};
 }

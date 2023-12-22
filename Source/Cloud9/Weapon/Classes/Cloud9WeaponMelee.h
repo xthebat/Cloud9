@@ -44,7 +44,6 @@ public:
 	ACloud9WeaponMelee();
 
 	virtual FWeaponId GetWeaponId() const override;
-	virtual const UEnum* GetWeaponActions() const override;
 	virtual bool CanBeDropped() const override;
 	virtual const UStaticMeshSocket* GetSocketByName(FName SocketName) const override;
 	virtual const UStaticMeshComponent* GetWeaponMesh() const override;

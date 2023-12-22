@@ -31,7 +31,6 @@ namespace EUWorld
 	template <typename ClassType>
 	struct SpawnActor
 	{
-	public:
 		using FInitializerType = TFunction<bool(ClassType*)>;
 
 		FInitializerType Initializer;
@@ -54,12 +53,11 @@ namespace EUWorld
 	};
 
 	template <typename FunctionType>
-	struct AsyncAfter : TOperator<AsyncAfter<FunctionType>>
+	struct AsyncAfter
 	{
-		explicit AsyncAfter(FunctionType Function, float InRate, bool bInLoop = false)
-			: Function(Function)
-			, InRate(InRate)
-			, bInLoop(bInLoop) {}
+		const FunctionType& Function;
+		float InRate;
+		bool bInLoop = false;
 
 		FORCEINLINE FTimerHandle operator()(const UWorld* Self) const
 		{
@@ -70,23 +68,18 @@ namespace EUWorld
 			return TimerHandle;
 		}
 
-	private:
-		FunctionType Function;
-		float InRate;
-		bool bInLoop;
+		OPERATOR_BODY(AsyncAfter)
 	};
 
-	struct IsTimerActive : TOperator<IsTimerActive>
+	struct IsTimerActive
 	{
-		explicit IsTimerActive(const FTimerHandle& TimerHandle)
-			: TimerHandle(TimerHandle) {}
+		FTimerHandle TimerHandle;
 
 		FORCEINLINE bool operator()(const UWorld* Self) const
 		{
 			return Self->GetTimerManager().IsTimerActive(TimerHandle);
 		}
 
-	private:
-		FTimerHandle TimerHandle;
+		OPERATOR_BODY(IsTimerActive)
 	};
 }
