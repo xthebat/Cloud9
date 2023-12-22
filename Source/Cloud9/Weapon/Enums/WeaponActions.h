@@ -26,12 +26,10 @@
 UENUM(BlueprintType)
 enum class EWeaponAction : uint8
 {
-	Any = 0 UMETA(DisplayName="Any"),
+	Deploy = 0 UMETA(DisplayName = "Deploy"),
+	Reload = 1 UMETA(DisplayName="Reload"),
 
-	Deploy = 1 UMETA(DisplayName = "Deploy"),
-	Reload = 2 UMETA(DisplayName="Reload"),
-
-	Primary = 3 UMETA(DisplayName="Fire"),
-	Secondary = 4 UMETA(DisplayName="Zoom"),
-	Third = 5 UMETA(DisplayName="Third"),
+	Primary = 2 UMETA(DisplayName="Primary"),
+	Secondary = 3 UMETA(DisplayName="Secondary"),
+	Third = 4 UMETA(DisplayName="Third"),
 };
