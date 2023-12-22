@@ -36,83 +36,56 @@ class CLOUD9_API UCooldownActionComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	UCooldownActionComponent();
-
-	/**
-	 * Function setups default values for CooldownActionComponent
-	 */
-	UCooldownActionComponent* Initialize(float NewDefaultCooldownTime);
+	UCooldownActionComponent()
+	{
+		bIsExecuting = false;
+	}
 
 public:
-	virtual void TickComponent(
-		float DeltaTime,
-		ELevelTick TickType,
-		FActorComponentTickFunction* ThisTickFunction
-	) override;
-
 	/**
 	 * Function executes new action with specified function if cooldown
 	 * finished; also setups timer to wait new cooldown and returns true. 
 	 * Otherwise (if cooldown not finished yet) just return false.
 	 */
-	template <typename FunctionType>
-	FORCEINLINE UCooldownActionComponent* Execute(FunctionType&& Function, float OverrideCooldownTime = -1)
+	template <typename OnExecuteType, typename OnCompleteType>
+	FORCEINLINE bool Execute(
+		float CooldownTime,
+		OnExecuteType&& OnExecute,
+		OnCompleteType&& OnComplete = {})
 	{
-		if (not bIsActionInProcess)
+		if (not bIsExecuting)
 		{
-			if (not Function())
+			if (not OnExecute())
 			{
-				log(Warning, "Failed to execute cooldown function in '%s'", *GetName());
-				bIsSuccess = false;
-				return this;
+				log(Error, "[Action='%s'] Failed to execute function", *GetName());
+				OnComplete();
+				return false;
 			}
 
-			bIsSuccess = true;
-			RemainTime = OverrideCooldownTime < 0.0f ? DefaultCooldownTime : OverrideCooldownTime;
+			bIsExecuting = true;
 
-			if (RemainTime > 0.0f)
-			{
-				bIsActionInProcess = true;
-				SetComponentTickEnabled(true);
-				return this;
-			}
+			TimerHandle = GetWorld() | EUWorld::AsyncAfter{
+				[&]
+				{
+					OnComplete();
+					bIsExecuting = false;
+				},
+				CooldownTime
+			};
 		}
 
-		return this;
+		return false;
 	}
 
-	template <typename FunctionType>
-	void OnComplete(FunctionType&& Function)
-	{
-		OnCompleteDelegate = TDelegate<void()>::CreateLambda(Function);
-	}
-
-	bool IsSuccess() const { return bIsSuccess; }
-
-	bool IsExecuting() const;
+	bool IsExecuting() const { return bIsExecuting; }
 
 protected:
-	/**
-	 * Cooldown time - next action will be executed only after it
-	 */
-	UPROPERTY(Category=Timer, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	float DefaultCooldownTime;
-
-	/**
-	 * Remain cooldown time
-	 */
-	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	float RemainTime;
-
-	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	bool bIsSuccess;
-
 	/**
 	 * Whether or not action currently in process
 	 */
 	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	bool bIsActionInProcess;
+	bool bIsExecuting;
 
-	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	FOnCooldownActionCompleteDelegate OnCompleteDelegate;
+	UPROPERTY(Category=Implementation, BlueprintReadOnly)
+	FTimerHandle TimerHandle;
 };

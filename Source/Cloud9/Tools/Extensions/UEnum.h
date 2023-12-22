@@ -97,9 +97,10 @@ namespace EUEnum
 			return GetOnlyValueName(Self, ValueId);
 		}
 
-		template <typename EnumValueType>
+		template <typename EnumValueType, typename = typename TEnableIf<TIsEnum<EnumValueType>::Value>::Type>
 		FORCEINLINE FName operator()(EnumValueType Self) const
 		{
+			
 			return Self | AsStaticEnum(
 				FName(NAME_None),
 				[this](let Enum, let Value) { return GetOnlyValueName(Enum, Value); }

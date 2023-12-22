@@ -444,13 +444,19 @@ void ACloud9WeaponBase::Tick(float DeltaSeconds)
 	{
 		ExecuteAction(
 			EWeaponAction::Deploy,
-			WeaponInfo->DeployTime, [&]
+			WeaponInfo->DeployTime,
+			[&]
 			{
 				PlayAnimMontage(PoseMontages->DeployMontage);
 				WeaponInfo->Sounds.DeploySound | EUSoundBase::Play{GetActorLocation(), Settings->Volume};
 				return false;
+			},
+			[&]
+			{
+				Character->GetInventory()->WeaponChangeFinished(true);
+				bIsDeployed = false;
 			}
-		)->OnComplete([Character] { Character->GetInventory()->WeaponChangeFinished(true); });
+		);
 	}
 }
 

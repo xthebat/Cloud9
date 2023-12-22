@@ -22,37 +22,3 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #include "CooldownActionComponent.h"
-
-
-UCooldownActionComponent::UCooldownActionComponent()
-{
-	PrimaryComponentTick.bCanEverTick = true;
-	DefaultCooldownTime = 0.0f;
-	RemainTime = 0.0f;
-	bIsActionInProcess = false;
-}
-
-UCooldownActionComponent* UCooldownActionComponent::Initialize(float NewDefaultCooldownTime)
-{
-	DefaultCooldownTime = NewDefaultCooldownTime;
-	return this;
-}
-
-void UCooldownActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                             FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (bIsActionInProcess)
-	{
-		RemainTime -= DeltaTime;
-
-		if (RemainTime <= 0.0f)
-		{
-			bIsActionInProcess = false;
-			SetComponentTickEnabled(false);
-		}
-	}
-}
-
-bool UCooldownActionComponent::IsExecuting() const { return bIsActionInProcess; }

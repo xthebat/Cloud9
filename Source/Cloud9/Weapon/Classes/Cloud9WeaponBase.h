@@ -98,37 +98,24 @@ public:
 	bool RemoveFromInventory();
 	bool ChangeState(EWeaponState NewState);
 
-	template <typename FunctionType>
-	FORCEINLINE UCooldownActionComponent* ExecuteAction(
-		EWeaponAction WeaponAction,
-		float Cooldown,
-		FunctionType&& Function)
+	template <typename OnExecuteType, typename OnCompleteType = TFunction<void()>>
+	FORCEINLINE bool ExecuteAction(
+		EWeaponAction Action,
+		float CooldownTime,
+		OnExecuteType&& OnExecute,
+		OnCompleteType&& OnComplete = {})
 	{
-		if (WeaponAction == EWeaponAction::Any)
-		{
-			log(Fatal, "[Weapon='%s'] Action type can't be equal to Any", *GetName());
-			return nullptr;
-		}
-
-		return Executors[GetWeaponActionIndex(WeaponAction)]->Execute(MoveTemp(Function), Cooldown);
+		return Executors[GetWeaponActionIndex(Action)]->Execute(CooldownTime, OnExecute, OnComplete);
 	}
 
-	template <typename FunctionType>
-	FORCEINLINE bool ExecuteAction(EWeaponAction WeaponAction, FunctionType&& Function)
+	FORCEINLINE bool IsActionInProgress(EWeaponAction Action) const
 	{
-		return ExecuteAction(WeaponAction, -1, MoveTemp(Function));
+		return not Executors[GetWeaponActionIndex(Action)]->IsExecuting();
 	}
 
-	FORCEINLINE bool IsActionInProgress(EWeaponAction WeaponAction = EWeaponAction::Any) const
+	FORCEINLINE bool IsActionInProgress() const
 	{
-		if (WeaponAction == EWeaponAction::Any)
-		{
-			return Executors | ETContainer::Any{
-				[](let It) { return It->IsExecuting(); }
-			};
-		}
-
-		return not Executors[GetWeaponActionIndex(WeaponAction)]->IsExecuting();
+		return Executors | ETContainer::Any{[](let It) { return It->IsExecuting(); }};
 	}
 
 	FORCEINLINE bool IsWeaponArmed() const { return State == EWeaponState::Armed; }
