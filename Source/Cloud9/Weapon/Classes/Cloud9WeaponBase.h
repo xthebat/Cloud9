@@ -96,9 +96,11 @@ public:
 
 	bool IsWeaponDefined() const { return IsValid(WeaponDefinition); }
 
+	bool IsDeploying() const { return bIsDeploying; }
+
 	bool AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot);
 	bool RemoveFromInventory();
-	bool ChangeState(EWeaponState NewState);
+	bool ChangeState(EWeaponState NewState, bool Instant);
 
 	template <typename OnExecuteType, typename OnCompleteType = TFunction<void()>>
 	FORCEINLINE bool ExecuteAction(
@@ -168,9 +170,7 @@ protected: // functions
 
 	bool PlayRandomSound(const TArray<USoundBase*>& Sounds, float Volume) const;
 
-	bool UpdateWeaponAttachment(
-		EWeaponSlot NewSlot,
-		EWeaponState NewState);
+	bool UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState NewState, bool Instant = false);
 
 #define WEAPON_IS_DEFINED_GUARD() \
 	if (not IsWeaponDefined()) \
