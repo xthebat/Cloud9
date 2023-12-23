@@ -23,12 +23,15 @@
 
 #include "Cloud9WeaponFirearm.h"
 
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Tools/Extensions/FVector.h"
 
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
 
@@ -146,6 +149,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	let Character = GetOwner<ACloud9Character>();
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
+	let CommonData = WeaponDefinition.GetCommonData();
 
 	if (bIsDeploying)
 	{
@@ -171,7 +175,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 					PlayRandomSound(WeaponInfo->Sounds.FireSounds, Settings->Volume))
 				{
 					MuzzleFlash->Activate(true);
-					return Fire();
+					return Fire(WeaponInfo, CommonData->ImpulseMultiplier);
 				}
 
 				return false;
@@ -187,7 +191,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	else {}
 }
 
-bool ACloud9WeaponFirearm::Fire() const
+bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, float ImpulseMultiplier) const
 {
 	let Character = GetOwner<ACloud9Character>();
 
@@ -228,10 +232,8 @@ bool ACloud9WeaponFirearm::Fire() const
 
 	if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
 	{
-		var Direction = LineHit.Location - StartLocation;
-		Direction.Normalize();
-		// TODO: Add impulse based on weapon type (weapon power)
-		Target->AddImpulse(1000.0 * Direction, NAME_None, true);
+		let Direction = (LineHit.Location - StartLocation) | EFVector::Normalize{};
+		Target->AddImpulse(WeaponInfo->Damage * ImpulseMultiplier * Direction, NAME_None, true);
 	}
 
 	return true;

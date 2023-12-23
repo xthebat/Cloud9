@@ -26,8 +26,6 @@
 #include "CoreMinimal.h"
 #include "NiagaraComponent.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Enums/FirearmNames.h"
 
@@ -69,7 +67,7 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	bool Fire() const;
+	bool Fire(const FFirearmWeaponInfo* WeaponInfo, float ImpulseMultiplier) const;
 
 protected: // properties
 	/**
