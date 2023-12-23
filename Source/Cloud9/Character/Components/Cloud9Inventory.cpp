@@ -23,10 +23,9 @@
 
 #include "Cloud9Inventory.h"
 
-#include "Cloud9/Cloud9.h"
-#include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
+#include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Enums/WeaponState.h"
 

@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Macro/Operator.h"
 
 // No namespace to meet UE4 code-style

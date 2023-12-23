@@ -23,7 +23,6 @@
 
 #include "Cloud9SpringArmComponent.h"
 
-#include "Cloud9/Cloud9.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
 

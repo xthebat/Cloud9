@@ -24,10 +24,10 @@
 #pragma once
 
 #include "Engine/DataTable.h"
-#include "Cloud9/Cloud9.h"
+
 #include "Cloud9/Tools/Extensions/TOptional.h"
-#include "Cloud9/Tools/Macro/Operator.h"
 #include "Cloud9/Weapon/Enums/WeaponType.h"
+
 #include "WeaponTableBase.generated.h"
 
 USTRUCT(BlueprintType)

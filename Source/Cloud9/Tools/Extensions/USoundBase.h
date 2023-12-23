@@ -20,9 +20,10 @@
 
 #pragma once
 
+#include "Kismet/GameplayStatics.h"
+
 #include "Cloud9/Tools/Macro/Operator.h"
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
-#include "Kismet/GameplayStatics.h"
 
 namespace EUSoundBase
 {

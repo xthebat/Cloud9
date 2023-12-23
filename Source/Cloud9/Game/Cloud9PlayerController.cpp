@@ -23,12 +23,12 @@
 
 #include "Cloud9PlayerController.h"
 
-#include "Cloud9DeveloperSettings.h"
-#include "Cloud9KeyboardController.h"
-#include "Cloud9MouseController.h"
-#include "Cloud9/Cloud9.h"
-#include "Cloud9/Console/Cloud9ConsoleComponent.h"
 #include "Engine/World.h"
+
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
+#include "Cloud9/Game/Cloud9KeyboardController.h"
+#include "Cloud9/Game/Cloud9MouseController.h"
+#include "Cloud9/Console/Cloud9ConsoleComponent.h"
 
 const FName ACloud9PlayerController::ConsoleName = TEXT("Console");
 const FName ACloud9PlayerController::KeyboardControllerName = TEXT("KeyboardController");

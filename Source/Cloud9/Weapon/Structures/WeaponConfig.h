@@ -25,6 +25,9 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Extensions/UWorld.h"
 #include "Cloud9/Weapon/Enums/FirearmNames.h"
 #include "Cloud9/Weapon/Enums/GrenadeNames.h"
@@ -33,6 +36,7 @@
 #include "Cloud9/Weapon/Enums/WeaponId.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Tables/WeaponTableBase.h"
+
 #include "WeaponConfig.generated.h"
 
 class ACloud9WeaponBase;

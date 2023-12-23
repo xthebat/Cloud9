@@ -24,8 +24,6 @@
 
 #include "Cloud9LinearDoor.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Tools/Extensions/FTransform.h"
 #include "Cloud9/Tools/Extensions/FVector.h"

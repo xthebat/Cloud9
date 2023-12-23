@@ -25,8 +25,13 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
+
 #include "Cloud9GameInstance.generated.h"
 
 UCLASS()

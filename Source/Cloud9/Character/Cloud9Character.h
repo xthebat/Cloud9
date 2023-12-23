@@ -26,8 +26,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 
-#include "Components/Cloud9CharacterMovement.h"
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
 #include "Components/Cloud9Inventory.h"
+#include "Components/Cloud9CharacterMovement.h"
 
 #include "Cloud9Character.generated.h"
 

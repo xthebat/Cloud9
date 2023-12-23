@@ -24,11 +24,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9/Cloud9.h"
 #include "Components/ActorComponent.h"
-#include "Cloud9CharacterComponent.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+#include "Cloud9/Character/Components/Cloud9CharacterComponent.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
+
 #include "Cloud9Inventory.generated.h"
 
 class ACloud9WeaponBase;

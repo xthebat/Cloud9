@@ -25,7 +25,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Extensions/UObject.h"
+
 #include "CooldownActionComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCooldownActionCompleteDelegate);

@@ -24,8 +24,10 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "Cloud9/Tools/Extensions/FName.h"
 #include "Cloud9/Tools/Extensions/UEnum.h"
+
 #include "WeaponSlot.generated.h"
 
 UENUM(BlueprintType)

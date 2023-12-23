@@ -26,18 +26,19 @@
 #include "CoreMinimal.h"
 #include "NiagaraComponent.h"
 #include "GameFramework/Actor.h"
-#include "Cloud9/Cloud9.h"
-#include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Tools/Components/CooldownActionComponent.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
-#include "Cloud9/Tools/Extensions/USoundBase.h"
+#include "Cloud9/Tools/Components/CooldownActionComponent.h"
 #include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
 #include "Cloud9/Weapon/Enums/WeaponActions.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Enums/WeaponState.h"
 #include "Cloud9/Weapon/Structures/WeaponDefinition.h"
+
 #include "Cloud9WeaponBase.generated.h"
 
 class ACloud9Character;

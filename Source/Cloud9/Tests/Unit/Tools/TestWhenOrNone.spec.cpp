@@ -21,7 +21,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-
+#include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tests/Unit/Fake/UWhenOrNoneTestClassA.h"
 #include "Cloud9/Tests/Unit/Fake/UWhenOrNoneTestClassB.h"
 #include "Cloud9/Tools/Extensions/WhenOrNone.h"

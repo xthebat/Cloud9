@@ -24,6 +24,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+
 #include "Cloud9DeveloperSettings.generated.h"
 
 USTRUCT(BlueprintType)

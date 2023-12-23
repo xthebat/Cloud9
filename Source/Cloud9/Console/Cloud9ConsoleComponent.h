@@ -25,14 +25,15 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+
 #include "Cloud9ConsoleComponent.generated.h"
 
 class UCloud9Console;
 class ACloud9GameMode;
 
-/**
- * 
- */
 UCLASS()
 class CLOUD9_API UCloud9ConsoleComponent : public UActorComponent
 {

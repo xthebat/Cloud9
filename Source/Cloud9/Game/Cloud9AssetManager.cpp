@@ -22,7 +22,6 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Cloud9AssetManager.h"
-#include "Cloud9/Cloud9.h"
 
 UObject* UCloud9AssetManager::GetOrLoadAssetSync(FPrimaryAssetId PrimaryAssetId)
 {

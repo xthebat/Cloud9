@@ -25,8 +25,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Cloud9SpringArmComponent.generated.h"
 
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+
+#include "Cloud9SpringArmComponent.generated.h"
 
 UCLASS(ClassGroup=(Camera), meta=(BlueprintSpawnableComponent))
 class CLOUD9_API UCloud9SpringArmComponent : public USpringArmComponent
