@@ -23,11 +23,11 @@
 
 #include "Cloud9GameMode.h"
 
+#include "UObject/ConstructorHelpers.h"
+
 #include "Cloud9DeveloperSettings.h"
 #include "Cloud9PlayerController.h"
-#include "Cloud9/Cloud9.h"
 #include "Cloud9/Character/Cloud9Character.h"
-#include "UObject/ConstructorHelpers.h"
 
 ACloud9GameMode::ACloud9GameMode()
 {

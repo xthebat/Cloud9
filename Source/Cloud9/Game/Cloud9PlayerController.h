@@ -25,6 +25,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+
 #include "Cloud9PlayerController.generated.h"
 
 class UCloud9KeyboardController;

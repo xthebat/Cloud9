@@ -25,9 +25,9 @@
 
 #include "Cloud9KeyboardController.h"
 
-#include "Cloud9/Cloud9.h"
-#include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "GameFramework/SpringArmComponent.h"
+
+#include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 
 UCloud9KeyboardController::UCloud9KeyboardController()
 {

@@ -21,8 +21,6 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-
-#include "Cloud9/Cloud9.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Macro/Operator.h"
 

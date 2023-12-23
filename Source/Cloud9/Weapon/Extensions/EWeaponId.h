@@ -24,6 +24,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "Cloud9/Tools/Macro/Operator.h"
 #include "Cloud9/Tools/Extensions/UEnum.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"

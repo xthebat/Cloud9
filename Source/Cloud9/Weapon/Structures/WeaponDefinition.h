@@ -29,6 +29,7 @@
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
 #include "Cloud9/Weapon/Tables/WeaponTableGrenade.h"
 #include "Cloud9/Weapon/Tables/WeaponTableMelee.h"
+
 #include "WeaponDefinition.generated.h"
 
 USTRUCT(BlueprintType)

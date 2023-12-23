@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Macro/Operator.h"
 
 namespace EFTextBuilder

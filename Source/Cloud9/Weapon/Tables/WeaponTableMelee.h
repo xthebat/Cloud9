@@ -24,6 +24,7 @@
 #pragma once
 
 #include "WeaponTableBase.h"
+
 #include "WeaponTableMelee.generated.h"
 
 class ACloud9WeaponMelee;

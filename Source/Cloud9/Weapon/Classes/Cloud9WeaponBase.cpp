@@ -23,15 +23,13 @@
 
 #include "Cloud9WeaponBase.h"
 
-#include "Cloud9/Cloud9.h"
-#include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Game/Cloud9AssetManager.h"
-#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Extensions/TOptional.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Tools/Extensions/USoundBase.h"
+#include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Game/Cloud9AssetManager.h"
 #include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
 #include "Cloud9/Weapon/Enums/WeaponActions.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"

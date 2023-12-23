@@ -26,6 +26,7 @@
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
+#include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Tables/WeaponTableMelee.h"
 #include "Cloud9/Weapon/Structures/WeaponDefinition.h"
 

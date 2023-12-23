@@ -24,9 +24,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "Cloud9/Tools/Extensions/FName.h"
 #include "Cloud9/Tools/Extensions/UEnum.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "WeaponState.generated.h"
 
 UENUM(BlueprintType)

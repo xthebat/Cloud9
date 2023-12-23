@@ -26,10 +26,13 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+
 #include "Cloud9ToolsLibrary.generated.h"
 
 class ACloud9GameMode;
-
 
 /**
  * Class provides different tools/helpers functions to minimize boilerplate code.

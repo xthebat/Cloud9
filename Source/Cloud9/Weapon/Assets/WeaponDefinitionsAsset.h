@@ -24,10 +24,14 @@
 #pragma once
 
 #include "Engine/DataTable.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Weapon/Enums/WeaponId.h"
 #include "Cloud9/Weapon/Enums/WeaponType.h"
 #include "Cloud9/Weapon/Structures/WeaponDefinition.h"
 #include "Cloud9/Weapon/Tables/WeaponMontages.h"
+
 #include "WeaponDefinitionsAsset.generated.h"
 
 UCLASS(BlueprintType)

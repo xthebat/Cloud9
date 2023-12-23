@@ -23,23 +23,23 @@
 
 #include "Cloud9Character.h"
 
+#include "Engine/World.h"
 #include "DrawDebugHelpers.h"
-#include "UObject/ConstructorHelpers.h"
+#include "Materials/Material.h"
 #include "Camera/CameraComponent.h"
-#include "Cloud9/Cloud9.h"
-#include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Game/Cloud9PlayerController.h"
-#include "Components/DecalComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "Components/Cloud9CharacterMovement.h"
-#include "Components/Cloud9Inventory.h"
-#include "Components/Cloud9SpringArmComponent.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Materials/Material.h"
-#include "Engine/World.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "Components/DecalComponent.h"
+#include "Components/CapsuleComponent.h"
+
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
+#include "Cloud9/Game/Cloud9PlayerController.h"
+#include "Cloud9/Character/Components/Cloud9CharacterMovement.h"
+#include "Cloud9/Character/Components/Cloud9Inventory.h"
+#include "Cloud9/Character/Components/Cloud9SpringArmComponent.h"
 
 class UCloud9SpringArmComponent;
 const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");

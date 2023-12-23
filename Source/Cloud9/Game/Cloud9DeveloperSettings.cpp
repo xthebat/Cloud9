@@ -23,10 +23,8 @@
 
 #include "Cloud9DeveloperSettings.h"
 
-#include "Cloud9/Cloud9.h"
 #include "Cloud9/Tools/Extensions/FString.h"
 #include "Cloud9/Tools/Extensions/UObject.h"
-#include "Cloud9/Tools/Extensions/WhenOrNone.h"
 
 // ReSharper disable once CppPossiblyUninitializedMember
 UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& ObjectInitializer)

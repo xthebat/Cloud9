@@ -25,9 +25,12 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9ControllerComponent.generated.h"
 
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+#include "Cloud9/Character/Cloud9Character.h"
+
+#include "Cloud9ControllerComponent.generated.h"
 
 UINTERFACE()
 class UCloud9ControllerComponent : public UInterface
@@ -38,6 +41,7 @@ class UCloud9ControllerComponent : public UInterface
 class CLOUD9_API ICloud9ControllerComponent
 {
 	GENERATED_BODY()
+
 public:
 	ACloud9Character* GetCloud9Pawn() const;
 

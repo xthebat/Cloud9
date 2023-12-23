@@ -24,7 +24,9 @@
 #pragma once
 
 #include "NiagaraComponent.h"
+
 #include "WeaponTableBase.h"
+
 #include "WeaponTableGrenade.generated.h"
 
 class ACloud9WeaponGrenade;

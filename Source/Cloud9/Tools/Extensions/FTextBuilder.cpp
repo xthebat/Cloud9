@@ -24,7 +24,6 @@
 #pragma once
 
 #include "FTextBuilder.h"
-#include "Cloud9/Tools/Macro/Common.h"
 
 auto LexToString(const FText& Text) { return *Text.ToString(); }
 

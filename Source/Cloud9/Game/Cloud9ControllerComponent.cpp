@@ -23,8 +23,7 @@
 
 #include "Cloud9ControllerComponent.h"
 
-#include "Cloud9PlayerController.h"
-#include "Cloud9/Cloud9.h"
+#include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
 
 ACloud9Character* ICloud9ControllerComponent::GetCloud9Pawn() const

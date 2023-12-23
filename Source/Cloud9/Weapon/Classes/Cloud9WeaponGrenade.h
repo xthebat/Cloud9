@@ -24,8 +24,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9WeaponBase.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+#include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Enums/GrenadeNames.h"
+
 #include "Cloud9WeaponGrenade.generated.h"
 
 struct FGrenadeWeaponInfo;

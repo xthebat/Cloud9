@@ -25,9 +25,12 @@
 
 #include "CoreMinimal.h"
 #include "Engine/StaticMeshActor.h"
-#include "Cloud9/Tools/Extensions/EDirection.h"
-#include "Cloud9LinearDoor.generated.h"
 
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+#include "Cloud9/Tools/Extensions/EDirection.h"
+
+#include "Cloud9LinearDoor.generated.h"
 
 UCLASS()
 class CLOUD9_API ACloud9LinearDoor : public AStaticMeshActor

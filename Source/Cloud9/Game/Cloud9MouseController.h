@@ -25,6 +25,10 @@
 
 #include "CoreMinimal.h"
 #include "Cloud9ControllerComponent.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+
 #include "Cloud9MouseController.generated.h"
 
 class ACloud9Character;

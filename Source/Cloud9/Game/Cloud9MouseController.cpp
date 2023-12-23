@@ -21,9 +21,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#include "Cloud9MouseController.h"
-#include "Cloud9PlayerController.h"
-#include "Cloud9/Cloud9.h"
+#include "Cloud9/Game/Cloud9MouseController.h"
+#include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
 
 UCloud9MouseController::UCloud9MouseController()

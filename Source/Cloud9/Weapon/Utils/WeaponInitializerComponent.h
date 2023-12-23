@@ -25,6 +25,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ChildActorComponent.h"
+
 #include "WeaponInitializerComponent.generated.h"
 
 struct FWeaponConfig;
