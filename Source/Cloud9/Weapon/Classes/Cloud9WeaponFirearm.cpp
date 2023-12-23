@@ -105,8 +105,10 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 			return false;
 		}
 
-		// Silencer may be not defined and it's ok
-		InitializeMeshComponent(SilencerMesh, MyWeaponInfo->SilencerModel, MySkinInfo);
+		if (MyWeaponInfo->SilencerModel)
+		{
+			return InitializeMeshComponent(SilencerMesh, MyWeaponInfo->SilencerModel, MySkinInfo);
+		}
 
 		return true;
 	}
