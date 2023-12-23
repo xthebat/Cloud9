@@ -23,38 +23,37 @@
 
 #pragma once
 
-#include "FTextBuilder.h"
 #include "UWorld.h"
-#include "Cloud9/Cloud9.h"
+#include "FTextBuilder.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+#include "Cloud9/Tools/Macro/Operator.h"
 
 namespace EUObject
 {
-	struct Stringify : TOperator<Stringify>
+	struct Stringify
 	{
 	public:
-		explicit Stringify(const UStruct* Type = nullptr) : Type(Type) {}
+		const UStruct* Type = nullptr;
 
 		FORCEINLINE FString operator()(const UObject* Object) const
 		{
 			using namespace EFTextBuilder;
 
 			let Text = FTextBuilder()
-				| AppendObject(Object, Object->GetClass())
-				| ToText();
+				| AppendObject{Object, Object->GetClass()}
+				| ToText{};
 			return Text.ToString();
 		}
 
-	private:
-		const UStruct* Type;
+		OPERATOR_BODY(Stringify)
 	};
 
-	template <typename FunctionType>
-	struct AsyncAfter : TOperator<AsyncAfter<FunctionType>>
+	template <typename BlockType>
+	struct AsyncAfter
 	{
-		explicit AsyncAfter(FunctionType Function, float InRate, bool bInLoop = false)
-			: Function(Function)
-			, InRate(InRate)
-			, bInLoop(bInLoop) {}
+		const BlockType& Block;
+		float InRate;
+		bool bInLoop = false;
 
 		FORCEINLINE FTimerHandle operator()(const UObject* Self) const
 		{
@@ -67,19 +66,15 @@ namespace EUObject
 				return {};
 			}
 
-			return MyWorld | EUWorld::AsyncAfter(Function, InRate, bInLoop);
+			return MyWorld | EUWorld::AsyncAfter{Block, InRate, bInLoop};
 		}
 
-	private:
-		FunctionType Function;
-		float InRate;
-		bool bInLoop;
+		OPERATOR_BODY(AsyncAfter)
 	};
 
-	struct IsTimerActive : TOperator<IsTimerActive>
+	struct IsTimerActive
 	{
-		explicit IsTimerActive(const FTimerHandle& TimerHandle)
-			: TimerHandle(TimerHandle) {}
+		FTimerHandle TimerHandle;
 
 		FORCEINLINE bool operator()(const UObject* Self) const
 		{
@@ -92,10 +87,9 @@ namespace EUObject
 				return false;
 			}
 
-			return MyWorld | EUWorld::IsTimerActive(TimerHandle);
+			return MyWorld | EUWorld::IsTimerActive{TimerHandle};
 		}
 
-	private:
-		FTimerHandle TimerHandle;
+		OPERATOR_BODY(IsTimerActive)
 	};
 }

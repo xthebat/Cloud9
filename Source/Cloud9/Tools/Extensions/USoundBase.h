@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Macro/Operator.h"
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
 #include "Kismet/GameplayStatics.h"
 

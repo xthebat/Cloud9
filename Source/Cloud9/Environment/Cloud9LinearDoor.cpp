@@ -24,9 +24,11 @@
 
 #include "Cloud9LinearDoor.h"
 
-#include "Cloud9/Cloud9.h"
-#include "Cloud9/Tools/Cloud9ToolsLibrary.h"
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Extensions/AActor.h"
+#include "Cloud9/Tools/Extensions/FTransform.h"
+#include "Cloud9/Tools/Extensions/FVector.h"
 
 ACloud9LinearDoor::ACloud9LinearDoor()
 {
@@ -70,9 +72,10 @@ void ACloud9LinearDoor::BeginPlay()
 	Super::BeginPlay();
 
 	let Transform = GetActorTransform();
-	let LocalVector = this | EAActor::ToDirectionVector(Direction);
-	DirectionVector = Transform.InverseTransformVector(LocalVector);
-	DirectionVector.Normalize();
+
+	DirectionVector = Transform
+		| EFTransform::InverseTransformVector{this | EAActor::ToDirectionVector{Direction}}
+		| EFVector::Normalize{};
 
 	if (DirectionVector.IsZero())
 	{

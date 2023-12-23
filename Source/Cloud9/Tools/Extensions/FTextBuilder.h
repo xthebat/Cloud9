@@ -23,36 +23,34 @@
 
 #pragma once
 
-#include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Macro/Operator.h"
 
 namespace EFTextBuilder
 {
-	struct AppendObject : TOperator<AppendObject>
+	struct AppendObject
 	{
-		AppendObject(const UObject* Object, const UStruct* Type)
-			: Object(Object), Type(Type) { }
-
-		FTextBuilder& operator()(FTextBuilder&& Builder) const;
-
-	private:
 		const UObject* Object;
 		const UStruct* Type;
-	};
-
-	struct AppendProperty : TOperator<AppendProperty>
-	{
-		AppendProperty(const UObject* Object, const FProperty* Property)
-			: Object(Object), Property(Property) { }
 
 		FTextBuilder& operator()(FTextBuilder&& Builder) const;
 
-	private:
-		const UObject* Object;
-		const FProperty* Property;
+		OPERATOR_BODY(AppendObject)
 	};
 
-	struct ToText : TOperator<ToText>
+	struct AppendProperty
+	{
+		const UObject* Object;
+		const FProperty* Property;
+
+		FTextBuilder& operator()(FTextBuilder&& Builder) const;
+
+		OPERATOR_BODY(AppendProperty)
+	};
+
+	struct ToText
 	{
 		FText operator()(FTextBuilder&& Builder) const;
+
+		OPERATOR_BODY(ToText)
 	};
 }

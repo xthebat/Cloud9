@@ -24,6 +24,7 @@
 #include "Cloud9DeveloperSettings.h"
 
 #include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Extensions/FString.h"
 #include "Cloud9/Tools/Extensions/UObject.h"
 #include "Cloud9/Tools/Extensions/WhenOrNone.h"
 
@@ -48,8 +49,7 @@ const UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
 void UCloud9DeveloperSettings::Save()
 {
 	UpdateDefaultConfigFile();
-	let String = this | EUObject::Stringify();
-	log(Display, "%s", *String);
+	log(Display, "%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 }
 
 template <typename TValue>
@@ -118,8 +118,7 @@ void UCloud9DeveloperSettings::InitializeCVars()
 			TEXT("Basic game volume")
 		);
 
-		let String = this | EUObject::Stringify();
-		log(Display, "%s", *String);
+		log(Display, "%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 	}
 }
 

@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "Cloud9/Tools/Extensions/Stl.h"
+
 #define OPERATOR_BODY(InOperatorType) \
 	\
 	using OperatorType = InOperatorType; \
@@ -51,15 +53,6 @@
 		return Operator(Forward<SelfType>(Self));\
 	}
 
-namespace Private_TIsOperator
-{
-	/**
-	 * Implementation of std::void_t (not found in UE4)
-	 */
-	template <typename... T>
-	using TVoid = void;
-}
-
 template <typename, typename = void>
 struct TIsOperator
 {
@@ -67,7 +60,39 @@ struct TIsOperator
 };
 
 template <typename T>
-struct TIsOperator<T, Private_TIsOperator::TVoid<typename T::OperatorType>>
+struct TIsOperator<T, Stl::TVoid<typename T::OperatorType>>
 {
 	enum { Value = true };
+};
+
+// Operator base class
+
+// TODO: TOperator should be replaced with OPERATOR_BODY macro
+template <typename FunctionType>
+class TOperator
+{
+public:
+	template <typename SelfType>
+	constexpr friend auto operator|(SelfType* Self, FunctionType&& Function)
+	{
+		return Function(Self);
+	}
+
+	template <typename SelfType>
+	constexpr friend auto operator|(const SelfType* Self, FunctionType&& Function)
+	{
+		return Function(Self);
+	}
+
+	template <typename SelfType>
+	constexpr friend auto operator|(SelfType& Self, FunctionType&& Function)
+	{
+		return Function(Forward<SelfType>(Self)); // TODO: May be use Function(MoveTempIfPossible(Self)) ???
+	}
+
+	template <typename SelfType>
+	constexpr friend auto operator|(SelfType&& Self, FunctionType&& Function)
+	{
+		return Function(Forward<SelfType>(Self));
+	}
 };

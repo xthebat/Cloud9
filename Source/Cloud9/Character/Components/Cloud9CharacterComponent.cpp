@@ -23,8 +23,8 @@
 
 #include "Cloud9CharacterComponent.h"
 
-#include "Cloud9/Cloud9.h"
 #include "Cloud9/Character/Cloud9Character.h"
+
 #include "Cloud9/Game/Cloud9PlayerController.h"
 
 

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 Alexei Gladkikh
+// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -23,30 +23,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Cloud9/Tools/Extensions/FName.h"
-#include "Cloud9/Tools/Extensions/UEnum.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
-#include "WeaponState.generated.h"
+#define enumtype(What) typename = typename TEnableIf<TIsEnum<What>::Value>::Type
 
-UENUM(BlueprintType)
-enum class EWeaponState : uint8
-{
-	Armed UMETA(DisplayName = "Weapon Armed"),
-	Holstered UMETA(DisplayName = "Weapon Holstered"),
-	Dropped UMETA(DisplayName = "Weapon Dropped"),
-	// TODO: Add Hidden EWeaponState if needed
-};
-
-/**
- * Function to work with EWeaponState.
- */
-UCLASS()
-class CLOUD9_API UWeaponState : public UBlueprintFunctionLibrary
-{
-	GENERATED_BODY()
-
-public:
-	UFUNCTION(BlueprintCallable)
-	static FString ToString(EWeaponState State) { return State | EUEnum::GetEnumFullValueName{} | EFName::ToString{}; }
-};
+#define sametype(What, Bound) typename = typename TEnableIf<TIsSame<What, Bound>::Value>::Type

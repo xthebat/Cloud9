@@ -20,17 +20,20 @@
 
 #pragma once
 
-#include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+#include "Cloud9/Tools/Macro/Operator.h"
+#include "Cloud9/Tools/Macro/Template.h"
 
 namespace EUEnum
 {
 	template <typename BlockType, typename ResultType>
-	struct AsStaticEnum : TOperator<AsStaticEnum<BlockType, ResultType>>
+	struct AsStaticEnum
 	{
-	public:
-		AsStaticEnum(ResultType Default, BlockType Block) : Default(Default), Block(Block) { }
+		ResultType Default;
+		BlockType Block;
 
-		template <typename EnumValueType>
+		template <typename EnumValueType, enumtype(EnumValueType)>
 		FORCEINLINE auto operator()(EnumValueType Self) const
 		{
 			static_assert(TIsEnum<EnumValueType>::Value, "Should only call this with enum types");
@@ -47,33 +50,35 @@ namespace EUEnum
 			return Default;
 		}
 
-	private:
-		ResultType Default;
-		BlockType Block;
+		OPERATOR_BODY(AsStaticEnum)
 	};
 
-	struct GetEnumName : TOperator<GetEnumName>
+	struct GetEnumName
 	{
-		template <typename EnumValueType>
+		template <typename EnumValueType, enumtype(EnumValueType)>
 		FORCEINLINE FName operator()(EnumValueType Self) const
 		{
-			return Self | AsStaticEnum(
+			return Self | AsStaticEnum{
 				FName(NAME_None),
 				[](let EnumClass, let EnumValue) { return EnumClass->GetEnumName(EnumValue); }
-			);
+			};
 		}
+
+		OPERATOR_BODY(GetEnumName)
 	};
 
-	struct GetEnumFullValueName : TOperator<GetEnumFullValueName>
+	struct GetEnumFullValueName
 	{
-		template <typename EnumValueType>
+		template <typename EnumValueType, enumtype(EnumValueType)>
 		FORCEINLINE FName operator()(EnumValueType Self) const
 		{
-			return Self | AsStaticEnum(
+			return Self | AsStaticEnum{
 				FName(NAME_None),
 				[](let EnumClass, let EnumValue) { return EnumClass->GetNameByValue(EnumValue); }
-			);
+			};
 		}
+
+		OPERATOR_BODY(GetEnumFullValueName)
 	};
 
 	/**
@@ -82,9 +87,9 @@ namespace EUEnum
 	 * @param ValueId Only meaningful when called against UEnum not enum class
 	 * @returns Name of enum value
 	 */
-	struct GetValueName : TOperator<GetValueName>
+	struct GetValueName
 	{
-		explicit GetValueName(int ValueId = -1) : ValueId(ValueId) {}
+		int ValueId = -1;
 
 		FORCEINLINE FName operator()(const UEnum* Self) const
 		{
@@ -97,19 +102,18 @@ namespace EUEnum
 			return GetOnlyValueName(Self, ValueId);
 		}
 
-		template <typename EnumValueType, typename = typename TEnableIf<TIsEnum<EnumValueType>::Value>::Type>
+		template <typename EnumValueType, enumtype(EnumValueType)>
 		FORCEINLINE FName operator()(EnumValueType Self) const
 		{
-			
-			return Self | AsStaticEnum(
+			return Self | AsStaticEnum{
 				FName(NAME_None),
 				[this](let Enum, let Value) { return GetOnlyValueName(Enum, Value); }
-			);
+			};
 		}
 
-	private:
-		int ValueId;
+		OPERATOR_BODY(GetValueName)
 
+	private:
 		static FName GetOnlyValueName(const UEnum* Enum, const int Value)
 		{
 			let Name = Enum->GetNameByIndex(Value);

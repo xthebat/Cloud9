@@ -20,9 +20,11 @@
 
 #pragma once
 
-#include "Cloud9/Cloud9.h"
-#include "Cloud9/Tools/Extensions/TOptional.h"
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+#include "Cloud9/Tools/Macro/Operator.h"
 #include "Cloud9/Tools/Containers/Sequence.h"
+#include "Cloud9/Tools/Extensions/TOptional.h"
 
 namespace Concepts
 {

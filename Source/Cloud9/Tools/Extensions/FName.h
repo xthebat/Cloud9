@@ -20,23 +20,26 @@
 
 #pragma once
 
-#include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Macro/Operator.h"
 
 namespace EFName
 {
-	struct ToString : TOperator<ToString>
+	struct ToString
 	{
 		FORCEINLINE FString operator()(FName Self) const { return Self.ToString(); }
+
+		OPERATOR_BODY(ToString)
 	};
 
-	struct ToCStr : TOperator<ToCStr>
+	struct ToCStr
 	{
-	public:
-		FORCEINLINE const TCHAR* operator()(const FName& Self)
+		FORCEINLINE const TCHAR* operator()(FName Self)
 		{
 			String = Self.ToString();
 			return *String;
 		}
+
+		OPERATOR_BODY(ToCStr)
 
 	private:
 		FString String;

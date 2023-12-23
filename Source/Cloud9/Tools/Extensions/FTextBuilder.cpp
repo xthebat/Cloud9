@@ -24,6 +24,7 @@
 #pragma once
 
 #include "FTextBuilder.h"
+#include "Cloud9/Tools/Macro/Common.h"
 
 auto LexToString(const FText& Text) { return *Text.ToString(); }
 
@@ -86,7 +87,7 @@ namespace EFTextBuilder
 		if (let TypedProperty = CastField<FStructProperty>(Property))
 		{
 			let Ptr = TypedProperty->ContainerPtrToValuePtr<UObject>(Object);
-			Builder | AppendObject(Ptr, TypedProperty->Struct);
+			Builder | AppendObject{Ptr, TypedProperty->Struct};
 			return true;
 		}
 		return false;
@@ -145,7 +146,7 @@ namespace EFTextBuilder
 
 		for (TFieldIterator<FProperty> It(Type); It; ++It)
 		{
-			Builder | AppendProperty(Object, *It);
+			Builder | AppendProperty{Object, *It};
 		}
 
 		Builder.Unindent();

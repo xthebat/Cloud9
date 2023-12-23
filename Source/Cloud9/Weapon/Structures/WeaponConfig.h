@@ -53,7 +53,7 @@ struct FWeaponConfig
 
 	bool IsGrenadeWeapon() const { return WeaponClass == EWeaponClass::Grenade; }
 
-	FName GetClassName() const { return WeaponClass | EUEnum::GetValueName(); }
+	FName GetClassName() const { return WeaponClass | EUEnum::GetValueName{}; }
 
 	EWeaponSlot GetWeaponSlot() const;
 

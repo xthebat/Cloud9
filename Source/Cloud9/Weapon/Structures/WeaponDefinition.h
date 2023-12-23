@@ -43,19 +43,19 @@ struct FWeaponDefinition
 
 	FWeaponDefinition() = default;
 
-	FWeaponDefinition(FMeleeWeaponInfo WeaponInfo, FWeaponPosesMontages Montages, UParticleSystem* Tracer)
+	FWeaponDefinition(FMeleeWeaponInfo WeaponInfo, FWeaponPosesMontages Montages, UParticleSystem* Tracer = nullptr)
 		: WeaponClass(EWeaponClass::Melee)
 		, MeleeWeaponInfo(MoveTemp(WeaponInfo))
 		, Montages(MoveTemp(Montages))
 		, Tracer(Tracer) {}
 
-	FWeaponDefinition(FFirearmWeaponInfo WeaponInfo, FWeaponPosesMontages Montages, UParticleSystem* Tracer)
+	FWeaponDefinition(FFirearmWeaponInfo WeaponInfo, FWeaponPosesMontages Montages, UParticleSystem* Tracer = nullptr)
 		: WeaponClass(EWeaponClass::Firearm)
 		, FirearmWeaponInfo(MoveTemp(WeaponInfo))
 		, Montages(MoveTemp(Montages))
 		, Tracer(Tracer) {}
 
-	FWeaponDefinition(FGrenadeWeaponInfo WeaponInfo, FWeaponPosesMontages Montages, UParticleSystem* Tracer)
+	FWeaponDefinition(FGrenadeWeaponInfo WeaponInfo, FWeaponPosesMontages Montages, UParticleSystem* Tracer = nullptr)
 		: WeaponClass(EWeaponClass::Grenade)
 		, GrenadeWeaponInfo(MoveTemp(WeaponInfo))
 		, Montages(MoveTemp(Montages))

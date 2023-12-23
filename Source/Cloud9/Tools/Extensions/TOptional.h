@@ -23,7 +23,8 @@
 
 #pragma once
 
-#include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+#include "Cloud9/Tools/Macro/Operator.h"
 
 namespace ETOptional
 {
@@ -42,8 +43,6 @@ namespace ETOptional
 		template <typename ValueType>
 		constexpr const ValueType& operator()(const TOptional<ValueType>& Self)
 		{
-			// or TIsSame<DefaultValueType, nullptr_t>::Value
-
 			// nullptr_t is acceptable because we case crash on dereference
 			// using log(Fatal) if not default argument was set   
 			static_assert(

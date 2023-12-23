@@ -23,30 +23,21 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Cloud9/Tools/Extensions/FName.h"
-#include "Cloud9/Tools/Extensions/UEnum.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
-#include "WeaponState.generated.h"
+#include "Cloud9/Tools/Macro/Operator.h"
+#include "Cloud9/Tools/Macro/Template.h"
 
-UENUM(BlueprintType)
-enum class EWeaponState : uint8
+namespace EFVector
 {
-	Armed UMETA(DisplayName = "Weapon Armed"),
-	Holstered UMETA(DisplayName = "Weapon Holstered"),
-	Dropped UMETA(DisplayName = "Weapon Dropped"),
-	// TODO: Add Hidden EWeaponState if needed
-};
+	struct Normalize
+	{
+		template <typename SelfType, sametype(SelfType, FVector)>
+		FORCEINLINE FVector operator()(SelfType&& Self) const
+		{
+			FVector Normalized = Self;
+			Normalized.Normalize();
+			return Normalized;
+		}
 
-/**
- * Function to work with EWeaponState.
- */
-UCLASS()
-class CLOUD9_API UWeaponState : public UBlueprintFunctionLibrary
-{
-	GENERATED_BODY()
-
-public:
-	UFUNCTION(BlueprintCallable)
-	static FString ToString(EWeaponState State) { return State | EUEnum::GetEnumFullValueName{} | EFName::ToString{}; }
-};
+		OPERATOR_BODY(Normalize)
+	};
+}

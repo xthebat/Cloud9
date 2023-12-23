@@ -24,9 +24,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/Character.h"
+
 #include "Components/Cloud9CharacterMovement.h"
 #include "Components/Cloud9Inventory.h"
-#include "GameFramework/Character.h"
+
 #include "Cloud9Character.generated.h"
 
 
