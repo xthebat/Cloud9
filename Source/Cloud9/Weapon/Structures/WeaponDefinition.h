@@ -24,6 +24,7 @@
 #pragma once
 
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
+#include "Cloud9/Weapon/Tables/WeaponCommonData.h"
 #include "Cloud9/Weapon/Tables/WeaponTableBase.h"
 #include "Cloud9/Weapon/Tables/WeaponMontages.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
@@ -44,23 +45,23 @@ struct FWeaponDefinition
 
 	FWeaponDefinition() = default;
 
-	FWeaponDefinition(FMeleeWeaponInfo WeaponInfo, FWeaponPosesMontages Montages, UParticleSystem* Tracer = nullptr)
+	FWeaponDefinition(FMeleeWeaponInfo WeaponInfo, FWeaponPosesMontages Montages, FWeaponCommonData WeaponCommonData)
 		: WeaponClass(EWeaponClass::Melee)
 		, MeleeWeaponInfo(MoveTemp(WeaponInfo))
 		, Montages(MoveTemp(Montages))
-		, Tracer(Tracer) {}
+		, WeaponCommonData(MoveTemp(WeaponCommonData)) {}
 
-	FWeaponDefinition(FFirearmWeaponInfo WeaponInfo, FWeaponPosesMontages Montages, UParticleSystem* Tracer = nullptr)
+	FWeaponDefinition(FFirearmWeaponInfo WeaponInfo, FWeaponPosesMontages Montages, FWeaponCommonData WeaponCommonData)
 		: WeaponClass(EWeaponClass::Firearm)
 		, FirearmWeaponInfo(MoveTemp(WeaponInfo))
 		, Montages(MoveTemp(Montages))
-		, Tracer(Tracer) {}
+		, WeaponCommonData(MoveTemp(WeaponCommonData)) {}
 
-	FWeaponDefinition(FGrenadeWeaponInfo WeaponInfo, FWeaponPosesMontages Montages, UParticleSystem* Tracer = nullptr)
+	FWeaponDefinition(FGrenadeWeaponInfo WeaponInfo, FWeaponPosesMontages Montages, FWeaponCommonData WeaponCommonData)
 		: WeaponClass(EWeaponClass::Grenade)
 		, GrenadeWeaponInfo(MoveTemp(WeaponInfo))
 		, Montages(MoveTemp(Montages))
-		, Tracer(Tracer) {}
+		, WeaponCommonData(MoveTemp(WeaponCommonData)) {}
 
 	// TODO: Refactor FWeaponDefinition somehow...
 	template <typename WeaponInfoType = FBaseWeaponInfo>
@@ -117,6 +118,8 @@ struct FWeaponDefinition
 		return not bIsCrouch ? &Montages.OnStand : &Montages.OnCrouch;
 	}
 
+	FORCEINLINE const FWeaponCommonData* GetCommonData() const { return &WeaponCommonData; }
+
 	void Reset()
 	{
 		if (WeaponClass == EWeaponClass::Melee)
@@ -135,7 +138,7 @@ struct FWeaponDefinition
 		}
 
 		WeaponClass = EWeaponClass::NoClass;
-		Tracer = nullptr;
+		WeaponCommonData = {};
 	}
 
 protected:
@@ -155,5 +158,5 @@ protected:
 	FWeaponPosesMontages Montages{};
 
 	UPROPERTY()
-	UParticleSystem* Tracer = nullptr;
+	FWeaponCommonData WeaponCommonData{};
 };

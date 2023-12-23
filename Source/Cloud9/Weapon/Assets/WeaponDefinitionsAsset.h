@@ -25,11 +25,10 @@
 
 #include "Engine/DataTable.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Weapon/Enums/WeaponId.h"
 #include "Cloud9/Weapon/Enums/WeaponType.h"
 #include "Cloud9/Weapon/Structures/WeaponDefinition.h"
+#include "Cloud9/Weapon/Tables/WeaponCommonData.h"
 #include "Cloud9/Weapon/Tables/WeaponMontages.h"
 
 #include "WeaponDefinitionsAsset.generated.h"
@@ -74,14 +73,14 @@ protected: // properties
 	TMap<EWeaponType, FWeaponPosesMontages> WeaponActionMontages;
 
 	/**
-	 * Weapon tracer
+	 * Weapon common data
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
-	UParticleSystem* FirearmTracer;
+	FWeaponCommonData WeaponCommonData;
 
 private: // functions
 	template <typename WeaponIdType, typename ValidatorType>
-	TOptional<FWeaponDefinition> GetWeaponDefinition(
+	FWeaponDefinition GetWeaponDefinition(
 		UDataTable* WeaponsInfoTable,
 		ValidatorType Validator,
 		WeaponIdType WeaponId) const;

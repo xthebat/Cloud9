@@ -23,12 +23,15 @@
 
 #include "WeaponDefinitionsAsset.h"
 
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+
 #include "Cloud9/Weapon/Extensions/EWeaponId.h"
 
 const FPrimaryAssetId UWeaponDefinitionsAsset::PrimaryAssetId = FPrimaryAssetId("Weapon:Definitions");
 
 template <typename WeaponIdType, typename ValidatorType>
-TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(
+FWeaponDefinition UWeaponDefinitionsAsset::GetWeaponDefinition(
 	UDataTable* WeaponsInfoTable,
 	ValidatorType Validator,
 	WeaponIdType WeaponId) const
@@ -73,27 +76,25 @@ TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(
 		return {};
 	}
 
-	return FWeaponDefinition(*WeaponInfo, *Montages);
+	return FWeaponDefinition(*WeaponInfo, *Montages, WeaponCommonData);
 }
 
 bool UWeaponDefinitionsAsset::GetWeaponDefinition(const FWeaponId& WeaponId, FWeaponDefinition& WeaponDefinition) const
 {
-	var Found = Visit(
+	WeaponDefinition = Visit(
 		ETVariant::Overloaded{
 			[&](EFirearm Id) { return GetWeaponDefinition(FirearmsWeaponsInfoTable, UWeaponType::IsFirearm, Id); },
 			[&](EMelee Id) { return GetWeaponDefinition(MeleeWeaponsInfoTable, UWeaponType::IsMelee, Id); },
 			[&](EGrenade Id) { return GetWeaponDefinition(GrenadeWeaponInfoTable, UWeaponType::IsGrenade, Id); },
-			[](auto) { return TOptional<FWeaponDefinition>(); }
+			[](auto) { return FWeaponDefinition{}; }
 		}, WeaponId
 	);
 
-	if (not Found.IsSet())
+	if (not IsValid(WeaponDefinition))
 	{
 		log(Error, "Can't get weapon definition for WeaponId='%s'", WeaponId | EFWeaponId::ToName() | EFName::ToCStr());
 		return false;
 	}
-
-	WeaponDefinition = MoveTemp(*Found);
 
 	return true;
 }
