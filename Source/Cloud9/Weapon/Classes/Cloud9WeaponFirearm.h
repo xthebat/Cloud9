@@ -43,9 +43,11 @@ class CLOUD9_API ACloud9WeaponFirearm : public ACloud9WeaponBase
 public:
 	static const FName WeaponMeshComponentName;
 	static const FName MagazineMeshComponentName;
+	static const FName SilencerMeshComponentName;
 	static const FName MuzzleFlashComponentName;
 
 	static const FName MagazineSocketName;
+	static const FName SilencerSocketName;
 	static const FName MuzzleFlashSocketName;
 
 	ACloud9WeaponFirearm();
@@ -83,6 +85,12 @@ protected: // properties
 	 */
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	UStaticMeshComponent* MagazineMesh;
+
+	/**
+	 * Silencer mesh
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UStaticMeshComponent* SilencerMesh;
 
 	/**
 	 * Muzzle flash effect to play when shoot

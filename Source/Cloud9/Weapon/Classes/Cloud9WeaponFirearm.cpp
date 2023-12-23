@@ -32,9 +32,11 @@
 
 const FName ACloud9WeaponFirearm::WeaponMeshComponentName = TEXT("WeaponMeshComponent");
 const FName ACloud9WeaponFirearm::MagazineMeshComponentName = TEXT("MagazineMeshComponent");
+const FName ACloud9WeaponFirearm::SilencerMeshComponentName = TEXT("SilencerMeshComponent");
 const FName ACloud9WeaponFirearm::MuzzleFlashComponentName = TEXT("MuzzleFlashComponent");
 
 const FName ACloud9WeaponFirearm::MagazineSocketName = TEXT("MagazineSocket");
+const FName ACloud9WeaponFirearm::SilencerSocketName = TEXT("SilencerSocket");
 const FName ACloud9WeaponFirearm::MuzzleFlashSocketName = TEXT("MuzzleFlashSocket");
 
 ACloud9WeaponFirearm::ACloud9WeaponFirearm()
@@ -56,6 +58,12 @@ ACloud9WeaponFirearm::ACloud9WeaponFirearm()
 		log(Error, "Failed to create MuzzleFlashComponent");
 		return;
 	}
+
+	if (SilencerMesh = CreateMeshComponent(SilencerMeshComponentName, SilencerSocketName); not IsValid(SilencerMesh))
+	{
+		log(Error, "Failed to create SilencerMeshComponent");
+		return;
+	}
 }
 
 FWeaponId ACloud9WeaponFirearm::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
@@ -74,9 +82,28 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 		let MyWeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(NewWeaponSkin);
 
-		return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo)
-			and InitializeMeshComponent(MagazineMesh, MyWeaponInfo->MagazineModel, MySkinInfo)
-			and InitializeEffectComponent(MuzzleFlash, MyWeaponInfo->Effects.MuzzleFlash);
+		if (not InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo))
+		{
+			log(Error, "[Weapon='%s'] Can't initilaize WeaponMesh", *GetName());
+			return false;
+		}
+
+		if (not InitializeMeshComponent(MagazineMesh, MyWeaponInfo->MagazineModel, MySkinInfo))
+		{
+			log(Error, "[Weapon='%s'] Can't initilaize MagazineMesh", *GetName());
+			return false;
+		}
+
+		if (not InitializeEffectComponent(MuzzleFlash, MyWeaponInfo->Effects.MuzzleFlash))
+		{
+			log(Error, "[Weapon='%s'] Can't initilaize MuzzleFlash", *GetName());
+			return false;
+		}
+
+		// Silencer may be not defined and it's ok
+		InitializeMeshComponent(SilencerMesh, MyWeaponInfo->SilencerModel, MySkinInfo);
+
+		return true;
 	}
 
 	return false;
@@ -94,12 +121,14 @@ void ACloud9WeaponFirearm::OnWeaponAddedToInventory()
 {
 	ChangeMeshCollisionState(WeaponMesh, false);
 	ChangeMeshCollisionState(MagazineMesh, false);
+	ChangeMeshCollisionState(SilencerMesh, false);
 }
 
 void ACloud9WeaponFirearm::OnWeaponRemovedFromInventory()
 {
 	ChangeMeshCollisionState(WeaponMesh, true);
 	ChangeMeshCollisionState(MagazineMesh, true);
+	ChangeMeshCollisionState(SilencerMesh, true);
 }
 
 void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
