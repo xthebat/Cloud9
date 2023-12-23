@@ -99,13 +99,9 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 			{
 				PlayAnimMontage(PoseMontages->DeployMontage);
 				WeaponInfo->Sounds.DeploySound | EUSoundBase::Play{GetActorLocation(), Settings->Volume};
-				Character->GetInventory()->WeaponChangeFinished(true);
 				return true;
 			},
-			[this]
-			{
-				bIsDeploying = false;
-			}
+			[this] { bIsDeploying = false; }
 		);
 	}
 	else if (bIsPrimaryActionActive)

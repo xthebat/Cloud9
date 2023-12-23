@@ -262,7 +262,7 @@ UCooldownActionComponent* ACloud9WeaponBase::CreateCooldownAction(FName Componen
 #define SLOT_NAME *UWeaponSlot::ToString(NewSlot)
 #define STATE_NAME *UWeaponState::ToString(NewState)
 
-bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState NewState)
+bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState NewState, bool Instant)
 {
 	let Character = GetOwner<ACloud9Character>();
 
@@ -306,7 +306,7 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState
 	Slot = NewSlot;
 	State = NewState;
 
-	bIsDeploying = State == EWeaponState::Armed;
+	bIsDeploying = not Instant and State == EWeaponState::Armed;
 
 	return true;
 }
@@ -386,7 +386,7 @@ bool ACloud9WeaponBase::RemoveFromInventory()
 	return true;
 }
 
-bool ACloud9WeaponBase::ChangeState(EWeaponState NewState)
+bool ACloud9WeaponBase::ChangeState(EWeaponState NewState, bool Instant)
 {
 	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
 	{
@@ -415,7 +415,7 @@ bool ACloud9WeaponBase::ChangeState(EWeaponState NewState)
 		return false;
 	}
 
-	return UpdateWeaponAttachment(Slot, NewState);
+	return UpdateWeaponAttachment(Slot, NewState, Instant);
 }
 
 void ACloud9WeaponBase::PrimaryAction(bool bIsReleased)

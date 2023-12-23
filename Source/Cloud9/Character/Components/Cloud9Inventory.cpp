@@ -33,7 +33,6 @@
 UCloud9Inventory::UCloud9Inventory()
 {
 	SelectedWeaponSlot = EWeaponSlot::NotSelected;
-	PendingWeaponSlot = EWeaponSlot::NotSelected;
 
 	let SlotsNumber = StaticEnum<EWeaponSlot>()->NumEnums();
 	WeaponSlots.SetNum(SlotsNumber);
@@ -76,19 +75,19 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
 {
 	if (Slot == EWeaponSlot::NotSelected)
 	{
-		log(Error, "Should not be called with EWeaponSlot::NotSelected");
+		log(Warning, "Should not be called with EWeaponSlot::NotSelected");
 		return false;
 	}
 
 	if (IsWeaponChanging())
 	{
-		log(Error, "[Weapon='%s'] Switching already in progress", *GetName());
+		log(Warning, "[Weapon='%s'] Weapon deploying in progress", *GetName());
 		return false;
 	}
 
 	if (Slot == SelectedWeaponSlot)
 	{
-		log(Error, "[Weapon='%s'] No switching will be performed", *GetName());
+		log(Warning, "[Weapon='%s'] No switching will be performed", *GetName());
 		return false;
 	}
 
@@ -96,16 +95,22 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
 
 	if (not IsValid(PendingWeapon))
 	{
-		log(Error, "[Weapon='%s'] Weapon at requested slot='%d' not set or invalid", *GetName(), Slot);
+		log(Warning, "[Weapon='%s'] Weapon at requested slot='%d' not set or invalid", *GetName(), Slot);
 		return false;
 	}
 
 	if (SelectedWeaponSlot == EWeaponSlot::NotSelected)
 	{
-		if (PendingWeapon->ChangeState(EWeaponState::Armed))
+		let SelectedWeapon = GetWeaponAt(SelectedWeaponSlot);
+
+		assertf(
+			not IsValid(SelectedWeapon),
+			"[Weapon='%s'] SelectedWeapon should not be valid if slot == EWeaponSlot::NotSelected",
+			*GetName());
+
+		if (PendingWeapon->ChangeState(EWeaponState::Armed, Instant))
 		{
-			PendingWeaponSlot = Slot;
-			WeaponChangeFinished(Instant);
+			SelectedWeaponSlot = Slot;
 			return true;
 		}
 
@@ -113,7 +118,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
 		return false;
 	}
 
-	let SelectedWeapon = GetWeaponAt(SelectedWeaponSlot);
+	let SelectedWeapon = GetSelectedWeapon();
 
 	if (not IsValid(SelectedWeapon))
 	{
@@ -121,22 +126,14 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
 		return false;
 	}
 
-	if (SelectedWeapon->ChangeState(EWeaponState::Holstered) and PendingWeapon->ChangeState(EWeaponState::Armed))
+	if (SelectedWeapon->ChangeState(EWeaponState::Holstered, true)
+		and PendingWeapon->ChangeState(EWeaponState::Armed, Instant))
 	{
-		PendingWeaponSlot = Slot;
-		WeaponChangeFinished(Instant);
+		SelectedWeaponSlot = Slot;
 		return true;
 	}
 
 	return false;
-}
-
-void UCloud9Inventory::WeaponChangeFinished(bool State)
-{
-	if (State)
-	{
-		SelectedWeaponSlot = PendingWeaponSlot;
-	}
 }
 
 ACloud9WeaponBase* UCloud9Inventory::GetWeaponAt(EWeaponSlot Slot) const { return WeaponAt(Slot); }
@@ -205,7 +202,7 @@ bool UCloud9Inventory::AddWeapon(const FWeaponConfig& Config, bool Select, bool 
 	{
 		log(
 			Error,
-			"[Inventory='%s'] Can't add weapon while weapon is changing, config='%s'",
+			"[Inventory='%s'] Weapon deploying in progress when added by config='%s'",
 			*GetName(), *Config.ToString());
 		return false;
 	}
@@ -271,7 +268,7 @@ bool UCloud9Inventory::RemoveWeapon(EWeaponSlot Slot)
 
 	if (IsWeaponChanging())
 	{
-		log(Error, "[Inventory='%s'] Can't remove weapon from slot '%d' while weapon is changing", *GetName(), Slot);
+		log(Error, "[Inventory='%s'] Weapon deploying in progress when remove weapon from slot='%d'", *GetName(), Slot);
 		return false;
 	}
 
@@ -298,11 +295,8 @@ bool UCloud9Inventory::RemoveWeapon(EWeaponSlot Slot)
 
 ACloud9WeaponBase* UCloud9Inventory::GetSelectedWeapon() const { return GetWeaponAt(SelectedWeaponSlot); }
 
-ACloud9WeaponBase* UCloud9Inventory::GetPendingWeapon() const { return GetWeaponAt(PendingWeaponSlot); }
-
-bool UCloud9Inventory::IsWeaponSelected() const
+bool UCloud9Inventory::IsWeaponChanging() const
 {
-	return IsWeaponChanging() or SelectedWeaponSlot != EWeaponSlot::NotSelected;
+	let Weapon = GetSelectedWeapon();
+	return Weapon and Weapon->IsDeploying();
 }
-
-bool UCloud9Inventory::IsWeaponChanging() const { return SelectedWeaponSlot != PendingWeaponSlot; }

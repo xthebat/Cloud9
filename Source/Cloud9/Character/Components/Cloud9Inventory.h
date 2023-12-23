@@ -91,21 +91,7 @@ public:
 	ACloud9WeaponBase* GetSelectedWeapon() const;
 
 	UFUNCTION(BlueprintCallable)
-	ACloud9WeaponBase* GetPendingWeapon() const;
-
-	UFUNCTION(BlueprintCallable)
-	bool IsWeaponSelected() const;
-
-	UFUNCTION(BlueprintCallable)
 	bool IsWeaponChanging() const;
-
-	/**
-	 * Function should be called to signal that weapon switching is over or not
-	 * 
-	 * @param State If true then changing process is over
-	 */
-	UFUNCTION(BlueprintCallable)
-	void WeaponChangeFinished(bool State);
 
 protected:
 	virtual void BeginPlay() override;
@@ -130,7 +116,4 @@ protected:
 
 	UPROPERTY(Category=Weapon, BlueprintReadOnly)
 	EWeaponSlot SelectedWeaponSlot;
-
-	UPROPERTY(Category=Weapon, BlueprintReadOnly)
-	EWeaponSlot PendingWeaponSlot;
 };
