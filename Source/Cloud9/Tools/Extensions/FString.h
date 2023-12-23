@@ -23,13 +23,16 @@
 
 #pragma once
 
-#include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Macro/Operator.h"
+#include "Cloud9/Tools/Macro/Template.h"
 
 namespace EFString
 {
-	struct ToCStr : TOperator<ToCStr>
+	struct ToCStr
 	{
-	public:
-		FORCEINLINE const TCHAR* operator()(FString&& Self) const { return *Self; }
+		template <typename SelfType, sametype(SelfType, FString)>
+		FORCEINLINE const TCHAR* operator()(SelfType&& Self) const { return *Self; }
+
+		OPERATOR_BODY(ToCStr)
 	};
 }

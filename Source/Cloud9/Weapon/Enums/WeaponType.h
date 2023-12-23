@@ -74,5 +74,5 @@ public:
 	static bool IsGrenade(EWeaponType Type) { return Type == EWeaponType::Grenade; }
 
 	UFUNCTION(BlueprintCallable)
-	static FString ToString(EWeaponType Type) { return Type | EUEnum::GetEnumFullValueName() | EFName::ToString(); }
+	static FString ToString(EWeaponType Type) { return Type | EUEnum::GetEnumFullValueName{} | EFName::ToString{}; }
 };

@@ -35,7 +35,7 @@ TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(
 {
 	using WeaponInfoType = typename EFWeaponId::WeaponInfo<WeaponIdType>::Type;
 
-	let WeaponName = WeaponId | EUEnum::GetValueName();
+	let WeaponName = WeaponId | EUEnum::GetValueName{};
 
 	if (WeaponName.IsNone())
 	{
@@ -59,7 +59,7 @@ TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(
 
 	if (not Validator(WeaponInfo->Type))
 	{
-		let TypeName = WeaponInfo->Type | EUEnum::GetEnumFullValueName();
+		let TypeName = WeaponInfo->Type | EUEnum::GetEnumFullValueName{};
 		log(Error, "Specified weapon type '%s' is invalid", *TypeName.ToString());
 		return {};
 	}
@@ -68,12 +68,12 @@ TOptional<FWeaponDefinition> UWeaponDefinitionsAsset::GetWeaponDefinition(
 
 	if (Montages == nullptr)
 	{
-		let TypeName = WeaponInfo->Type | EUEnum::GetValueName();
+		let TypeName = WeaponInfo->Type | EUEnum::GetValueName{};
 		log(Error, "Animation montages not defined for weapon type '%s'", *TypeName.ToString());
 		return {};
 	}
 
-	return FWeaponDefinition(*WeaponInfo, *Montages, FirearmTracer);
+	return FWeaponDefinition(*WeaponInfo, *Montages);
 }
 
 bool UWeaponDefinitionsAsset::GetWeaponDefinition(const FWeaponId& WeaponId, FWeaponDefinition& WeaponDefinition) const

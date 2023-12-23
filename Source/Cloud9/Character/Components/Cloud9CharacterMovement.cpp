@@ -22,8 +22,6 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Cloud9CharacterMovement.h"
-
-#include "Cloud9/Cloud9.h"
 #include "Cloud9/Character/Cloud9Character.h"
 
 UCloud9CharacterMovement::UCloud9CharacterMovement()

@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Operator.h"
 
 namespace EUWorld
@@ -52,10 +52,10 @@ namespace EUWorld
 		OPERATOR_BODY(SpawnActor)
 	};
 
-	template <typename FunctionType>
+	template <typename BlockType>
 	struct AsyncAfter
 	{
-		const FunctionType& Function;
+		const BlockType& Block;
 		float InRate;
 		bool bInLoop = false;
 
@@ -63,7 +63,7 @@ namespace EUWorld
 		{
 			FTimerHandle TimerHandle;
 			FTimerDelegate TimerDelegate;
-			TimerDelegate.BindLambda(Function);
+			TimerDelegate.BindLambda(Block);
 			Self->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, InRate, bInLoop);
 			return TimerHandle;
 		}

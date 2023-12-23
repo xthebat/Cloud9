@@ -24,13 +24,14 @@
 #pragma once
 
 #include "EDirection.h"
-#include "Cloud9/Cloud9.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+#include "Cloud9/Tools/Macro/Operator.h"
 
 namespace EAActor
 {
-	struct ToDirectionVector : TOperator<ToDirectionVector>
+	struct ToDirectionVector
 	{
-		explicit ToDirectionVector(EDirection Direction) : Direction(Direction) { }
+		EDirection Direction;
 
 		FVector operator()(const AActor* Self) const
 		{
@@ -68,7 +69,6 @@ namespace EAActor
 			return {};
 		}
 
-	private:
-		EDirection Direction;
+		OPERATOR_BODY(ToDirectionVector)
 	};
 }

@@ -40,7 +40,7 @@ namespace EFWeaponId
 	public:
 		FORCEINLINE FName operator()(const FWeaponId& Self) const
 		{
-			return Visit([this](let It) { return It | EUEnum::GetValueName(); }, Self);
+			return Visit([this](let It) { return It | EUEnum::GetValueName{}; }, Self);
 		}
 
 		OPERATOR_BODY(ToName)

@@ -480,7 +480,7 @@ bool ACloud9WeaponBase::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeap
 		Actions->NumEnums(),
 		[&](let Id)
 		{
-			let CooldownActionName = Actions | EUEnum::GetValueName(Id);
+			let CooldownActionName = Actions | EUEnum::GetValueName{Id};
 			let ComponentName = FString::Format(*ActionComponentFormat, {CooldownActionName.ToString()});
 			let CooldownActionComponent = CreateCooldownAction(FName(ComponentName));
 			Executors.Add(CooldownActionComponent);
