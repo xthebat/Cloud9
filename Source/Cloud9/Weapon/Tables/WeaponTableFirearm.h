@@ -307,6 +307,12 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UStaticMesh* MagazineModel = nullptr;
 
 	/**
+	 * Mesh for silencer (if weapon has one)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	UStaticMesh* SilencerModel = nullptr;
+
+	/**
 	 * Available skins for weapon and it magazines
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)
