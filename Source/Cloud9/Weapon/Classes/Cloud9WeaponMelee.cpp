@@ -46,12 +46,6 @@ bool ACloud9WeaponMelee::OnInitialize(const FWeaponId& NewWeaponId, FName NewWea
 	return false;
 }
 
-void ACloud9WeaponMelee::Deinitialize()
-{
-	Super::Deinitialize();
-	WeaponMesh->SetStaticMesh(nullptr);
-}
-
 void ACloud9WeaponMelee::OnWeaponAddedToInventory()
 {
 	ChangeMeshCollisionState(WeaponMesh, false);
@@ -73,7 +67,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 
-	if (WeaponState[EWeaponAction::Deploy])
+	if (WeaponState.IsActionActive(EWeaponAction::Deploy))
 	{
 		ExecuteAction(
 			EWeaponAction::Deploy,
@@ -84,10 +78,10 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 				WeaponInfo->Sounds.DeploySound | EUSoundBase::Play{GetActorLocation(), Settings->Volume};
 				return true;
 			},
-			[this] { WeaponState[EWeaponAction::Deploy] = false; }
+			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
 		);
 	}
-	else if (WeaponState[EWeaponAction::Primary])
+	else if (WeaponState.IsActionActive(EWeaponAction::Primary))
 	{
 		ExecuteAction(
 			EWeaponAction::Primary,
@@ -99,7 +93,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 			[] {}
 		);
 	}
-	else if (WeaponState[EWeaponAction::Secondary])
+	else if (WeaponState.IsActionActive(EWeaponAction::Secondary))
 	{
 		ExecuteAction(
 			EWeaponAction::Secondary,
@@ -112,6 +106,6 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		);
 
 		// no auto stab
-		WeaponState[EWeaponAction::Secondary] = false;
+		WeaponState.ClearAction(EWeaponAction::Secondary);
 	}
 }

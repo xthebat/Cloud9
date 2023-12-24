@@ -28,7 +28,7 @@
 
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Enums/WeaponBond.h"
-#include "Cloud9/Weapon/Enums/WeaponActions.h"
+#include "Cloud9/Weapon/Enums/WeaponAction.h"
 
 #include "WeaponState.generated.h"
 
@@ -37,13 +37,15 @@ struct FWeaponState
 {
 	GENERATED_BODY()
 
+	FWeaponState();
+
 	void Reset();
 
-	static bool ChangeActionFlag(bool Flag, bool bIsReleased);
+	void ActivateAction(EWeaponAction Action, bool IsReleased);
 
-	FORCEINLINE bool operator[](EWeaponAction Action) const { return Actions[static_cast<int>(Action)]; }
+	bool IsActionActive(EWeaponAction Action) const;
 
-	FORCEINLINE bool& operator[](EWeaponAction Action) { return Actions[static_cast<int>(Action)]; }
+	void ClearAction(EWeaponAction Action);
 
 	FORCEINLINE bool IsWeaponBond(EWeaponBond Check) const { return Bond == Check; }
 
@@ -54,19 +56,23 @@ struct FWeaponState
 	EWeaponSlot GetWeaponSlot() const;
 
 protected:
-	void ResetActions();
+	void ClearAllActions();
+
+	FORCEINLINE bool operator[](EWeaponAction Action) const { return Actions[Action | EUEnum::To<int>{}]; }
+
+	FORCEINLINE bool& operator[](EWeaponAction Action) { return Actions[Action | EUEnum::To<int>{}]; }
 
 	/**
 	 * Current weapon slot (main/pistol/knife/grenade)
 	 */
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	EWeaponSlot Slot = EWeaponSlot::NotSelected;
+	EWeaponSlot Slot;
 
 	/**
 	 * Current weapon state (armed/holstered/dropped)
 	 */
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	EWeaponBond Bond = EWeaponBond::Dropped;
+	EWeaponBond Bond;
 
 	/**
 	 * Current weapon actions in process

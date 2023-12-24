@@ -33,7 +33,7 @@
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
 #include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
-#include "Cloud9/Weapon/Enums/WeaponActions.h"
+#include "Cloud9/Weapon/Enums/WeaponAction.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Enums/WeaponBond.h"
@@ -107,7 +107,11 @@ public:
 
 	bool IsWeaponDefined() const { return IsValid(WeaponDefinition); }
 
-	bool IsDeploying() const { return WeaponState[EWeaponAction::Deploy]; }
+	UFUNCTION(BlueprintCallable)
+	bool IsDeploying() const { return WeaponState.IsActionActive(EWeaponAction::Deploy); }
+
+	UFUNCTION(BlueprintCallable)
+	bool IsReloading() const { return WeaponState.IsActionActive(EWeaponAction::Reload); }
 
 	bool AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot);
 	bool RemoveFromInventory();
@@ -121,7 +125,7 @@ public:
 		OnExecuteType&& OnExecute,
 		OnCompleteType&& OnComplete = {})
 	{
-		return Executors[GetWeaponActionIndex(Action)]->Execute(
+		return Executors[Action | EUEnum::To<int>{}]->Execute(
 			CooldownTime,
 			MoveTemp(OnExecute),
 			MoveTemp(OnComplete));
@@ -129,7 +133,7 @@ public:
 
 	FORCEINLINE bool IsActionInProgress(EWeaponAction Action) const
 	{
-		return not Executors[GetWeaponActionIndex(Action)]->IsExecuting();
+		return not Executors[Action | EUEnum::To<int>{}]->IsExecuting();
 	}
 
 	FORCEINLINE bool IsActionInProgress() const
@@ -146,8 +150,6 @@ public:
 
 protected: // functions
 	virtual void Tick(float DeltaSeconds) override;
-
-	virtual void OnConstruction(const FTransform& Transform) override;
 
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
 	virtual void Deinitialize();
@@ -247,8 +249,6 @@ protected: // properties
 	FWeaponState WeaponState;
 
 private:
-	static constexpr int GetWeaponActionIndex(EWeaponAction WeaponAction) { return static_cast<int>(WeaponAction); }
-
 	UCooldownActionComponent* CreateCooldownAction(FName ComponentName);
 
 	/**

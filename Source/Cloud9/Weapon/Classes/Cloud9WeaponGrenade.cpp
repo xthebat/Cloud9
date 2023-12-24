@@ -31,8 +31,3 @@ bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 {
 	return Super::OnInitialize(NewWeaponId, NewWeaponSkin);
 }
-
-void ACloud9WeaponGrenade::Deinitialize()
-{
-	Super::Deinitialize();
-}

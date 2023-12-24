@@ -44,7 +44,6 @@ public:
 
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
-	virtual void Deinitialize() override;
 
 protected:
 	/**

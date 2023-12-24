@@ -31,7 +31,7 @@
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9AssetManager.h"
 #include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
-#include "Cloud9/Weapon/Enums/WeaponActions.h"
+#include "Cloud9/Weapon/Enums/WeaponAction.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
 #include "Cloud9/Weapon/Extensions/EWeaponId.h"
 
@@ -447,31 +447,22 @@ bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant)
 
 void ACloud9WeaponBase::PrimaryAction(bool bIsReleased)
 {
-	WeaponState[EWeaponAction::Primary] = FWeaponState::ChangeActionFlag(
-		WeaponState[EWeaponAction::Primary], bIsReleased);
+	WeaponState.ActivateAction(EWeaponAction::Primary, bIsReleased);
 }
 
 void ACloud9WeaponBase::SecondaryAction(bool bIsReleased)
 {
-	WeaponState[EWeaponAction::Secondary] = FWeaponState::ChangeActionFlag(
-		WeaponState[EWeaponAction::Secondary], bIsReleased);
+	WeaponState.ActivateAction(EWeaponAction::Secondary, bIsReleased);
 }
 
 void ACloud9WeaponBase::Reload()
 {
-	WeaponState[EWeaponAction::Reload] = true;
+	WeaponState.ActivateAction(EWeaponAction::Reload, false);
 }
 
 void ACloud9WeaponBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-}
-
-void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
-{
-	Super::OnConstruction(Transform);
-	PrimaryActorTick.bCanEverTick = true;
-	Deinitialize();
 }
 
 bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
@@ -512,10 +503,14 @@ bool ACloud9WeaponBase::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeap
 
 void ACloud9WeaponBase::Deinitialize()
 {
+	log(Warning, "[Weapon='%s'] Deinitialize weapon to initial state", *GetName());
 	WeaponSkin = FWeaponSkin::Default;
 	WeaponState.Reset();
 	WeaponDefinition.Reset();
 	Executors.Reset();
+	WeaponMesh->SetStaticMesh(nullptr);
+	MagazineMesh->SetStaticMesh(nullptr);
+	MuzzleFlash->SetAsset(nullptr);
 	SetActorTickEnabled(false);
 }
 
@@ -535,9 +530,9 @@ FName ACloud9WeaponBase::GetWeaponName() const { return GetWeaponId() | EFWeapon
 
 FWeaponId ACloud9WeaponBase::GetWeaponId() const
 {
-	static let EmptyWeaponName = ETVariant::Convert<FWeaponId>(EBadWeapon::NoClass);
+	static let UnknownWeaponId = ETVariant::Convert<FWeaponId>(EBadWeapon::NoClass);
 	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName())
-	return EmptyWeaponName;
+	return UnknownWeaponId;
 }
 
 EWeaponType ACloud9WeaponBase::GetWeaponType() const
@@ -555,10 +550,6 @@ const UStaticMeshSocket* ACloud9WeaponBase::GetSocketByName(FName SocketName) co
 
 const UStaticMeshComponent* ACloud9WeaponBase::GetWeaponMesh() const { return WeaponMesh; }
 
-EWeaponClass ACloud9WeaponBase::GetWeaponClass() const
-{
-	let WeaponName = GetWeaponId();
-	return static_cast<EWeaponClass>(WeaponName.GetIndex());
-}
+EWeaponClass ACloud9WeaponBase::GetWeaponClass() const { return EUEnum::From<EWeaponClass>(GetWeaponId()); }
 
 bool ACloud9WeaponBase::CanBeDropped() const { return true; }

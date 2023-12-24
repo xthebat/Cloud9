@@ -27,6 +27,21 @@
 
 namespace EUEnum
 {
+	template <typename ResultType>
+	struct To
+	{
+		template <typename EnumValueType, enumtype(EnumValueType)>
+		FORCEINLINE int operator()(EnumValueType Self) const { return static_cast<ResultType>(Self); }
+
+		OPERATOR_BODY(To)
+	};
+
+	template <typename EnumValueType, enumtype(EnumValueType), typename ValueType, integraltype(ValueType)>
+	EnumValueType From(ValueType Value) { return static_cast<EnumValueType>(Value); }
+
+	template <typename EnumValueType, enumtype(EnumValueType), typename ValueType, varianttype(ValueType)>
+	EnumValueType From(ValueType&& Value) { return From<EnumValueType>(Value.GetIndex()); }
+
 	template <typename BlockType, typename ResultType>
 	struct AsStaticEnum
 	{
@@ -41,7 +56,7 @@ namespace EUEnum
 			// https://forums.unrealengine.com/t/how-to-retrieve-uenum-by-type/418501/4
 			if (let EnumClass = StaticEnum<EnumValueType>())
 			{
-				let EnumValue = static_cast<uint8>(Self);
+				let EnumValue = Self | To<int>{};
 				return Block(EnumClass, EnumValue);
 			}
 
@@ -52,6 +67,9 @@ namespace EUEnum
 
 		OPERATOR_BODY(AsStaticEnum)
 	};
+
+	template <typename EnumValueType, enumtype(EnumValueType)>
+	constexpr auto Count() { return StaticEnum<EnumValueType>()->NumEnums(); }
 
 	struct GetEnumName
 	{
