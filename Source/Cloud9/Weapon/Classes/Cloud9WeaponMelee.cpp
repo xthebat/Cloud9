@@ -30,27 +30,9 @@
 #include "Cloud9/Weapon/Tables/WeaponTableMelee.h"
 #include "Cloud9/Weapon/Structures/WeaponDefinition.h"
 
-const FName ACloud9WeaponMelee::WeaponMeshComponentName = TEXT("WeaponMeshComponent");
-
-ACloud9WeaponMelee::ACloud9WeaponMelee()
-{
-	if (WeaponMesh = CreateMeshComponent(WeaponMeshComponentName); not IsValid(WeaponMesh))
-	{
-		log(Error, "Failed to create WeaponMeshComponent");
-		return;
-	}
-}
-
 FWeaponId ACloud9WeaponMelee::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
 
 bool ACloud9WeaponMelee::CanBeDropped() const { return false; }
-
-const UStaticMeshSocket* ACloud9WeaponMelee::GetSocketByName(FName SocketName) const
-{
-	return WeaponMesh->GetSocketByName(SocketName);
-}
-
-const UStaticMeshComponent* ACloud9WeaponMelee::GetWeaponMesh() const { return WeaponMesh; }
 
 bool ACloud9WeaponMelee::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {
@@ -64,9 +46,9 @@ bool ACloud9WeaponMelee::OnInitialize(const FWeaponId& NewWeaponId, FName NewWea
 	return false;
 }
 
-void ACloud9WeaponMelee::DeInitialize()
+void ACloud9WeaponMelee::Deinitialize()
 {
-	Super::DeInitialize();
+	Super::Deinitialize();
 	WeaponMesh->SetStaticMesh(nullptr);
 }
 
@@ -91,7 +73,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 
-	if (bIsDeploying)
+	if (WeaponState[EWeaponAction::Deploy])
 	{
 		ExecuteAction(
 			EWeaponAction::Deploy,
@@ -102,10 +84,10 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 				WeaponInfo->Sounds.DeploySound | EUSoundBase::Play{GetActorLocation(), Settings->Volume};
 				return true;
 			},
-			[this] { bIsDeploying = false; }
+			[this] { WeaponState[EWeaponAction::Deploy] = false; }
 		);
 	}
-	else if (bIsPrimaryActionActive)
+	else if (WeaponState[EWeaponAction::Primary])
 	{
 		ExecuteAction(
 			EWeaponAction::Primary,
@@ -117,7 +99,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 			[] {}
 		);
 	}
-	else if (bIsSecondaryActionActive)
+	else if (WeaponState[EWeaponAction::Secondary])
 	{
 		ExecuteAction(
 			EWeaponAction::Secondary,
@@ -130,6 +112,6 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		);
 
 		// no auto stab
-		bIsSecondaryActionActive = false;
+		WeaponState[EWeaponAction::Secondary] = false;
 	}
 }

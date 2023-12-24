@@ -36,8 +36,9 @@
 #include "Cloud9/Weapon/Enums/WeaponActions.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
-#include "Cloud9/Weapon/Enums/WeaponState.h"
+#include "Cloud9/Weapon/Enums/WeaponBond.h"
 #include "Cloud9/Weapon/Structures/WeaponDefinition.h"
+#include "Cloud9/Weapon/Structures/WeaponState.h"
 
 #include "Cloud9WeaponBase.generated.h"
 
@@ -53,6 +54,15 @@ public:
 	static const FName RootComponentName;
 	static const FName WeaponMeshCollisionProfile;
 	static const FString ActionComponentFormat;
+
+	static const FName WeaponMeshComponentName;
+	static const FName MagazineMeshComponentName;
+	static const FName SilencerMeshComponentName;
+	static const FName MuzzleFlashComponentName;
+
+	static const FName MagazineSocketName;
+	static const FName SilencerSocketName;
+	static const FName MuzzleFlashSocketName;
 
 public:
 	ACloud9WeaponBase();
@@ -81,10 +91,10 @@ public:
 	EWeaponSlot GetWeaponSlot() const;
 
 	UFUNCTION(BlueprintCallable)
-	virtual const UStaticMeshSocket* GetSocketByName(FName SocketName) const;
+	const UStaticMeshSocket* GetSocketByName(FName SocketName) const;
 
 	UFUNCTION(BlueprintCallable)
-	virtual const UStaticMeshComponent* GetWeaponMesh() const;
+	const UStaticMeshComponent* GetWeaponMesh() const;
 
 	bool Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
 
@@ -97,11 +107,12 @@ public:
 
 	bool IsWeaponDefined() const { return IsValid(WeaponDefinition); }
 
-	bool IsDeploying() const { return bIsDeploying; }
+	bool IsDeploying() const { return WeaponState[EWeaponAction::Deploy]; }
 
 	bool AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot);
 	bool RemoveFromInventory();
-	bool ChangeState(EWeaponState NewState, bool Instant);
+
+	bool ChangeState(EWeaponBond NewBond, bool Instant);
 
 	template <typename OnExecuteType, typename OnCompleteType = TFunction<void()>>
 	FORCEINLINE bool ExecuteAction(
@@ -126,8 +137,8 @@ public:
 		return Executors | ETContainer::Any{[](let It) { return It->IsExecuting(); }};
 	}
 
-	FORCEINLINE bool IsWeaponArmed() const { return State == EWeaponState::Armed; }
-	FORCEINLINE bool IsWeaponDisarmed() const { return State != EWeaponState::Armed; }
+	FORCEINLINE bool IsWeaponArmed() const { return WeaponState.IsWeaponBond(EWeaponBond::Armed); }
+	FORCEINLINE bool IsWeaponDisarmed() const { return not IsWeaponArmed(); }
 
 	virtual void PrimaryAction(bool bIsReleased);
 	virtual void SecondaryAction(bool bIsReleased);
@@ -136,9 +147,10 @@ public:
 protected: // functions
 	virtual void Tick(float DeltaSeconds) override;
 
-	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
+	virtual void OnConstruction(const FTransform& Transform) override;
 
-	virtual void DeInitialize();
+	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
+	virtual void Deinitialize();
 
 	/**
 	 * Function called whenever weapon added to inventory and should
@@ -154,8 +166,6 @@ protected: // functions
 
 	static UWeaponDefinitionsAsset* GetWeaponDefinitionsAsset();
 
-	static bool ChangeActionFlag(bool Flag, bool bIsReleased);
-
 	static void ChangeMeshCollisionState(UStaticMeshComponent* Mesh, bool bIsEnabled);
 
 	UStaticMeshComponent* CreateMeshComponent(FName ComponentName, FName SocketName = NAME_None);
@@ -166,12 +176,15 @@ protected: // functions
 	bool InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect) const;
 
 	UAnimInstance* GetAnimInstance() const;
+
 	bool IsAnyMontagePlaying() const;
 	bool PlayAnimMontage(UAnimMontage* Montage) const;
 
+	void PlaySound(USoundBase* Sound, float Volume) const;
 	bool PlayRandomSound(const TArray<USoundBase*>& Sounds, float Volume) const;
+	void PlaySequenceSound(const TArray<USoundBase*>& Sounds, float Volume) const;
 
-	bool UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState NewState, bool Instant = false);
+	bool UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond NewBond, bool Instant = false);
 
 #define WEAPON_IS_DEFINED_GUARD() \
 	if (not IsWeaponDefined()) \
@@ -195,10 +208,34 @@ protected: // functions
 
 protected: // properties
 	/**
+	 * Weapon mesh
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UStaticMeshComponent* WeaponMesh;
+
+	/**
+	 * Magazine mesh
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UStaticMeshComponent* MagazineMesh;
+
+	/**
+	 * Silencer mesh
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UStaticMeshComponent* SilencerMesh;
+
+	/**
+	 * Muzzle flash effect to play when shoot
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UNiagaraComponent* MuzzleFlash;
+
+	/**
 	 * Current weapon skin name
 	 */
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, EditDefaultsOnly, meta=(AllowPrivateAccess))
-	FName WeaponSkin;
+	FName WeaponSkin = NAME_None;
 
 	/**
 	 * Weapon cumulative data
@@ -206,41 +243,8 @@ protected: // properties
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	FWeaponDefinition WeaponDefinition;
 
-	/**
-	 * Current weapon slot (main/pistol/knife/grenade)
-	 */
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	EWeaponSlot Slot;
-
-	/**
-	 * Current weapon state (armed/holstered/dropped)
-	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	EWeaponState State;
-
-	/**
-	 * Is weapon primary action active
-	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	bool bIsPrimaryActionActive;
-
-	/**
-	 * Is Weapon secondary action active
-     */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	bool bIsSecondaryActionActive;
-
-	/**
-	 * Is Weapon third action active
-	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	bool bIsThirdActionActive;
-
-	/**
-	 * Weapon currently deployed
-	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	bool bIsDeploying;
+	FWeaponState WeaponState;
 
 private:
 	static constexpr int GetWeaponActionIndex(EWeaponAction WeaponAction) { return static_cast<int>(WeaponAction); }

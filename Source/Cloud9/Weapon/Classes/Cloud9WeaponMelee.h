@@ -25,8 +25,6 @@
 
 #include "CoreMinimal.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Enums/MeleeNames.h"
 
@@ -42,19 +40,12 @@ class CLOUD9_API ACloud9WeaponMelee : public ACloud9WeaponBase
 	friend class ACloud9WeaponBase;
 
 public:
-	static const FName WeaponMeshComponentName;
-
-public:
-	ACloud9WeaponMelee();
-
 	virtual FWeaponId GetWeaponId() const override;
 	virtual bool CanBeDropped() const override;
-	virtual const UStaticMeshSocket* GetSocketByName(FName SocketName) const override;
-	virtual const UStaticMeshComponent* GetWeaponMesh() const override;
 
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
-	virtual void DeInitialize() override;
+	virtual void Deinitialize() override;
 
 	virtual void OnWeaponAddedToInventory() override;
 	virtual void OnWeaponRemovedFromInventory() override;
@@ -67,10 +58,4 @@ protected:
 	 */
 	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
 	EMelee WeaponId;
-
-	/**
-	 * Weapon mesh
-	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	UStaticMeshComponent* WeaponMesh;
 };

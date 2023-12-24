@@ -39,22 +39,56 @@ const FName ACloud9WeaponBase::RootComponentName = TEXT("RootComponent");
 const FName ACloud9WeaponBase::WeaponMeshCollisionProfile = TEXT("WeaponCollisionProfile");
 const FString ACloud9WeaponBase::ActionComponentFormat = TEXT("{0}ActionComponent");
 
+const FName ACloud9WeaponBase::WeaponMeshComponentName = TEXT("WeaponMeshComponent");
+const FName ACloud9WeaponBase::MagazineMeshComponentName = TEXT("MagazineMeshComponent");
+const FName ACloud9WeaponBase::SilencerMeshComponentName = TEXT("SilencerMeshComponent");
+const FName ACloud9WeaponBase::MuzzleFlashComponentName = TEXT("MuzzleFlashComponent");
+
+const FName ACloud9WeaponBase::MagazineSocketName = TEXT("MagazineSocket");
+const FName ACloud9WeaponBase::SilencerSocketName = TEXT("SilencerSocket");
+const FName ACloud9WeaponBase::MuzzleFlashSocketName = TEXT("MuzzleFlashSocket");
+
 ACloud9WeaponBase::ACloud9WeaponBase()
 {
 	// Required for weapon with automatic fire
 	PrimaryActorTick.bCanEverTick = true;
 
-	State = EWeaponState::Dropped;
-	Slot = EWeaponSlot::NotSelected;
+	if (WeaponMesh = CreateMeshComponent(WeaponMeshComponentName); not IsValid(WeaponMesh))
+	{
+		log(Error, "Failed to create WeaponMeshComponent");
+		return;
+	}
 
-	WeaponSkin = FWeaponSkin::Default;
+	if (MagazineMesh = CreateMeshComponent(MagazineMeshComponentName, MagazineSocketName); not IsValid(MagazineMesh))
+	{
+		log(Error, "Failed to create MagazineMeshComponent");
+		return;
+	}
 
-	bIsPrimaryActionActive = false;
-	bIsSecondaryActionActive = false;
-	bIsThirdActionActive = false;
-	bIsDeploying = false;
+	if (MuzzleFlash = CreateEffectComponent(MuzzleFlashComponentName, MuzzleFlashSocketName); not IsValid(MuzzleFlash))
+	{
+		log(Error, "Failed to create MuzzleFlashComponent");
+		return;
+	}
 
-	SetActorTickEnabled(false);
+	if (SilencerMesh = CreateMeshComponent(SilencerMeshComponentName, SilencerSocketName); not IsValid(SilencerMesh))
+	{
+		log(Error, "Failed to create SilencerMeshComponent");
+		return;
+	}
+
+	let Actions = StaticEnum<EWeaponAction>();
+
+	ETContainer::Repeat(
+		Actions->NumEnums(),
+		[&](let Id)
+		{
+			let CooldownActionName = Actions | EUEnum::GetValueName{Id};
+			let ComponentName = FString::Format(*ActionComponentFormat, {CooldownActionName.ToString()});
+			let CooldownActionComponent = CreateCooldownAction(FName(ComponentName));
+			Executors.Add(CooldownActionComponent);
+		}
+	);
 }
 
 UWeaponDefinitionsAsset* ACloud9WeaponBase::GetWeaponDefinitionsAsset()
@@ -80,6 +114,19 @@ UWeaponDefinitionsAsset* ACloud9WeaponBase::GetWeaponDefinitionsAsset()
 	WeaponDefinitionsAsset = Asset;
 
 	return WeaponDefinitionsAsset;
+}
+
+UCooldownActionComponent* ACloud9WeaponBase::CreateCooldownAction(FName ComponentName)
+{
+	let Component = CreateDefaultSubobject<UCooldownActionComponent>(ComponentName);
+
+	if (not IsValid(Component))
+	{
+		log(Error, "Can't cooldown action '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
+		return nullptr;
+	}
+
+	return Component;
 }
 
 UStaticMeshComponent* ACloud9WeaponBase::CreateMeshComponent(FName ComponentName, FName SocketName)
@@ -227,6 +274,11 @@ bool ACloud9WeaponBase::IsAnyMontagePlaying() const
 	return AnimInstance->IsAnyMontagePlaying();
 }
 
+void ACloud9WeaponBase::PlaySound(USoundBase* Sound, float Volume) const
+{
+	Sound | EUSoundBase::Play{GetActorLocation(), Volume};
+}
+
 bool ACloud9WeaponBase::PlayRandomSound(const TArray<USoundBase*>& Sounds, float Volume) const
 {
 	using namespace ETContainer;
@@ -234,33 +286,20 @@ bool ACloud9WeaponBase::PlayRandomSound(const TArray<USoundBase*>& Sounds, float
 
 	return Sounds
 		| Random()
-		| OnNull{[&] { log(Error, "[Weapon='%s'] Can't play sound for ", *GetName()) }}
-		| OnSet{[&](let& It) { It | EUSoundBase::Play{GetActorLocation(), Volume}; }}
+		| OnNull{[this] { log(Error, "[Weapon='%s'] Can't play sound for ", *GetName()) }}
+		| OnSet{[this, Volume](var It) { PlaySound(It, Volume); }}
 		| IsSet{};
 }
 
-UCooldownActionComponent* ACloud9WeaponBase::CreateCooldownAction(FName ComponentName)
+void ACloud9WeaponBase::PlaySequenceSound(const TArray<USoundBase*>& Sounds, float Volume) const
 {
-	let Component = NewObject<UCooldownActionComponent>(
-		this, UCooldownActionComponent::StaticClass(), ComponentName);
-	Component->RegisterComponent();
-
-	// CreateDefaultSubobject - works only in constructor
-	// let Component = CreateDefaultSubobject<UCooldownActionComponent>(ComponentName);
-
-	if (not IsValid(Component))
-	{
-		log(Error, "Can't cooldown action '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
-		return nullptr;
-	}
-
-	return Component;
+	Sounds | ETContainer::ForEach{[this, Volume](var It) { PlaySound(It, Volume); }};
 }
 
 #define SLOT_NAME *UWeaponSlot::ToString(NewSlot)
-#define STATE_NAME *UWeaponState::ToString(NewState)
+#define BOND_NAME *UWeaponBond::ToString(NewBond)
 
-bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState NewState, bool Instant)
+bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond NewBond, bool Instant)
 {
 	let Character = GetOwner<ACloud9Character>();
 
@@ -278,7 +317,7 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState
 		return false;
 	}
 
-	let SocketName = NewState == EWeaponState::Armed
+	let SocketName = NewBond == EWeaponBond::Armed
 		                 ? UWeaponSlot::EquippedSocket()
 		                 : UWeaponSlot::HolsteredSocket(NewSlot);
 
@@ -301,10 +340,7 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponState
 
 	AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
 
-	Slot = NewSlot;
-	State = NewState;
-
-	bIsDeploying = not Instant and State == EWeaponState::Armed;
+	WeaponState.OnUpdateWeaponAttachment(NewSlot, NewBond, Instant);
 
 	return true;
 }
@@ -348,7 +384,7 @@ bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot 
 
 	SetOwner(Character);
 
-	if (not UpdateWeaponAttachment(NewSlot, EWeaponState::Holstered))
+	if (not UpdateWeaponAttachment(NewSlot, EWeaponBond::Holstered))
 	{
 		log(Error, "Failed to update attachment for weapon '%s' slot '%s'", *GetName(), SLOT_NAME);
 		SetOwner(nullptr);
@@ -370,11 +406,7 @@ bool ACloud9WeaponBase::RemoveFromInventory()
 
 	// TODO: Add velocity impulse when weapon dropped
 
-	Slot = EWeaponSlot::NotSelected;
-	State = EWeaponState::Dropped;
-
-	bIsPrimaryActionActive = false;
-	bIsSecondaryActionActive = false;
+	WeaponState.OnRemovedFromInventory();
 
 	DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
 	SetOwner(nullptr);
@@ -384,53 +416,62 @@ bool ACloud9WeaponBase::RemoveFromInventory()
 	return true;
 }
 
-bool ACloud9WeaponBase::ChangeState(EWeaponState NewState, bool Instant)
+bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant)
 {
 	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
 	{
-		log(Error, "[Weapon='%s' State='%s'] Weapon not in any inventory", *GetName(), STATE_NAME);
+		log(Error, "[Weapon='%s' Bond='%s'] Weapon not in any inventory", *GetName(), BOND_NAME);
 		return false;
 	}
 
-	if (NewState == State)
+	if (WeaponState.IsWeaponBond(NewBond))
 	{
-		log(
-			Warning,
-			"[Weapon='%s' State='%s'] Weapon state='%s' will remain the same",
-			*GetName(), *UWeaponState::ToString(State), STATE_NAME);
+		log(Warning, "[Weapon='%s' Bond='%s'] Weapon will remain the same", *GetName(), BOND_NAME);
 		return false;
 	}
 
 	if (IsAnyMontagePlaying())
 	{
-		log(Error, "[Weapon='%s' State='%s'] Montage is playing now", *GetName(), STATE_NAME);
+		log(Error, "[Weapon='%s' Bond='%s'] Montage is playing now", *GetName(), BOND_NAME);
 		return false;
 	}
 
 	if (IsActionInProgress())
 	{
-		log(Error, "[Weapon='%s' State='%s'] Some action is in progress", *GetName(), STATE_NAME);
+		log(Error, "[Weapon='%s' Bond='%s'] Some action is in progress", *GetName(), BOND_NAME);
 		return false;
 	}
 
-	return UpdateWeaponAttachment(Slot, NewState, Instant);
+	return UpdateWeaponAttachment(WeaponState.GetWeaponSlot(), NewBond, Instant);
 }
 
 void ACloud9WeaponBase::PrimaryAction(bool bIsReleased)
 {
-	bIsPrimaryActionActive = ChangeActionFlag(bIsPrimaryActionActive, bIsReleased);
+	WeaponState[EWeaponAction::Primary] = FWeaponState::ChangeActionFlag(
+		WeaponState[EWeaponAction::Primary], bIsReleased);
 }
 
 void ACloud9WeaponBase::SecondaryAction(bool bIsReleased)
 {
-	bIsSecondaryActionActive = ChangeActionFlag(bIsSecondaryActionActive, bIsReleased);
+	WeaponState[EWeaponAction::Secondary] = FWeaponState::ChangeActionFlag(
+		WeaponState[EWeaponAction::Secondary], bIsReleased);
 }
 
-void ACloud9WeaponBase::Reload() {}
+void ACloud9WeaponBase::Reload()
+{
+	WeaponState[EWeaponAction::Reload] = true;
+}
 
 void ACloud9WeaponBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+}
+
+void ACloud9WeaponBase::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	PrimaryActorTick.bCanEverTick = true;
+	Deinitialize();
 }
 
 bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
@@ -441,7 +482,7 @@ bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeapon
 	if (not OnInitialize(NewWeaponId, NewWeaponSkin))
 	{
 		log(Error, "[Weapon='%s'] Weapon initialization failure", *GetName());
-		DeInitialize();
+		Deinitialize();
 		return false;
 	}
 
@@ -466,37 +507,13 @@ bool ACloud9WeaponBase::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeap
 		return false;
 	}
 
-	let Actions = StaticEnum<EWeaponAction>();
-
-	if (not IsValid(Actions))
-	{
-		log(Error, "[Weapon='%s'] Actions not specified", *GetName());
-		return false;
-	}
-
-	ETContainer::Repeat(
-		Actions->NumEnums(),
-		[&](let Id)
-		{
-			let CooldownActionName = Actions | EUEnum::GetValueName{Id};
-			let ComponentName = FString::Format(*ActionComponentFormat, {CooldownActionName.ToString()});
-			let CooldownActionComponent = CreateCooldownAction(FName(ComponentName));
-			Executors.Add(CooldownActionComponent);
-		}
-	);
-
 	return true;
 }
 
-void ACloud9WeaponBase::DeInitialize()
+void ACloud9WeaponBase::Deinitialize()
 {
 	WeaponSkin = FWeaponSkin::Default;
-	Slot = EWeaponSlot::NotSelected;
-	State = EWeaponState::Dropped;
-	bIsPrimaryActionActive = false;
-	bIsSecondaryActionActive = false;
-	bIsThirdActionActive = false;
-	bIsDeploying = false;
+	WeaponState.Reset();
 	WeaponDefinition.Reset();
 	Executors.Reset();
 	SetActorTickEnabled(false);
@@ -506,20 +523,6 @@ void ACloud9WeaponBase::OnWeaponAddedToInventory() {}
 
 void ACloud9WeaponBase::OnWeaponRemovedFromInventory() {}
 
-bool ACloud9WeaponBase::ChangeActionFlag(bool Flag, bool bIsReleased)
-{
-	if (Flag and bIsReleased)
-	{
-		return false;
-	}
-
-	if (not Flag and not bIsReleased)
-	{
-		return true;
-	}
-
-	return Flag;
-}
 
 void ACloud9WeaponBase::ChangeMeshCollisionState(UStaticMeshComponent* Mesh, bool bIsEnabled)
 {
@@ -543,19 +546,14 @@ EWeaponType ACloud9WeaponBase::GetWeaponType() const
 	return WeaponDefinition.GetWeaponInfo()->Type;
 }
 
-EWeaponSlot ACloud9WeaponBase::GetWeaponSlot() const { return Slot; }
+EWeaponSlot ACloud9WeaponBase::GetWeaponSlot() const { return WeaponState.GetWeaponSlot(); }
 
 const UStaticMeshSocket* ACloud9WeaponBase::GetSocketByName(FName SocketName) const
 {
-	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName())
-	return nullptr;
+	return WeaponMesh->GetSocketByName(SocketName);
 }
 
-const UStaticMeshComponent* ACloud9WeaponBase::GetWeaponMesh() const
-{
-	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName())
-	return nullptr;
-}
+const UStaticMeshComponent* ACloud9WeaponBase::GetWeaponMesh() const { return WeaponMesh; }
 
 EWeaponClass ACloud9WeaponBase::GetWeaponClass() const
 {

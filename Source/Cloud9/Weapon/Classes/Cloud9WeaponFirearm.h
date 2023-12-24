@@ -24,7 +24,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "NiagaraComponent.h"
 
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Enums/FirearmNames.h"
@@ -43,24 +42,11 @@ class CLOUD9_API ACloud9WeaponFirearm : public ACloud9WeaponBase
 	friend class ACloud9WeaponBase;
 
 public:
-	static const FName WeaponMeshComponentName;
-	static const FName MagazineMeshComponentName;
-	static const FName SilencerMeshComponentName;
-	static const FName MuzzleFlashComponentName;
-
-	static const FName MagazineSocketName;
-	static const FName SilencerSocketName;
-	static const FName MuzzleFlashSocketName;
-
-	ACloud9WeaponFirearm();
-
 	virtual FWeaponId GetWeaponId() const override;
-	virtual const UStaticMeshSocket* GetSocketByName(FName SocketName) const override;
-	virtual const UStaticMeshComponent* GetWeaponMesh() const override;
 
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
-	virtual void DeInitialize() override;
+	virtual void Deinitialize() override;
 
 	virtual void OnWeaponAddedToInventory() override;
 	virtual void OnWeaponRemovedFromInventory() override;
@@ -75,28 +61,4 @@ protected: // properties
 	 */
 	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
 	EFirearm WeaponId;
-
-	/**
-	 * Weapon mesh
-	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	UStaticMeshComponent* WeaponMesh;
-
-	/**
-	 * Magazine mesh
-	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	UStaticMeshComponent* MagazineMesh;
-
-	/**
-	 * Silencer mesh
-	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	UStaticMeshComponent* SilencerMesh;
-
-	/**
-	 * Muzzle flash effect to play when shoot
-	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	UNiagaraComponent* MuzzleFlash;
 };

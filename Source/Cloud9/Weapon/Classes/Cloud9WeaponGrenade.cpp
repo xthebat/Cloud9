@@ -25,11 +25,6 @@
 
 #include "Cloud9/Tools/Extensions/TVariant.h"
 
-ACloud9WeaponGrenade::ACloud9WeaponGrenade()
-{
-	WeaponId = EGrenade::Explosive;
-}
-
 FWeaponId ACloud9WeaponGrenade::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
 
 bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
@@ -37,7 +32,7 @@ bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 	return Super::OnInitialize(NewWeaponId, NewWeaponSkin);
 }
 
-void ACloud9WeaponGrenade::DeInitialize()
+void ACloud9WeaponGrenade::Deinitialize()
 {
-	Super::DeInitialize();
+	Super::Deinitialize();
 }
