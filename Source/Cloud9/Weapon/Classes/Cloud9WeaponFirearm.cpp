@@ -125,7 +125,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			[&]
 			{
 				PlayAnimMontage(PoseMontages->ReloadMontage);
-				PlaySequenceSound(WeaponInfo->Sounds.ReloadSounds, Settings->Volume);
+				// PlaySequenceSound(WeaponInfo->Sounds.ReloadSounds, Settings->Volume);
 				return true;
 			},
 			[this] { WeaponState.ClearAction(EWeaponAction::Reload); }

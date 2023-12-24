@@ -249,6 +249,8 @@ protected: // properties
 	FWeaponState WeaponState;
 
 private:
+	friend class UCloud9AnimNotifyPlaySound;
+
 	UCooldownActionComponent* CreateCooldownAction(FName ComponentName);
 
 	/**
