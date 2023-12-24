@@ -25,4 +25,8 @@
 
 #define enumtype(What) typename = typename TEnableIf<TIsEnum<What>::Value>::Type
 
+#define integraltype(What) typename = typename TEnableIf<TIsIntegral<What>::Value>::Type
+
+#define varianttype(What) typename = typename TEnableIf<TIsVariant<What>::Value>::Type
+
 #define sametype(What, Bound) typename = typename TEnableIf<TIsSame<What, Bound>::Value>::Type

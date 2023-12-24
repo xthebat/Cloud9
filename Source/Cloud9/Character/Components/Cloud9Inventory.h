@@ -100,18 +100,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	template <typename WeaponType = ACloud9WeaponBase>
-	WeaponType* WeaponAt(EWeaponSlot Slot) const
-	{
-		let Index = static_cast<int>(Slot);
-		return WeaponSlots[Index];
-	}
+	WeaponType* WeaponAt(EWeaponSlot Slot) const { return WeaponSlots[Slot | EUEnum::To<int>{}]; }
 
 	template <typename WeaponType = ACloud9WeaponBase>
-	WeaponType*& WeaponAt(EWeaponSlot Slot)
-	{
-		let Index = static_cast<int>(Slot);
-		return WeaponSlots[Index];
-	}
+	WeaponType*& WeaponAt(EWeaponSlot Slot) { return WeaponSlots[Slot | EUEnum::To<int>{}]; }
 
 protected:
 	UPROPERTY()

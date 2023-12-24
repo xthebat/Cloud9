@@ -23,29 +23,34 @@
 
 #include "WeaponState.h"
 
+FWeaponState::FWeaponState() { Reset(); }
+
 void FWeaponState::Reset()
 {
 	Slot = EWeaponSlot::NotSelected;
 	Bond = EWeaponBond::Dropped;
-	ResetActions();
+	ClearAllActions();
 }
 
-void FWeaponState::ResetActions() { Actions.SetNumZeroed(StaticEnum<EWeaponAction>()->NumEnums()); }
+void FWeaponState::ClearAllActions() { Actions.SetNumZeroed(EUEnum::Count<EWeaponAction>()); }
 
-bool FWeaponState::ChangeActionFlag(bool Flag, bool bIsReleased)
+void FWeaponState::ActivateAction(EWeaponAction Action, bool IsReleased)
 {
-	if (Flag and bIsReleased)
-	{
-		return false;
-	}
+	var& Flag = (*this)[Action];
 
-	if (not Flag and not bIsReleased)
+	if (Flag and IsReleased)
 	{
-		return true;
+		Flag = false;
 	}
-
-	return Flag;
+	else if (not Flag and not IsReleased)
+	{
+		Flag = true;
+	}
 }
+
+bool FWeaponState::IsActionActive(EWeaponAction Action) const { return (*this)[Action]; }
+
+void FWeaponState::ClearAction(EWeaponAction Action) { (*this)[Action] = false; }
 
 void FWeaponState::OnUpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond NewBond, bool Instant)
 {
@@ -58,7 +63,7 @@ void FWeaponState::OnRemovedFromInventory()
 {
 	Slot = EWeaponSlot::NotSelected;
 	Bond = EWeaponBond::Dropped;
-	ResetActions();
+	ClearAllActions();
 }
 
 EWeaponSlot FWeaponState::GetWeaponSlot() const { return Slot; }

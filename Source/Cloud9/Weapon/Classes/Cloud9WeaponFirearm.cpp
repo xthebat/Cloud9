@@ -71,14 +71,6 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 	return false;
 }
 
-void ACloud9WeaponFirearm::Deinitialize()
-{
-	Super::Deinitialize();
-	WeaponMesh->SetStaticMesh(nullptr);
-	MagazineMesh->SetStaticMesh(nullptr);
-	MuzzleFlash->SetAsset(nullptr);
-}
-
 void ACloud9WeaponFirearm::OnWeaponAddedToInventory()
 {
 	ChangeMeshCollisionState(WeaponMesh, false);
@@ -108,7 +100,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 	let CommonData = WeaponDefinition.GetCommonData();
 
-	if (WeaponState[EWeaponAction::Deploy])
+	if (WeaponState.IsActionActive(EWeaponAction::Deploy))
 	{
 		ExecuteAction(
 			EWeaponAction::Deploy,
@@ -121,11 +113,11 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			},
 			[this]
 			{
-				WeaponState[EWeaponAction::Deploy] = false;
+				WeaponState.ClearAction(EWeaponAction::Deploy);
 			}
 		);
 	}
-	else if (WeaponState[EWeaponAction::Reload])
+	else if (WeaponState.IsActionActive(EWeaponAction::Reload))
 	{
 		ExecuteAction(
 			EWeaponAction::Reload,
@@ -136,10 +128,10 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 				PlaySequenceSound(WeaponInfo->Sounds.ReloadSounds, Settings->Volume);
 				return true;
 			},
-			[this] { WeaponState[EWeaponAction::Reload] = false; }
+			[this] { WeaponState.ClearAction(EWeaponAction::Reload); }
 		);
 	}
-	else if (WeaponState[EWeaponAction::Primary])
+	else if (WeaponState.IsActionActive(EWeaponAction::Primary))
 	{
 		ExecuteAction(
 			EWeaponAction::Primary,
@@ -177,7 +169,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 		if (not WeaponInfo->bIsFullAuto)
 		{
-			WeaponState[EWeaponAction::Primary] = false;
+			WeaponState.ClearAction(EWeaponAction::Primary);
 		}
 	}
 	else {}
