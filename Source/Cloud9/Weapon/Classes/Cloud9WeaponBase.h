@@ -237,7 +237,7 @@ protected: // properties
 	 * Current weapon skin name
 	 */
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, EditDefaultsOnly, meta=(AllowPrivateAccess))
-	FName WeaponSkin = NAME_None;
+	FName WeaponSkin;
 
 	/**
 	 * Weapon cumulative data

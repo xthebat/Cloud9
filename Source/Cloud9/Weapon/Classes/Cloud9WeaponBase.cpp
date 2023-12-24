@@ -53,6 +53,8 @@ ACloud9WeaponBase::ACloud9WeaponBase()
 	// Required for weapon with automatic fire
 	PrimaryActorTick.bCanEverTick = true;
 
+	WeaponSkin = NAME_None;
+
 	if (WeaponMesh = CreateMeshComponent(WeaponMeshComponentName); not IsValid(WeaponMesh))
 	{
 		log(Error, "Failed to create WeaponMeshComponent");
@@ -244,17 +246,23 @@ UAnimInstance* ACloud9WeaponBase::GetAnimInstance() const
 
 bool ACloud9WeaponBase::PlayAnimMontage(UAnimMontage* Montage) const
 {
+	if (not IsValid(Montage))
+	{
+		log(Error, "[Weapon='%s'] Montage is invalid", *GetName());
+		return false;
+	}
+
 	let AnimInstance = GetAnimInstance();
 
 	if (not IsValid(AnimInstance))
 	{
-		log(Error, "[Weapon='%s'] AnimInstance is invalid", *GetName());
+		log(Error, "[Weapon='%s'] AnimInstance is invalid for montage '%s'", *GetName(), *Montage->GetName());
 		return false;
 	}
 
 	if (not AnimInstance->Montage_Play(Montage))
 	{
-		log(Error, "[Weapon='%s'] Can't play montage", *GetName());
+		log(Error, "[Weapon='%s'] Can't play montage '%s'", *GetName(), *Montage->GetName());
 		return false;
 	}
 
