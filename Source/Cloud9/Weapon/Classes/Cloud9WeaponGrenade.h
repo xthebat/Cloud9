@@ -25,8 +25,6 @@
 
 #include "CoreMinimal.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Enums/GrenadeNames.h"
 
@@ -42,13 +40,11 @@ class CLOUD9_API ACloud9WeaponGrenade : public ACloud9WeaponBase
 	friend class ACloud9WeaponBase;
 
 public:
-	ACloud9WeaponGrenade();
-
 	virtual FWeaponId GetWeaponId() const override;
 
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
-	virtual void DeInitialize() override;
+	virtual void Deinitialize() override;
 
 protected:
 	/**

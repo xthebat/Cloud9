@@ -27,7 +27,7 @@
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
-#include "Cloud9/Weapon/Enums/WeaponState.h"
+#include "Cloud9/Weapon/Enums/WeaponBond.h"
 
 UCloud9Inventory::UCloud9Inventory()
 {
@@ -107,7 +107,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
 			"[Weapon='%s'] SelectedWeapon should not be valid if slot == EWeaponSlot::NotSelected",
 			*GetName());
 
-		if (PendingWeapon->ChangeState(EWeaponState::Armed, Instant))
+		if (PendingWeapon->ChangeState(EWeaponBond::Armed, Instant))
 		{
 			SelectedWeaponSlot = Slot;
 			return true;
@@ -125,8 +125,8 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
 		return false;
 	}
 
-	if (SelectedWeapon->ChangeState(EWeaponState::Holstered, true)
-		and PendingWeapon->ChangeState(EWeaponState::Armed, Instant))
+	if (SelectedWeapon->ChangeState(EWeaponBond::Holstered, true)
+		and PendingWeapon->ChangeState(EWeaponBond::Armed, Instant))
 	{
 		SelectedWeaponSlot = Slot;
 		return true;

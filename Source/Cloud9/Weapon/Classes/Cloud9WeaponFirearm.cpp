@@ -25,9 +25,7 @@
 
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
-#include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
-#include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
@@ -35,50 +33,7 @@
 
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
 
-const FName ACloud9WeaponFirearm::WeaponMeshComponentName = TEXT("WeaponMeshComponent");
-const FName ACloud9WeaponFirearm::MagazineMeshComponentName = TEXT("MagazineMeshComponent");
-const FName ACloud9WeaponFirearm::SilencerMeshComponentName = TEXT("SilencerMeshComponent");
-const FName ACloud9WeaponFirearm::MuzzleFlashComponentName = TEXT("MuzzleFlashComponent");
-
-const FName ACloud9WeaponFirearm::MagazineSocketName = TEXT("MagazineSocket");
-const FName ACloud9WeaponFirearm::SilencerSocketName = TEXT("SilencerSocket");
-const FName ACloud9WeaponFirearm::MuzzleFlashSocketName = TEXT("MuzzleFlashSocket");
-
-ACloud9WeaponFirearm::ACloud9WeaponFirearm()
-{
-	if (WeaponMesh = CreateMeshComponent(WeaponMeshComponentName); not IsValid(WeaponMesh))
-	{
-		log(Error, "Failed to create WeaponMeshComponent");
-		return;
-	}
-
-	if (MagazineMesh = CreateMeshComponent(MagazineMeshComponentName, MagazineSocketName); not IsValid(MagazineMesh))
-	{
-		log(Error, "Failed to create MagazineMeshComponent");
-		return;
-	}
-
-	if (MuzzleFlash = CreateEffectComponent(MuzzleFlashComponentName, MuzzleFlashSocketName); not IsValid(MuzzleFlash))
-	{
-		log(Error, "Failed to create MuzzleFlashComponent");
-		return;
-	}
-
-	if (SilencerMesh = CreateMeshComponent(SilencerMeshComponentName, SilencerSocketName); not IsValid(SilencerMesh))
-	{
-		log(Error, "Failed to create SilencerMeshComponent");
-		return;
-	}
-}
-
 FWeaponId ACloud9WeaponFirearm::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
-
-const UStaticMeshSocket* ACloud9WeaponFirearm::GetSocketByName(FName SocketName) const
-{
-	return WeaponMesh->GetSocketByName(SocketName);
-}
-
-const UStaticMeshComponent* ACloud9WeaponFirearm::GetWeaponMesh() const { return WeaponMesh; }
 
 bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {
@@ -116,9 +71,9 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 	return false;
 }
 
-void ACloud9WeaponFirearm::DeInitialize()
+void ACloud9WeaponFirearm::Deinitialize()
 {
-	Super::DeInitialize();
+	Super::Deinitialize();
 	WeaponMesh->SetStaticMesh(nullptr);
 	MagazineMesh->SetStaticMesh(nullptr);
 	MuzzleFlash->SetAsset(nullptr);
@@ -153,7 +108,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 	let CommonData = WeaponDefinition.GetCommonData();
 
-	if (bIsDeploying)
+	if (WeaponState[EWeaponAction::Deploy])
 	{
 		ExecuteAction(
 			EWeaponAction::Deploy,
@@ -161,33 +116,68 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			[&]
 			{
 				PlayAnimMontage(PoseMontages->DeployMontage);
-				WeaponInfo->Sounds.DeploySound | EUSoundBase::Play{GetActorLocation(), Settings->Volume};
+				PlaySound(WeaponInfo->Sounds.DeploySound, Settings->Volume);
 				return true;
 			},
-			[this] { bIsDeploying = false; }
+			[this]
+			{
+				WeaponState[EWeaponAction::Deploy] = false;
+			}
 		);
 	}
-	else if (bIsPrimaryActionActive)
+	else if (WeaponState[EWeaponAction::Reload])
+	{
+		ExecuteAction(
+			EWeaponAction::Reload,
+			WeaponInfo->ReloadTime,
+			[&]
+			{
+				PlayAnimMontage(PoseMontages->ReloadMontage);
+				PlaySequenceSound(WeaponInfo->Sounds.ReloadSounds, Settings->Volume);
+				return true;
+			},
+			[this] { WeaponState[EWeaponAction::Reload] = false; }
+		);
+	}
+	else if (WeaponState[EWeaponAction::Primary])
 	{
 		ExecuteAction(
 			EWeaponAction::Primary,
 			WeaponInfo->CycleTime, [&]
 			{
-				if (PlayAnimMontage(PoseMontages->PrimaryActionMontage) and
-					PlayRandomSound(WeaponInfo->Sounds.FireSounds, Settings->Volume))
+				if (not PlayAnimMontage(PoseMontages->PrimaryActionMontage))
 				{
-					MuzzleFlash->Activate(true);
-					return Fire(WeaponInfo, CommonData->ImpulseMultiplier);
+					log(Error, "[Weapon='%s'] No montage for primary action specified", *GetName());
+					return false;
 				}
 
-				return false;
+				if (not PlayRandomSound(WeaponInfo->Sounds.FireSounds, Settings->Volume))
+				{
+					log(Warning, "[Weapon='%s'] No any sound for primary action specified", *GetName());
+				}
+
+				MuzzleFlash->Activate(true);
+
+				if (not Fire(WeaponInfo, CommonData->ImpulseMultiplier))
+				{
+					log(Error, "[Weapon='%s'] Weapon fire failure", *GetName());
+					return false;
+				}
+
+				return true;
 			},
-			[] {}
+			[this]
+			{
+				// if (not PlaySound(WeaponInfo->Sounds.PostFireSound, Settings->Volume))
+				// {
+				// log(Verbose, "[Weapon='%s'] Sound for post fire not specified", *GetName());
+				// }
+			}
 		);
 
 		if (not WeaponInfo->bIsFullAuto)
 		{
-			bIsPrimaryActionActive = false;
+			WeaponState[EWeaponAction::Primary] = false;
 		}
 	}
 	else {}
