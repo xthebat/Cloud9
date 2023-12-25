@@ -32,6 +32,7 @@
 #include "Cloud9/Tools/Extensions/FVector.h"
 
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
+#include "Engine/StaticMeshActor.h"
 
 FWeaponId ACloud9WeaponFirearm::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
 
@@ -235,4 +236,110 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, float Impu
 	}
 
 	return true;
+}
+
+bool ACloud9WeaponFirearm::UpdateMagazineAttachment(bool IsReload)
+{
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
+	{
+		log(Error, "[Weapon='%s'] Weapon owner is invalid", *GetName());
+		return false;
+	}
+
+	UMeshComponent* Mesh;
+	FName SocketName;
+	bool IsDetached;
+
+	if (IsReload)
+	{
+		let CharacterMesh = Character->GetMesh();
+
+		if (not IsValid(CharacterMesh))
+		{
+			log(Error, "[Weapon='%s'] Character mesh is invalid", *GetName());
+			return false;
+		}
+
+		SocketName = GetWeaponType() == EWeaponType::Pistol
+			             ? UWeaponSlot::ReloadPistolSocket()
+			             : UWeaponSlot::ReloadWeaponSocket();
+
+		if (SocketName.IsNone())
+		{
+			log(Error, "[Weapon='%s'] Can't get socket name='%s'", *GetName(), *SocketName.ToString());
+			return false;
+		}
+
+		if (not CharacterMesh->GetSocketByName(SocketName))
+		{
+			log(Error, "[Weapon='%s'] Socket not found in character mesh", *GetName());
+			return false;
+		}
+
+		Mesh = CharacterMesh;
+		IsDetached = true;
+	}
+	else
+	{
+		let Inventory = Character->GetInventory();
+
+		if (not IsValid(Inventory))
+		{
+			log(Error, "[Weapon='%s'] Inventory is invalid", *GetName());
+			return false;
+		}
+
+		let SelectedWeapon = Inventory->GetSelectedWeapon();
+
+		if (not IsValid(SelectedWeapon))
+		{
+			log(Error, "[Weapon='%s'] Selected weapon is invalid", *GetName());
+			return false;
+		}
+
+		Mesh = SelectedWeapon->GetWeaponMesh();
+
+		SocketName = MagazineSocketName;
+		IsDetached = false;
+	}
+
+	if (MagazineMesh->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform, SocketName))
+	{
+		log(
+			Display,
+			"[Weapon='%s'] Update magazine attachment to Mesh='%s' socket='%s'",
+			*GetName(), *Mesh->GetName(), *SocketName.ToString());
+
+		WeaponState.DetachMagazine(IsDetached);
+		return true;
+	}
+
+	log(Error, "[Weapon='%s'] Can't change magazine attachement", *GetName());
+
+	return false;
+}
+
+AStaticMeshActor* ACloud9WeaponFirearm::DropMagazine(float DestroyAfter) const
+{
+	let World = GetWorld();
+	let Magazine = World->SpawnActor<AStaticMeshActor>(
+		AStaticMeshActor::StaticClass(),
+		MagazineMesh->GetComponentTransform());
+
+	Magazine->SetMobility(EComponentMobility::Movable);
+
+	let Mesh = Magazine->GetStaticMeshComponent();
+	Mesh->SetStaticMesh(MagazineMesh->GetStaticMesh());
+	Mesh->SetMaterial(0, MagazineMesh->GetMaterial(0));
+	Mesh->SetSimulatePhysics(true);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	if (DestroyAfter > 0.0f)
+	{
+		World | EUWorld::AsyncAfter{[Magazine] { Magazine->Destroy(); }, DestroyAfter};
+	}
+
+	return Magazine;
 }

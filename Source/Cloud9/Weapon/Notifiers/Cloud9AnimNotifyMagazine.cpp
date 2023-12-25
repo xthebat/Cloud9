@@ -29,7 +29,8 @@ void UCloud9AnimNotifyMagazine::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 			SelectedWeapon->UpdateMagazineAttachment(false);
 			break;
 		case EMagazineAction::Drop:
-			// TODO: Spawn dropped mag
+			// ReSharper disable once CppExpressionWithoutSideEffects
+			SelectedWeapon->DropMagazine();
 			break;
 		}
 	}

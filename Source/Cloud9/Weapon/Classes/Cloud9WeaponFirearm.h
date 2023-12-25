@@ -30,6 +30,7 @@
 
 #include "Cloud9WeaponFirearm.generated.h"
 
+class AStaticMeshActor;
 class UCooldownActionComponent;
 struct FWeaponActionMontages;
 struct FFirearmWeaponInfo;
@@ -41,6 +42,7 @@ class CLOUD9_API ACloud9WeaponFirearm : public ACloud9WeaponBase
 
 	friend class ACloud9WeaponBase;
 	friend class UCloud9AnimNotifyPlaySound;
+	friend class UCloud9AnimNotifyMagazine;
 
 public:
 	virtual FWeaponId GetWeaponId() const override;
@@ -56,6 +58,9 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 
 	bool Fire(const FFirearmWeaponInfo* WeaponInfo, float ImpulseMultiplier) const;
+
+	bool UpdateMagazineAttachment(bool IsReload);
+	AStaticMeshActor* DropMagazine(float DestroyAfter = -1.0f) const;
 
 protected: // properties
 	/**
