@@ -60,7 +60,8 @@ protected:
 	bool Fire(const FFirearmWeaponInfo* WeaponInfo, float ImpulseMultiplier) const;
 
 	bool UpdateMagazineAttachment(bool IsReload);
-	AStaticMeshActor* DropMagazine(float DestroyAfter = -1.0f) const;
+	void DropMagazine() const;
+	void EjectCase() const;
 
 protected: // properties
 	/**

@@ -33,6 +33,21 @@ struct FWeaponCommonData
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage)
 	float ImpulseMultiplier = 50.0f;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	float CaseImpulse = 500.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	float CaseEjectAngle = 45.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	float CaseScale = 2.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	float CaseLifetime = 2.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	float MagazineLifetime = 10.0f;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
 	UParticleSystem* FirearmTracer;
 };

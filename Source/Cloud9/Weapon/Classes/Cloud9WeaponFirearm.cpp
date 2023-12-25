@@ -208,6 +208,8 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, float Impu
 		return false;
 	}
 
+	EjectCase();
+
 	FHitResult CursorHit;
 	if (not Controller->GetHitResultUnderCursor(ECC_Visibility, true, CursorHit))
 	{
@@ -321,7 +323,7 @@ bool ACloud9WeaponFirearm::UpdateMagazineAttachment(bool IsReload)
 	return false;
 }
 
-AStaticMeshActor* ACloud9WeaponFirearm::DropMagazine(float DestroyAfter) const
+void ACloud9WeaponFirearm::DropMagazine() const
 {
 	let World = GetWorld();
 	let Magazine = World->SpawnActor<AStaticMeshActor>(
@@ -336,10 +338,47 @@ AStaticMeshActor* ACloud9WeaponFirearm::DropMagazine(float DestroyAfter) const
 	Mesh->SetSimulatePhysics(true);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
-	if (DestroyAfter > 0.0f)
+	let Lifetime = WeaponDefinition.GetCommonData()->MagazineLifetime;
+	GetWorld() | EUWorld::AsyncAfter{[Magazine] { Magazine->Destroy(); }, Lifetime};
+}
+
+void ACloud9WeaponFirearm::EjectCase() const
+{
+	let World = GetWorld();
+
+	if (not GetWeaponMesh()->GetSocketByName(CaseEjectSocketName))
 	{
-		World | EUWorld::AsyncAfter{[Magazine] { Magazine->Destroy(); }, DestroyAfter};
+		log(Error, "[Weapon='%s'] Socket case ejector not found", *GetName());
+		return;
 	}
 
-	return Magazine;
+	let Transform = GetWeaponMesh()->GetSocketTransform(CaseEjectSocketName);
+
+	let CaseModel = GetWeaponInfo()->CaseModel;
+
+	if (not IsValid(CaseModel))
+	{
+		log(Error, "[Weapon='%s'] Case model is invalid", *GetName());
+		return;
+	}
+
+	let Case = World->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), Transform);
+
+	let CommonData = WeaponDefinition.GetCommonData();
+
+	Case->SetMobility(EComponentMobility::Movable);
+	Case->SetActorScale3D({CommonData->CaseScale, CommonData->CaseScale, CommonData->CaseScale});
+
+	let Mesh = Case->GetStaticMeshComponent();
+	Mesh->SetStaticMesh(CaseModel);
+	Mesh->SetSimulatePhysics(true);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	let RightVector = GetWeaponMesh()->GetRightVector();
+	let ForwardVector = GetWeaponMesh()->GetForwardVector();
+	let Direction = RightVector.RotateAngleAxis(CommonData->CaseEjectAngle, ForwardVector);
+
+	Mesh->AddImpulse(CommonData->CaseImpulse * Direction, NAME_None, true);
+
+	GetWorld() | EUWorld::AsyncAfter{[Case] { Case->Destroy(); }, CommonData->CaseLifetime};
 }

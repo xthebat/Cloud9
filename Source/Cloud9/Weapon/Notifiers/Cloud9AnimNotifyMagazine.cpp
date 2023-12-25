@@ -2,6 +2,7 @@
 
 
 #include "Cloud9AnimNotifyMagazine.h"
+#include "Engine/StaticMeshActor.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
 
 UCloud9AnimNotifyMagazine::UCloud9AnimNotifyMagazine()
@@ -29,7 +30,6 @@ void UCloud9AnimNotifyMagazine::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 			SelectedWeapon->UpdateMagazineAttachment(false);
 			break;
 		case EMagazineAction::Drop:
-			// ReSharper disable once CppExpressionWithoutSideEffects
 			SelectedWeapon->DropMagazine();
 			break;
 		}

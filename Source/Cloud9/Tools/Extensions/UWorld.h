@@ -61,6 +61,7 @@ namespace EUWorld
 
 		FORCEINLINE FTimerHandle operator()(const UWorld* Self) const
 		{
+			assertf(Self != nullptr, "World should not be nullptr to start timer");
 			FTimerHandle TimerHandle;
 			FTimerDelegate TimerDelegate;
 			TimerDelegate.BindLambda(Block);
