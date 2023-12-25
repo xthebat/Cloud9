@@ -11,11 +11,22 @@ class CLOUD9_API UCloud9AnimNotifyPlaySound : public UAnimNotify
 {
 	GENERATED_BODY()
 
-public:
-	// virtual FString GetNotifyName_Implementation() const override;
-	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+	UCloud9AnimNotifyPlaySound();
 
 public:
-	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess))
-	int Index;
+	virtual FString GetNotifyName_Implementation() const override;
+	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Settings, meta=(ExposeOnSpawn))
+	bool bIsEnabled;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Settings, meta=(ExposeOnSpawn))
+	FName Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview, meta=(ExposeOnSpawn))
+	USoundBase* PreviewSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Preview, meta=(ExposeOnSpawn))
+	float PreviewVolume;
 };

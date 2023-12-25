@@ -75,7 +75,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 			[&]
 			{
 				PlayAnimMontage(PoseMontages->DeployMontage);
-				WeaponInfo->Sounds.DeploySound | EUSoundBase::Play{GetActorLocation(), Settings->Volume};
+				WeaponInfo->Sounds.DeploySound | EUSoundBase::PlaySoundAtLocation{GetActorLocation(), Settings->Volume};
 				return true;
 			},
 			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }

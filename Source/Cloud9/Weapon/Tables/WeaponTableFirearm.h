@@ -46,7 +46,7 @@ struct FFirearmWeaponSounds
 	 * Sequence of sounds to play when reload weapon
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sounds)
-	TArray<USoundBase*> ReloadSounds;
+	TMap<FName, USoundBase*> ReloadSounds;
 
 	/**
 	 * Sound to play when weapon deployed

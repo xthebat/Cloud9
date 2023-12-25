@@ -27,7 +27,7 @@
 
 namespace EUSoundBase
 {
-	struct Play
+	struct PlaySoundAtLocation
 	{
 		FVector Location;
 		float VolumeMultiplier = 1.f;
@@ -47,6 +47,20 @@ namespace EUSoundBase
 				StartTime);
 		}
 
-		OPERATOR_BODY(Play)
+		OPERATOR_BODY(PlaySoundAtLocation)
+	};
+
+	struct PlaySound2D
+	{
+		float VolumeMultiplier = 1.f;
+		const UObject* World = nullptr;
+
+		FORCEINLINE void operator()(USoundBase* Self) const
+		{
+			let MyWorld = World == nullptr ? UCloud9ToolsLibrary::GetGameWorld() : World;
+			UGameplayStatics::PlaySound2D(MyWorld, Self, VolumeMultiplier);
+		}
+
+		OPERATOR_BODY(PlaySound2D)
 	};
 }
