@@ -34,6 +34,11 @@ FWeaponId ACloud9WeaponMelee::GetWeaponId() const { return ETVariant::Convert<FW
 
 bool ACloud9WeaponMelee::CanBeDropped() const { return false; }
 
+const FMeleeWeaponInfo* ACloud9WeaponMelee::GetWeaponInfo() const
+{
+	return WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
+}
+
 bool ACloud9WeaponMelee::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {
 	if (Super::OnInitialize(NewWeaponId, NewWeaponSkin))

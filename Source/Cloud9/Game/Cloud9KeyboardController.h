@@ -77,7 +77,8 @@ public:
 	void OnSlot3();
 	void OnSlot4();
 	void OnSlot5();
-	void OnReload();
+	void OnReloadPressed();
+	void OnReloadReleased();
 
 protected:
 	float ForwardScale;

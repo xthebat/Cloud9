@@ -50,6 +50,8 @@ class CLOUD9_API ACloud9WeaponBase : public AActor
 {
 	GENERATED_BODY()
 
+	friend class UCloud9AnimNotifyWeapon;
+
 public:
 	static const FName RootComponentName;
 	static const FName WeaponMeshCollisionProfile;
@@ -94,7 +96,7 @@ public:
 	const UStaticMeshSocket* GetSocketByName(FName SocketName) const;
 
 	UFUNCTION(BlueprintCallable)
-	const UStaticMeshComponent* GetWeaponMesh() const;
+	UStaticMeshComponent* GetWeaponMesh() const;
 
 	bool Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
 
@@ -111,7 +113,14 @@ public:
 	bool IsDeploying() const { return WeaponState.IsActionActive(EWeaponAction::Deploy); }
 
 	UFUNCTION(BlueprintCallable)
-	bool IsReloading() const { return WeaponState.IsActionActive(EWeaponAction::Reload); }
+	bool IsReloading() const
+	{
+		return WeaponState.IsActionActive(EWeaponAction::ReloadStart) or
+			WeaponState.IsActionActive(EWeaponAction::ReloadLoop);
+	}
+
+	UFUNCTION(BlueprintCallable)
+	bool IsBoltCycled() const { return WeaponState.IsBoltCycled(); }
 
 	bool AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot);
 	bool RemoveFromInventory();
@@ -144,9 +153,11 @@ public:
 	FORCEINLINE bool IsWeaponArmed() const { return WeaponState.IsWeaponBond(EWeaponBond::Armed); }
 	FORCEINLINE bool IsWeaponDisarmed() const { return not IsWeaponArmed(); }
 
-	virtual void PrimaryAction(bool bIsReleased);
-	virtual void SecondaryAction(bool bIsReleased);
-	virtual void Reload();
+	void PrimaryAction(bool bIsReleased);
+	void SecondaryAction(bool bIsReleased);
+	void Reload(bool bIsReleased);
+
+	bool UpdateMagazineAttachment(bool IsReload);
 
 protected: // functions
 	virtual void Tick(float DeltaSeconds) override;
@@ -248,8 +259,6 @@ protected: // properties
 	FWeaponState WeaponState;
 
 private:
-	friend class UCloud9AnimNotifyPlaySound;
-
 	UCooldownActionComponent* CreateCooldownAction(FName ComponentName);
 
 	/**

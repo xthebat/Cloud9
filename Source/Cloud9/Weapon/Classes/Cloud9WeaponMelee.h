@@ -43,6 +43,8 @@ public:
 	virtual FWeaponId GetWeaponId() const override;
 	virtual bool CanBeDropped() const override;
 
+	const FMeleeWeaponInfo* GetWeaponInfo() const;
+
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
 

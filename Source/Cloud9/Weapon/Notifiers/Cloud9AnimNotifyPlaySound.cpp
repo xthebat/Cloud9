@@ -6,8 +6,7 @@
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
+#include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
 
 UCloud9AnimNotifyPlaySound::UCloud9AnimNotifyPlaySound()
 {
@@ -45,50 +44,13 @@ void UCloud9AnimNotifyPlaySound::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 #endif
 	{
 		static let Settings = UCloud9DeveloperSettings::Get();
-
-		let Character = MeshComp->GetOwner<ACloud9Character>();
-
-		if (not IsValid(Character))
+		if (let SelectedWeapon = GetSelectedWeapon<ACloud9WeaponFirearm>(MeshComp))
 		{
-			log(Error, "Character is invalid");
-			return;
-		}
-
-		let Inventory = Character->GetInventory();
-
-		if (not IsValid(Inventory))
-		{
-			log(Error, "Invenotry is invalid");
-			return;
-		}
-
-		let SelectedWeapon = Inventory->GetSelectedWeapon();
-
-		if (not IsValid(SelectedWeapon))
-		{
-			log(Error, "Selected weapon is invalid");
-			return;
-		}
-
-		let& WeaponDefinition = SelectedWeapon->WeaponDefinition;
-
-		if (not IsValid(WeaponDefinition))
-		{
-			log(Error, "Selected weapon is not defined");
-			return;
-		}
-
-		let WeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
-
-		if (not WeaponInfo)
-		{
-			log(Error, "WeaponInfo isn't a FFirearmWeaponInfo");
-			return;
-		}
-
-		if (let Sound = WeaponInfo->Sounds.ReloadSounds.Find(Name) and *Sound)
-		{
-			SelectedWeapon->PlaySound(*Sound, Settings->Volume);
+			let WeaponInfo = SelectedWeapon->GetWeaponInfo();
+			if (let Sound = WeaponInfo->Sounds.ReloadSounds.Find(Name); Sound and *Sound)
+			{
+				SelectedWeapon->PlaySound(*Sound, Settings->Volume);
+			}
 		}
 	}
 }

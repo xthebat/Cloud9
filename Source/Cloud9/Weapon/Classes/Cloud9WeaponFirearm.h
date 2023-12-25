@@ -40,9 +40,12 @@ class CLOUD9_API ACloud9WeaponFirearm : public ACloud9WeaponBase
 	GENERATED_BODY()
 
 	friend class ACloud9WeaponBase;
+	friend class UCloud9AnimNotifyPlaySound;
 
 public:
 	virtual FWeaponId GetWeaponId() const override;
+
+	const FFirearmWeaponInfo* GetWeaponInfo() const;
 
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;

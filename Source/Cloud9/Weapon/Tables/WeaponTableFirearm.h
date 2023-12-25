@@ -244,6 +244,14 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	float ReloadTime;
 
 	/**
+	 * Time to reload one shell of the weapon
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
+		meta=(EditCondition="Type == EWeaponType::Shotgun", EditConditionHides,
+			UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
+	float ReloadLoopTime;
+
+	/**
 	 * Minimum interval between zoom enable and shoot (measured in seconds)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time, AdvancedDisplay,
@@ -276,6 +284,12 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mode)
 	bool bIsFullAuto = false; // aka HoldToShoot
+
+	/**
+	 * If true inverse kinematic will be disabled during shoot
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mode)
+	bool bIsManualBoltCycle = false;
 
 	/**
 	 * The frequency at which tracers are applied to bullets (0 = never)
@@ -361,7 +375,8 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	 * The number of bullets (pellets for a shotgun) fired from a cartridge
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Additional, AdvancedDisplay,
-		meta=(EditCondition="Type == EWeaponType::Shotgun", UIMin="1", UIMax="10", ClampMin="0", ClampMax="10"))
+		meta=(EditCondition="Type == EWeaponType::Shotgun", EditConditionHides,
+			UIMin="1", UIMax="10", ClampMin="0", ClampMax="10"))
 	int BulletsPerShot = 1;
 
 	/**
