@@ -329,6 +329,12 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UStaticMesh* SilencerModel = nullptr;
 
 	/**
+	 * Model for eject case after shoot 
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	UStaticMesh* CaseModel = nullptr;
+
+	/**
 	 * Available skins for weapon and it magazines
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)
