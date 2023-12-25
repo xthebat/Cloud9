@@ -46,9 +46,7 @@ protected:
 			return nullptr;
 		}
 
-		let& WeaponDefinition = SelectedWeapon->WeaponDefinition;
-
-		if (not IsValid(WeaponDefinition))
+		if (not SelectedWeapon->IsWeaponDefined())
 		{
 			log(Error, "Selected weapon is not defined");
 			return nullptr;

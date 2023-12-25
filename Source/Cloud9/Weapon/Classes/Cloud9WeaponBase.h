@@ -50,8 +50,6 @@ class CLOUD9_API ACloud9WeaponBase : public AActor
 {
 	GENERATED_BODY()
 
-	friend class UCloud9AnimNotifyWeapon;
-
 public:
 	static const FName RootComponentName;
 	static const FName WeaponMeshCollisionProfile;
@@ -65,6 +63,7 @@ public:
 	static const FName MagazineSocketName;
 	static const FName SilencerSocketName;
 	static const FName MuzzleFlashSocketName;
+	static const FName CaseEjectSocketName;
 
 public:
 	ACloud9WeaponBase();
@@ -156,8 +155,6 @@ public:
 	void PrimaryAction(bool bIsReleased);
 	void SecondaryAction(bool bIsReleased);
 	void Reload(bool bIsReleased);
-
-	bool UpdateMagazineAttachment(bool IsReload);
 
 protected: // functions
 	virtual void Tick(float DeltaSeconds) override;
