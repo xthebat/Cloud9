@@ -184,7 +184,6 @@ protected: // functions
 
 	void PlaySound(USoundBase* Sound, float Volume) const;
 	bool PlayRandomSound(const TArray<USoundBase*>& Sounds, float Volume) const;
-	void PlaySequenceSound(const TArray<USoundBase*>& Sounds, float Volume) const;
 
 	bool UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond NewBond, bool Instant = false);
 

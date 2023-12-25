@@ -284,7 +284,7 @@ bool ACloud9WeaponBase::IsAnyMontagePlaying() const
 
 void ACloud9WeaponBase::PlaySound(USoundBase* Sound, float Volume) const
 {
-	Sound | EUSoundBase::Play{GetActorLocation(), Volume};
+	Sound | EUSoundBase::PlaySoundAtLocation{GetActorLocation(), Volume};
 }
 
 bool ACloud9WeaponBase::PlayRandomSound(const TArray<USoundBase*>& Sounds, float Volume) const
@@ -297,11 +297,6 @@ bool ACloud9WeaponBase::PlayRandomSound(const TArray<USoundBase*>& Sounds, float
 		| OnNull{[this] { log(Error, "[Weapon='%s'] Can't play sound for ", *GetName()) }}
 		| OnSet{[this, Volume](var It) { PlaySound(It, Volume); }}
 		| IsSet{};
-}
-
-void ACloud9WeaponBase::PlaySequenceSound(const TArray<USoundBase*>& Sounds, float Volume) const
-{
-	Sounds | ETContainer::ForEach{[this, Volume](var It) { PlaySound(It, Volume); }};
 }
 
 #define SLOT_NAME *UWeaponSlot::ToString(NewSlot)
