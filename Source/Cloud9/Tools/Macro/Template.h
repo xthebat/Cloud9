@@ -30,3 +30,5 @@
 #define varianttype(What) typename = typename TEnableIf<TIsVariant<What>::Value>::Type
 
 #define sametype(What, Bound) typename = typename TEnableIf<TIsSame<What, Bound>::Value>::Type
+
+#define derivedtype(What, Bound) typename = typename TEnableIf<TIsDerivedFrom<What, Bound>::Value>::Type

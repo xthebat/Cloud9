@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9AnimNotifyWeapon.h"
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "Cloud9AnimNotifyPlaySound.generated.h"
 
 UCLASS(Blueprintable)
-class CLOUD9_API UCloud9AnimNotifyPlaySound : public UAnimNotify
+class CLOUD9_API UCloud9AnimNotifyPlaySound : public UCloud9AnimNotifyWeapon
 {
 	GENERATED_BODY()
 

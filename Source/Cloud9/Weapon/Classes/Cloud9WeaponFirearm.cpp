@@ -100,35 +100,50 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 	let CommonData = WeaponDefinition.GetCommonData();
 
-	if (WeaponState.IsActionActive(EWeaponAction::Deploy))
+	let LoopedReload = PoseMontages->ReloadLoopMontage != nullptr;
+
+	if (WeaponState.IsActionActive(EWeaponAction::ReloadStart))
+	{
+		ExecuteAction(
+			EWeaponAction::ReloadStart,
+			WeaponInfo->ReloadTime,
+			[&] { return PlayAnimMontage(PoseMontages->ReloadMontage); },
+			[this] { WeaponState.ClearAction(EWeaponAction::ReloadStart); }
+		);
+
+		if (not LoopedReload)
+		{
+			WeaponState.ClearAction(EWeaponAction::ReloadLoop);
+		}
+	}
+	else if (LoopedReload and WeaponState.IsActionActive(EWeaponAction::ReloadLoop))
+	{
+		ExecuteAction(
+			EWeaponAction::ReloadLoop,
+			WeaponInfo->ReloadLoopTime,
+			[&] { return PlayAnimMontage(PoseMontages->ReloadLoopMontage); },
+			[] {}
+		);
+	}
+	else if (WeaponState.IsActionActive(EWeaponAction::Deploy))
 	{
 		ExecuteAction(
 			EWeaponAction::Deploy,
 			WeaponInfo->DeployTime,
 			[&]
 			{
-				PlayAnimMontage(PoseMontages->DeployMontage);
-				PlaySound(WeaponInfo->Sounds.DeploySound, Settings->Volume);
-				return true;
+				if (PlayAnimMontage(PoseMontages->DeployMontage))
+				{
+					PlaySound(WeaponInfo->Sounds.DeploySound, Settings->Volume);
+					return true;
+				}
+
+				return false;
 			},
 			[this]
 			{
 				WeaponState.ClearAction(EWeaponAction::Deploy);
 			}
-		);
-	}
-	else if (WeaponState.IsActionActive(EWeaponAction::Reload))
-	{
-		ExecuteAction(
-			EWeaponAction::Reload,
-			WeaponInfo->ReloadTime,
-			[&]
-			{
-				PlayAnimMontage(PoseMontages->ReloadMontage);
-				// PlaySequenceSound(WeaponInfo->Sounds.ReloadSounds, Settings->Volume);
-				return true;
-			},
-			[this] { WeaponState.ClearAction(EWeaponAction::Reload); }
 		);
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::Primary))
@@ -158,13 +173,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 				return true;
 			},
-			[this]
-			{
-				// if (not PlaySound(WeaponInfo->Sounds.PostFireSound, Settings->Volume))
-				// {
-				// log(Verbose, "[Weapon='%s'] Sound for post fire not specified", *GetName());
-				// }
-			}
+			[] {}
 		);
 
 		if (not WeaponInfo->bIsFullAuto)
@@ -173,6 +182,11 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 		}
 	}
 	else {}
+}
+
+const FFirearmWeaponInfo* ACloud9WeaponFirearm::GetWeaponInfo() const
+{
+	return WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 }
 
 bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, float ImpulseMultiplier) const

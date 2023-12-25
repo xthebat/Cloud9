@@ -65,5 +65,8 @@ public:
 	static FName EquippedSocket() { return TEXT("EquippedWeaponSocket"); }
 
 	UFUNCTION(BlueprintCallable)
+	static FName ReloadWeaponSocket() { return TEXT("ReloadWeaponSocket"); }
+
+	UFUNCTION(BlueprintCallable)
 	static FString ToString(EWeaponSlot Slot) { return Slot | EUEnum::GetEnumFullValueName{} | EFName::ToString{}; }
 };

@@ -55,6 +55,14 @@ struct FWeaponState
 
 	EWeaponSlot GetWeaponSlot() const;
 
+	void BoltCycled(bool State);
+
+	bool IsBoltCycled() const;
+
+	void DetachMagazine(bool State);
+
+	bool IsMagazineDetached() const;
+
 protected:
 	void ClearAllActions();
 
@@ -73,6 +81,18 @@ protected:
 	 */
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	EWeaponBond Bond;
+
+	/**
+	 * Forcibly disable inverse kinematic for animation blueprint
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool bIsBoltCycled;
+
+	/**
+	 * If true magazine is currently detached from weapon
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool bIsMagazineDetached;
 
 	/**
 	 * Current weapon actions in process

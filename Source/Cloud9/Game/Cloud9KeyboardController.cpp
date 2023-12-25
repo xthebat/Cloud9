@@ -106,7 +106,9 @@ void UCloud9KeyboardController::OnSecondaryActionPressed() { WeaponAction([](let
 
 void UCloud9KeyboardController::OnSecondaryActionReleased() { WeaponAction([](let It) { It->SecondaryAction(true); }); }
 
-void UCloud9KeyboardController::OnReload() { WeaponAction([](let It) { It->Reload(); }); }
+void UCloud9KeyboardController::OnReloadPressed() { WeaponAction([](let It) { It->Reload(false); }); }
+
+void UCloud9KeyboardController::OnReloadReleased() { WeaponAction([](let It) { It->Reload(true); }); }
 
 void UCloud9KeyboardController::OnUseAction()
 {

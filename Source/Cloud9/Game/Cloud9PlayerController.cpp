@@ -86,7 +86,8 @@ void ACloud9PlayerController::SetupInputComponent()
 	InputComponent->BindAction("Slot4", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot4);
 	InputComponent->BindAction("Slot5", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot5);
 
-	InputComponent->BindAction("Reload", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnReload);
+	InputComponent->BindAction("Reload", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnReloadPressed);
+	InputComponent->BindAction("Reload", IE_Released, KeyboardController, &UCloud9KeyboardController::OnReloadReleased);
 
 	InputComponent->BindAction(
 		"Primary", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnPrimaryActionPressed);
