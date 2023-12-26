@@ -24,6 +24,7 @@
 #pragma once
 
 #include "EDirection.h"
+#include "UWorld.h"
 #include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Macro/Operator.h"
 
@@ -35,6 +36,8 @@ namespace EAActor
 
 		FVector operator()(const AActor* Self) const
 		{
+			assertf(Self != nullptr, "Actor should not be nullptr");
+
 			if (Direction == EDirection::Right)
 			{
 				return Self->GetActorRightVector();
@@ -70,5 +73,40 @@ namespace EAActor
 		}
 
 		OPERATOR_BODY(ToDirectionVector)
+	};
+
+	struct DestroyAfter
+	{
+		float Delay;
+
+		void operator()(AActor* Self) const
+		{
+			assertf(Self != nullptr, "Actor should not be nullptr");
+
+			// May be not needed?
+			if (Self->IsPendingKillPending())
+			{
+				log(Verbose, "[Actor='%s'] Already waiting it's death", *Self->GetName())
+				return;
+			}
+
+			if (Delay > 0)
+			{
+				Self->GetWorld() | EUWorld::AsyncAfter{[Self] { Self->Destroy(); }, Delay};
+			}
+			else if (Delay == 0.0f)
+			{
+				Self->Destroy();
+			}
+			else
+			{
+				log(
+					Verbose,
+					"[Actor='%s'] Set to be destroyed with delay but won't be because Delay<0.0f",
+					*Self->GetName());
+			}
+		}
+
+		OPERATOR_BODY(DestroyAfter)
 	};
 }

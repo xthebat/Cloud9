@@ -29,6 +29,7 @@
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Tools/Extensions/FVector.h"
 
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
@@ -338,8 +339,7 @@ void ACloud9WeaponFirearm::DropMagazine() const
 	Mesh->SetSimulatePhysics(true);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
-	let Lifetime = WeaponDefinition.GetCommonData()->MagazineLifetime;
-	GetWorld() | EUWorld::AsyncAfter{[Magazine] { Magazine->Destroy(); }, Lifetime};
+	Magazine | EAActor::DestroyAfter{WeaponDefinition.GetCommonData()->MagazineLifetime};
 }
 
 void ACloud9WeaponFirearm::EjectCase() const
@@ -380,5 +380,5 @@ void ACloud9WeaponFirearm::EjectCase() const
 
 	Mesh->AddImpulse(CommonData->CaseImpulse * Direction, NAME_None, true);
 
-	GetWorld() | EUWorld::AsyncAfter{[Case] { Case->Destroy(); }, CommonData->CaseLifetime};
+	Case | EAActor::DestroyAfter{CommonData->CaseLifetime};
 }

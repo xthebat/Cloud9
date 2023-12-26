@@ -49,6 +49,12 @@ protected: // functions
 
 protected: // properties
 	/**
+	 * Weapon common data
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
+	FWeaponCommonData WeaponCommonData;
+
+	/**
 	 * Weapon info table for firearms
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
@@ -71,12 +77,6 @@ protected: // properties
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
 	TMap<EWeaponType, FWeaponPosesMontages> WeaponActionMontages;
-
-	/**
-	 * Weapon common data
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
-	FWeaponCommonData WeaponCommonData;
 
 private: // functions
 	template <typename WeaponIdType, typename ValidatorType>
