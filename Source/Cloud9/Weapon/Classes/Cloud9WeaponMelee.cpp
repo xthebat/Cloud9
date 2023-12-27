@@ -53,10 +53,15 @@ bool ACloud9WeaponMelee::OnInitialize(const FWeaponId& NewWeaponId, FName NewWea
 
 void ACloud9WeaponMelee::OnWeaponAddedToInventory()
 {
+	Super::OnWeaponAddedToInventory();
 	ChangeMeshCollisionState(WeaponMesh, false);
 }
 
-void ACloud9WeaponMelee::OnWeaponRemovedFromInventory() { ChangeMeshCollisionState(WeaponMesh, true); }
+void ACloud9WeaponMelee::OnWeaponRemovedFromInventory()
+{
+	Super::OnWeaponRemovedFromInventory();
+	ChangeMeshCollisionState(WeaponMesh, true);
+}
 
 void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 {

@@ -346,6 +346,8 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond 
 
 	WeaponState.OnUpdateWeaponAttachment(NewSlot, NewBond, Instant);
 
+	SetActorTickEnabled(NewBond == EWeaponBond::Armed);
+
 	return true;
 }
 
@@ -469,11 +471,6 @@ void ACloud9WeaponBase::Reload(bool bIsReleased)
 	WeaponState.ActivateAction(EWeaponAction::ReloadLoop, bIsReleased);
 }
 
-void ACloud9WeaponBase::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-}
-
 bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {
 	InitializeName(NewWeaponId);
@@ -486,7 +483,8 @@ bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeapon
 		return false;
 	}
 
-	SetActorTickEnabled(true);
+	// Enable tick only when weapon armed
+	SetActorTickEnabled(false);
 
 	return true;
 }
@@ -513,20 +511,24 @@ bool ACloud9WeaponBase::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeap
 void ACloud9WeaponBase::Deinitialize()
 {
 	log(Warning, "[Weapon='%s'] Deinitialize weapon to initial state", *GetName());
+
 	WeaponSkin = FWeaponSkin::Default;
+
 	WeaponState.Reset();
 	WeaponDefinition.Reset();
 	Executors.Reset();
+
 	WeaponMesh->SetStaticMesh(nullptr);
 	MagazineMesh->SetStaticMesh(nullptr);
+	SilencerMesh->SetStaticMesh(nullptr);
 	MuzzleFlash->SetAsset(nullptr);
+
 	SetActorTickEnabled(false);
 }
 
 void ACloud9WeaponBase::OnWeaponAddedToInventory() {}
 
 void ACloud9WeaponBase::OnWeaponRemovedFromInventory() {}
-
 
 void ACloud9WeaponBase::ChangeMeshCollisionState(UStaticMeshComponent* Mesh, bool bIsEnabled)
 {
@@ -556,8 +558,6 @@ const UStaticMeshSocket* ACloud9WeaponBase::GetSocketByName(FName SocketName) co
 {
 	return WeaponMesh->GetSocketByName(SocketName);
 }
-
-UStaticMeshComponent* ACloud9WeaponBase::GetWeaponMesh() const { return WeaponMesh; }
 
 EWeaponClass ACloud9WeaponBase::GetWeaponClass() const { return EUEnum::From<EWeaponClass>(GetWeaponId()); }
 

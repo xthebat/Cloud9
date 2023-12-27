@@ -75,6 +75,7 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 
 void ACloud9WeaponFirearm::OnWeaponAddedToInventory()
 {
+	Super::OnWeaponAddedToInventory();
 	ChangeMeshCollisionState(WeaponMesh, false);
 	ChangeMeshCollisionState(MagazineMesh, false);
 	ChangeMeshCollisionState(SilencerMesh, false);
@@ -82,6 +83,7 @@ void ACloud9WeaponFirearm::OnWeaponAddedToInventory()
 
 void ACloud9WeaponFirearm::OnWeaponRemovedFromInventory()
 {
+	Super::OnWeaponRemovedFromInventory();
 	ChangeMeshCollisionState(WeaponMesh, true);
 	ChangeMeshCollisionState(MagazineMesh, true);
 	ChangeMeshCollisionState(SilencerMesh, true);

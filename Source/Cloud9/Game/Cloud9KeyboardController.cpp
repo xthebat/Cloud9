@@ -58,9 +58,6 @@ void UCloud9KeyboardController::TickComponent(
 			OnMoveDelegate.Broadcast();
 		}
 	}
-
-	// UpdateMove([](auto Pawn) { return Pawn->GetCameraBoom()->GetForwardVector(); }, ForwardScale);
-	// UpdateMove([](auto Pawn) { return Pawn->GetCameraBoom()->GetRightVector(); }, RightScale);
 }
 
 template <typename FunctionType>

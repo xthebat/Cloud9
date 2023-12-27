@@ -95,7 +95,7 @@ public:
 	const UStaticMeshSocket* GetSocketByName(FName SocketName) const;
 
 	UFUNCTION(BlueprintCallable)
-	UStaticMeshComponent* GetWeaponMesh() const;
+	FORCEINLINE UStaticMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 
 	bool Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
 
@@ -106,13 +106,13 @@ public:
 		return Initialize(Variant, NewWeaponSkin);
 	}
 
-	bool IsWeaponDefined() const { return IsValid(WeaponDefinition); }
+	FORCEINLINE bool IsWeaponDefined() const { return IsValid(WeaponDefinition); }
 
 	UFUNCTION(BlueprintCallable)
-	bool IsDeploying() const { return WeaponState.IsActionActive(EWeaponAction::Deploy); }
+	FORCEINLINE bool IsDeploying() const { return WeaponState.IsActionActive(EWeaponAction::Deploy); }
 
 	UFUNCTION(BlueprintCallable)
-	bool IsReloading() const
+	FORCEINLINE bool IsReloading() const
 	{
 		return WeaponState.IsActionActive(EWeaponAction::ReloadStart) or
 			WeaponState.IsActionActive(EWeaponAction::ReloadLoop);
@@ -126,22 +126,21 @@ public:
 
 	bool ChangeState(EWeaponBond NewBond, bool Instant);
 
-	template <typename OnExecuteType, typename OnCompleteType = TFunction<void()>>
+	template <typename OnExecuteType, typename OnCompleteType>
 	FORCEINLINE bool ExecuteAction(
 		EWeaponAction Action,
 		float CooldownTime,
 		OnExecuteType&& OnExecute,
-		OnCompleteType&& OnComplete = {})
+		OnCompleteType&& OnComplete)
 	{
-		return Executors[Action | EUEnum::To<int>{}]->Execute(
-			CooldownTime,
-			MoveTemp(OnExecute),
-			MoveTemp(OnComplete));
+		let ActionIndex = Action | EUEnum::To<int>{};
+		return Executors[ActionIndex]->Execute(CooldownTime, MoveTemp(OnExecute), MoveTemp(OnComplete));
 	}
 
 	FORCEINLINE bool IsActionInProgress(EWeaponAction Action) const
 	{
-		return not Executors[Action | EUEnum::To<int>{}]->IsExecuting();
+		let ActionIndex = Action | EUEnum::To<int>{};
+		return Executors[ActionIndex]->IsExecuting();
 	}
 
 	FORCEINLINE bool IsActionInProgress() const
@@ -157,8 +156,6 @@ public:
 	void Reload(bool bIsReleased);
 
 protected: // functions
-	virtual void Tick(float DeltaSeconds) override;
-
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
 	virtual void Deinitialize();
 
