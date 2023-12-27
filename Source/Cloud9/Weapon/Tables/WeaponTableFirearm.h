@@ -80,8 +80,6 @@ struct FFirearmWeaponEffects
 
 	/**
 	 * Muzzle smoke effect after weapon shot
-	 *
-	 * NOTE: For future use
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Effects)
 	UNiagaraSystem* MuzzleSmoke = nullptr;
@@ -129,8 +127,6 @@ struct FFirearmInaccuracy
 
 	/**
 	 * Additional inaccuracy whilst character on ladder
-	 *
-	 * NOTE: For future use
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
 		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
@@ -178,6 +174,9 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Base)
 	TSubclassOf<ACloud9WeaponFirearm> Class;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Base)
+	bool bCanZoom = false;
+
 	/**
 	 * Amount of damage inflicted per bullet before any modifiers
 	 */
@@ -194,8 +193,6 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 
 	/**
 	 * Maximum number of character or items to penetrate
-	 *
-	 * NOTE: For future use
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
 		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
@@ -218,7 +215,7 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	/**
 	 * Maximum fire weapon range (no any impact after this distance)
 	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage, AdvancedDisplay,
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
 		meta=(UIMin="0", UIMax="10000", ClampMin="0", ClampMax="10000"))
 	float MaxBulletRange = 8192.0f;
 
@@ -254,8 +251,9 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	/**
 	 * Minimum interval between zoom enable and shoot (measured in seconds)
 	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time, AdvancedDisplay,
-		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
+		meta=(EditCondition="bCanZoom", EditConditionHides,
+			UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
 	float ZoomTime;
 
 	/**
@@ -280,6 +278,20 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	int MaxAmmoInReserve;
 
 	/**
+	 * Weapon price in buy menu
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
+		meta=(UIMin="0", UIMax="20000", ClampMin="0", ClampMax="20000"))
+	int Price;
+
+	/**
+	 * Money award for kill enemy with this gun
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
+		meta=(UIMin="0", UIMax="20000", ClampMin="0", ClampMax="20000"))
+	int KillAward;
+
+	/**
 	 * Weapon fires automatically whilst primary action is toggled
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mode)
@@ -288,7 +300,7 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	/**
 	 * If true inverse kinematic will be disabled during shoot
 	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mode)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mode, AdvancedDisplay)
 	bool bIsManualBoltCycle = false;
 
 	/**
@@ -297,6 +309,38 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX,
 		meta=(UIMin="0", UIMax="5", ClampMin="0", ClampMax="5"))
 	int TracerFrequency = 1;
+
+	/**
+	 * The number of bullets (pellets for a shotgun) fired from a cartridge
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Additional, AdvancedDisplay,
+		meta=(EditCondition="Type == EWeaponType::Shotgun", EditConditionHides,
+			UIMin="1", UIMax="10", ClampMin="0", ClampMax="10"))
+	int BulletsPerShot = 1;
+
+	/**
+	 * The field of view while in the 1st zoom level (default unscoped is 90)
+	 *
+	 * FoV <= 0.0f - mean no zoom
+	 * 
+	 * NOTE: Currently is uncleared how zoom will work
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Zoom,
+		meta=(EditCondition="bCanZoom", EditConditionHides,
+			UIMin="0.0", UIMax="90.0", ClampMin="0", ClampMax="90.0"))
+	float ZoomFieldOfView1 = 0.0f;
+
+	/**
+	 * The field of view while in the 2nd zoom level (default unscoped is 90)
+	 *
+	 * FoV <= 0.0f - mean no zoom
+	 *
+	 * NOTE: Currently is uncleared how zoom will work
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Zoom,
+		meta=(EditCondition="bCanZoom", EditConditionHides,
+			UIMin="0.0", UIMax="90.0", ClampMin="0", ClampMax="90.0"))
+	float ZoomFieldOfView2 = 0.0f;
 
 	/**
 	 * Weapon visual effects on different actions
@@ -340,20 +384,6 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)
 	TArray<FWeaponSkin> Skins;
 
-	/**
-	 * Weapon price in buy menu
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
-		meta=(UIMin="0", UIMax="20000", ClampMin="0", ClampMax="20000"))
-	int Price;
-
-	/**
-	 * Money award for kill enemy with this gun
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
-		meta=(UIMin="0", UIMax="20000", ClampMin="0", ClampMax="20000"))
-	int KillAward;
-
 	// TODO: Implement spread
 	// float fDecayFactor = logf( 10.0f ) / GetRecoveryTime( );
 	// m_fAccuracyPenalty = Lerp( expf( TICK_INTERVAL * -fDecayFactor ), fNewPenalty, ( float ) m_fAccuracyPenalty );
@@ -378,35 +408,7 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	FRecoveryTime RecoveryTime;
 
 	/**
-	 * The number of bullets (pellets for a shotgun) fired from a cartridge
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Additional, AdvancedDisplay,
-		meta=(EditCondition="Type == EWeaponType::Shotgun", EditConditionHides,
-			UIMin="1", UIMax="10", ClampMin="0", ClampMax="10"))
-	int BulletsPerShot = 1;
-
-	/**
-	 * The field of view while in the 1st zoom level (default unscoped is 90)
-	 *
-	 * NOTE: Currently is uncleared how zoom will work
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Zoom, AdvancedDisplay,
-		meta=(UIMin="0.0", UIMax="90.0", ClampMin="0", ClampMax="90.0"))
-	float ZoomFieldOfView1;
-
-	/**
-	 * The field of view while in the 2nd zoom level (default unscoped is 90)
-	 *
-	 * NOTE: Currently is uncleared how zoom will work
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Zoom, AdvancedDisplay,
-		meta=(UIMin="0.0", UIMax="90.0", ClampMin="0", ClampMax="90.0"))
-	float ZoomFieldOfView2;
-
-	/**
 	 * The factor a target is slowed to (the lower the more effective)
-	 *
-	 * NOTE: For future use
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Flinch, AdvancedDisplay,
 		meta=(UIMin="0.0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
@@ -414,8 +416,6 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 
 	/**
 	 * The factor a target is slowed to for second and consequent shoots
-	 *
-	 * NOTE: For future use
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Flinch, AdvancedDisplay,
 		meta=(UIMin="0.0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
