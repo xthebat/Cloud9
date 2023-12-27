@@ -44,13 +44,22 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 		let MyWeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(NewWeaponSkin);
 
-		if (not InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo))
+		if (MySkinInfo.Material == nullptr)
+		{
+			log(Error, "[Weapon='%s'] Skin material is invalid", *GetName());
+			return false;
+		}
+
+		if (not InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo.Material))
 		{
 			log(Error, "[Weapon='%s'] Can't initilaize WeaponMesh", *GetName());
 			return false;
 		}
 
-		if (not InitializeMeshComponent(MagazineMesh, MyWeaponInfo->MagazineModel, MySkinInfo))
+		if (not InitializeMeshComponent(
+			MagazineMesh,
+			MyWeaponInfo->MagazineModel,
+			MyWeaponInfo->bIsMagazinePainted ? MySkinInfo.Material : nullptr))
 		{
 			log(Error, "[Weapon='%s'] Can't initilaize MagazineMesh", *GetName());
 			return false;
@@ -64,7 +73,7 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 
 		if (MyWeaponInfo->SilencerModel)
 		{
-			return InitializeMeshComponent(SilencerMesh, MyWeaponInfo->SilencerModel, MySkinInfo);
+			return InitializeMeshComponent(SilencerMesh, MyWeaponInfo->SilencerModel, MySkinInfo.Material);
 		}
 
 		return true;
@@ -267,9 +276,7 @@ bool ACloud9WeaponFirearm::UpdateMagazineAttachment(bool IsReload)
 			return false;
 		}
 
-		SocketName = GetWeaponType() == EWeaponType::Pistol
-			             ? UWeaponSlot::ReloadPistolSocket()
-			             : UWeaponSlot::ReloadWeaponSocket();
+		SocketName = UWeaponSlot::ReloadWeaponSocket(GetWeaponType());
 
 		if (SocketName.IsNone())
 		{

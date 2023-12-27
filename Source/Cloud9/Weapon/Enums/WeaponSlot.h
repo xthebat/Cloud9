@@ -27,6 +27,7 @@
 
 #include "Cloud9/Tools/Extensions/FName.h"
 #include "Cloud9/Tools/Extensions/UEnum.h"
+#include "Cloud9/Weapon/Enums/WeaponType.h"
 
 #include "WeaponSlot.generated.h"
 
@@ -65,10 +66,28 @@ public:
 	static FName EquippedSocket() { return TEXT("EquippedWeaponSocket"); }
 
 	UFUNCTION(BlueprintCallable)
-	static FName ReloadWeaponSocket() { return TEXT("ReloadWeaponSocket"); }
-
-	UFUNCTION(BlueprintCallable)
-	static FName ReloadPistolSocket() { return TEXT("ReloadPistolSocket"); }
+	static FName ReloadWeaponSocket(EWeaponType WeaponType)
+	{
+		switch (WeaponType)
+		{
+		case EWeaponType::Pistol:
+			return TEXT("ReloadPistolSocket");
+		// case EWeaponType::Smg:
+		// return TEXT("ReloadSmgSocket");
+		case EWeaponType::Shotgun:
+			return TEXT("ReloadShotgunSocket");
+		case EWeaponType::Rifle:
+			return TEXT("ReloadRifleSocket");
+		case EWeaponType::Sniper:
+			return TEXT("ReloadSniperSocket");
+		default:
+			log(
+				Error,
+				"Can't get reload weapon socket for weapon type '%s'",
+				WeaponType | EUEnum::GetValueName() | EFName::ToCStr());
+			return NAME_None;
+		}
+	}
 
 	UFUNCTION(BlueprintCallable)
 	static FString ToString(EWeaponSlot Slot) { return Slot | EUEnum::GetEnumFullValueName{} | EFName::ToString{}; }

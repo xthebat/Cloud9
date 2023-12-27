@@ -379,6 +379,12 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UStaticMesh* CaseModel = nullptr;
 
 	/**
+	 * Whether or not magazine also has skin (required for shotguns) 
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	bool bIsMagazinePainted = true;
+
+	/**
 	 * Available skins for weapon and it magazines
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)

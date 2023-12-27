@@ -191,14 +191,8 @@ void ACloud9WeaponBase::InitializeName(const FWeaponId& NewWeaponId)
 bool ACloud9WeaponBase::InitializeMeshComponent(
 	UStaticMeshComponent* Component,
 	UStaticMesh* Mesh,
-	const FWeaponSkin& SkinInfo) const
+	UMaterialInstance* Material) const
 {
-	if (SkinInfo.Material == nullptr)
-	{
-		log(Error, "[Weapon='%s'] Skin material is invalid", *GetName());
-		return false;
-	}
-
 	if (Mesh == nullptr)
 	{
 		log(Error, "[Weapon='%s'] Mesh is invalid", *GetName());
@@ -206,7 +200,11 @@ bool ACloud9WeaponBase::InitializeMeshComponent(
 	}
 
 	Component->SetStaticMesh(Mesh);
-	Component->SetMaterial(0, SkinInfo.Material);
+
+	if (Material != nullptr)
+	{
+		Component->SetMaterial(0, Material);
+	}
 
 	return true;
 }

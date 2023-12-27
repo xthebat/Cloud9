@@ -45,7 +45,14 @@ bool ACloud9WeaponMelee::OnInitialize(const FWeaponId& NewWeaponId, FName NewWea
 	{
 		let MyWeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
 		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(NewWeaponSkin);
-		return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo);
+
+		if (MySkinInfo.Material == nullptr)
+		{
+			log(Error, "[Weapon='%s'] Skin material is invalid", *GetName());
+			return false;
+		}
+
+		return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo.Material);
 	}
 
 	return false;

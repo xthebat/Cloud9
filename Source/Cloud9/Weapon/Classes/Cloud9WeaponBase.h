@@ -179,7 +179,7 @@ protected: // functions
 	UNiagaraComponent* CreateEffectComponent(FName ComponentName, FName SocketName);
 
 	void InitializeName(const FWeaponId& NewWeaponId);
-	bool InitializeMeshComponent(UStaticMeshComponent* Component, UStaticMesh* Mesh, const FWeaponSkin& SkinInfo) const;
+	bool InitializeMeshComponent(UStaticMeshComponent* Component, UStaticMesh* Mesh, UMaterialInstance* Material) const;
 	bool InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect) const;
 
 	UAnimInstance* GetAnimInstance() const;
