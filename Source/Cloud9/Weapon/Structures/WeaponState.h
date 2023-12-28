@@ -24,6 +24,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9/Tools/Extensions/TContainer.h"
 #include "UObject/Object.h"
 
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
@@ -41,13 +42,18 @@ struct FWeaponState
 
 	void Reset();
 
-	void ActivateAction(EWeaponAction Action, bool IsReleased);
+	bool ActivateAction(EWeaponAction Action, bool IsReleased);
 
-	bool IsActionActive(EWeaponAction Action) const;
+	template <typename... WeaponActionType>
+	constexpr bool IsActionActive(WeaponActionType... Actions) const
+	{
+		return TArray<EWeaponAction>{Actions...}
+			| ETContainer::AnyByPredicate{[this](let It) { return (*this)[It]; }};
+	}
 
-	void ClearAction(EWeaponAction Action);
+	FORCEINLINE void ClearAction(EWeaponAction Action) { (*this)[Action] = false; }
 
-	FORCEINLINE bool IsWeaponBond(EWeaponBond Check) const { return Bond == Check; }
+	constexpr bool IsWeaponBond(EWeaponBond Check) const { return Bond == Check; }
 
 	void OnUpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond NewBond, bool Instant);
 

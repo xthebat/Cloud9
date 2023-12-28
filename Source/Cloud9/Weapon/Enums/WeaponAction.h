@@ -30,8 +30,9 @@ enum class EWeaponAction : uint8
 
 	ReloadStart = 1 UMETA(DisplayName="Reload"),
 	ReloadLoop = 2 UMETA(DisplayName="ReloadLoop"),
+	ReloadEnd = 3 UMETA(DisplayName="ReloadEnd"),
 
-	Primary = 3 UMETA(DisplayName="Primary"),
-	Secondary = 4 UMETA(DisplayName="Secondary"),
-	Third = 5 UMETA(DisplayName="Third"),
+	Primary = 4 UMETA(DisplayName="Primary"),
+	Secondary = 5 UMETA(DisplayName="Secondary"),
+	Third = 6 UMETA(DisplayName="Third"),
 };

@@ -36,9 +36,11 @@ void FWeaponState::Reset()
 
 void FWeaponState::ClearAllActions() { Actions.SetNumZeroed(EUEnum::Count<EWeaponAction>()); }
 
-void FWeaponState::ActivateAction(EWeaponAction Action, bool IsReleased)
+bool FWeaponState::ActivateAction(EWeaponAction Action, bool IsReleased)
 {
 	var& Flag = (*this)[Action];
+
+	let Previous = Flag;
 
 	if (Flag and IsReleased)
 	{
@@ -48,11 +50,9 @@ void FWeaponState::ActivateAction(EWeaponAction Action, bool IsReleased)
 	{
 		Flag = true;
 	}
+
+	return Previous;
 }
-
-bool FWeaponState::IsActionActive(EWeaponAction Action) const { return (*this)[Action]; }
-
-void FWeaponState::ClearAction(EWeaponAction Action) { (*this)[Action] = false; }
 
 void FWeaponState::OnUpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond NewBond, bool Instant)
 {
