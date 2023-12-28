@@ -122,14 +122,17 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			EWeaponAction::ReloadStart,
 			WeaponInfo->ReloadTime,
 			[&] { return PlayAnimMontage(PoseMontages->ReloadMontage); },
-			[this] { WeaponState.ClearAction(EWeaponAction::ReloadStart); }
-		);
+			[this, LoopedReload]
+			{
+				WeaponState.ClearAction(EWeaponAction::ReloadStart);
 
-		if (not LoopedReload)
-		{
-			WeaponState.ClearAction(EWeaponAction::ReloadLoop);
-			WeaponState.ClearAction(EWeaponAction::ReloadEnd);
-		}
+				if (not LoopedReload)
+				{
+					WeaponState.ClearAction(EWeaponAction::ReloadLoop);
+					WeaponState.ClearAction(EWeaponAction::ReloadEnd);
+				}
+			}
+		);
 	}
 	else if (LoopedReload and WeaponState.IsActionActive(EWeaponAction::ReloadLoop, EWeaponAction::ReloadEnd))
 	{
