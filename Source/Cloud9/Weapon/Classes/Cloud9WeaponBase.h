@@ -114,8 +114,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool IsReloading() const
 	{
-		return WeaponState.IsActionActive(EWeaponAction::ReloadStart) or
-			WeaponState.IsActionActive(EWeaponAction::ReloadLoop);
+		return WeaponState.IsActionActive(
+			EWeaponAction::ReloadStart,
+			EWeaponAction::ReloadLoop,
+			EWeaponAction::ReloadEnd);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -145,7 +147,7 @@ public:
 
 	FORCEINLINE bool IsActionInProgress() const
 	{
-		return Executors | ETContainer::Any{[](let It) { return It->IsExecuting(); }};
+		return Executors | ETContainer::AnyByPredicate{[](let It) { return It->IsExecuting(); }};
 	}
 
 	FORCEINLINE bool IsWeaponArmed() const { return WeaponState.IsWeaponBond(EWeaponBond::Armed); }

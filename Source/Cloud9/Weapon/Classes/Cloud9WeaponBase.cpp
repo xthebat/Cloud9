@@ -461,9 +461,20 @@ void ACloud9WeaponBase::SecondaryAction(bool bIsReleased)
 
 void ACloud9WeaponBase::Reload(bool bIsReleased)
 {
+	// if (not bIsReleased)
+	// {
+	// 	WeaponState.ActivateAction(EWeaponAction::ReloadStart, false);
+	// }
+	//
+	// WeaponState.ActivateAction(EWeaponAction::ReloadLoop, bIsReleased);
+
 	if (not bIsReleased)
 	{
 		WeaponState.ActivateAction(EWeaponAction::ReloadStart, false);
+	}
+	else
+	{
+		WeaponState.ActivateAction(EWeaponAction::ReloadEnd, false);
 	}
 
 	WeaponState.ActivateAction(EWeaponAction::ReloadLoop, bIsReleased);

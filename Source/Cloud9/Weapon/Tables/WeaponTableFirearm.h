@@ -224,21 +224,21 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
 		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
-	float CycleTime;
+	float CycleTime = 0.1f;
 
 	/**
 	 * Time to deploy weapon i.e. from start deploying to available for use (shoot)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
 		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
-	float DeployTime;
+	float DeployTime = 1.0f;
 
 	/**
 	 * Time to reload weapon i.e. from start reloading to available for use (shoot)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
 		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
-	float ReloadTime;
+	float ReloadTime = 1.0f;
 
 	/**
 	 * Time to reload one shell of the weapon
@@ -246,7 +246,15 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
 		meta=(EditCondition="Type == EWeaponType::Shotgun", EditConditionHides,
 			UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
-	float ReloadLoopTime;
+	float ReloadLoopTime = 1.0f;
+
+	/**
+	 * Time to stop reload the weapon
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
+		meta=(EditCondition="Type == EWeaponType::Shotgun", EditConditionHides,
+			UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
+	float ReloadEndTime = 1.0f;
 
 	/**
 	 * Minimum interval between zoom enable and shoot (measured in seconds)
@@ -254,14 +262,14 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
 		meta=(EditCondition="bCanZoom", EditConditionHides,
 			UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
-	float ZoomTime;
+	float ZoomTime = 0.1f;
 
 	/**
 	 * Maximum running speed with the weapon equipped (aka Mobility)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mobility,
-		meta=(UIMin="0", UIMax="500", ClampMin="0", ClampMax="500"))
-	float MaxPlayerSpeed;
+		meta=(UIMin="0", UIMax="250", ClampMin="0", ClampMax="250"))
+	float MaxPlayerSpeed = 250.0f;
 
 	/**
 	 * Number of rounds (or shots) per weapon magazine
@@ -295,7 +303,7 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	 * Weapon fires automatically whilst primary action is toggled
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mode)
-	bool bIsFullAuto = false; // aka HoldToShoot
+	bool bIsFullAuto = false;
 
 	/**
 	 * If true inverse kinematic will be disabled during shoot

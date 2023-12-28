@@ -117,6 +117,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 	if (WeaponState.IsActionActive(EWeaponAction::ReloadStart))
 	{
+		log(Error, "PoseMontages->ReloadMontage");
 		ExecuteAction(
 			EWeaponAction::ReloadStart,
 			WeaponInfo->ReloadTime,
@@ -127,19 +128,39 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 		if (not LoopedReload)
 		{
 			WeaponState.ClearAction(EWeaponAction::ReloadLoop);
+			WeaponState.ClearAction(EWeaponAction::ReloadEnd);
 		}
 	}
-	else if (LoopedReload and WeaponState.IsActionActive(EWeaponAction::ReloadLoop))
+	else if (LoopedReload and WeaponState.IsActionActive(EWeaponAction::ReloadLoop, EWeaponAction::ReloadEnd))
 	{
-		ExecuteAction(
-			EWeaponAction::ReloadLoop,
-			WeaponInfo->ReloadLoopTime,
-			[&] { return PlayAnimMontage(PoseMontages->ReloadLoopMontage); },
-			[] {}
-		);
+		log(Error, "LoopedReload");
+
+		if (WeaponState.IsActionActive(EWeaponAction::ReloadLoop))
+		{
+			log(Error, "PoseMontages->ReloadLoopMontage");
+			ExecuteAction(
+				EWeaponAction::ReloadLoop,
+				WeaponInfo->ReloadLoopTime,
+				[&] { return PlayAnimMontage(PoseMontages->ReloadLoopMontage); },
+				[] {}
+			);
+		}
+		else if (WeaponState.IsActionActive(EWeaponAction::ReloadEnd))
+		{
+			log(Error, "PoseMontages->ReloadEnd");
+			ExecuteAction(
+				EWeaponAction::ReloadLoop,
+				WeaponInfo->ReloadEndTime,
+				[&] { return PlayAnimMontage(PoseMontages->ReloadEndMontage); },
+				[] {}
+			);
+
+			WeaponState.ClearAction(EWeaponAction::ReloadEnd);
+		}
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::Deploy))
 	{
+		log(Error, "PoseMontages->DeployMontage");
 		ExecuteAction(
 			EWeaponAction::Deploy,
 			WeaponInfo->DeployTime,

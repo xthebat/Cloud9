@@ -42,6 +42,9 @@ struct FWeaponActionMontages
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Reload)
 	UAnimMontage* ReloadLoopMontage = nullptr;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Reload)
+	UAnimMontage* ReloadEndMontage = nullptr;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Deploy)
 	UAnimMontage* DeployMontage = nullptr;
 };

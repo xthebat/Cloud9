@@ -168,7 +168,7 @@ namespace ETContainer
 	};
 
 	template <typename PredicateType>
-	struct Any
+	struct AnyByPredicate
 	{
 		const PredicateType& Predicate;
 
@@ -178,7 +178,50 @@ namespace ETContainer
 			return Self | Find{Predicate} | ETOptional::IsSet();
 		}
 
-		OPERATOR_BODY(Any)
+		OPERATOR_BODY(AnyByPredicate)
+	};
+
+	template <typename PredicateType>
+	struct AllByPredicate
+	{
+		const PredicateType& Predicate;
+
+		template <typename ContainerType>
+		constexpr bool operator()(ContainerType&& Self) const
+		{
+			// true if all elements are true (empty collection is correspond this condition)  
+			for (let& It : Self)
+			{
+				if (not Predicate(It))
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		OPERATOR_BODY(AllByPredicate)
+	};
+
+	struct All
+	{
+		template <typename ContainerType>
+		constexpr bool operator()(ContainerType&& Self) const
+		{
+			// true if all elements are true (empty collection is correspond this condition)  
+			for (let& It : Self)
+			{
+				if (not It)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		OPERATOR_BODY(All)
 	};
 
 	template <typename BlockType>
