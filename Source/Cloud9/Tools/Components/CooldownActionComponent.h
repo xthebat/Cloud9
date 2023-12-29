@@ -29,6 +29,7 @@
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Extensions/UObject.h"
+#include "Cloud9/Tools/Macro/Template.h"
 
 #include "CooldownActionComponent.generated.h"
 
@@ -68,7 +69,7 @@ public:
 
 			bIsExecuting = true;
 
-			// lambda should be copied otherwise GC fuckup objects inside it
+			// lambda should be copied otherwise GC fuck up objects inside it
 			TimerHandle = GetWorld() | EUWorld::AsyncAfter{
 				[this, OnComplete]
 				{
@@ -77,6 +78,23 @@ public:
 				},
 				CooldownTime
 			};
+		}
+
+		return false;
+	}
+
+	template <typename OnExecuteType>
+	FORCEINLINE bool Execute(float CooldownTime, OnExecuteType&& OnExecute)
+	{
+		if (not bIsExecuting)
+		{
+			if (not OnExecute())
+			{
+				log(Error, "[Action='%s'] Failed to execute function", *GetName());
+				return false;
+			}
+			bIsExecuting = true;
+			TimerHandle = GetWorld() | EUWorld::AsyncAfter{[this] { bIsExecuting = false; }, CooldownTime};
 		}
 
 		return false;

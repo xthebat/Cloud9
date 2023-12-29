@@ -106,8 +106,6 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	WEAPON_IS_DISARMED_GUARD();
 	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 
-	static let Settings = UCloud9DeveloperSettings::Get();
-
 	let Character = GetOwner<ACloud9Character>();
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
@@ -117,7 +115,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 	if (WeaponState.IsActionActive(EWeaponAction::ReloadStart))
 	{
-		log(Error, "PoseMontages->ReloadMontage");
+		log(Verbose, "PoseMontages->ReloadMontage");
 		ExecuteAction(
 			EWeaponAction::ReloadStart,
 			WeaponInfo->ReloadTime,
@@ -128,34 +126,31 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 				if (not LoopedReload)
 				{
-					WeaponState.ClearAction(EWeaponAction::ReloadLoop);
-					WeaponState.ClearAction(EWeaponAction::ReloadEnd);
+					WeaponState.ClearAction(EWeaponAction::ReloadLoop, EWeaponAction::ReloadEnd);
 				}
 			}
 		);
 	}
 	else if (LoopedReload and WeaponState.IsActionActive(EWeaponAction::ReloadLoop, EWeaponAction::ReloadEnd))
 	{
-		log(Error, "LoopedReload");
+		log(Verbose, "LoopedReload");
 
 		if (WeaponState.IsActionActive(EWeaponAction::ReloadLoop))
 		{
-			log(Error, "PoseMontages->ReloadLoopMontage");
+			log(Verbose, "PoseMontages->ReloadLoopMontage");
 			ExecuteAction(
 				EWeaponAction::ReloadLoop,
 				WeaponInfo->ReloadLoopTime,
-				[&] { return PlayAnimMontage(PoseMontages->ReloadLoopMontage); },
-				[] {}
+				[&] { return PlayAnimMontage(PoseMontages->ReloadLoopMontage); }
 			);
 		}
 		else if (WeaponState.IsActionActive(EWeaponAction::ReloadEnd))
 		{
-			log(Error, "PoseMontages->ReloadEnd");
+			log(Verbose, "PoseMontages->ReloadEnd");
 			ExecuteAction(
 				EWeaponAction::ReloadLoop,
 				WeaponInfo->ReloadEndTime,
-				[&] { return PlayAnimMontage(PoseMontages->ReloadEndMontage); },
-				[] {}
+				[&] { return PlayAnimMontage(PoseMontages->ReloadEndMontage); }
 			);
 
 			WeaponState.ClearAction(EWeaponAction::ReloadEnd);
@@ -163,20 +158,11 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::Deploy))
 	{
-		log(Error, "PoseMontages->DeployMontage");
+		log(Verbose, "PoseMontages->DeployMontage");
 		ExecuteAction(
 			EWeaponAction::Deploy,
 			WeaponInfo->DeployTime,
-			[&]
-			{
-				if (PlayAnimMontage(PoseMontages->DeployMontage))
-				{
-					PlaySound(WeaponInfo->Sounds.DeploySound, Settings->Volume);
-					return true;
-				}
-
-				return false;
-			},
+			[&] { return PlayAnimMontage(PoseMontages->DeployMontage); },
 			[this]
 			{
 				WeaponState.ClearAction(EWeaponAction::Deploy);
@@ -187,17 +173,13 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	{
 		ExecuteAction(
 			EWeaponAction::Primary,
-			WeaponInfo->CycleTime, [&]
+			WeaponInfo->CycleTime,
+			[&]
 			{
 				if (not PlayAnimMontage(PoseMontages->PrimaryActionMontage))
 				{
 					log(Error, "[Weapon='%s'] No montage for primary action specified", *GetName());
 					return false;
-				}
-
-				if (not PlayRandomSound(WeaponInfo->Sounds.FireSounds, Settings->Volume))
-				{
-					log(Warning, "[Weapon='%s'] No any sound for primary action specified", *GetName());
 				}
 
 				MuzzleFlash->Activate(true);
@@ -209,8 +191,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 				}
 
 				return true;
-			},
-			[] {}
+			}
 		);
 
 		if (not WeaponInfo->bIsFullAuto)

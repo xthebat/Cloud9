@@ -78,8 +78,6 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	WEAPON_IS_DISARMED_GUARD();
 	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 
-	static let Settings = UCloud9DeveloperSettings::Get();
-
 	let Character = GetOwner<ACloud9Character>();
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
@@ -89,12 +87,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::Deploy,
 			WeaponInfo->DeployTime,
-			[&]
-			{
-				PlayAnimMontage(PoseMontages->DeployMontage);
-				WeaponInfo->Sounds.DeploySound | EUSoundBase::PlaySoundAtLocation{GetActorLocation(), Settings->Volume};
-				return true;
-			},
+			[&] { return PlayAnimMontage(PoseMontages->DeployMontage); },
 			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
 		);
 	}
@@ -102,24 +95,16 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	{
 		ExecuteAction(
 			EWeaponAction::Primary,
-			WeaponInfo->SlashCycleTime, [&]
-			{
-				return PlayAnimMontage(PoseMontages->PrimaryActionMontage) and
-					PlayRandomSound(WeaponInfo->Sounds.SlashSounds, Settings->Volume);
-			},
-			[] {}
+			WeaponInfo->SlashCycleTime,
+			[&] { return PlayAnimMontage(PoseMontages->PrimaryActionMontage); }
 		);
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::Secondary))
 	{
 		ExecuteAction(
 			EWeaponAction::Secondary,
-			WeaponInfo->StabCycleTime, [&]
-			{
-				return PlayAnimMontage(PoseMontages->SecondaryActionMontage) and
-					PlayRandomSound(WeaponInfo->Sounds.StabSounds, Settings->Volume);
-			},
-			[] {}
+			WeaponInfo->StabCycleTime,
+			[&] { return PlayAnimMontage(PoseMontages->SecondaryActionMontage); }
 		);
 
 		// no auto stab
