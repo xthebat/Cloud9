@@ -40,6 +40,9 @@ struct FWeaponCommonData
 	float CaseEjectAngle = 45.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	float CaseMaxEjectRotation = 30.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
 	float CaseScale = 2.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)

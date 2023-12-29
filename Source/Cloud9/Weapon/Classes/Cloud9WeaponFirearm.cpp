@@ -381,6 +381,7 @@ void ACloud9WeaponFirearm::EjectCase() const
 	let CommonData = WeaponDefinition.GetCommonData();
 
 	Case->SetMobility(EComponentMobility::Movable);
+	Case->SetActorRotation({0.0f, FMath::RandRange(0.0f, CommonData->CaseMaxEjectRotation), 0.0f});
 	Case->SetActorScale3D({CommonData->CaseScale, CommonData->CaseScale, CommonData->CaseScale});
 
 	let Mesh = Case->GetStaticMeshComponent();
@@ -390,9 +391,9 @@ void ACloud9WeaponFirearm::EjectCase() const
 
 	let RightVector = GetWeaponMesh()->GetRightVector();
 	let ForwardVector = GetWeaponMesh()->GetForwardVector();
-	let Direction = RightVector.RotateAngleAxis(CommonData->CaseEjectAngle, ForwardVector);
+	let ImpulseDirection = RightVector.RotateAngleAxis(CommonData->CaseEjectAngle, ForwardVector);
 
-	Mesh->AddImpulse(CommonData->CaseImpulse * Direction, NAME_None, true);
+	Mesh->AddImpulse(CommonData->CaseImpulse * ImpulseDirection, NAME_None, true);
 
 	Case | EAActor::DestroyAfter{CommonData->CaseLifetime};
 }
