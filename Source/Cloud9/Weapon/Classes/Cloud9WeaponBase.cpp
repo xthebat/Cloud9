@@ -281,23 +281,6 @@ bool ACloud9WeaponBase::IsAnyMontagePlaying() const
 	return AnimInstance->IsAnyMontagePlaying();
 }
 
-void ACloud9WeaponBase::PlaySound(USoundBase* Sound, float Volume) const
-{
-	Sound | EUSoundBase::PlaySoundAtLocation{GetActorLocation(), Volume};
-}
-
-bool ACloud9WeaponBase::PlayRandomSound(const TArray<USoundBase*>& Sounds, float Volume) const
-{
-	using namespace ETContainer;
-	using namespace ETOptional;
-
-	return Sounds
-		| Random()
-		| OnNull{[this] { log(Error, "[Weapon='%s'] Can't play sound for ", *GetName()) }}
-		| OnSet{[this, Volume](var It) { PlaySound(It, Volume); }}
-		| IsSet{};
-}
-
 #define SLOT_NAME *UWeaponSlot::ToString(NewSlot)
 #define BOND_NAME *UWeaponBond::ToString(NewBond)
 

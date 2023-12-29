@@ -55,16 +55,10 @@ struct FFirearmWeaponSounds
 	USoundBase* DeploySound = nullptr;
 
 	/**
-	 * Sound to play when weapon zoom enabled
+	 * Sound to play when weapon zoom enabled or disabled
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sounds)
-	USoundBase* ZoomInSound = nullptr;
-
-	/**
-	 * Sound to play when weapon zoom disabled (if nullptr then ZoomInSound will be used)
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sounds)
-	USoundBase* ZoomOutSound = nullptr;
+	TMap<FName, USoundBase*> ZoomSounds;
 };
 
 USTRUCT(BlueprintType)

@@ -139,6 +139,13 @@ public:
 		return Executors[ActionIndex]->Execute(CooldownTime, MoveTemp(OnExecute), MoveTemp(OnComplete));
 	}
 
+	template <typename OnExecuteType>
+	FORCEINLINE bool ExecuteAction(EWeaponAction Action, float CooldownTime, OnExecuteType&& OnExecute)
+	{
+		let ActionIndex = Action | EUEnum::To<int>{};
+		return Executors[ActionIndex]->Execute(CooldownTime, MoveTemp(OnExecute));
+	}
+
 	FORCEINLINE bool IsActionInProgress(EWeaponAction Action) const
 	{
 		let ActionIndex = Action | EUEnum::To<int>{};
@@ -188,9 +195,6 @@ protected: // functions
 
 	bool IsAnyMontagePlaying() const;
 	bool PlayAnimMontage(UAnimMontage* Montage) const;
-
-	void PlaySound(USoundBase* Sound, float Volume) const;
-	bool PlayRandomSound(const TArray<USoundBase*>& Sounds, float Volume) const;
 
 	bool UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond NewBond, bool Instant = false);
 

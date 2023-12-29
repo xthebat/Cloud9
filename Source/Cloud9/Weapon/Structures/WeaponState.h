@@ -51,7 +51,12 @@ struct FWeaponState
 			| ETContainer::AnyByPredicate{[this](let It) { return (*this)[It]; }};
 	}
 
-	FORCEINLINE void ClearAction(EWeaponAction Action) { (*this)[Action] = false; }
+	template <typename... WeaponActionType>
+	FORCEINLINE void ClearAction(WeaponActionType... Actions)
+	{
+		TArray<EWeaponAction>{Actions...}
+			| ETContainer::ForEach{[this](let It) { (*this)[It] = false; }};
+	}
 
 	constexpr bool IsWeaponBond(EWeaponBond Check) const { return Bond == Check; }
 
