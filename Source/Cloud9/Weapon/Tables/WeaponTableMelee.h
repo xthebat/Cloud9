@@ -158,8 +158,8 @@ struct FMeleeWeaponInfo : public FBaseWeaponInfo
 	 * Maximum running speed with the weapon equipped (aka Mobility)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mobility,
-		meta=(UIMin="0", UIMax="500", ClampMin="0", ClampMax="500"))
-	float MaxPlayerSpeed;
+		meta=(UIMin="0", UIMax="250", ClampMin="0", ClampMax="250"))
+	float MaxPlayerSpeed = 250.0f;
 
 	/**
 	 * Weapon sound on different actions
