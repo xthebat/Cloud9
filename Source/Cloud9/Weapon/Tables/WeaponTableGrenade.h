@@ -146,28 +146,70 @@ struct FGrenadeWeaponInfo : public FBaseWeaponInfo
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
 		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
-	float PinpullTime;
+	float PinpullTime = 1.0f;
 
 	/**
 	 * Time to deploy weapon i.e. from start deploying to available for use (shoot)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
 		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
-	float DeployTime;
+	float DeployTime = 1.0f;
 
 	/**
-	 * How much time grenade is in active state
+	 * Time to throw grenade (in CS:GO action can be performed instantly after throw)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
 		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
-	float ActionTime;
+	float ThrowTime = 0.05f;
+
+	/**
+	 * How much time required grenade to detonate (if zero detonate as soon as stop bounce if bCanDetonateInAir=false) 
+	 *
+	 * NOTE:
+	 *	- Molotov - detonate when "bounce" on near horizontal plane (i.e. floor)
+	 *	- Smoke - detonate instantly as soon as stops bounce
+	 *	- Flash - 1.775 sec.
+	 *	- HE Grenade - 1.775 sec.
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
+		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
+	float TimeToDetonate = 1.0f;
+
+	/**
+	 * How much time grenade is in active state
+	 *
+	 * NOTE:
+	 *	- Molotov - time to burn
+	 *	- Smoke - how much time are smoked
+	 *	- Flash - how much time character blind
+	 *	- HE Grenade - no meaning
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Time,
+		meta=(UIMin="0", UIMax="50", ClampMin="0", ClampMax="50"))
+	float ActionTime = 0.0f;
+
+	/**
+	 * Whether or not grenade can bounce from wall or detonate when touch it
+	 *
+	 * NOTE: Not quit valid because molotov can bounce from vertical walls
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Bounce)
+	bool bCanBounce = true;
+
+	/**
+	 * Whether or not grenade can detonate in air or not (smoke and decoy grenades can't detonate in air)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Bounce)
+	bool bCanDetonateInAir = true;
 
 	/**
 	 * Maximum running speed with the weapon equipped (aka Mobility)
+	 *
+	 * NOTE: All grenades made MaxPlayerSpeed to 245.0f units
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mobility,
-		meta=(UIMin="0", UIMax="500", ClampMin="0", ClampMax="500"))
-	float MaxPlayerSpeed;
+		meta=(UIMin="0", UIMax="250", ClampMin="0", ClampMax="250"))
+	float MaxPlayerSpeed = 245.0f;
 
 	/**
 	 * Maximum grenades of this type in inventory 

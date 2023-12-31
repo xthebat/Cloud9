@@ -31,7 +31,33 @@ FWeaponId ACloud9WeaponGrenade::GetWeaponId() const { return ETVariant::Convert<
 
 bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {
-	return Super::OnInitialize(NewWeaponId, NewWeaponSkin);
+	if (Super::OnInitialize(NewWeaponId, NewWeaponSkin))
+	{
+		let MyWeaponInfo = WeaponDefinition.GetWeaponInfo<FGrenadeWeaponInfo>();
+		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(NewWeaponSkin);
+
+		if (MySkinInfo.Material == nullptr)
+		{
+			log(Error, "[Weapon='%s'] Skin material is invalid", *GetName());
+			return false;
+		}
+
+		return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo.Material);
+	}
+
+	return false;
+}
+
+void ACloud9WeaponGrenade::OnWeaponAddedToInventory()
+{
+	Super::OnWeaponAddedToInventory();
+	ChangeMeshCollisionState(WeaponMesh, false);
+}
+
+void ACloud9WeaponGrenade::OnWeaponRemovedFromInventory()
+{
+	Super::OnWeaponRemovedFromInventory();
+	ChangeMeshCollisionState(WeaponMesh, true);
 }
 
 void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
