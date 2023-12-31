@@ -22,18 +22,16 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Cloud9WeaponFirearm.h"
+#include "Engine/StaticMeshActor.h"
 
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
+#include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
-#include "Cloud9/Game/Cloud9DeveloperSettings.h"
+#include "Cloud9/Tools/Extensions/FVector.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Tools/Extensions/AActor.h"
-#include "Cloud9/Tools/Extensions/FVector.h"
-
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
-#include "Engine/StaticMeshActor.h"
 
 FWeaponId ACloud9WeaponFirearm::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
 
