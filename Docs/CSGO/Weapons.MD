@@ -98,6 +98,8 @@ for third person and thus all animation made in character models.
     - Для awp отличие составляет 1.08895 раза
     - Для mp9 отличие составляет 1.117 раза
     - Для ak47 и m4a1s выглядит так что отличия нет
+    - Для гранаты frag, smoke, flash отличие составляло около 1.23 раза
+    - Для гранаты molotov отличие составляло около 0.8 раза
 
 **4. Blender export to fbx**
 
