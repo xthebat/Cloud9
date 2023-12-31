@@ -44,7 +44,8 @@ public:
 
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
-
+	virtual void Tick(float DeltaSeconds) override;
+	
 protected:
 	/**
 	 * Weapon Identifier
