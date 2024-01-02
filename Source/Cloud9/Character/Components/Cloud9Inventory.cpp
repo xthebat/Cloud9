@@ -70,7 +70,7 @@ void UCloud9Inventory::BeginPlay()
 	}
 }
 
-bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
+bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant, bool Force)
 {
 	if (Slot == EWeaponSlot::NotSelected)
 	{
@@ -107,7 +107,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
 			"[Weapon='%s'] SelectedWeapon should not be valid if slot == EWeaponSlot::NotSelected",
 			*GetName());
 
-		if (PendingWeapon->ChangeState(EWeaponBond::Armed, Instant))
+		if (PendingWeapon->ChangeState(EWeaponBond::Armed, Instant, Force))
 		{
 			SelectedWeaponSlot = Slot;
 			return true;
@@ -125,8 +125,12 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
 		return false;
 	}
 
-	if (SelectedWeapon->ChangeState(EWeaponBond::Holstered, true)
-		and PendingWeapon->ChangeState(EWeaponBond::Armed, Instant))
+	if (not SelectedWeapon->ChangeState(EWeaponBond::Holstered, true, Force))
+	{
+		log(Warning, "[Weapon='%s'] Weapon at selected slot='%d' out of inventory", *GetName(), SelectedWeaponSlot);
+	}
+
+	if (PendingWeapon->ChangeState(EWeaponBond::Armed, Instant, Force))
 	{
 		SelectedWeaponSlot = Slot;
 		return true;
@@ -273,23 +277,27 @@ bool UCloud9Inventory::RemoveWeapon(EWeaponSlot Slot)
 
 	if (Slot == SelectedWeaponSlot)
 	{
-		EWeaponSlot NewSlot = EWeaponSlot::NotSelected;
-		let Found = WeaponSlots
-			| ETContainer::Find{[&](let It) { return IsValid(It) and It->GetWeaponSlot() != Slot; }}
-			| ETOptional::OnSet{[&](let It) { NewSlot = It->GetWeaponSlot(); }};
-
-		log(
-			Display,
-			"[Inventory='%s'] Change selected/pending slot to '%s'",
-			*GetName(), *UWeaponSlot::ToString(NewSlot));
-
-		SelectWeapon(NewSlot, true);
+		SelectAvailableWeapon(Slot, true);
 	}
 
 	WeaponAt(Slot)->Destroy();
 	WeaponAt(Slot) = nullptr;
 
 	return true;
+}
+
+bool UCloud9Inventory::SelectAvailableWeapon(EWeaponSlot Except, bool Instant, bool Force)
+{
+	EWeaponSlot NewSlot = EWeaponSlot::NotSelected;
+	let Found = WeaponSlots
+		| ETContainer::Find{[&](let It) { return IsValid(It) and It->GetWeaponSlot() != Except; }}
+		| ETOptional::OnSet{[&](let It) { NewSlot = It->GetWeaponSlot(); }};
+
+	log(Display,
+	    "[Inventory='%s'] Change selected/pending slot to '%s'",
+	    *GetName(), *UWeaponSlot::ToString(NewSlot));
+
+	return SelectWeapon(NewSlot, Instant, Force);
 }
 
 ACloud9WeaponBase* UCloud9Inventory::GetSelectedWeapon() const { return GetWeaponAt(SelectedWeaponSlot); }

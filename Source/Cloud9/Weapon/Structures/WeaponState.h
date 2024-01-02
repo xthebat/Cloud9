@@ -42,7 +42,7 @@ struct FWeaponState
 
 	void Reset();
 
-	bool ActivateAction(EWeaponAction Action, bool IsReleased);
+	bool ActivateAction(EWeaponAction Action, bool IsReleased = false);
 
 	template <typename... WeaponActionType>
 	constexpr bool IsActionActive(WeaponActionType... Actions) const

@@ -80,6 +80,8 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 
+	let HasSecondaryAction = PoseMontages->bHasSecondaryAction;
+
 	if (WeaponState.IsActionActive(EWeaponAction::Deploy))
 	{
 		ExecuteAction(
@@ -97,7 +99,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 			[&] { return PlayAnimMontage(PoseMontages->PrimaryActionMontage); }
 		);
 	}
-	else if (WeaponState.IsActionActive(EWeaponAction::Secondary))
+	else if (HasSecondaryAction and WeaponState.IsActionActive(EWeaponAction::Secondary))
 	{
 		ExecuteAction(
 			EWeaponAction::Secondary,

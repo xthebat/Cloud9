@@ -241,7 +241,7 @@ UAnimInstance* ACloud9WeaponBase::GetAnimInstance() const
 	return Mesh->GetAnimInstance();
 }
 
-bool ACloud9WeaponBase::PlayAnimMontage(UAnimMontage* Montage) const
+bool ACloud9WeaponBase::PlayAnimMontage(UAnimMontage* Montage, float Rate, float StartTime) const
 {
 	if (not IsValid(Montage))
 	{
@@ -257,7 +257,7 @@ bool ACloud9WeaponBase::PlayAnimMontage(UAnimMontage* Montage) const
 		return false;
 	}
 
-	if (not AnimInstance->Montage_Play(Montage))
+	if (not AnimInstance->Montage_Play(Montage, Rate, EMontagePlayReturnType::MontageLength, StartTime))
 	{
 		log(Error, "[Weapon='%s'] Can't play montage '%s'", *GetName(), *Montage->GetName());
 		return false;
@@ -401,11 +401,11 @@ bool ACloud9WeaponBase::RemoveFromInventory()
 	return true;
 }
 
-bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant)
+bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant, bool Force)
 {
 	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
 	{
-		log(Error, "[Weapon='%s' Bond='%s'] Weapon not in any inventory", *GetName(), BOND_NAME);
+		log(Warning, "[Weapon='%s' Bond='%s'] Weapon not in any inventory", *GetName(), BOND_NAME);
 		return false;
 	}
 
@@ -415,13 +415,13 @@ bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant)
 		return false;
 	}
 
-	if (IsAnyMontagePlaying())
+	if (not Force and IsAnyMontagePlaying())
 	{
 		log(Error, "[Weapon='%s' Bond='%s'] Montage is playing now", *GetName(), BOND_NAME);
 		return false;
 	}
 
-	if (IsActionInProgress())
+	if (not Force and IsActionInProgress())
 	{
 		log(Error, "[Weapon='%s' Bond='%s'] Some action is in progress", *GetName(), BOND_NAME);
 		return false;
@@ -440,26 +440,7 @@ void ACloud9WeaponBase::SecondaryAction(bool bIsReleased)
 	WeaponState.ActivateAction(EWeaponAction::Secondary, bIsReleased);
 }
 
-void ACloud9WeaponBase::Reload(bool bIsReleased)
-{
-	// if (not bIsReleased)
-	// {
-	// 	WeaponState.ActivateAction(EWeaponAction::ReloadStart, false);
-	// }
-	//
-	// WeaponState.ActivateAction(EWeaponAction::ReloadLoop, bIsReleased);
-
-	if (not bIsReleased)
-	{
-		WeaponState.ActivateAction(EWeaponAction::ReloadStart, false);
-	}
-	else
-	{
-		WeaponState.ActivateAction(EWeaponAction::ReloadEnd, false);
-	}
-
-	WeaponState.ActivateAction(EWeaponAction::ReloadLoop, bIsReleased);
-}
+void ACloud9WeaponBase::Reload(bool bIsReleased) {}
 
 bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {

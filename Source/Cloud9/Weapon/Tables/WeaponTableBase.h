@@ -36,13 +36,12 @@ struct FWeaponSkin
 	GENERATED_BODY()
 
 	inline static const FName Default = TEXT("default");
-	inline static const FName OceanDrive = TEXT("ocean_drive");
-	inline static const FName Lore = TEXT("lore");
 
 	/**
 	 * Unique name of skin
 	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Base)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Base,
+		meta=(GetOptions="UWeaponSkinTools.GetAvailableSkins"))
 	FName Name = Default;
 
 	/**
