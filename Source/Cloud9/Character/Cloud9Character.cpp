@@ -255,13 +255,3 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 		MyMesh->bAffectDynamicIndirectLighting = true;
 	}
 }
-
-void ACloud9Character::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void ACloud9Character::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-}

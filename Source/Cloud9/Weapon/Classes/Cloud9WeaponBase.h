@@ -126,7 +126,7 @@ public:
 	bool AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot);
 	bool RemoveFromInventory();
 
-	bool ChangeState(EWeaponBond NewBond, bool Instant, bool Force);
+	bool ChangeState(EWeaponBond NewBond, bool Instant);
 
 	template <typename OnExecuteType, typename OnCompleteType>
 	FORCEINLINE bool ExecuteAction(

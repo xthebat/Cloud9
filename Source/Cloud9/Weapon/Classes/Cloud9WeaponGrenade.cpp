@@ -92,7 +92,7 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::Primary))
 	{
-		log(Error, "PoseMontages->PinpullPrimaryActionMontage");
+		// log(Error, "PoseMontages->PinpullPrimaryActionMontage");
 
 		ExecuteAction(
 			EWeaponAction::Primary,
@@ -107,7 +107,7 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryLoop))
 	{
-		log(Error, "PoseMontages->PinpullPrimaryActionMontage");
+		// log(Error, "PoseMontages->PinpullPrimaryActionMontage");
 
 		// Hold last frame of montage
 		PlayAnimMontage(
@@ -117,7 +117,7 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
 	{
-		log(Error, "PoseMontages->PrimaryActionMontage");
+		// log(Error, "PoseMontages->PrimaryActionMontage");
 
 		ExecuteAction(
 			EWeaponAction::PrimaryEnd,
@@ -189,21 +189,18 @@ bool ACloud9WeaponGrenade::Throw()
 
 	let StartLocation = WeaponMesh->GetComponentLocation();
 	let EndLocation = CursorHit.Location;
-	let Direction = (EndLocation - StartLocation) | EFVector::Normalize{};
+	let ViewDirection = (EndLocation - StartLocation) | EFVector::Normalize{};
+	let RotationAxis = Character->GetActorRightVector();
 
-	RemoveFromInventory();
+	let Direction = ViewDirection.RotateAngleAxis(-45.0f, RotationAxis);
+
+	Inventory->DropWeapon(GetWeaponSlot());
+
 	SetActorLocation(StartLocation);
 
 	// TODO: Implement grenade throw impulse
 	let MyMesh = GetWeaponMesh();
-	MyMesh->AddImpulse(200.0f * Direction, NAME_None, true);
-
-	// TODO: Remove auto grenade add after debug
-	GetGameInstance<UCloud9GameInstance>()->GetDefaultWeaponsConfig()
-		| ETContainer::Filter{[this](let& Config) { return IsValid(Config) and Config.IsGrenadeWeapon(); }}
-		| ETContainer::ForEach{[Inventory](let& Config) { Inventory->AddWeapon(Config); }};
-
-	Inventory->SelectAvailableWeapon(EWeaponSlot::Grenade, true, true);
+	MyMesh->AddImpulse(800.0f * Direction, NAME_None, true);
 
 	return true;
 }

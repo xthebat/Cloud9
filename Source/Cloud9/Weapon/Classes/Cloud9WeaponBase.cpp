@@ -401,7 +401,7 @@ bool ACloud9WeaponBase::RemoveFromInventory()
 	return true;
 }
 
-bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant, bool Force)
+bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant)
 {
 	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
 	{
@@ -415,13 +415,13 @@ bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant, bool Forc
 		return false;
 	}
 
-	if (not Force and IsAnyMontagePlaying())
+	if (IsAnyMontagePlaying())
 	{
 		log(Error, "[Weapon='%s' Bond='%s'] Montage is playing now", *GetName(), BOND_NAME);
 		return false;
 	}
 
-	if (not Force and IsActionInProgress())
+	if (IsActionInProgress())
 	{
 		log(Error, "[Weapon='%s' Bond='%s'] Some action is in progress", *GetName(), BOND_NAME);
 		return false;
