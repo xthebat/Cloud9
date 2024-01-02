@@ -26,9 +26,6 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
-
 #include "Cloud9CharacterComponent.generated.h"
 
 class ACloud9Character;

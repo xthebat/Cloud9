@@ -26,8 +26,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
 #include "Components/Cloud9Inventory.h"
 #include "Components/Cloud9CharacterMovement.h"
 
@@ -48,11 +46,6 @@ public:
 	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
 	virtual void OnConstruction(const FTransform& Transform) override;
-
-	virtual void BeginPlay() override;
-
-	// Called every frame.
-	virtual void Tick(float DeltaSeconds) override;
 
 	/** Returns TopDownCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }

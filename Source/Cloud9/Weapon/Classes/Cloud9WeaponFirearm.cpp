@@ -257,7 +257,7 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, float Impu
 	FHitResult LineHit;
 	if (not GetWorld()->LineTraceSingleByChannel(LineHit, StartLocation, EndLocation, ECC_Visibility))
 	{
-		log(Error, "LineTraceSingleByChannel not hit anything")
+		log(Display, "LineTraceSingleByChannel not hit anything")
 		return true;
 	}
 

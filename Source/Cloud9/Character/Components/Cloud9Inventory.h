@@ -51,12 +51,11 @@ public:
 	 * 
 	 * @param Slot New slot weapon slot.
 	 * @param Instant If set then no animation will be shown and switching will be instant.
-	 * @param Force If set then force to switch even if animation in progress
 	 */
 	UFUNCTION(BlueprintCallable)
-	bool SelectWeapon(EWeaponSlot Slot, bool Instant = false, bool Force = false);
+	bool SelectWeapon(EWeaponSlot Slot, bool Instant = false);
 
-	bool SelectAvailableWeapon(EWeaponSlot Except, bool Instant, bool Force = false);
+	bool SelectAvailableWeapon(bool Instant);
 
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetWeaponAt(EWeaponSlot Slot) const;
@@ -99,6 +98,10 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void TickComponent(
+		float DeltaTime,
+		ELevelTick TickType,
+		FActorComponentTickFunction* ThisTickFunction) override;
 
 	template <typename WeaponType = ACloud9WeaponBase>
 	WeaponType* WeaponAt(EWeaponSlot Slot) const { return WeaponSlots[Slot | EUEnum::To<int>{}]; }
