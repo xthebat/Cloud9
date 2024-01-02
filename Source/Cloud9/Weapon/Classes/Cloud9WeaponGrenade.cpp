@@ -24,10 +24,19 @@
 #include "Cloud9WeaponGrenade.h"
 
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Game/Cloud9GameInstance.h"
+#include "Cloud9/Game/Cloud9PlayerController.h"
+#include "Cloud9/Tools/Extensions/FVector.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Weapon/Tables/WeaponTableGrenade.h"
+#include "Engine/StaticMeshActor.h"
 
 FWeaponId ACloud9WeaponGrenade::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
+
+const FGrenadeWeaponInfo* ACloud9WeaponGrenade::GetWeaponInfo() const
+{
+	return WeaponDefinition.GetWeaponInfo<FGrenadeWeaponInfo>();
+}
 
 bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {
@@ -83,30 +92,118 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::Primary))
 	{
+		log(Error, "PoseMontages->PinpullPrimaryActionMontage");
+
 		ExecuteAction(
 			EWeaponAction::Primary,
 			WeaponInfo->PinpullTime,
-			[&] { return PlayAnimMontage(PoseMontages->PrimaryActionMontage); }
+			[&] { return PlayAnimMontage(PoseMontages->PinpullPrimaryActionMontage); },
+			[this]
+			{
+				WeaponState.ClearAction(EWeaponAction::Primary);
+				WeaponState.ActivateAction(EWeaponAction::PrimaryLoop);
+			}
+		);
+	}
+	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryLoop))
+	{
+		log(Error, "PoseMontages->PinpullPrimaryActionMontage");
+
+		// Hold last frame of montage
+		PlayAnimMontage(
+			PoseMontages->PinpullPrimaryActionMontage,
+			1.0f,
+			PoseMontages->PinpullPrimaryActionHoldTiming);
+	}
+	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
+	{
+		log(Error, "PoseMontages->PrimaryActionMontage");
+
+		ExecuteAction(
+			EWeaponAction::PrimaryEnd,
+			WeaponInfo->ThrowTime,
+			[&] { return PlayAnimMontage(PoseMontages->PrimaryActionMontage); },
+			[this]
+			{
+				WeaponState.ClearAction(EWeaponAction::PrimaryEnd);
+				Throw();
+			}
 		);
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::Secondary))
 	{
-		ExecuteAction(
-			EWeaponAction::Secondary,
-			WeaponInfo->PinpullTime,
-			[&] { return PlayAnimMontage(PoseMontages->SecondaryActionMontage); }
-		);
-
-		WeaponState.ClearAction(EWeaponAction::Secondary);
+		// TODO: Implement near throw (or cancel throw) for grenade
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::Third))
 	{
-		ExecuteAction(
-			EWeaponAction::Third,
-			WeaponInfo->PinpullTime,
-			[&] { return PlayAnimMontage(PoseMontages->SecondaryActionMontage); }
-		);
-
-		WeaponState.ClearAction(EWeaponAction::Third);
+		// TODO: Implement middle throw (or cancel throw) for grenade
 	}
+}
+
+void ACloud9WeaponGrenade::PrimaryAction(bool bIsReleased)
+{
+	if (not bIsReleased)
+	{
+		WeaponState.ActivateAction(EWeaponAction::Primary);
+	}
+	else
+	{
+		WeaponState.ActivateAction(EWeaponAction::PrimaryEnd);
+	}
+
+	WeaponState.ActivateAction(EWeaponAction::PrimaryLoop, bIsReleased);
+}
+
+bool ACloud9WeaponGrenade::Throw()
+{
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
+	{
+		log(Error, "[Weapon='%s'] Character is invalid", *GetName());
+		return false;
+	}
+
+	let Controller = Character->GetCloud9Controller();
+
+	if (not IsValid(Controller))
+	{
+		log(Error, "[Weapon='%s'] Controller is invalid", *GetName());
+		return false;
+	}
+
+	let Inventory = Character->GetInventory();
+
+	if (not IsValid(Inventory))
+	{
+		log(Error, "[Weapon='%s'] Inventory is invalid", *GetName());
+		return false;
+	}
+
+	FHitResult CursorHit;
+	if (not Controller->GetHitResultUnderCursor(ECC_Visibility, true, CursorHit))
+	{
+		log(Error, "Cursor not hit anything")
+		return true;
+	}
+
+	let StartLocation = WeaponMesh->GetComponentLocation();
+	let EndLocation = CursorHit.Location;
+	let Direction = (EndLocation - StartLocation) | EFVector::Normalize{};
+
+	RemoveFromInventory();
+	SetActorLocation(StartLocation);
+
+	// TODO: Implement grenade throw impulse
+	let MyMesh = GetWeaponMesh();
+	MyMesh->AddImpulse(200.0f * Direction, NAME_None, true);
+
+	// TODO: Remove auto grenade add after debug
+	GetGameInstance<UCloud9GameInstance>()->GetDefaultWeaponsConfig()
+		| ETContainer::Filter{[this](let& Config) { return IsValid(Config) and Config.IsGrenadeWeapon(); }}
+		| ETContainer::ForEach{[Inventory](let& Config) { Inventory->AddWeapon(Config); }};
+
+	Inventory->SelectAvailableWeapon(EWeaponSlot::Grenade, true, true);
+
+	return true;
 }

@@ -80,6 +80,20 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 	return false;
 }
 
+void ACloud9WeaponFirearm::Reload(bool bIsReleased)
+{
+	if (not bIsReleased)
+	{
+		WeaponState.ActivateAction(EWeaponAction::ReloadStart);
+	}
+	else
+	{
+		WeaponState.ActivateAction(EWeaponAction::ReloadEnd);
+	}
+
+	WeaponState.ActivateAction(EWeaponAction::ReloadLoop, bIsReleased);
+}
+
 void ACloud9WeaponFirearm::OnWeaponAddedToInventory()
 {
 	Super::OnWeaponAddedToInventory();
@@ -109,7 +123,8 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 	let CommonData = WeaponDefinition.GetCommonData();
 
-	let LoopedReload = PoseMontages->ReloadLoopMontage != nullptr;
+	let HasSecondaryAction = PoseMontages->bHasSecondaryAction;
+	let HasLoopedReload = PoseMontages->bHasReloadLoop;
 
 	if (WeaponState.IsActionActive(EWeaponAction::ReloadStart))
 	{
@@ -118,18 +133,19 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			EWeaponAction::ReloadStart,
 			WeaponInfo->ReloadTime,
 			[&] { return PlayAnimMontage(PoseMontages->ReloadMontage); },
-			[this, LoopedReload]
+			[this, HasLoopedReload]
 			{
 				WeaponState.ClearAction(EWeaponAction::ReloadStart);
 
-				if (not LoopedReload)
+				if (not HasLoopedReload)
 				{
 					WeaponState.ClearAction(EWeaponAction::ReloadLoop, EWeaponAction::ReloadEnd);
 				}
 			}
 		);
 	}
-	else if (LoopedReload and WeaponState.IsActionActive(EWeaponAction::ReloadLoop, EWeaponAction::ReloadEnd))
+	// TODO: remove this check: WeaponState.IsActionActive(EWeaponAction::ReloadLoop, EWeaponAction::ReloadEnd) ???
+	else if (HasLoopedReload and WeaponState.IsActionActive(EWeaponAction::ReloadLoop, EWeaponAction::ReloadEnd))
 	{
 		log(Verbose, "LoopedReload");
 
@@ -197,7 +213,10 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			WeaponState.ClearAction(EWeaponAction::Primary);
 		}
 	}
-	else {}
+	else if (HasSecondaryAction and WeaponState.IsActionActive(EWeaponAction::Secondary))
+	{
+		// TODO: Implement secondary action for firearm	
+	}
 }
 
 const FFirearmWeaponInfo* ACloud9WeaponFirearm::GetWeaponInfo() const

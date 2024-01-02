@@ -148,9 +148,21 @@ bool UCloud9AnimNotifyPlaySound::PlayGrenadeSound(USkeletalMeshComponent* MeshCo
 		return false;
 	}
 
-	// let Location = SelectedWeapon->GetActorLocation();
+	let WeaponInfo = SelectedWeapon->GetWeaponInfo();
+	let Location = SelectedWeapon->GetActorLocation();
 
-	return false;
+	switch (SoundType)
+	{
+	case EWeaponSoundType::Deploy:
+		return PlaySingleSound(WeaponInfo->Sounds.DeploySound, Location, Volume);
+	case EWeaponSoundType::Pinpull:
+		return PlaySingleSound(WeaponInfo->Sounds.PinpullSound, Location, Volume);
+	case EWeaponSoundType::Primary:
+		return PlaySingleSound(WeaponInfo->Sounds.ThrowSound, Location, Volume);
+	default:
+		log(Error, "[Notify='%s'] Invalid sound type for firearm sound", *GetName());
+		return false;
+	}
 }
 
 void UCloud9AnimNotifyPlaySound::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)

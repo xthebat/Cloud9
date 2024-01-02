@@ -52,6 +52,8 @@ public:
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
 
+	virtual void Reload(bool bIsReleased) override;
+
 	virtual void OnWeaponAddedToInventory() override;
 	virtual void OnWeaponRemovedFromInventory() override;
 

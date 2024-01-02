@@ -30,23 +30,60 @@ struct FWeaponActionMontages
 {
 	GENERATED_BODY()
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Action, meta=(InlineCategoryProperty))
+	EWeaponClass WeaponClass;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Action)
 	UAnimMontage* PrimaryActionMontage = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Action)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Action,
+		meta=(EditCondition="WeaponClass == EWeaponClass::Melee", EditConditionHides))
+	bool bHasPrimaryBackAction = false;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Action,
+		meta=(EditCondition="WeaponClass == EWeaponClass::Melee && bHasPrimaryBackAction", EditConditionHides))
+	UAnimMontage* PrimaryBackActionMontage = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Action, meta=(InlineEditConditionToggle))
+	bool bHasSecondaryAction = false;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Action, meta=(EditCondition="bHasSecondaryAction"))
 	UAnimMontage* SecondaryActionMontage = nullptr;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Reload)
-	UAnimMontage* ReloadMontage = nullptr;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Reload)
-	UAnimMontage* ReloadLoopMontage = nullptr;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Reload)
-	UAnimMontage* ReloadEndMontage = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Deploy)
 	UAnimMontage* DeployMontage = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Reload,
+		meta=(EditCondition="WeaponClass == EWeaponClass::Firearm", EditConditionHides))
+	UAnimMontage* ReloadMontage = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Reload,
+		meta=(EditCondition="WeaponClass == EWeaponClass::Firearm", EditConditionHides))
+	bool bHasReloadLoop = false;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Reload, AdvancedDisplay,
+		meta=(EditCondition="WeaponClass == EWeaponClass::Firearm && bHasReloadLoop", EditConditionHides))
+	UAnimMontage* ReloadLoopMontage = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Reload, AdvancedDisplay,
+		meta=(EditCondition="WeaponClass == EWeaponClass::Firearm && bHasReloadLoop", EditConditionHides))
+	UAnimMontage* ReloadEndMontage = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Pinpull,
+		meta=(EditCondition="WeaponClass == EWeaponClass::Grenade", EditConditionHides))
+	UAnimMontage* PinpullPrimaryActionMontage = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Pinpull,
+		meta=(EditCondition="WeaponClass == EWeaponClass::Grenade && bHasSecondaryAction", EditConditionHides))
+	UAnimMontage* PinpullSecondaryActionMontage = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Pinpull,
+		meta=(EditCondition="WeaponClass == EWeaponClass::Grenade", EditConditionHides))
+	float PinpullPrimaryActionHoldTiming = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Pinpull,
+		meta=(EditCondition="WeaponClass == EWeaponClass::Grenade && bHasSecondaryAction", EditConditionHides))
+	float PinpullSecondaryActionHoldTiming = 0.0f;
 };
 
 USTRUCT(BlueprintType)

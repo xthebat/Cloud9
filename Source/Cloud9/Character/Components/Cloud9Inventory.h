@@ -26,8 +26,6 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Character/Components/Cloud9CharacterComponent.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
@@ -53,9 +51,12 @@ public:
 	 * 
 	 * @param Slot New slot weapon slot.
 	 * @param Instant If set then no animation will be shown and switching will be instant.
+	 * @param Force If set then force to switch even if animation in progress
 	 */
 	UFUNCTION(BlueprintCallable)
-	bool SelectWeapon(EWeaponSlot Slot, bool Instant = false);
+	bool SelectWeapon(EWeaponSlot Slot, bool Instant = false, bool Force = false);
+
+	bool SelectAvailableWeapon(EWeaponSlot Except, bool Instant, bool Force = false);
 
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetWeaponAt(EWeaponSlot Slot) const;
