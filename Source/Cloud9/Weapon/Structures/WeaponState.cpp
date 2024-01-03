@@ -34,13 +34,30 @@ void FWeaponState::Reset()
 	ClearAllActions();
 }
 
-void FWeaponState::ClearAllActions() { Actions.SetNumZeroed(EUEnum::Count<EWeaponAction>()); }
+void FWeaponState::ClearAllActions() { Actions.SetNumZeroed(WeaponActionCount); }
 
-bool FWeaponState::ActivateAction(EWeaponAction Action, bool IsReleased)
+void FWeaponState::ActivateSequence(EWeaponAction Start, EWeaponAction Loop, EWeaponAction End, bool IsReleased)
+{
+	if (not IsReleased)
+	{
+		ActivateAction(Start);
+	}
+	else
+	{
+		ActivateAction(End);
+	}
+
+	ActivateAction(Loop, IsReleased);
+}
+
+void FWeaponState::ActivateAction(EWeaponAction Action)
+{
+	(*this)[Action] = true;
+}
+
+void FWeaponState::ActivateAction(EWeaponAction Action, bool IsReleased)
 {
 	var& Flag = (*this)[Action];
-
-	let Previous = Flag;
 
 	if (Flag and IsReleased)
 	{
@@ -50,8 +67,6 @@ bool FWeaponState::ActivateAction(EWeaponAction Action, bool IsReleased)
 	{
 		Flag = true;
 	}
-
-	return Previous;
 }
 
 void FWeaponState::OnUpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond NewBond, bool Instant)
@@ -73,6 +88,14 @@ EWeaponSlot FWeaponState::GetWeaponSlot() const { return Slot; }
 void FWeaponState::BoltCycled(bool State) { bIsBoltCycled = State; }
 
 bool FWeaponState::IsBoltCycled() const { return bIsBoltCycled; }
+
+void FWeaponState::GrenadeThrown() { bIsGrenadeThrown = true; }
+
+bool FWeaponState::IsGrenadeThrown() const { return bIsGrenadeThrown; }
+
+void FWeaponState::GrenadeActivated() { bIsGrenadeActivated = true; }
+
+bool FWeaponState::IsGrenadeActivated() const { return bIsGrenadeActivated; }
 
 void FWeaponState::DetachMagazine(bool State) { bIsMagazineDetached = State; }
 

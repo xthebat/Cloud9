@@ -39,3 +39,6 @@ enum class EWeaponAction : uint8
 	Secondary = 7 UMETA(DisplayName="Secondary"),
 	Third = 8 UMETA(DisplayName="Third"),
 };
+
+// HotReload won't work if try to use StaticEnum in constructor
+inline static let WeaponActionCount = 9;

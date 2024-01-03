@@ -55,7 +55,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool SelectWeapon(EWeaponSlot Slot, bool Instant = false);
 
-	bool SelectAvailableWeapon(bool Instant);
+	bool SelectOtherAvailableWeapon(bool Instant);
 
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetWeaponAt(EWeaponSlot Slot) const;
@@ -73,9 +73,12 @@ public:
 	 * Function drops to the ground weapon from inventory by defined slot
 	 * 
 	 * @param Slot Weapon slot to drop weapon from
+	 * @param ViewLocation View location toward to drop weapon
+	 * @param Angle Weapon drop angle
+	 * @param Impulse Weapon drop impulse
 	 */
 	UFUNCTION(BlueprintCallable)
-	bool DropWeapon(EWeaponSlot Slot);
+	bool DropWeapon(EWeaponSlot Slot, FVector ViewLocation, float Angle, float Impulse);
 
 	/**
 	 * Function creates and add weapon to the inventory by specified config

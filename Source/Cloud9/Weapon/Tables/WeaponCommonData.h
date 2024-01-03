@@ -33,24 +33,30 @@ struct FWeaponCommonData
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage)
 	float ImpulseMultiplier = 50.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Case)
 	float CaseImpulse = 500.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Case)
 	float CaseEjectAngle = 45.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Case)
 	float CaseMaxEjectRotation = 30.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Case)
 	float CaseScale = 2.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Case)
 	float CaseLifetime = 2.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade)
+	float GrenadeImpulse = 800.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade)
+	float GrenadeAngle = 30.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
 	float MagazineLifetime = 10.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
 	UParticleSystem* FirearmTracer;
 };

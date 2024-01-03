@@ -42,7 +42,11 @@ struct FWeaponState
 
 	void Reset();
 
-	bool ActivateAction(EWeaponAction Action, bool IsReleased = false);
+	void ActivateSequence(EWeaponAction Start, EWeaponAction Loop, EWeaponAction End, bool IsReleased);
+
+	void ActivateAction(EWeaponAction Action);
+
+	void ActivateAction(EWeaponAction Action, bool IsReleased);
 
 	template <typename... WeaponActionType>
 	constexpr bool IsActionActive(WeaponActionType... Actions) const
@@ -69,6 +73,14 @@ struct FWeaponState
 	void BoltCycled(bool State);
 
 	bool IsBoltCycled() const;
+
+	void GrenadeThrown();
+
+	bool IsGrenadeThrown() const;
+
+	void GrenadeActivated();
+
+	bool IsGrenadeActivated() const;
 
 	void DetachMagazine(bool State);
 
@@ -98,6 +110,22 @@ protected:
 	 */
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	bool bIsBoltCycled;
+
+	/**
+	 * Whether or not grenade thrown
+	 *
+	 * NOTE: Only relevant for grenades
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool bIsGrenadeThrown;
+
+	/**
+	 * Whether or not grenade activated and will be detonated
+	 *
+	 * NOTE: Only relevant for grenades
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool bIsGrenadeActivated;
 
 	/**
 	 * If true magazine is currently detached from weapon
