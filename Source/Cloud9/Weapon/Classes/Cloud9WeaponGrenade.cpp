@@ -38,7 +38,7 @@ const FName ACloud9WeaponGrenade::ActiveEffectComponentName = TEXT("ActiveEffect
 
 ACloud9WeaponGrenade::ACloud9WeaponGrenade()
 {
-	if (Explosion = CreateDefaultSubobject<URadialForceComponent>(ExplosionComponentName); not IsValid(Explosion))
+	if (Explosion = CreateDetonateComponent(ExplosionComponentName); not IsValid(Explosion))
 	{
 		log(Error, "Failed to create URadialForceComponent");
 		return;
@@ -77,8 +77,16 @@ bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 			return false;
 		}
 
-		InitializeEffectComponent(DetonationEffect, MyWeaponInfo->Effects.Detonation);
-		InitializeEffectComponent(ActiveEffect, MyWeaponInfo->Effects.Active);
+		let& [OnDetonationEffect, OnDetonationScale, OnActiveEffect, OnActiveScale] = MyWeaponInfo->Effects;
+
+		InitializeEffectComponent(DetonationEffect, OnDetonationEffect, OnDetonationScale);
+		InitializeEffectComponent(ActiveEffect, OnActiveEffect, OnActiveScale);
+
+		let CommonData = WeaponDefinition.GetCommonData();
+		Explosion->Radius = CommonData->GrenadeExplosionRadius;
+		Explosion->ImpulseStrength = CommonData->GrenadeImpulseStrength;
+		Explosion->bIgnoreOwningActor = true;
+		Explosion->bImpulseVelChange = true;
 
 		return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo.Material);
 	}
@@ -160,6 +168,8 @@ bool ACloud9WeaponGrenade::OnGrenadeThrown()
 				{
 					DetonationEffect->Activate();
 				}
+
+				Explosion->FireImpulse();
 
 				UCloud9SoundPlayer::PlayRandomSound(
 					GetWeaponInfo()->Sounds.ExplodeSounds,
@@ -295,8 +305,11 @@ bool ACloud9WeaponGrenade::Throw() const
 	}
 
 	let CommonData = WeaponDefinition.GetCommonData();
-	Inventory->DropWeapon(GetWeaponSlot(), CursorHit.Location, CommonData->GrenadeThrowAngle,
-	                      CommonData->GrenadeThrowImpulse);
+	Inventory->DropWeapon(
+		GetWeaponSlot(),
+		CursorHit.Location,
+		CommonData->GrenadeMaxThrowAngle,
+		CommonData->GrenadeMaxThrowImpulse);
 
 	return true;
 }
