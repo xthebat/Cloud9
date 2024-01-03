@@ -253,10 +253,9 @@ bool UCloud9Inventory::AddWeapon(const FWeaponConfig& Config, bool Select, bool 
 
 	if (IsWeaponChanging())
 	{
-		log(
-			Error,
-			"[Inventory='%s'] Weapon deploying in progress when added by config='%s'",
-			*GetName(), *Config.ToString());
+		log(Verbose,
+		    "[Inventory='%s'] Weapon deploying in progress when added by config='%s'",
+		    *GetName(), *Config.ToString());
 		return false;
 	}
 

@@ -79,10 +79,10 @@ struct FGrenadeWeaponEffects
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Effects)
-	UNiagaraSystem* Explode = nullptr;
+	UNiagaraSystem* Detonation = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Effects)
-	UNiagaraSystem* Action = nullptr;
+	UNiagaraSystem* Active = nullptr;
 };
 
 /**
@@ -119,27 +119,6 @@ struct FGrenadeWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
 		meta=(UIMin="0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
 	float RangeModifier = 1.0f;
-
-	/**
-	 * Maximum fire weapon range (no any impact after this distance)
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Distance,
-		meta=(UIMin="0", UIMax="1000", ClampMin="0", ClampMax="1000"))
-	float ThrowDistance = 100.0f;
-
-	/**
-	 * Distance multiplier when making run throw
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Distance,
-		meta=(UIMin="0", UIMax="100", ClampMin="0", ClampMax="100"))
-	float RunDistanceMultiplier = 1.0f;
-
-	/**
-	 * Distance multiplier when making jump throw
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Distance,
-		meta=(UIMin="0", UIMax="100", ClampMin="0", ClampMax="100"))
-	float JumpDistanceMultiplier = 1.0f;
 
 	/**
 	 * Time to pull out pin of grenade before throw
@@ -201,6 +180,12 @@ struct FGrenadeWeaponInfo : public FBaseWeaponInfo
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Bounce)
 	bool bCanDetonateInAir = true;
+
+	/**
+	 * Whether or not grenade can destroyed (make invisible) when detonated (not for smoke)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Bounce)
+	bool bIsDestroyedOnDetonation = true;
 
 	/**
 	 * Maximum running speed with the weapon equipped (aka Mobility)

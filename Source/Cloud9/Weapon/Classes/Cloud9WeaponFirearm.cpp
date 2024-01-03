@@ -176,6 +176,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 					return false;
 				}
 
+				// TODO: May be move to notifier?
 				MuzzleFlash->Activate(true);
 
 				if (not Fire(WeaponInfo, CommonData->ImpulseMultiplier))

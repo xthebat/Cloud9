@@ -49,10 +49,31 @@ struct FWeaponCommonData
 	float CaseLifetime = 2.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade)
-	float GrenadeImpulse = 800.0f;
+	float GrenadeThrowImpulse = 800.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade)
-	float GrenadeAngle = 30.0f;
+	float GrenadeThrowAngle = 30.0f;
+
+	/**
+	 * Maximum fire weapon range (no any impact after this distance)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade,
+		meta=(UIMin="0", UIMax="1000", ClampMin="0", ClampMax="1000"))
+	float GrenadeThrowDistance = 100.0f;
+
+	/**
+	 * Distance multiplier when making run throw
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade,
+		meta=(UIMin="0", UIMax="100", ClampMin="0", ClampMax="100"))
+	float GrenadeRunDistanceMultiplier = 1.0f;
+
+	/**
+	 * Distance multiplier when making jump throw
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade,
+		meta=(UIMin="0", UIMax="100", ClampMin="0", ClampMax="100"))
+	float GrenadeJumpDistanceMultiplier = 1.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
 	float MagazineLifetime = 10.0f;
