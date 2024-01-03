@@ -79,10 +79,16 @@ struct FGrenadeWeaponEffects
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Effects)
-	UNiagaraSystem* Detonation = nullptr;
+	UNiagaraSystem* OnDetonationEffect = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Effects)
-	UNiagaraSystem* Active = nullptr;
+	FVector OnDetonationScale = FVector::OneVector;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Effects)
+	UNiagaraSystem* OnActiveEffect = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Effects)
+	FVector OnActiveScale = FVector::OneVector;
 };
 
 /**

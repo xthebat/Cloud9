@@ -32,6 +32,7 @@
 #include "Cloud9/Weapon/Enums/WeaponAction.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
 #include "Cloud9/Weapon/Extensions/EWeaponId.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 
 const FName ACloud9WeaponBase::RootComponentName = TEXT("RootComponent");
 const FName ACloud9WeaponBase::WeaponMeshCollisionProfile = TEXT("WeaponCollisionProfile");
@@ -158,6 +159,19 @@ UStaticMeshComponent* ACloud9WeaponBase::CreateMeshComponent(FName ComponentName
 	return nullptr;
 }
 
+URadialForceComponent* ACloud9WeaponBase::CreateDetonateComponent(FName ComponentName)
+{
+	if (let Component = CreateDefaultSubobject<URadialForceComponent>(ComponentName); IsValid(Component))
+	{
+		Component->SetupAttachment(RootComponent);
+		return Component;
+	}
+
+	log(Error, "Can't create VFX '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
+	return nullptr;
+}
+
+
 UNiagaraComponent* ACloud9WeaponBase::CreateEffectComponent(FName ComponentName, FName SocketName)
 {
 	if (let Component = CreateDefaultSubobject<UNiagaraComponent>(ComponentName); IsValid(Component))
@@ -207,7 +221,10 @@ bool ACloud9WeaponBase::InitializeMeshComponent(
 	return true;
 }
 
-bool ACloud9WeaponBase::InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect) const
+bool ACloud9WeaponBase::InitializeEffectComponent(
+	UNiagaraComponent* Component,
+	UNiagaraSystem* Effect,
+	FVector Scale) const
 {
 	if (Effect == nullptr)
 	{
@@ -217,6 +234,8 @@ bool ACloud9WeaponBase::InitializeEffectComponent(UNiagaraComponent* Component, 
 
 	Component->SetAsset(Effect);
 	Component->Deactivate();
+	Component->SetWorldScale3D(Scale);
+
 	return true;
 }
 

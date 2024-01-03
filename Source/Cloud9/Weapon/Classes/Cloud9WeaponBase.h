@@ -39,6 +39,7 @@
 #include "Cloud9/Weapon/Enums/WeaponBond.h"
 #include "Cloud9/Weapon/Structures/WeaponDefinition.h"
 #include "Cloud9/Weapon/Structures/WeaponState.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 
 #include "Cloud9WeaponBase.generated.h"
 
@@ -186,10 +187,14 @@ protected: // functions
 
 	UStaticMeshComponent* CreateMeshComponent(FName ComponentName, FName SocketName = NAME_None);
 	UNiagaraComponent* CreateEffectComponent(FName ComponentName, FName SocketName = NAME_None);
+	URadialForceComponent* CreateDetonateComponent(FName ComponentName);
 
 	void InitializeName(const FWeaponId& NewWeaponId);
 	bool InitializeMeshComponent(UStaticMeshComponent* Component, UStaticMesh* Mesh, UMaterialInstance* Material) const;
-	bool InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect) const;
+	bool InitializeEffectComponent(
+		UNiagaraComponent* Component,
+		UNiagaraSystem* Effect,
+		FVector Scale = FVector::OneVector) const;
 
 	UAnimInstance* GetAnimInstance() const;
 
