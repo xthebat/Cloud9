@@ -29,7 +29,6 @@
 #include "Cloud9/Tools/Extensions/FVector.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Weapon/Tables/WeaponTableGrenade.h"
-#include "Engine/StaticMeshActor.h"
 
 FWeaponId ACloud9WeaponGrenade::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
 
@@ -73,6 +72,16 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	if (WeaponState.IsGrenadeThrown()) {}
+	else if (WeaponState.IsGrenadeActivated())
+	{
+		DetonationTimerHandle = GetWorld()
+			| EUWorld::AsyncAfter{
+				[this] { Detonate(); },
+				GetWeaponInfo()->TimeToDetonate
+			};
+	}
+
 	WEAPON_IS_DEFINED_GUARD();
 	WEAPON_IS_DISARMED_GUARD();
 	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
@@ -109,13 +118,21 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	{
 		// log(Error, "PoseMontages->PinpullPrimaryActionMontage");
 
-		// Hold last frame of montage
+		// Play hold frame of montage
 		PlayAnimMontage(
 			PoseMontages->PinpullPrimaryActionMontage,
-			1.0f,
 			PoseMontages->PinpullPrimaryActionHoldTiming);
 	}
-	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
+	else if (WeaponState.IsActionActive(EWeaponAction::Secondary))
+	{
+		// TODO: Implement near throw (or cancel throw) for grenade
+	}
+	else if (WeaponState.IsActionActive(EWeaponAction::Third))
+	{
+		// TODO: Implement middle throw (or cancel throw) for grenade
+	}
+
+	if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
 	{
 		// log(Error, "PoseMontages->PrimaryActionMontage");
 
@@ -130,31 +147,9 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 			}
 		);
 	}
-	else if (WeaponState.IsActionActive(EWeaponAction::Secondary))
-	{
-		// TODO: Implement near throw (or cancel throw) for grenade
-	}
-	else if (WeaponState.IsActionActive(EWeaponAction::Third))
-	{
-		// TODO: Implement middle throw (or cancel throw) for grenade
-	}
 }
 
-void ACloud9WeaponGrenade::PrimaryAction(bool bIsReleased)
-{
-	if (not bIsReleased)
-	{
-		WeaponState.ActivateAction(EWeaponAction::Primary);
-	}
-	else
-	{
-		WeaponState.ActivateAction(EWeaponAction::PrimaryEnd);
-	}
-
-	WeaponState.ActivateAction(EWeaponAction::PrimaryLoop, bIsReleased);
-}
-
-bool ACloud9WeaponGrenade::Throw()
+bool ACloud9WeaponGrenade::Throw() const
 {
 	let Character = GetOwner<ACloud9Character>();
 
@@ -183,24 +178,17 @@ bool ACloud9WeaponGrenade::Throw()
 	FHitResult CursorHit;
 	if (not Controller->GetHitResultUnderCursor(ECC_Visibility, true, CursorHit))
 	{
-		log(Error, "Cursor not hit anything")
-		return true;
+		log(Error, "[Weapon='%s'] Cursor not hit anything", *GetName());
+		return false;
 	}
 
-	let StartLocation = WeaponMesh->GetComponentLocation();
-	let EndLocation = CursorHit.Location;
-	let ViewDirection = (EndLocation - StartLocation) | EFVector::Normalize{};
-	let RotationAxis = Character->GetActorRightVector();
-
-	let Direction = ViewDirection.RotateAngleAxis(-45.0f, RotationAxis);
-
-	Inventory->DropWeapon(GetWeaponSlot());
-
-	SetActorLocation(StartLocation);
-
-	// TODO: Implement grenade throw impulse
-	let MyMesh = GetWeaponMesh();
-	MyMesh->AddImpulse(800.0f * Direction, NAME_None, true);
+	let CommonData = WeaponDefinition.GetCommonData();
+	Inventory->DropWeapon(GetWeaponSlot(), CursorHit.Location, CommonData->GrenadeAngle, CommonData->GrenadeImpulse);
 
 	return true;
+}
+
+void ACloud9WeaponGrenade::Detonate()
+{
+	Destroy();
 }

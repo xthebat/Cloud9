@@ -42,17 +42,16 @@ class CLOUD9_API ACloud9WeaponGrenade : public ACloud9WeaponBase
 public:
 	virtual FWeaponId GetWeaponId() const override;
 	const FGrenadeWeaponInfo* GetWeaponInfo() const;
+	void Detonate();
 
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
 	virtual void Tick(float DeltaSeconds) override;
 
-	virtual void PrimaryAction(bool bIsReleased) override;
-
 	virtual void OnWeaponAddedToInventory() override;
 	virtual void OnWeaponRemovedFromInventory() override;
 
-	bool Throw();
+	bool Throw() const;
 
 protected:
 	/**
@@ -60,4 +59,10 @@ protected:
 	 */
 	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
 	EGrenade WeaponId;
+
+	/**
+	 * Detonation timer
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	FTimerHandle DetonationTimerHandle;
 };

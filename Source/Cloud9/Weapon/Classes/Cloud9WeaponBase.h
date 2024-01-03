@@ -160,9 +160,9 @@ public:
 	FORCEINLINE bool IsWeaponArmed() const { return WeaponState.IsWeaponBond(EWeaponBond::Armed); }
 	FORCEINLINE bool IsWeaponDisarmed() const { return not IsWeaponArmed(); }
 
-	virtual void PrimaryAction(bool bIsReleased);
-	virtual void SecondaryAction(bool bIsReleased);
-	virtual void Reload(bool bIsReleased);
+	virtual void PrimaryAction(bool IsReleased);
+	virtual void SecondaryAction(bool IsReleased);
+	virtual void Reload(bool IsReleased);
 
 protected: // functions
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
@@ -194,7 +194,7 @@ protected: // functions
 	UAnimInstance* GetAnimInstance() const;
 
 	bool IsAnyMontagePlaying() const;
-	bool PlayAnimMontage(UAnimMontage* Montage, float Rate = 1.0f, float StartTime = 0.0f) const;
+	bool PlayAnimMontage(UAnimMontage* Montage, float StartTime = 0.0f, float Rate = 1.0f) const;
 
 	bool UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond NewBond, bool Instant = false);
 

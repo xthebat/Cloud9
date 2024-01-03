@@ -26,6 +26,7 @@
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Tools/Extensions/FVector.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Enums/WeaponBond.h"
 
@@ -82,7 +83,7 @@ void UCloud9Inventory::TickComponent(
 	// Auto select any available weapon if nothing selected
 	if (not GetSelectedWeapon())
 	{
-		SelectAvailableWeapon(false);
+		SelectOtherAvailableWeapon(false);
 	}
 
 	if (not GetWeaponAt(EWeaponSlot::Grenade) and GetSelectedWeapon() != nullptr)
@@ -164,7 +165,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
 
 	if (not PendingWeapon->ChangeState(EWeaponBond::Armed, Instant))
 	{
-		log(Error,
+		log(Verbose,
 		    "[Inventory='%s'] Can't change state of pending weapon slot='%d'",
 		    *GetName(), SelectedWeaponSlot);
 		return false;
@@ -203,9 +204,11 @@ bool UCloud9Inventory::ShoveWeapon(EWeaponSlot Slot, ACloud9WeaponBase* Weapon)
 	return true;
 }
 
-bool UCloud9Inventory::DropWeapon(EWeaponSlot Slot)
+bool UCloud9Inventory::DropWeapon(EWeaponSlot Slot, FVector ViewLocation, float Angle, float Impulse)
 {
-	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
 	{
 		log(Error, "Inventory owner wasn't set");
 		return false;
@@ -219,11 +222,22 @@ bool UCloud9Inventory::DropWeapon(EWeaponSlot Slot)
 		return false;
 	}
 
+	let StartLocation = Weapon->GetActorLocation();
+	let ViewDirection = ViewLocation - StartLocation | EFVector::Normalize{};
+	let RotationAxis = Character->GetActorRightVector();
+
+	let Direction = ViewDirection.RotateAngleAxis(-Angle, RotationAxis);
+
 	if (not Weapon->RemoveFromInventory())
 	{
 		log(Error, "Failed to remove from inventory weapon '%s'", *Weapon->GetName());
 		return false;
 	}
+
+	Weapon->SetActorLocation(StartLocation);
+
+	let WeaponMesh = Weapon->GetWeaponMesh();
+	WeaponMesh->AddImpulse(Impulse * Direction, NAME_None, true);
 
 	WeaponAt(Slot) = nullptr; // make TArray cell empty
 	return true;
@@ -313,7 +327,7 @@ bool UCloud9Inventory::RemoveWeapon(EWeaponSlot Slot)
 
 	if (Slot == SelectedWeaponSlot)
 	{
-		SelectAvailableWeapon(true);
+		SelectOtherAvailableWeapon(true);
 	}
 
 	WeaponAt(Slot)->Destroy();
@@ -322,14 +336,15 @@ bool UCloud9Inventory::RemoveWeapon(EWeaponSlot Slot)
 	return true;
 }
 
-bool UCloud9Inventory::SelectAvailableWeapon(bool Instant)
+bool UCloud9Inventory::SelectOtherAvailableWeapon(bool Instant)
 {
 	EWeaponSlot NewSlot = EWeaponSlot::NotSelected;
 	let Found = WeaponSlots
-		| ETContainer::Find{[&](let It) { return IsValid(It); }}
+		| ETContainer::Filter{[&](let It) { return IsValid(It); }}
+		| ETContainer::Find{[&](let It) { return It->GetWeaponSlot() != SelectedWeaponSlot; }}
 		| ETOptional::OnSet{[&](let It) { NewSlot = It->GetWeaponSlot(); }};
 
-	log(Display, "[Inventory='%s'] Change selected slot to '%d'", *GetName(), NewSlot);
+	log(Verbose, "[Inventory='%s'] Change selected slot to '%d'", *GetName(), NewSlot);
 
 	return SelectWeapon(NewSlot, Instant);
 }

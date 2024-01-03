@@ -80,20 +80,6 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 	return false;
 }
 
-void ACloud9WeaponFirearm::Reload(bool bIsReleased)
-{
-	if (not bIsReleased)
-	{
-		WeaponState.ActivateAction(EWeaponAction::ReloadStart);
-	}
-	else
-	{
-		WeaponState.ActivateAction(EWeaponAction::ReloadEnd);
-	}
-
-	WeaponState.ActivateAction(EWeaponAction::ReloadLoop, bIsReleased);
-}
-
 void ACloud9WeaponFirearm::OnWeaponAddedToInventory()
 {
 	Super::OnWeaponAddedToInventory();
@@ -128,7 +114,6 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 	if (WeaponState.IsActionActive(EWeaponAction::ReloadStart))
 	{
-		log(Verbose, "PoseMontages->ReloadMontage");
 		ExecuteAction(
 			EWeaponAction::ReloadStart,
 			WeaponInfo->ReloadTime,
@@ -144,14 +129,10 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			}
 		);
 	}
-	// TODO: remove this check: WeaponState.IsActionActive(EWeaponAction::ReloadLoop, EWeaponAction::ReloadEnd) ???
 	else if (HasLoopedReload and WeaponState.IsActionActive(EWeaponAction::ReloadLoop, EWeaponAction::ReloadEnd))
 	{
-		log(Verbose, "LoopedReload");
-
 		if (WeaponState.IsActionActive(EWeaponAction::ReloadLoop))
 		{
-			log(Verbose, "PoseMontages->ReloadLoopMontage");
 			ExecuteAction(
 				EWeaponAction::ReloadLoop,
 				WeaponInfo->ReloadLoopTime,
@@ -160,7 +141,6 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 		}
 		else if (WeaponState.IsActionActive(EWeaponAction::ReloadEnd))
 		{
-			log(Verbose, "PoseMontages->ReloadEnd");
 			ExecuteAction(
 				EWeaponAction::ReloadLoop,
 				WeaponInfo->ReloadEndTime,
@@ -172,18 +152,18 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::Deploy))
 	{
-		log(Verbose, "PoseMontages->DeployMontage");
 		ExecuteAction(
 			EWeaponAction::Deploy,
 			WeaponInfo->DeployTime,
 			[&] { return PlayAnimMontage(PoseMontages->DeployMontage); },
-			[this]
-			{
-				WeaponState.ClearAction(EWeaponAction::Deploy);
-			}
+			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
 		);
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::Primary))
+	{
+		WeaponState.ClearAction(EWeaponAction::Primary);
+	}
+	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryLoop))
 	{
 		ExecuteAction(
 			EWeaponAction::Primary,
@@ -212,6 +192,10 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 		{
 			WeaponState.ClearAction(EWeaponAction::Primary);
 		}
+	}
+	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
+	{
+		WeaponState.ClearAction(EWeaponAction::PrimaryEnd);
 	}
 	else if (HasSecondaryAction and WeaponState.IsActionActive(EWeaponAction::Secondary))
 	{
@@ -341,10 +325,9 @@ bool ACloud9WeaponFirearm::UpdateMagazineAttachment(bool IsReload)
 
 	if (MagazineMesh->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform, SocketName))
 	{
-		log(
-			Display,
-			"[Weapon='%s'] Update magazine attachment to Mesh='%s' socket='%s'",
-			*GetName(), *Mesh->GetName(), *SocketName.ToString());
+		log(Verbose,
+		    "[Weapon='%s'] Update magazine attachment to Mesh='%s' socket='%s'",
+		    *GetName(), *Mesh->GetName(), *SocketName.ToString());
 
 		WeaponState.DetachMagazine(IsDetached);
 		return true;

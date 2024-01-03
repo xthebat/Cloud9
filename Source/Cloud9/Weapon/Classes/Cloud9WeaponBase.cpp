@@ -241,7 +241,7 @@ UAnimInstance* ACloud9WeaponBase::GetAnimInstance() const
 	return Mesh->GetAnimInstance();
 }
 
-bool ACloud9WeaponBase::PlayAnimMontage(UAnimMontage* Montage, float Rate, float StartTime) const
+bool ACloud9WeaponBase::PlayAnimMontage(UAnimMontage* Montage, float StartTime, float Rate) const
 {
 	if (not IsValid(Montage))
 	{
@@ -316,10 +316,9 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond 
 		return false;
 	}
 
-	log(
-		Display,
-		"[Weapon='%s' Slot='%s'] Update attachment to character '%s' into socket '%s'",
-		*GetName(), SLOT_NAME, *Character->GetName(), *SocketName.ToString());
+	log(Verbose,
+	    "[Weapon='%s' Slot='%s'] Update attachment to character '%s' into socket '%s'",
+	    *GetName(), SLOT_NAME, *Character->GetName(), *SocketName.ToString());
 
 	AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
 
@@ -411,36 +410,47 @@ bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant)
 
 	if (WeaponState.IsWeaponBond(NewBond))
 	{
-		log(Warning, "[Weapon='%s' Bond='%s'] Weapon will remain the same", *GetName(), BOND_NAME);
+		log(Verbose, "[Weapon='%s' Bond='%s'] Weapon will remain the same", *GetName(), BOND_NAME);
 		return false;
 	}
 
 	if (IsAnyMontagePlaying())
 	{
-		log(Error, "[Weapon='%s' Bond='%s'] Montage is playing now", *GetName(), BOND_NAME);
+		log(Verbose, "[Weapon='%s' Bond='%s'] Montage is playing now", *GetName(), BOND_NAME);
 		return false;
 	}
 
 	if (IsActionInProgress())
 	{
-		log(Error, "[Weapon='%s' Bond='%s'] Some action is in progress", *GetName(), BOND_NAME);
+		log(Verbose, "[Weapon='%s' Bond='%s'] Some action is in progress", *GetName(), BOND_NAME);
 		return false;
 	}
 
 	return UpdateWeaponAttachment(WeaponState.GetWeaponSlot(), NewBond, Instant);
 }
 
-void ACloud9WeaponBase::PrimaryAction(bool bIsReleased)
+void ACloud9WeaponBase::PrimaryAction(bool IsReleased)
 {
-	WeaponState.ActivateAction(EWeaponAction::Primary, bIsReleased);
+	WeaponState.ActivateSequence(
+		EWeaponAction::Primary,
+		EWeaponAction::PrimaryLoop,
+		EWeaponAction::PrimaryEnd,
+		IsReleased);
 }
 
-void ACloud9WeaponBase::SecondaryAction(bool bIsReleased)
+void ACloud9WeaponBase::SecondaryAction(bool IsReleased)
 {
-	WeaponState.ActivateAction(EWeaponAction::Secondary, bIsReleased);
+	WeaponState.ActivateAction(EWeaponAction::Secondary, IsReleased);
 }
 
-void ACloud9WeaponBase::Reload(bool bIsReleased) {}
+void ACloud9WeaponBase::Reload(bool IsReleased)
+{
+	WeaponState.ActivateSequence(
+		EWeaponAction::ReloadStart,
+		EWeaponAction::ReloadLoop,
+		EWeaponAction::ReloadEnd,
+		IsReleased);
+}
 
 bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
 {
