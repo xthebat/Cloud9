@@ -24,13 +24,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Enums/GrenadeNames.h"
 
 #include "Cloud9WeaponGrenade.generated.h"
 
-struct FGrenadeWeaponInfo;
+class URadialForceComponent;
 
 UCLASS()
 class CLOUD9_API ACloud9WeaponGrenade : public ACloud9WeaponBase
@@ -40,9 +41,15 @@ class CLOUD9_API ACloud9WeaponGrenade : public ACloud9WeaponBase
 	friend class ACloud9WeaponBase;
 
 public:
+	static const FName ExplosionComponentName;
+	static const FName DetonationEffectComponentName;
+	static const FName ActiveEffectComponentName;
+
+public:
+	ACloud9WeaponGrenade();
+
 	virtual FWeaponId GetWeaponId() const override;
 	const FGrenadeWeaponInfo* GetWeaponInfo() const;
-	void Detonate();
 
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
@@ -50,6 +57,9 @@ protected:
 
 	virtual void OnWeaponAddedToInventory() override;
 	virtual void OnWeaponRemovedFromInventory() override;
+
+	bool OnGrenadeActivated();
+	bool OnGrenadeThrown();
 
 	bool Throw() const;
 
@@ -60,9 +70,32 @@ protected:
 	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
 	EGrenade WeaponId;
 
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	URadialForceComponent* Explosion;
+
+	/**
+	 * Effect when grenade detonated
+	 */
+	UPROPERTY(Category=Grenade, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UNiagaraComponent* DetonationEffect;
+
+	/**
+	 * Effect when grenade in active state
+	 */
+	UPROPERTY(Category=Grenade, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UNiagaraComponent* ActiveEffect;
+
 	/**
 	 * Detonation timer
 	 */
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	FTimerHandle DetonationTimerHandle;
+
+	/**
+	 * Active timer
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	FTimerHandle ActiveTimerHandle;
 };
+
+struct FGrenadeWeaponInfo;

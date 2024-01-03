@@ -61,6 +61,12 @@ namespace EUWorld
 
 		FORCEINLINE FTimerHandle operator()(const UWorld* Self) const
 		{
+			if (InRate == 0.0f)
+			{
+				Block();
+				return {};
+			}
+
 			assertf(Self != nullptr, "World should not be nullptr to start timer");
 			FTimerHandle TimerHandle;
 			FTimerDelegate TimerDelegate;

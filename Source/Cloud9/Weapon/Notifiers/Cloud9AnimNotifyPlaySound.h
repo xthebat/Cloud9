@@ -42,10 +42,6 @@ protected:
 	float PreviewVolume;
 
 private:
-	bool PlaySingleSound(USoundBase* Sound, FVector Location, float Volume) const;
-	bool PlaySoundByName(const TMap<FName, USoundBase*>& Sounds, FVector Location, float Volume) const;
-	bool PlayRandomSound(const TArray<USoundBase*>& Sounds, FVector Location, float Volume) const;
-
 	bool PlayMeleeSound(USkeletalMeshComponent* MeshComp, float Volume) const;
 	bool PlayFirearmSound(USkeletalMeshComponent* MeshComp, float Volume) const;
 	bool PlayGrenadeSound(USkeletalMeshComponent* MeshComp, float Volume) const;

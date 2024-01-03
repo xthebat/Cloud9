@@ -185,7 +185,7 @@ protected: // functions
 	static void ChangeMeshCollisionState(UStaticMeshComponent* Mesh, bool bIsEnabled);
 
 	UStaticMeshComponent* CreateMeshComponent(FName ComponentName, FName SocketName = NAME_None);
-	UNiagaraComponent* CreateEffectComponent(FName ComponentName, FName SocketName);
+	UNiagaraComponent* CreateEffectComponent(FName ComponentName, FName SocketName = NAME_None);
 
 	void InitializeName(const FWeaponId& NewWeaponId);
 	bool InitializeMeshComponent(UStaticMeshComponent* Component, UStaticMesh* Mesh, UMaterialInstance* Material) const;
@@ -220,42 +220,42 @@ protected: // functions
 
 protected: // properties
 	/**
+	  * Current weapon skin name
+	  */
+	UPROPERTY(Category=Base, BlueprintReadOnly, EditDefaultsOnly, meta=(AllowPrivateAccess))
+	FName WeaponSkin;
+
+	/**
 	 * Weapon mesh
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Base, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	UStaticMeshComponent* WeaponMesh;
 
 	/**
 	 * Magazine mesh
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Firearm, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	UStaticMeshComponent* MagazineMesh;
 
 	/**
 	 * Silencer mesh
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Firearm, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	UStaticMeshComponent* SilencerMesh;
 
 	/**
 	 * Muzzle flash effect to play when shoot
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Firearm, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	UNiagaraComponent* MuzzleFlash;
-
-	/**
-	 * Current weapon skin name
-	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, EditDefaultsOnly, meta=(AllowPrivateAccess))
-	FName WeaponSkin;
 
 	/**
 	 * Weapon cumulative data
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Settings, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	FWeaponDefinition WeaponDefinition;
 
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=State, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	FWeaponState WeaponState;
 
 private:
