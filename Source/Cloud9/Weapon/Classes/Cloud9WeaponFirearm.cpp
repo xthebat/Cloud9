@@ -251,10 +251,22 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFir
 
 	log(Verbose, "Target = %s Owner = %s", *Target->GetName(), *Target->GetOwner()->GetName());
 
+	let Direction = (LineHit.Location - StartLocation) | EFVector::Normalize{};
+
 	if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
 	{
-		let Direction = (LineHit.Location - StartLocation) | EFVector::Normalize{};
-		Target->AddImpulse(WeaponInfo->Damage * FirearmCommonData.ImpulseMultiplier * Direction, NAME_None, true);
+		let Velocity = WeaponInfo->Damage * FirearmCommonData.ImpulseMultiplier * Direction;
+		Target->AddImpulse(Velocity, NAME_None, true);
+	}
+
+	if (IsValid(FirearmCommonData.Tracer))
+	{
+		let Tracer = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			FirearmCommonData.Tracer,
+			StartLocation);
+		Tracer->SetVectorParameter(TEXT("Direction"), Direction);
+		Tracer->SetAutoDestroy(true);
 	}
 
 	if (IsValid(FirearmCommonData.Squib))
@@ -262,7 +274,7 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFir
 		let Squib = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 			GetWorld(),
 			FirearmCommonData.Squib,
-			EndLocation,
+			LineHit.Location,
 			CursorHit.Normal.Rotation());
 		Squib->SetAutoDestroy(true);
 	}
