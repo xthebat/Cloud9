@@ -34,6 +34,9 @@
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
 
+const FName ACloud9WeaponFirearm::TracerProbabilityParameterName = TEXT("Probability");
+const FName ACloud9WeaponFirearm::TracerDirectionParameterName = TEXT("Direction");
+
 FWeaponId ACloud9WeaponFirearm::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
 
 bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
@@ -265,7 +268,8 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFir
 			GetWorld(),
 			FirearmCommonData.Tracer,
 			StartLocation);
-		Tracer->SetVectorParameter(TEXT("Direction"), Direction);
+		Tracer->SetVectorParameter(TracerDirectionParameterName, Direction);
+		Tracer->SetFloatParameter(TracerProbabilityParameterName, WeaponInfo->TracerProbability);
 		Tracer->SetAutoDestroy(true);
 	}
 

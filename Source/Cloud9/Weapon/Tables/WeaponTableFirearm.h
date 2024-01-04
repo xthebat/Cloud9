@@ -306,11 +306,13 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	bool bIsManualBoltCycle = false;
 
 	/**
-	 * The frequency at which tracers are applied to bullets (0 = never)
+	 * Probability of tracer for weapon
+	 * 
+	 * NOTE: Originally used TracerFrequency - the frequency at which tracers are applied to bullets (0 = never)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX,
-		meta=(UIMin="0", UIMax="5", ClampMin="0", ClampMax="5"))
-	int TracerFrequency = 1;
+		meta=(UIMin="0", UIMax="1", ClampMin="0", ClampMax="1"))
+	float TracerProbability = 0.3f;
 
 	/**
 	 * The number of bullets (pellets for a shotgun) fired from a cartridge
