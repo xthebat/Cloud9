@@ -106,84 +106,6 @@ void ACloud9WeaponGrenade::OnWeaponRemovedFromInventory()
 	ChangeMeshCollisionState(WeaponMesh, true);
 }
 
-bool ACloud9WeaponGrenade::OnGrenadeActivated()
-{
-	static let Settings = UCloud9DeveloperSettings::Get();
-
-	if (IsValid(ActiveEffect))
-	{
-		ActiveEffect->Activate();
-		UCloud9SoundPlayer::PlaySingleSound(
-			GetWeaponInfo()->Sounds.LoopSound,
-			GetActorLocation(),
-			Settings->Volume);
-	}
-
-	if (ActiveTimerHandle.IsValid())
-	{
-		return false;
-	}
-
-	log(Error, "ActiveTimerHandle set")
-
-	if (GetWeaponInfo()->bIsDestroyedOnDetonation)
-	{
-		SetActorTickEnabled(false);
-		GetWeaponMesh()->SetHiddenInGame(true);
-	}
-
-	ActiveTimerHandle = GetWorld()
-		| EUWorld::AsyncAfter{
-			[this] { Destroy(); },
-			GetWeaponInfo()->ActionTime
-		};
-
-	return true;
-}
-
-bool ACloud9WeaponGrenade::OnGrenadeThrown()
-{
-	static let Settings = UCloud9DeveloperSettings::Get();
-
-	let IsOnGround = GetVelocity().IsZero();
-	let CanDetonateInAir = GetWeaponInfo()->bCanDetonateInAir;
-
-	if (not CanDetonateInAir and not IsOnGround)
-	{
-		return false;
-	}
-
-	if (DetonationTimerHandle.IsValid())
-	{
-		return false;
-	}
-
-	log(Error, "WeaponState.IsGrenadeThrown()")
-
-	DetonationTimerHandle = GetWorld()
-		| EUWorld::AsyncAfter{
-			[this]
-			{
-				if (IsValid(DetonationEffect))
-				{
-					DetonationEffect->Activate();
-				}
-
-				Explosion->FireImpulse();
-
-				UCloud9SoundPlayer::PlayRandomSound(
-					GetWeaponInfo()->Sounds.ExplodeSounds,
-					GetActorLocation(),
-					Settings->Volume);
-
-				WeaponState.GrenadeActivated();
-			},
-			GetWeaponInfo()->TimeToDetonate
-		};
-
-	return true;
-}
-
 void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -269,6 +191,84 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 			}
 		);
 	}
+}
+
+bool ACloud9WeaponGrenade::OnGrenadeActivated()
+{
+	static let Settings = UCloud9DeveloperSettings::Get();
+
+	if (IsValid(ActiveEffect))
+	{
+		ActiveEffect->Activate();
+		UCloud9SoundPlayer::PlaySingleSound(
+			GetWeaponInfo()->Sounds.LoopSound,
+			GetActorLocation(),
+			Settings->Volume);
+	}
+
+	if (ActiveTimerHandle.IsValid())
+	{
+		return false;
+	}
+
+	log(Error, "ActiveTimerHandle set")
+
+	if (GetWeaponInfo()->bIsDestroyedOnDetonation)
+	{
+		SetActorTickEnabled(false);
+		GetWeaponMesh()->SetHiddenInGame(true);
+	}
+
+	ActiveTimerHandle = GetWorld()
+		| EUWorld::AsyncAfter{
+			[this] { Destroy(); },
+			GetWeaponInfo()->ActionTime
+		};
+
+	return true;
+}
+
+bool ACloud9WeaponGrenade::OnGrenadeThrown()
+{
+	static let Settings = UCloud9DeveloperSettings::Get();
+
+	let IsOnGround = GetVelocity().IsZero();
+	let CanDetonateInAir = GetWeaponInfo()->bCanDetonateInAir;
+
+	if (not CanDetonateInAir and not IsOnGround)
+	{
+		return false;
+	}
+
+	if (DetonationTimerHandle.IsValid())
+	{
+		return false;
+	}
+
+	log(Error, "WeaponState.IsGrenadeThrown()")
+
+	DetonationTimerHandle = GetWorld()
+		| EUWorld::AsyncAfter{
+			[this]
+			{
+				if (IsValid(DetonationEffect))
+				{
+					DetonationEffect->Activate();
+				}
+
+				Explosion->FireImpulse();
+
+				UCloud9SoundPlayer::PlayRandomSound(
+					GetWeaponInfo()->Sounds.ExplodeSounds,
+					GetActorLocation(),
+					Settings->Volume);
+
+				WeaponState.GrenadeActivated();
+			},
+			GetWeaponInfo()->TimeToDetonate
+		};
+
+	return true;
 }
 
 bool ACloud9WeaponGrenade::Throw() const

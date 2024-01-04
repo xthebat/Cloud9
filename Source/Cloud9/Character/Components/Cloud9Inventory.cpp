@@ -111,7 +111,7 @@ void UCloud9Inventory::TickComponent(
 	}
 }
 
-bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
+bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant, bool Force)
 {
 	if (Slot == EWeaponSlot::NotSelected)
 	{
@@ -148,7 +148,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
 			"[Inventory='%s'] SelectedWeapon should not be valid if slot == EWeaponSlot::NotSelected",
 			*GetName());
 
-		if (PendingWeapon->ChangeState(EWeaponBond::Armed, Instant))
+		if (PendingWeapon->ChangeState(EWeaponBond::Armed, Instant, Force))
 		{
 			SelectedWeaponSlot = Slot;
 			return true;
@@ -160,14 +160,20 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant)
 
 	if (let SelectedWeapon = GetSelectedWeapon(); IsValid(SelectedWeapon))
 	{
-		SelectedWeapon->ChangeState(EWeaponBond::Holstered, true);
+		if (not SelectedWeapon->ChangeState(EWeaponBond::Holstered, true, Force))
+		{
+			log(Display,
+			    "[Inventory='%s'] Can't change state of selected weapon from slot='%d'",
+			    *GetName(), SelectedWeaponSlot);
+			return false;
+		}
 	}
 
-	if (not PendingWeapon->ChangeState(EWeaponBond::Armed, Instant))
+	if (not PendingWeapon->ChangeState(EWeaponBond::Armed, Instant, Force))
 	{
-		log(Verbose,
-		    "[Inventory='%s'] Can't change state of pending weapon slot='%d'",
-		    *GetName(), SelectedWeaponSlot);
+		log(Display,
+		    "[Inventory='%s'] Can't change state of pending weapon to slot='%d'",
+		    *GetName(), Slot);
 		return false;
 	}
 
@@ -324,9 +330,9 @@ bool UCloud9Inventory::RemoveWeapon(EWeaponSlot Slot)
 		return false;
 	}
 
-	if (Slot == SelectedWeaponSlot)
+	if (Slot == SelectedWeaponSlot and not SelectOtherAvailableWeapon(true))
 	{
-		SelectOtherAvailableWeapon(true);
+		return false;
 	}
 
 	WeaponAt(Slot)->Destroy();
@@ -335,7 +341,7 @@ bool UCloud9Inventory::RemoveWeapon(EWeaponSlot Slot)
 	return true;
 }
 
-bool UCloud9Inventory::SelectOtherAvailableWeapon(bool Instant)
+bool UCloud9Inventory::SelectOtherAvailableWeapon(bool Instant, bool Force)
 {
 	EWeaponSlot NewSlot = EWeaponSlot::NotSelected;
 	let Found = WeaponSlots
@@ -343,9 +349,9 @@ bool UCloud9Inventory::SelectOtherAvailableWeapon(bool Instant)
 		| ETContainer::Find{[&](let It) { return It->GetWeaponSlot() != SelectedWeaponSlot; }}
 		| ETOptional::OnSet{[&](let It) { NewSlot = It->GetWeaponSlot(); }};
 
-	log(Verbose, "[Inventory='%s'] Change selected slot to '%d'", *GetName(), NewSlot);
+	log(Display, "[Inventory='%s'] Change selected slot to '%d'", *GetName(), NewSlot);
 
-	return SelectWeapon(NewSlot, Instant);
+	return SelectWeapon(NewSlot, Instant, Force);
 }
 
 ACloud9WeaponBase* UCloud9Inventory::GetSelectedWeapon() const { return GetWeaponAt(SelectedWeaponSlot); }
