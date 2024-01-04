@@ -103,10 +103,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void TickComponent(
-		float DeltaTime,
-		ELevelTick TickType,
-		FActorComponentTickFunction* ThisTickFunction) override;
 
 	template <typename WeaponType = ACloud9WeaponBase>
 	WeaponType* WeaponAt(EWeaponSlot Slot) const { return WeaponSlots[Slot | EUEnum::To<int>{}]; }

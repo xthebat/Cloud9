@@ -35,13 +35,14 @@
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 
+#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Cloud9/Character/Components/Cloud9CharacterMovement.h"
 #include "Cloud9/Character/Components/Cloud9Inventory.h"
 #include "Cloud9/Character/Components/Cloud9SpringArmComponent.h"
+#include "Cloud9/Tools/Extensions/TContainer.h"
 
-class UCloud9SpringArmComponent;
 const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
 const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");
 const FName ACloud9Character::DecalComponentName = TEXT("CursorToWorld");
@@ -253,5 +254,27 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 
 		MyMesh->bCastDynamicShadow = true;
 		MyMesh->bAffectDynamicIndirectLighting = true;
+	}
+}
+
+void ACloud9Character::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Auto select any available weapon if nothing selected
+	if (not Inventory->GetSelectedWeapon())
+	{
+		Inventory->SelectOtherAvailableWeapon(false);
+	}
+
+	// TODO: Remove auto grenade add after debug
+	if (not Inventory->GetWeaponAt(EWeaponSlot::Grenade) and Inventory->GetSelectedWeapon() != nullptr)
+	{
+		if (let GameInstance = GetGameInstance<UCloud9GameInstance>(); IsValid(GameInstance))
+		{
+			GameInstance->GetDefaultWeaponsConfig()
+				| ETContainer::Filter{[this](let& Config) { return IsValid(Config) and Config.IsGrenadeWeapon(); }}
+				| ETContainer::ForEach{[this](let& Config) { Inventory->AddWeapon(Config); }};
+		}
 	}
 }

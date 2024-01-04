@@ -32,8 +32,6 @@
 
 UCloud9Inventory::UCloud9Inventory()
 {
-	PrimaryComponentTick.bCanEverTick = true;
-
 	SelectedWeaponSlot = EWeaponSlot::NotSelected;
 
 	let SlotsNumber = StaticEnum<EWeaponSlot>()->NumEnums();
@@ -70,44 +68,6 @@ void UCloud9Inventory::BeginPlay()
 		log(Error,
 		    "[Actor='%s'] Can't select default weapon slot='%s'",
 		    *GetName(), InitialWeaponSlot | EUEnum::GetValueName() | EFName::ToCStr());
-	}
-}
-
-void UCloud9Inventory::TickComponent(
-	float DeltaTime,
-	ELevelTick TickType,
-	FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// Auto select any available weapon if nothing selected
-	if (not GetSelectedWeapon())
-	{
-		SelectOtherAvailableWeapon(false);
-	}
-
-	if (not GetWeaponAt(EWeaponSlot::Grenade) and GetSelectedWeapon() != nullptr)
-	{
-		// TODO: Remove auto grenade add after debug
-
-		let MyOwner = GetOwner<ACloud9Character>();
-
-		if (not IsValid(MyOwner))
-		{
-			log(Error, "[Actor='%s'] ACloud9Character isn't valid", *GetName());
-			return;
-		}
-
-		let GameInstance = MyOwner->GetGameInstance<UCloud9GameInstance>();
-
-		if (not IsValid(GameInstance))
-		{
-			log(Error, "[Actor='%s'] UCloud9GameInstance isn't valid", *GetName());
-		}
-
-		GameInstance->GetDefaultWeaponsConfig()
-			| ETContainer::Filter{[this](let& Config) { return IsValid(Config) and Config.IsGrenadeWeapon(); }}
-			| ETContainer::ForEach{[this](let& Config) { AddWeapon(Config); }};
 	}
 }
 
@@ -162,7 +122,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant, bool Force)
 	{
 		if (not SelectedWeapon->ChangeState(EWeaponBond::Holstered, true, Force))
 		{
-			log(Display,
+			log(Verbose,
 			    "[Inventory='%s'] Can't change state of selected weapon from slot='%d'",
 			    *GetName(), SelectedWeaponSlot);
 			return false;
@@ -171,7 +131,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant, bool Force)
 
 	if (not PendingWeapon->ChangeState(EWeaponBond::Armed, Instant, Force))
 	{
-		log(Display,
+		log(Verbose,
 		    "[Inventory='%s'] Can't change state of pending weapon to slot='%d'",
 		    *GetName(), Slot);
 		return false;
@@ -349,7 +309,7 @@ bool UCloud9Inventory::SelectOtherAvailableWeapon(bool Instant, bool Force)
 		| ETContainer::Find{[&](let It) { return It->GetWeaponSlot() != SelectedWeaponSlot; }}
 		| ETOptional::OnSet{[&](let It) { NewSlot = It->GetWeaponSlot(); }};
 
-	log(Display, "[Inventory='%s'] Change selected slot to '%d'", *GetName(), NewSlot);
+	log(Verbose, "[Inventory='%s'] Change selected slot to '%d'", *GetName(), NewSlot);
 
 	return SelectWeapon(NewSlot, Instant, Force);
 }
