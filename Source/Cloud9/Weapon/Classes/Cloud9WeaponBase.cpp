@@ -335,7 +335,7 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond 
 		return false;
 	}
 
-	log(Verbose,
+	log(Display,
 	    "[Weapon='%s' Slot='%s'] Update attachment to character '%s' into socket '%s'",
 	    *GetName(), SLOT_NAME, *Character->GetName(), *SocketName.ToString());
 
@@ -419,27 +419,27 @@ bool ACloud9WeaponBase::RemoveFromInventory()
 	return true;
 }
 
-bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant)
+bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant, bool Force)
 {
 	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
 	{
-		log(Warning, "[Weapon='%s' Bond='%s'] Weapon not in any inventory", *GetName(), BOND_NAME);
+		log(Error, "[Weapon='%s' Bond='%s'] Weapon not in any inventory", *GetName(), BOND_NAME);
 		return false;
 	}
 
 	if (WeaponState.IsWeaponBond(NewBond))
 	{
-		log(Verbose, "[Weapon='%s' Bond='%s'] Weapon will remain the same", *GetName(), BOND_NAME);
+		log(Error, "[Weapon='%s' Bond='%s'] Weapon will remain the same", *GetName(), BOND_NAME);
 		return false;
 	}
 
-	if (IsAnyMontagePlaying())
+	if (not Force and IsAnyMontagePlaying())
 	{
 		log(Verbose, "[Weapon='%s' Bond='%s'] Montage is playing now", *GetName(), BOND_NAME);
 		return false;
 	}
 
-	if (IsActionInProgress())
+	if (not Force and IsActionInProgress())
 	{
 		log(Verbose, "[Weapon='%s' Bond='%s'] Some action is in progress", *GetName(), BOND_NAME);
 		return false;
