@@ -451,7 +451,7 @@ bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant, bool Forc
 void ACloud9WeaponBase::PrimaryAction(bool IsReleased)
 {
 	WeaponState.ActivateSequence(
-		EWeaponAction::Primary,
+		EWeaponAction::PrimaryStart,
 		EWeaponAction::PrimaryLoop,
 		EWeaponAction::PrimaryEnd,
 		IsReleased);

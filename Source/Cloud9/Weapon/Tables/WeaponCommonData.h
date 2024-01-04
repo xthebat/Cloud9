@@ -26,60 +26,87 @@
 #include "WeaponCommonData.generated.h"
 
 USTRUCT(BlueprintType)
-struct FWeaponCommonData
+struct FFirearmCommonData
 {
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage)
 	float ImpulseMultiplier = 50.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Case)
-	float CaseImpulse = 500.0f;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	float MagazineLifetime = 10.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Case)
-	float CaseEjectAngle = 45.0f;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	UParticleSystem* Tracer;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Case)
-	float CaseMaxEjectRotation = 30.0f;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	UNiagaraSystem* Squib;
+};
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Case)
-	float CaseScale = 2.0f;
+USTRUCT(BlueprintType)
+struct FCaseCommonData
+{
+	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Case)
-	float CaseLifetime = 2.0f;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Eject)
+	float EjectImpulse = 200.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade)
-	float GrenadeExplosionRadius = 200.0f;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Eject)
+	float EjectAngle = 30.0f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade)
-	float GrenadeImpulseStrength = 1000.0f;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Eject)
+	float MaxEjectRotation = 25.0f;
 
-	/**
-     * Maximum fire weapon range (no any impact after this distance)
-     */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade)
-	float GrenadeMaxThrowImpulse = 800.0f;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	float Scale = 1.2f;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade)
-	float GrenadeMaxThrowAngle = 30.0f;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
+	float Lifetime = 3.0f;
+};
+
+USTRUCT(BlueprintType)
+struct FGrenadeCommonData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Explosive)
+	float ExplosionRadius = 200.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Explosive)
+	float ImpulseStrength = 2000.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Throw)
+	float MaxThrowImpulse = 800.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Throw)
+	float MaxThrowAngle = 30.0f;
 
 	/**
 	 * Distance multiplier when making run throw
 	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade,
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Throw,
 		meta=(UIMin="0", UIMax="100", ClampMin="0", ClampMax="100"))
-	float GrenadeRunDistanceMultiplier = 1.0f;
+	float RunDistanceMultiplier = 1.0f;
 
 	/**
 	 * Distance multiplier when making jump throw
 	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Grenade,
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Throw,
 		meta=(UIMin="0", UIMax="100", ClampMin="0", ClampMax="100"))
-	float GrenadeJumpDistanceMultiplier = 1.0f;
+	float JumpDistanceMultiplier = 1.0f;
+};
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
-	float MagazineLifetime = 10.0f;
+USTRUCT(BlueprintType)
+struct FWeaponCommonData
+{
+	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Weapon)
-	UParticleSystem* FirearmTracer;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FFirearmCommonData Firearm;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FCaseCommonData Case;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FGrenadeCommonData Grenade;
 };

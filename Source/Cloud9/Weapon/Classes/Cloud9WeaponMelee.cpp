@@ -91,10 +91,10 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
 		);
 	}
-	else if (WeaponState.IsActionActive(EWeaponAction::Primary))
+	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryStart))
 	{
 		ExecuteAction(
-			EWeaponAction::Primary,
+			EWeaponAction::PrimaryStart,
 			WeaponInfo->SlashCycleTime,
 			[&] { return PlayAnimMontage(PoseMontages->PrimaryActionMontage); }
 		);
