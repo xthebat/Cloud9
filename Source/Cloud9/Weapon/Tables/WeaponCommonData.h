@@ -37,7 +37,7 @@ struct FFirearmCommonData
 	float MagazineLifetime = 10.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
-	UParticleSystem* Tracer;
+	UNiagaraSystem* Tracer;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
 	UNiagaraSystem* Squib;
