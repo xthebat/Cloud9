@@ -83,8 +83,8 @@ bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 		InitializeEffectComponent(ActiveEffect, OnActiveEffect, OnActiveScale);
 
 		let CommonData = WeaponDefinition.GetCommonData();
-		Explosion->Radius = CommonData->GrenadeExplosionRadius;
-		Explosion->ImpulseStrength = CommonData->GrenadeImpulseStrength;
+		Explosion->Radius = CommonData->Grenade.ExplosionRadius;
+		Explosion->ImpulseStrength = CommonData->Grenade.ImpulseStrength;
 		Explosion->bIgnoreOwningActor = true;
 		Explosion->bImpulseVelChange = true;
 
@@ -139,29 +139,34 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
 		);
 	}
-	else if (WeaponState.IsActionActive(EWeaponAction::Primary))
+	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryStart))
 	{
-		// log(Error, "PoseMontages->PinpullPrimaryActionMontage");
+		log(Error, "EWeaponAction::Primary");
 
 		ExecuteAction(
-			EWeaponAction::Primary,
+			EWeaponAction::PrimaryStart,
 			GetWeaponInfo()->PinpullTime,
 			[&] { return PlayAnimMontage(PoseMontages->PinpullPrimaryActionMontage); },
 			[this]
 			{
-				WeaponState.ClearAction(EWeaponAction::Primary);
+				WeaponState.ClearAction(EWeaponAction::PrimaryStart);
 				WeaponState.ActivateAction(EWeaponAction::PrimaryLoop);
 			}
 		);
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryLoop))
 	{
-		// log(Error, "PoseMontages->PinpullPrimaryActionMontage");
+		log(Error, "EWeaponAction::PrimaryLoop");
 
 		// Play hold frame of montage
 		PlayAnimMontage(
 			PoseMontages->PinpullPrimaryActionMontage,
 			PoseMontages->PinpullPrimaryActionHoldTiming);
+
+		if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
+		{
+			WeaponState.ClearAction(EWeaponAction::PrimaryLoop);
+		}
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::Secondary))
 	{
@@ -171,10 +176,9 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	{
 		// TODO: Implement middle throw (or cancel throw) for grenade
 	}
-
-	if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
+	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
 	{
-		// log(Error, "PoseMontages->PrimaryActionMontage");
+		log(Error, "EWeaponAction::PrimaryEnd");
 
 		ExecuteAction(
 			EWeaponAction::PrimaryEnd,
@@ -308,8 +312,8 @@ bool ACloud9WeaponGrenade::Throw() const
 	Inventory->DropWeapon(
 		GetWeaponSlot(),
 		CursorHit.Location,
-		CommonData->GrenadeMaxThrowAngle,
-		CommonData->GrenadeMaxThrowImpulse);
+		CommonData->Grenade.MaxThrowAngle,
+		CommonData->Grenade.MaxThrowImpulse);
 
 	return true;
 }

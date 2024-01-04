@@ -23,6 +23,7 @@
 
 #include "Cloud9WeaponFirearm.h"
 #include "Engine/StaticMeshActor.h"
+#include "NiagaraFunctionLibrary.h"
 
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
@@ -159,14 +160,14 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
 		);
 	}
-	else if (WeaponState.IsActionActive(EWeaponAction::Primary))
+	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryStart))
 	{
-		WeaponState.ClearAction(EWeaponAction::Primary);
+		WeaponState.ClearAction(EWeaponAction::PrimaryStart);
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryLoop))
 	{
 		ExecuteAction(
-			EWeaponAction::Primary,
+			EWeaponAction::PrimaryStart,
 			WeaponInfo->CycleTime,
 			[&]
 			{
@@ -179,7 +180,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 				// TODO: May be move to notifier?
 				MuzzleFlash->Activate(true);
 
-				if (not Fire(WeaponInfo, CommonData->ImpulseMultiplier))
+				if (not Fire(WeaponInfo, CommonData->Firearm))
 				{
 					log(Error, "[Weapon='%s'] Weapon fire failure", *GetName());
 					return false;
@@ -191,7 +192,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 		if (not WeaponInfo->bIsFullAuto)
 		{
-			WeaponState.ClearAction(EWeaponAction::Primary);
+			WeaponState.ClearAction(EWeaponAction::PrimaryStart);
 		}
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
@@ -209,7 +210,7 @@ const FFirearmWeaponInfo* ACloud9WeaponFirearm::GetWeaponInfo() const
 	return WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 }
 
-bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, float ImpulseMultiplier) const
+bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData) const
 {
 	let Character = GetOwner<ACloud9Character>();
 
@@ -253,7 +254,17 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, float Impu
 	if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
 	{
 		let Direction = (LineHit.Location - StartLocation) | EFVector::Normalize{};
-		Target->AddImpulse(WeaponInfo->Damage * ImpulseMultiplier * Direction, NAME_None, true);
+		Target->AddImpulse(WeaponInfo->Damage * FirearmCommonData.ImpulseMultiplier * Direction, NAME_None, true);
+	}
+
+	if (IsValid(FirearmCommonData.Squib))
+	{
+		let Squib = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			FirearmCommonData.Squib,
+			EndLocation,
+			CursorHit.Normal.Rotation());
+		Squib->SetAutoDestroy(true);
 	}
 
 	return true;
@@ -354,7 +365,7 @@ void ACloud9WeaponFirearm::DropMagazine() const
 	Mesh->SetSimulatePhysics(true);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
-	Magazine | EAActor::DestroyAfter{WeaponDefinition.GetCommonData()->MagazineLifetime};
+	Magazine | EAActor::DestroyAfter{WeaponDefinition.GetCommonData()->Firearm.MagazineLifetime};
 }
 
 void ACloud9WeaponFirearm::EjectCase() const
@@ -382,8 +393,8 @@ void ACloud9WeaponFirearm::EjectCase() const
 	let CommonData = WeaponDefinition.GetCommonData();
 
 	Case->SetMobility(EComponentMobility::Movable);
-	Case->SetActorRotation({0.0f, FMath::RandRange(0.0f, CommonData->CaseMaxEjectRotation), 0.0f});
-	Case->SetActorScale3D({CommonData->CaseScale, CommonData->CaseScale, CommonData->CaseScale});
+	Case->SetActorRotation({0.0f, FMath::RandRange(0.0f, CommonData->Case.MaxEjectRotation), 0.0f});
+	Case->SetActorScale3D({CommonData->Case.Scale, CommonData->Case.Scale, CommonData->Case.Scale});
 
 	let Mesh = Case->GetStaticMeshComponent();
 	Mesh->SetStaticMesh(CaseModel);
@@ -392,9 +403,9 @@ void ACloud9WeaponFirearm::EjectCase() const
 
 	let RightVector = GetWeaponMesh()->GetRightVector();
 	let ForwardVector = GetWeaponMesh()->GetForwardVector();
-	let ImpulseDirection = RightVector.RotateAngleAxis(CommonData->CaseEjectAngle, ForwardVector);
+	let ImpulseDirection = RightVector.RotateAngleAxis(CommonData->Case.EjectAngle, ForwardVector);
 
-	Mesh->AddImpulse(CommonData->CaseImpulse * ImpulseDirection, NAME_None, true);
+	Mesh->AddImpulse(CommonData->Case.EjectImpulse * ImpulseDirection, NAME_None, true);
 
-	Case | EAActor::DestroyAfter{CommonData->CaseLifetime};
+	Case | EAActor::DestroyAfter{CommonData->Case.Lifetime};
 }

@@ -57,7 +57,7 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	bool Fire(const FFirearmWeaponInfo* WeaponInfo, float ImpulseMultiplier) const;
+	bool Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData) const;
 
 	bool UpdateMagazineAttachment(bool IsReload);
 	void DropMagazine() const;
