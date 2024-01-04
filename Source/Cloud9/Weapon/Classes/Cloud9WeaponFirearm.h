@@ -45,6 +45,10 @@ class CLOUD9_API ACloud9WeaponFirearm : public ACloud9WeaponBase
 	friend class UCloud9AnimNotifyMagazine;
 
 public:
+	static const FName TracerProbabilityParameterName;
+	static const FName TracerDirectionParameterName;
+	
+public:
 	virtual FWeaponId GetWeaponId() const override;
 
 	const FFirearmWeaponInfo* GetWeaponInfo() const;
