@@ -79,8 +79,15 @@ bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 
 		let& [OnDetonationEffect, OnDetonationScale, OnActiveEffect, OnActiveScale] = MyWeaponInfo->Effects;
 
-		InitializeEffectComponent(DetonationEffect, OnDetonationEffect, OnDetonationScale);
-		InitializeEffectComponent(ActiveEffect, OnActiveEffect, OnActiveScale);
+		if (OnDetonationEffect != nullptr)
+		{
+			InitializeEffectComponent(DetonationEffect, OnDetonationEffect, OnDetonationScale);
+		}
+
+		if (OnActiveEffect != nullptr)
+		{
+			InitializeEffectComponent(ActiveEffect, OnActiveEffect, OnActiveScale);
+		}
 
 		let CommonData = WeaponDefinition.GetCommonData();
 		Explosion->Radius = CommonData->Grenade.ExplosionRadius;
@@ -112,9 +119,15 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 
 	WEAPON_IS_DEFINED_GUARD();
 
-	if (WeaponState.IsGrenadeActivated())
+	if (WeaponState.IsGrenadeActionFinished())
 	{
-		OnGrenadeActivated();
+		OnGrenadeActionFinished();
+		return;
+	}
+
+	if (WeaponState.IsGrenadeActionLoop())
+	{
+		OnGrenadeActionLoop();
 		return;
 	}
 
@@ -141,7 +154,7 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryStart))
 	{
-		log(Error, "EWeaponAction::Primary");
+		log(Display, "EWeaponAction::Primary");
 
 		ExecuteAction(
 			EWeaponAction::PrimaryStart,
@@ -156,7 +169,7 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryLoop))
 	{
-		log(Error, "EWeaponAction::PrimaryLoop");
+		log(Display, "EWeaponAction::PrimaryLoop");
 
 		// Play hold frame of montage
 		PlayAnimMontage(
@@ -178,7 +191,7 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
 	{
-		log(Error, "EWeaponAction::PrimaryEnd");
+		log(Display, "EWeaponAction::PrimaryEnd");
 
 		ExecuteAction(
 			EWeaponAction::PrimaryEnd,
@@ -197,35 +210,62 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	}
 }
 
-bool ACloud9WeaponGrenade::OnGrenadeActivated()
+bool ACloud9WeaponGrenade::OnGrenadeActionFinished()
+{
+	if (IsValid(this))
+	{
+		log(Display, "OnGrenadeActionFinished()")
+		Destroy();
+		SetActorTickEnabled(false);
+		return true;
+	}
+
+	return false;
+}
+
+bool ACloud9WeaponGrenade::OnGrenadeActionLoop()
 {
 	static let Settings = UCloud9DeveloperSettings::Get();
-
-	if (IsValid(ActiveEffect))
-	{
-		ActiveEffect->Activate();
-		UCloud9SoundPlayer::PlaySingleSound(
-			GetWeaponInfo()->Sounds.LoopSound,
-			GetActorLocation(),
-			Settings->Volume);
-	}
 
 	if (ActiveTimerHandle.IsValid())
 	{
 		return false;
 	}
 
-	log(Error, "ActiveTimerHandle set")
+	if (IsValid(ActiveEffect))
+	{
+		ActiveEffect->Activate();
+	}
+
+	if (let LoopSound = GetWeaponInfo()->Sounds.LoopSound; IsValid(LoopSound))
+	{
+		UCloud9SoundPlayer::PlaySingleSound(LoopSound, GetActorLocation(), Settings->Volume);
+	}
+
+	log(Display, "OnGrenadeActionLoop()")
 
 	if (GetWeaponInfo()->bIsDestroyedOnDetonation)
 	{
-		SetActorTickEnabled(false);
 		GetWeaponMesh()->SetHiddenInGame(true);
 	}
 
+	// Moved out from timer because switching level can lead to crash with timer complex code
+	if (IsValid(DetonationEffect))
+	{
+		DetonationEffect->Activate();
+	}
+
+	Explosion->FireImpulse();
+
+	if (let ExplodeSounds = GetWeaponInfo()->Sounds.ExplodeSounds; ExplodeSounds.Num() > 0)
+	{
+		UCloud9SoundPlayer::PlayRandomSound(ExplodeSounds, GetActorLocation(), Settings->Volume);
+	}
+
+	// Activate action finished timer
 	ActiveTimerHandle = GetWorld()
 		| EUWorld::AsyncAfter{
-			[this] { Destroy(); },
+			[this] { WeaponState.GrenadeActionFinished(); },
 			GetWeaponInfo()->ActionTime
 		};
 
@@ -234,7 +274,10 @@ bool ACloud9WeaponGrenade::OnGrenadeActivated()
 
 bool ACloud9WeaponGrenade::OnGrenadeThrown()
 {
-	static let Settings = UCloud9DeveloperSettings::Get();
+	if (DetonationTimerHandle.IsValid())
+	{
+		return false;
+	}
 
 	let IsOnGround = GetVelocity().IsZero();
 	let CanDetonateInAir = GetWeaponInfo()->bCanDetonateInAir;
@@ -244,31 +287,11 @@ bool ACloud9WeaponGrenade::OnGrenadeThrown()
 		return false;
 	}
 
-	if (DetonationTimerHandle.IsValid())
-	{
-		return false;
-	}
-
-	log(Error, "WeaponState.IsGrenadeThrown()")
+	log(Display, "OnGrenadeThrown()")
 
 	DetonationTimerHandle = GetWorld()
 		| EUWorld::AsyncAfter{
-			[this]
-			{
-				if (IsValid(DetonationEffect))
-				{
-					DetonationEffect->Activate();
-				}
-
-				Explosion->FireImpulse();
-
-				UCloud9SoundPlayer::PlayRandomSound(
-					GetWeaponInfo()->Sounds.ExplodeSounds,
-					GetActorLocation(),
-					Settings->Volume);
-
-				WeaponState.GrenadeActivated();
-			},
+			[this] { WeaponState.GrenadeActionLoop(); },
 			GetWeaponInfo()->TimeToDetonate
 		};
 

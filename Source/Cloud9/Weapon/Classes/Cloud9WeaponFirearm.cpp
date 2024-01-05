@@ -254,7 +254,7 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFir
 
 	log(Verbose, "Target = %s Owner = %s", *Target->GetName(), *Target->GetOwner()->GetName());
 
-	let Direction = (LineHit.Location - StartLocation) | EFVector::Normalize{};
+	let Direction = LineHit.Location - StartLocation | EFVector::Normalize{};
 
 	if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
 	{

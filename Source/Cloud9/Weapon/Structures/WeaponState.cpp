@@ -29,8 +29,14 @@ void FWeaponState::Reset()
 {
 	Slot = EWeaponSlot::NotSelected;
 	Bond = EWeaponBond::Dropped;
+
 	bIsBoltCycled = false;
 	bIsMagazineDetached = false;
+
+	bIsGrenadeDeactivated = false;
+	bIsGrenadeThrown = false;
+	bIsGrenadeActivated = false;
+
 	ClearAllActions();
 }
 
@@ -82,21 +88,3 @@ void FWeaponState::OnRemovedFromInventory()
 	Bond = EWeaponBond::Dropped;
 	ClearAllActions();
 }
-
-EWeaponSlot FWeaponState::GetWeaponSlot() const { return Slot; }
-
-void FWeaponState::BoltCycled(bool State) { bIsBoltCycled = State; }
-
-bool FWeaponState::IsBoltCycled() const { return bIsBoltCycled; }
-
-void FWeaponState::GrenadeThrown() { bIsGrenadeThrown = true; }
-
-bool FWeaponState::IsGrenadeThrown() const { return bIsGrenadeThrown; }
-
-void FWeaponState::GrenadeActivated() { bIsGrenadeActivated = true; }
-
-bool FWeaponState::IsGrenadeActivated() const { return bIsGrenadeActivated; }
-
-void FWeaponState::DetachMagazine(bool State) { bIsMagazineDetached = State; }
-
-bool FWeaponState::IsMagazineDetached() const { return bIsMagazineDetached; }
