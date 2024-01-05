@@ -68,23 +68,27 @@ struct FWeaponState
 
 	void OnRemovedFromInventory();
 
-	EWeaponSlot GetWeaponSlot() const;
+	EWeaponSlot GetWeaponSlot() const { return Slot; }
 
-	void BoltCycled(bool State);
+	void BoltCycled(bool State) { bIsBoltCycled = State; }
 
-	bool IsBoltCycled() const;
+	bool IsBoltCycled() const { return bIsBoltCycled; }
 
-	void GrenadeThrown();
+	void GrenadeThrown() { bIsGrenadeThrown = true; }
 
-	bool IsGrenadeThrown() const;
+	bool IsGrenadeThrown() const { return bIsGrenadeThrown; }
 
-	void GrenadeActivated();
+	void GrenadeActionLoop() { bIsGrenadeActivated = true; }
 
-	bool IsGrenadeActivated() const;
+	bool IsGrenadeActionLoop() const { return bIsGrenadeActivated; }
 
-	void DetachMagazine(bool State);
+	void GrenadeActionFinished() { bIsGrenadeDeactivated = true; }
 
-	bool IsMagazineDetached() const;
+	bool IsGrenadeActionFinished() const { return bIsGrenadeDeactivated; }
+
+	void DetachMagazine(bool State) { bIsMagazineDetached = State; }
+
+	bool IsMagazineDetached() const { return bIsMagazineDetached; }
 
 protected:
 	void ClearAllActions();
@@ -94,21 +98,33 @@ protected:
 	FORCEINLINE bool& operator[](EWeaponAction Action) { return Actions[Action | EUEnum::To<int>{}]; }
 
 	/**
+	 * Current weapon actions in process
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly)
+	TArray<bool> Actions;
+
+	/**
 	 * Current weapon slot (main/pistol/knife/grenade)
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Weapon, BlueprintReadOnly)
 	EWeaponSlot Slot;
 
 	/**
 	 * Current weapon state (armed/holstered/dropped)
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Weapon, BlueprintReadOnly)
 	EWeaponBond Bond;
+
+	/**
+	 * If true magazine is currently detached from weapon
+	 */
+	UPROPERTY(Category=Weapon, BlueprintReadOnly)
+	bool bIsMagazineDetached;
 
 	/**
 	 * Forcibly disable inverse kinematic for animation blueprint
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Weapon, BlueprintReadOnly)
 	bool bIsBoltCycled;
 
 	/**
@@ -116,7 +132,7 @@ protected:
 	 *
 	 * NOTE: Only relevant for grenades
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Grenade, BlueprintReadOnly)
 	bool bIsGrenadeThrown;
 
 	/**
@@ -124,18 +140,14 @@ protected:
 	 *
 	 * NOTE: Only relevant for grenades
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Grenade, BlueprintReadOnly)
 	bool bIsGrenadeActivated;
 
 	/**
-	 * If true magazine is currently detached from weapon
+	 * Whether or not grenade should be destroyed
+	 *
+	 * NOTE: Only relevant for grenades
 	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	bool bIsMagazineDetached;
-
-	/**
-	 * Current weapon actions in process
-	 */
-	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	TArray<bool> Actions;
+	UPROPERTY(Category=Grenade, BlueprintReadOnly)
+	bool bIsGrenadeDeactivated;
 };

@@ -58,7 +58,8 @@ protected:
 	virtual void OnWeaponAddedToInventory() override;
 	virtual void OnWeaponRemovedFromInventory() override;
 
-	bool OnGrenadeActivated();
+	bool OnGrenadeActionFinished();
+	bool OnGrenadeActionLoop();
 	bool OnGrenadeThrown();
 
 	bool Throw() const;
