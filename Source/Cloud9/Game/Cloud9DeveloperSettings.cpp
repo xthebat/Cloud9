@@ -102,7 +102,19 @@ void UCloud9DeveloperSettings::InitializeCVars()
 		RegisterConsoleVariable(
 			bIsDrawExplosionSpheres,
 			TEXT("r.bIsDrawExplosionSpheres"),
-			TEXT("Whether to debug explosions spheres")
+			TEXT("Whether to draw debug explosions spheres")
+		);
+
+		RegisterConsoleVariable(
+			bIsDrawHitScan,
+			TEXT("r.bIsDrawHitScan"),
+			TEXT("Whether to draw debug hit scan lines")
+		);
+
+		RegisterConsoleVariable(
+			bIsPrintHitScanInfo,
+			TEXT("r.bIsPrintHitScanInfo"),
+			TEXT("Whether to print hit scan info")
 		);
 
 		RegisterConsoleVariable(

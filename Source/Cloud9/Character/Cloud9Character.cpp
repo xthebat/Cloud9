@@ -42,6 +42,7 @@
 #include "Cloud9/Character/Components/Cloud9Inventory.h"
 #include "Cloud9/Character/Components/Cloud9SpringArmComponent.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
+#include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 
 const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
 const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");

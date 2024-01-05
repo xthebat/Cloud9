@@ -33,6 +33,14 @@ struct FFirearmCommonData
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage)
 	float ImpulseMultiplier = 50.0f;
 
+	/**
+	 * Alpha coefficient to fixup hit-scan registration.
+	 * 
+	 * GetHitUnderCursor can return value slightly upper then surface.
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	float LineTraceAlpha = 5.0f;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
 	float MagazineLifetime = 10.0f;
 
