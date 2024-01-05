@@ -106,11 +106,21 @@ struct FGrenadeWeaponInfo : public FBaseWeaponInfo
 	TSubclassOf<ACloud9WeaponGrenade> Class;
 
 	/**
-	 * --
+	 * Only relevant for frag (explosive) and molotov grenade
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
 		meta=(UIMin="0", UIMax="1000", ClampMin="0", ClampMax="1000"))
 	float Damage;
+
+	/**
+	 * Effective radius for grenade
+	 * - Explosive - Explosive radius
+	 * - Molotov - Radius of burning
+	 * - Smoke - Radius of smoke
+	 * - Flash - Not relevant
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage)
+	float Radius = 200.0f;
 
 	/**
 	 * Damage against armored opponents is multiplied by ArmorPenetration * 0.5
@@ -118,13 +128,6 @@ struct FGrenadeWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
 		meta=(UIMin="0", UIMax="1.0", ClampMin="0", ClampMax="2.0"))
 	float ArmorPenetration = 2.0f;
-
-	/**
-	 * --
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
-		meta=(UIMin="0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
-	float RangeModifier = 1.0f;
 
 	/**
 	 * Time to pull out pin of grenade before throw

@@ -69,11 +69,11 @@ struct FGrenadeCommonData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Explosive)
-	float ExplosionRadius = 200.0f;
-
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Explosive)
-	float ImpulseStrength = 2000.0f;
+	/**
+	 * Only relevant for frag (explosive)
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage)
+	float ImpulseMultiplier = 10.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Throw)
 	float MaxThrowImpulse = 800.0f;
