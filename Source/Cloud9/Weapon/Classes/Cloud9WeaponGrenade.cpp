@@ -23,6 +23,8 @@
 
 #include "Cloud9WeaponGrenade.h"
 
+#include "DrawDebugHelpers.h"
+
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
@@ -90,8 +92,9 @@ bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 		}
 
 		let CommonData = WeaponDefinition.GetCommonData();
-		Explosion->Radius = CommonData->Grenade.ExplosionRadius;
-		Explosion->ImpulseStrength = CommonData->Grenade.ImpulseStrength;
+
+		Explosion->Radius = GetWeaponInfo()->Radius;
+		Explosion->ImpulseStrength = GetWeaponInfo()->Damage * CommonData->Grenade.ImpulseMultiplier;
 		Explosion->bIgnoreOwningActor = true;
 		Explosion->bImpulseVelChange = true;
 
@@ -232,6 +235,7 @@ bool ACloud9WeaponGrenade::OnGrenadeActionLoop()
 		return false;
 	}
 
+	// TODO: look like active effect not required (can be replaced by niagara effect)
 	if (IsValid(ActiveEffect))
 	{
 		ActiveEffect->Activate();
@@ -260,6 +264,49 @@ bool ACloud9WeaponGrenade::OnGrenadeActionLoop()
 	if (let ExplodeSounds = GetWeaponInfo()->Sounds.ExplodeSounds; ExplodeSounds.Num() > 0)
 	{
 		UCloud9SoundPlayer::PlayRandomSound(ExplodeSounds, GetActorLocation(), Settings->Volume);
+	}
+
+	if (Settings->bIsDrawExplosionSpheres)
+	{
+		constexpr int SphereSegments = 32;
+		constexpr int SphereLifeTime = 4.0f;
+		constexpr int SphereThickness = 1.0f;
+
+		DrawDebugSphere(
+			GetWorld(),
+			GetActorLocation(),
+			Explosion->Radius * 0.5f,
+			SphereSegments,
+			FColor::Red,
+			false,
+			SphereLifeTime,
+			0,
+			SphereThickness
+		);
+
+		DrawDebugSphere(
+			GetWorld(),
+			GetActorLocation(),
+			Explosion->Radius * 0.75f,
+			SphereSegments,
+			FColor::Yellow,
+			false,
+			SphereLifeTime,
+			0,
+			SphereThickness
+		);
+
+		DrawDebugSphere(
+			GetWorld(),
+			GetActorLocation(),
+			Explosion->Radius * 1.0f,
+			SphereSegments,
+			FColor::Green,
+			false,
+			SphereLifeTime,
+			0,
+			SphereThickness
+		);
 	}
 
 	// Activate action finished timer

@@ -33,6 +33,7 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	bIsShowMouseCursor = 0;
 	bIsDrawDeprojectedCursorLine = 0;
 	bIsDrawHitCursorLine = 0;
+	bIsDrawExplosionSpheres = 0;
 	NetGraph = 0;
 	Volume = 0.1;
 }
@@ -96,6 +97,12 @@ void UCloud9DeveloperSettings::InitializeCVars()
 			bIsDrawHitCursorLine,
 			TEXT("r.bIsDrawHitCursorLine"),
 			TEXT("Whether to show mouse cursor on screen or not in game")
+		);
+
+		RegisterConsoleVariable(
+			bIsDrawExplosionSpheres,
+			TEXT("r.bIsDrawExplosionSpheres"),
+			TEXT("Whether to debug explosions spheres")
 		);
 
 		RegisterConsoleVariable(
