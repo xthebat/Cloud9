@@ -32,6 +32,7 @@
 #include "Cloud9/Tools/Extensions/FVector.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
 
 const FName ACloud9WeaponFirearm::TracerProbabilityParameterName = TEXT("Probability");
@@ -195,7 +196,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 		if (not WeaponInfo->bIsFullAuto)
 		{
-			WeaponState.ClearAction(EWeaponAction::PrimaryStart);
+			WeaponState.ClearAction(EWeaponAction::PrimaryLoop);
 		}
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
@@ -240,49 +241,84 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFir
 		return true;
 	}
 
+	let Settings = UCloud9DeveloperSettings::Get();
+
+	var CollisionParams = FCollisionQueryParams::DefaultQueryParam;
+
+	if (Settings->bIsDrawHitScan)
+	{
+		const FName TraceTag("HitScanTraceTag");
+		GetWorld()->DebugDrawTraceTag = TraceTag;
+		CollisionParams.TraceTag = TraceTag;
+		CollisionParams.bTraceComplex = true;
+	}
+
 	let StartLocation = MuzzleFlash->GetComponentLocation();
-	let EndLocation = CursorHit.Location;
+	// GetHitResultUnderCursor can return coordinates slightly upper then surface
+	// Prolong line in shoot direction
+	let EndLocation = FMath::Lerp(StartLocation, FVector{CursorHit.Location}, FirearmCommonData.LineTraceAlpha);
 
 	FHitResult LineHit;
-	if (not GetWorld()->LineTraceSingleByChannel(LineHit, StartLocation, EndLocation, ECC_Visibility))
+	let IsHit = GetWorld()->LineTraceSingleByChannel(
+		LineHit,
+		StartLocation,
+		EndLocation,
+		ECC_Visibility,
+		CollisionParams);
+
+	if (Settings->bIsPrintHitScanInfo)
 	{
-		log(Display, "LineTraceSingleByChannel not hit anything")
+		FString TargetName = IsHit ? *LineHit.Component->GetName() : TEXT("???");
+		FString OwnerName = IsHit and LineHit.Component->GetOwner() != nullptr
+			                    ? *LineHit.Component->GetOwner()->GetName()
+			                    : TEXT("???");
+
+		log(Display,
+		    "Target='%s' Owner='%s' Start={%s} End={%s} TraceEnd={%s} Hit={%s} ",
+		    *TargetName,
+		    *OwnerName,
+		    *StartLocation.ToString(),
+		    *EndLocation.ToString(),
+		    *LineHit.TraceEnd.ToString(),
+		    *LineHit.Location.ToString()
+		);
+	}
+
+	if (IsHit)
+	{
+		let Target = LineHit.Component;
+
+		let Direction = LineHit.Location - StartLocation | EFVector::Normalize{};
+
+		if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
+		{
+			let Velocity = WeaponInfo->Damage * FirearmCommonData.ImpulseMultiplier * Direction;
+			Target->AddImpulse(Velocity, NAME_None, true);
+		}
+
+		if (IsValid(FirearmCommonData.Tracer))
+		{
+			let Tracer = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				FirearmCommonData.Tracer,
+				StartLocation);
+			Tracer->SetVectorParameter(TracerDirectionParameterName, Direction);
+			Tracer->SetFloatParameter(TracerProbabilityParameterName, WeaponInfo->TracerProbability);
+			Tracer->SetAutoDestroy(true);
+		}
+
+		if (IsValid(FirearmCommonData.Squib))
+		{
+			let Squib = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				FirearmCommonData.Squib,
+				LineHit.Location,
+				CursorHit.Normal.Rotation());
+			Squib->SetAutoDestroy(true);
+		}
+
 		return true;
 	}
-
-	let Target = LineHit.Component;
-
-	log(Verbose, "Target = %s Owner = %s", *Target->GetName(), *Target->GetOwner()->GetName());
-
-	let Direction = LineHit.Location - StartLocation | EFVector::Normalize{};
-
-	if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
-	{
-		let Velocity = WeaponInfo->Damage * FirearmCommonData.ImpulseMultiplier * Direction;
-		Target->AddImpulse(Velocity, NAME_None, true);
-	}
-
-	if (IsValid(FirearmCommonData.Tracer))
-	{
-		let Tracer = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			GetWorld(),
-			FirearmCommonData.Tracer,
-			StartLocation);
-		Tracer->SetVectorParameter(TracerDirectionParameterName, Direction);
-		Tracer->SetFloatParameter(TracerProbabilityParameterName, WeaponInfo->TracerProbability);
-		Tracer->SetAutoDestroy(true);
-	}
-
-	if (IsValid(FirearmCommonData.Squib))
-	{
-		let Squib = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			GetWorld(),
-			FirearmCommonData.Squib,
-			LineHit.Location,
-			CursorHit.Normal.Rotation());
-		Squib->SetAutoDestroy(true);
-	}
-
 	return true;
 }
 
