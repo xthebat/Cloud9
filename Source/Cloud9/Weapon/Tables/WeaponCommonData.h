@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "Niagara/Classes/NiagaraSystem.h"
+
 #include "WeaponCommonData.generated.h"
 
 USTRUCT(BlueprintType)
