@@ -41,6 +41,7 @@
 #include "Cloud9/Character/Components/Cloud9CharacterMovement.h"
 #include "Cloud9/Character/Components/Cloud9Inventory.h"
 #include "Cloud9/Character/Components/Cloud9SpringArmComponent.h"
+#include "Cloud9/Tools/Extensions/FVector.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 
@@ -78,7 +79,6 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	CursorToWorld->SetupAttachment(RootComponent);
 
 	Inventory = CreateDefaultSubobject<UCloud9Inventory>(InventoryComponentName);
-
 
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
@@ -122,7 +122,7 @@ void ACloud9Character::UnSneak() const
 	}
 }
 
-void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHitValid) const
+void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHitValid)
 {
 	if (IsValid(CursorToWorld))
 	{
@@ -136,11 +136,13 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 
 	let Settings = UCloud9DeveloperSettings::Get();
 
+	let StartLocation = GetMesh()->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
+
 	if (Settings->bIsDrawHitCursorLine)
 	{
 		DrawDebugLine(
 			GetWorld(),
-			GetActorLocation(),
+			StartLocation,
 			HitResult.Location,
 			FColor::Green,
 			false,
@@ -162,7 +164,7 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 
 		DrawDebugLine(
 			GetWorld(),
-			GetActorLocation(),
+			StartLocation,
 			WorldLocation,
 			FColor::Red,
 			false,
@@ -171,9 +173,9 @@ void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHit
 
 	if (bIsHitValid)
 	{
-		let TargetLocation = FVector{HitResult.Location.X, HitResult.Location.Y, 0.0f};
-		let ActorLocation = GetActorLocation();
-		let LookRotation = UKismetMathLibrary::FindLookAtRotation(ActorLocation, TargetLocation);
+		let TargetLocation = HitResult.Location;
+		let LookRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
+		ViewVerticalRotation = LookRotation.Pitch;
 		GetCloud9CharacterMovement()->Rotate({0.0f, LookRotation.Yaw, 0.0f});
 	}
 }
