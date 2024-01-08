@@ -38,7 +38,7 @@ struct FFirearmCommonData
 	/**
 	 * Alpha coefficient to fixup hit-scan registration.
 	 * 
-	 * GetHitUnderCursor can return value slightly upper then surface.
+	 * GetHitResultUnderCursor can return value slightly upper then surface.
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
 	float LineTraceAlpha = 5.0f;

@@ -63,7 +63,10 @@ public:
 
 	void UnSneak() const;
 
-	void SetViewDirection(const FHitResult& HitResult, bool bIsHitValid) const;
+	void SetViewDirection(const FHitResult& HitResult, bool bIsHitValid);
+
+	UFUNCTION(BlueprintCallable)
+	float GetViewVerticalRotation() const { return ViewVerticalRotation; }
 
 	void SetCameraRotationYaw(float Angle) const;
 	void AddCameraRotationYaw(float Angle) const;
@@ -83,28 +86,32 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category=Character)
 	uint32 bIsSneaking : 1;
 
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float ViewVerticalRotation;
+
 private:
 	// TODO: Move to GameInstance
 	UPROPERTY(EditDefaultsOnly)
 	UMaterial* CursorDecal;
 
 	/** A decal that projects to the cursor location. */
-	UPROPERTY(EditDefaultsOnly, Category = Camera, meta=(AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category=Camera, meta=(AllowPrivateAccess))
 	FName CameraTargetBoneName;
 
 	/** Top down camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta=(AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera, meta=(AllowPrivateAccess))
 	UCameraComponent* TopDownCameraComponent;
 
 	/** Camera boom positioning the camera above the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta=(AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera, meta=(AllowPrivateAccess))
 	USpringArmComponent* CameraBoom;
 
 	/** A decal that projects to the cursor location. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta=(AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera, meta=(AllowPrivateAccess))
 	UDecalComponent* CursorToWorld;
 
 	/** An inventory of the character. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta=(AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Inventory, meta=(AllowPrivateAccess))
 	UCloud9Inventory* Inventory;
 };

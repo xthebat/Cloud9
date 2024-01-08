@@ -84,7 +84,7 @@ void UCloud9DeveloperSettings::InitializeCVars()
 		RegisterConsoleVariable(
 			bIsShowMouseCursor,
 			TEXT("r.IsShowMouseCursor"),
-			TEXT("Whether to draw line from character to GetHitUnderCursor point")
+			TEXT("Whether to draw line from character to GetHitResultUnderCursor point")
 		);
 
 		RegisterConsoleVariable(
