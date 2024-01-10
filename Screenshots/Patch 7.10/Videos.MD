@@ -1,0 +1,6 @@
+﻿- [AK47/M4A1S](https://www.youtube.com/watch?v=7jGk5zb2VVA)
+- [Nova](https://youtu.be/uMpXvR2VjyY)
+- [AWP](https://youtu.be/AwWafWcAbYw)
+- [Deagle](https://youtu.be/AkiQTPoe6NE)
+- [HKP2000](https://youtu.be/AfyI1zRL-Sg)
+- [Grenade](https://youtu.be/zwaEIMnaXhc)

@@ -4,6 +4,7 @@
 
 - [Design Document](Docs/Design.MD)
 - [Basic Notes](Docs/Notes.MD)
+- [Screenshots/Videos](Screenshots)
 
 ### CS:GO stuff
 
