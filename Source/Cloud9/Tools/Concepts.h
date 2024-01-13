@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 Alexei Gladkikh
+// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -23,16 +23,34 @@
 
 #pragma once
 
-#include "Cloud9/Tools/Macro/Operator.h"
-#include "Cloud9/Tools/Concepts.h"
-
-namespace EFString
+/**
+ * std abstraction because UE4 has self APIs to avoid mixin std and UE4 APIs
+ */
+namespace Concepts
 {
-	struct ToCStr
+	template <typename SelfType>
+	concept incrementable = requires(SelfType Self)
 	{
-		template <typename SelfType> requires Concepts::convertiable<SelfType, FString>
-		FORCEINLINE const TCHAR* operator()(SelfType&& Self) const { return *Self; }
+		++Self;
+	};
 
-		OPERATOR_BODY(ToCStr)
+	template <typename SelfType, typename OtherType>
+	concept plusassingable =
+		incrementable<SelfType>
+		&& requires(SelfType Self, OtherType Other)
+		{
+			Self += Other;
+		};
+
+	template <typename SelfType, typename BoundType>
+	concept dereferencable = requires(SelfType Self)
+	{
+		{ *Self } -> std::convertible_to<BoundType>;
+	};
+
+	template <typename SelfType, typename BoundType>
+	concept convertiable = requires(SelfType Self)
+	{
+		{ Self } -> std::convertible_to<BoundType>;
 	};
 }
