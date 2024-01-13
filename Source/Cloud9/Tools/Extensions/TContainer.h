@@ -20,34 +20,12 @@
 
 #pragma once
 
+#include "Cloud9/Tools/Concepts.h"
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Macro/Operator.h"
 #include "Cloud9/Tools/Containers/Sequence.h"
 #include "Cloud9/Tools/Extensions/TOptional.h"
-
-namespace Concepts
-{
-	template <typename IteratorType>
-	concept incrementable = requires(IteratorType Iterator)
-	{
-		++Iterator;
-	};
-
-	template <typename IteratorType, typename SizeType>
-	concept moveable =
-		incrementable<IteratorType>
-		&& requires(IteratorType Iterator, SizeType Distance)
-		{
-			Iterator += Distance;
-		};
-
-	template <typename IteratorType, typename ValueType>
-	concept dereferencable = requires(IteratorType Iterator)
-	{
-		{ *Iterator } -> std::convertible_to<ValueType>;
-	};
-}
 
 namespace ETIterator
 {
@@ -62,7 +40,7 @@ namespace ETIterator
 			return Self;
 		}
 
-		constexpr auto operator()(Concepts::moveable<SizeType> auto Self) const
+		constexpr auto operator()(Concepts::plusassingable<SizeType> auto Self) const
 		{
 			Self += Distance;
 			return Self;

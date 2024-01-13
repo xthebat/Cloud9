@@ -24,13 +24,13 @@
 #pragma once
 
 #include "Cloud9/Tools/Macro/Operator.h"
-#include "Cloud9/Tools/Macro/Template.h"
+#include "Cloud9/Tools/Concepts.h"
 
 namespace EFVector
 {
 	struct Normalize
 	{
-		template <typename SelfType, sametype(SelfType, FVector)>
+		template <typename SelfType> requires Concepts::convertiable<SelfType, FVector>
 		FORCEINLINE FVector operator()(SelfType&& Self) const
 		{
 			FVector Normalized = Self;
