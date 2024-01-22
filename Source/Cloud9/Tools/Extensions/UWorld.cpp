@@ -23,36 +23,9 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Engine/GameInstance.h"
+#include "Cloud9/Tools/Extensions/UWorld.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
-
-#include "Cloud9/Weapon/Enums/WeaponSlot.h"
-#include "Cloud9/Weapon/Structures/WeaponConfig.h"
-
-#include "Cloud9GameInstance.generated.h"
-
-UCLASS()
-class CLOUD9_API UCloud9GameInstance : public UGameInstance
+namespace Private_EUWorld
 {
-	GENERATED_BODY()
-
-public:
-	const TArray<FWeaponConfig>& GetDefaultWeaponsConfig() const;
-
-	EWeaponSlot GetInitialWeaponSlot() const;
-
-protected: // properties
-
-	virtual void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
-
-	// TODO: May better to move these into GameMode?
-
-	UPROPERTY(Category=Weapon, EditDefaultsOnly)
-	TArray<FWeaponConfig> DefaultWeaponsConfig;
-
-	UPROPERTY(Category=Weapon, EditDefaultsOnly)
-	EWeaponSlot InitialWeaponSlot;
-};
+	TSet<FTimerHandle> ActiveTimers{};
+}

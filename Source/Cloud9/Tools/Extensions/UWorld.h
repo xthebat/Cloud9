@@ -24,7 +24,13 @@
 #pragma once
 
 #include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Macro/Operator.h"
+
+namespace Private_EUWorld
+{
+	extern TSet<FTimerHandle> ActiveTimers;
+}
 
 namespace EUWorld
 {
@@ -55,11 +61,13 @@ namespace EUWorld
 	template <typename BlockType>
 	struct AsyncAfter
 	{
-		const BlockType& Block;
+		BlockType Block;
 		float InRate;
 		bool bInLoop = false;
 
-		FORCEINLINE FTimerHandle operator()(const UWorld* Self) const
+		FTimerHandle TimerHandle{};
+
+		FORCEINLINE FTimerHandle operator()(const UWorld* Self)
 		{
 			if (InRate == 0.0f)
 			{
@@ -68,11 +76,17 @@ namespace EUWorld
 			}
 
 			assertf(Self != nullptr, "World should not be nullptr to start timer");
-			FTimerHandle TimerHandle;
-			FTimerDelegate TimerDelegate;
-			TimerDelegate.BindLambda(Block);
-			Self->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, InRate, bInLoop);
+
+			let Delegate = FTimerDelegate::CreateStatic(&AsyncAfter::Execute, this);
+			Self->GetTimerManager().SetTimer(TimerHandle, Delegate, InRate, bInLoop);
+			Private_EUWorld::ActiveTimers.Add(TimerHandle);
 			return TimerHandle;
+		}
+
+		static void Execute(AsyncAfter* What)
+		{
+			What->Block();
+			Private_EUWorld::ActiveTimers.Remove(What->TimerHandle);
 		}
 
 		OPERATOR_BODY(AsyncAfter)
@@ -88,5 +102,33 @@ namespace EUWorld
 		}
 
 		OPERATOR_BODY(IsTimerActive)
+	};
+
+	struct ClearTimer
+	{
+		FTimerHandle& TimerHandle;
+
+		FORCEINLINE void operator()(const UWorld* Self) const
+		{
+			Self->GetTimerManager().ClearTimer(TimerHandle);
+			Private_EUWorld::ActiveTimers.Remove(TimerHandle);
+		}
+
+		OPERATOR_BODY(ClearTimer)
+	};
+
+	struct ClearAllTimers
+	{
+		FORCEINLINE void operator()(const UWorld* Self) const
+		{
+			for (var It : Private_EUWorld::ActiveTimers)
+			{
+				Self->GetTimerManager().ClearTimer(It);
+			}
+
+			Private_EUWorld::ActiveTimers.Empty();
+		}
+
+		OPERATOR_BODY(ClearAllTimers)
 	};
 }

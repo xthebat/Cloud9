@@ -79,7 +79,7 @@ namespace EAActor
 	{
 		float Delay;
 
-		void operator()(AActor* Self) const
+		FTimerHandle operator()(AActor* Self) const
 		{
 			assertf(Self != nullptr, "Actor should not be nullptr");
 
@@ -87,24 +87,25 @@ namespace EAActor
 			if (Self->IsPendingKillPending())
 			{
 				log(Verbose, "[Actor='%s'] Already waiting it's death", *Self->GetName())
-				return;
+				return {};
 			}
 
 			if (Delay > 0)
 			{
-				Self->GetWorld() | EUWorld::AsyncAfter{[Self] { Self->Destroy(); }, Delay};
+				return Self->GetWorld() | EUWorld::AsyncAfter{[Self] { Self->Destroy(); }, Delay};
 			}
-			else if (Delay == 0.0f)
+
+			if (Delay == 0.0f)
 			{
 				Self->Destroy();
+				return {};
 			}
-			else
-			{
-				log(
-					Verbose,
-					"[Actor='%s'] Set to be destroyed with delay but won't be because Delay<0.0f",
-					*Self->GetName());
-			}
+
+			log(
+				Verbose,
+				"[Actor='%s'] Set to be destroyed with delay but won't be because Delay<0.0f",
+				*Self->GetName());
+			return {};
 		}
 
 		OPERATOR_BODY(DestroyAfter)

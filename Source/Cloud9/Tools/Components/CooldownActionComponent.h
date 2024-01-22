@@ -55,8 +55,8 @@ public:
 	template <typename OnExecuteType, typename OnCompleteType>
 	FORCEINLINE bool Execute(
 		float CooldownTime,
-		OnExecuteType&& OnExecute,
-		OnCompleteType&& OnComplete)
+		OnExecuteType OnExecute,
+		OnCompleteType OnComplete)
 	{
 		if (not bIsExecuting)
 		{
@@ -84,7 +84,7 @@ public:
 	}
 
 	template <typename OnExecuteType>
-	FORCEINLINE bool Execute(float CooldownTime, OnExecuteType&& OnExecute)
+	FORCEINLINE bool Execute(float CooldownTime, OnExecuteType OnExecute)
 	{
 		if (not bIsExecuting)
 		{
