@@ -161,7 +161,10 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			EWeaponAction::Deploy,
 			WeaponInfo->DeployTime,
 			[&] { return PlayAnimMontage(PoseMontages->DeployMontage); },
-			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
+			[this]
+			{
+				WeaponState.ClearAction(EWeaponAction::Deploy);
+			}
 		);
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryStart))

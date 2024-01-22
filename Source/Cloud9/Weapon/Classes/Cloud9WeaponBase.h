@@ -133,18 +133,18 @@ public:
 	FORCEINLINE bool ExecuteAction(
 		EWeaponAction Action,
 		float CooldownTime,
-		OnExecuteType&& OnExecute,
-		OnCompleteType&& OnComplete)
+		OnExecuteType OnExecute,
+		OnCompleteType OnComplete)
 	{
 		let ActionIndex = Action | EUEnum::To<int>{};
-		return Executors[ActionIndex]->Execute(CooldownTime, MoveTemp(OnExecute), MoveTemp(OnComplete));
+		return Executors[ActionIndex]->Execute(CooldownTime, OnExecute, OnComplete);
 	}
 
 	template <typename OnExecuteType>
 	FORCEINLINE bool ExecuteAction(EWeaponAction Action, float CooldownTime, OnExecuteType&& OnExecute)
 	{
 		let ActionIndex = Action | EUEnum::To<int>{};
-		return Executors[ActionIndex]->Execute(CooldownTime, MoveTemp(OnExecute));
+		return Executors[ActionIndex]->Execute(CooldownTime, OnExecute);
 	}
 
 	FORCEINLINE bool IsActionInProgress(EWeaponAction Action) const
