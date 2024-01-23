@@ -69,7 +69,6 @@ public:
 
 			bIsExecuting = true;
 
-			// lambda should be copied otherwise GC fuck up objects inside it
 			TimerHandle = GetWorld() | EUWorld::AsyncAfter{
 				[this, OnComplete]
 				{
@@ -106,7 +105,7 @@ protected:
 	/**
 	 * Whether or not action currently in process
 	 */
-	UPROPERTY(Category=Implementation, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	UPROPERTY(Category=Implementation, BlueprintReadOnly)
 	bool bIsExecuting;
 
 	UPROPERTY(Category=Implementation, BlueprintReadOnly)
