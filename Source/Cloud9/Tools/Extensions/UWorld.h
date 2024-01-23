@@ -77,16 +77,16 @@ namespace EUWorld
 
 			assertf(Self != nullptr, "World should not be nullptr to start timer");
 
-			let Delegate = FTimerDelegate::CreateStatic(&AsyncAfter::Execute, this);
+			let Delegate = FTimerDelegate::CreateStatic(&AsyncAfter::Execute, Block, TimerHandle);
 			Self->GetTimerManager().SetTimer(TimerHandle, Delegate, InRate, bInLoop);
 			Private_EUWorld::ActiveTimers.Add(TimerHandle);
 			return TimerHandle;
 		}
 
-		static void Execute(AsyncAfter* What)
+		static void Execute(BlockType Block, FTimerHandle Handle)
 		{
-			What->Block();
-			Private_EUWorld::ActiveTimers.Remove(What->TimerHandle);
+			Block();
+			Private_EUWorld::ActiveTimers.Remove(Handle);
 		}
 
 		OPERATOR_BODY(AsyncAfter)
