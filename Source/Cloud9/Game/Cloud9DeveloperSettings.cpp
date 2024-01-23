@@ -30,10 +30,13 @@
 UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	bIsShowMouseCursor = 0;
-	bIsDrawDeprojectedCursorLine = 0;
 	bIsDrawHitCursorLine = 0;
+	bIsDrawDeprojectedCursorLine = 0;
+	bIsShowMouseCursor = 0;
 	bIsDrawExplosionSpheres = 0;
+	bIsDrawHitScan = 0;
+	bIsPrintHitScanInfo = 0;
+	CameraVerticalSpeedLag = 0.0;
 	NetGraph = 0;
 	Volume = 0.1;
 }

@@ -77,19 +77,19 @@ public: // properties
 	int32 bIsPrintHitScanInfo;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	int32 NetGraph;
+	float CameraVerticalSpeedLag;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	float CameraVerticalSpeedLag;
+	int32 NetGraph;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Sound)
+	float Volume;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	EUnUsedEnum UnUsedEnum;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	FUnUsedStruct UnUsedStruct;
-
-	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Sound)
-	float Volume;
 
 public: // static functions
 	UFUNCTION(BlueprintCallable, Category=Settings, DisplayName=GetCloud9DeveloperSettings)
