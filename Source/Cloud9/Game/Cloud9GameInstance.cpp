@@ -29,6 +29,11 @@ EWeaponSlot UCloud9GameInstance::GetInitialWeaponSlot() const { return InitialWe
 
 void UCloud9GameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 {
+	if (IsValid(OldWorld))
+	{
+		log(Verbose, "Cleanup world timers = %p", OldWorld);
+		OldWorld | EUWorld::ClearAllTimers{};
+	}
+
 	Super::OnWorldChanged(OldWorld, NewWorld);
-	OldWorld | EUWorld::ClearAllTimers{};
 }
