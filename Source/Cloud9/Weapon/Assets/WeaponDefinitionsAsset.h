@@ -40,6 +40,7 @@ class CLOUD9_API UWeaponDefinitionsAsset : public UPrimaryDataAsset
 
 public:
 	static const FPrimaryAssetId PrimaryAssetId;
+	static const FString Path;
 
 public: // functions
 	bool GetWeaponDefinition(const FWeaponId& WeaponId, FWeaponDefinition& WeaponDefinition) const;

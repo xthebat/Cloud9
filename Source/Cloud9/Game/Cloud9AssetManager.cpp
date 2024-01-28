@@ -23,7 +23,31 @@
 
 #include "Cloud9AssetManager.h"
 
-UObject* UCloud9AssetManager::GetOrLoadAssetSync(FPrimaryAssetId PrimaryAssetId)
+#include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
+
+UObject* UCloud9AssetManager::GetOrLoadAssetSync(
+	FPrimaryAssetId PrimaryAssetId,
+	const FString& Path,
+	UClass* BaseClass,
+	bool bHasBlueprintClasses,
+	bool bIsEditorOnly)
+{
+	static var& Manager = Get();
+
+	// Required to scan when using in OnConstruction method
+	Manager.ScanPathForPrimaryAssets(
+		PrimaryAssetId.PrimaryAssetType,
+		Path,
+		BaseClass,
+		bHasBlueprintClasses,
+		bIsEditorOnly,
+		true
+	);
+
+	return GetOrLoadScannedAssetSync(PrimaryAssetId);
+}
+
+UObject* UCloud9AssetManager::GetOrLoadScannedAssetSync(FPrimaryAssetId PrimaryAssetId)
 {
 	static var& Manager = Get();
 

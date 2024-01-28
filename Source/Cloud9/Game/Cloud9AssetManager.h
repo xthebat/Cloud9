@@ -37,12 +37,71 @@ class CLOUD9_API UCloud9AssetManager : public UAssetManager
 	GENERATED_BODY()
 
 public:
+	/**
+	 * Scans a path and reads asset data for all primary assets of a specific type.
+     * If done in the editor it will load the data off disk, in cooked games it will
+     * load out of the asset registry cache.
+     * 
+     * Then loads primary asset and adds loaded asset to root (AddToRoot) to prevent it from destroy by GC.
+     * 
+	 * @param PrimaryAssetId Asset Id to load
+	 * @param Path Path to scan of assets
+	 * @param BaseClass 
+	 * @param bHasBlueprintClasses 
+	 * @param bIsEditorOnly 
+	 * @return 
+	 */
 	UFUNCTION(BlueprintCallable)
-	static UObject* GetOrLoadAssetSync(FPrimaryAssetId PrimaryAssetId);
+	static UObject* GetOrLoadAssetSync(
+		FPrimaryAssetId PrimaryAssetId,
+		const FString& Path,
+		UClass* BaseClass,
+		bool bHasBlueprintClasses = false,
+		bool bIsEditorOnly = false);
 
+	/**
+	 * Template functions wrapper for GetOrLoadAssetSync
+	 *  
+	 * @tparam ClassType Class type of asset to look for
+	 * @param bHasBlueprintClasses If true, the assets are blueprints that subclass BaseClass.
+	 *                             If false they are base UObject assets
+	 * @param bIsEditorOnly If true, assets will only be scanned in editor builds,
+	 *                      and will not be stored into the asset registry
+	 * @return Object of loaded asset
+	 */
 	template <typename ClassType>
-	static ClassType* GetOrLoadAssetSync(FPrimaryAssetId PrimaryAssetId = ClassType::PrimaryAssetId)
+	static ClassType* GetOrLoadAssetSync(bool bHasBlueprintClasses = false, bool bIsEditorOnly = false)
 	{
-		return Cast<ClassType>(GetOrLoadAssetSync(PrimaryAssetId));
+		let Asset = GetOrLoadAssetSync(
+			ClassType::PrimaryAssetId,
+			ClassType::Path,
+			ClassType::StaticClass(),
+			bHasBlueprintClasses,
+			bIsEditorOnly
+		);
+
+		return Cast<ClassType>(Asset);
+	}
+
+	/**
+	 * Functions loads primary asset only if it was scanned (e.g. won't work for PIE start OnConstruction method).
+	 * Also function adds loaded asset to root (AddToRoot) to prevent it from destroy by GC.
+	 * 
+	 * @param PrimaryAssetId Asset Id to load
+	 * @return Object of loaded asset
+	 */
+	UFUNCTION(BlueprintCallable)
+	static UObject* GetOrLoadScannedAssetSync(FPrimaryAssetId PrimaryAssetId);
+
+	/**
+	 * Template functions wrapper for GetOrLoadScannedAssetSync
+	 * 
+	 * @param PrimaryAssetId Asset Id to load
+	 * @return Object of loaded asset
+	 */
+	template <typename ClassType>
+	static ClassType* GetOrLoadScannedAssetSync(FPrimaryAssetId PrimaryAssetId = ClassType::PrimaryAssetId)
+	{
+		return Cast<ClassType>(GetOrLoadScannedAssetSync(PrimaryAssetId));
 	}
 };

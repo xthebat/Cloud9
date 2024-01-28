@@ -34,7 +34,7 @@ protected:
 
 		if (not IsValid(Inventory))
 		{
-			log(Error, "Invenotry is invalid");
+			log(Error, "Inventory is invalid");
 			return nullptr;
 		}
 

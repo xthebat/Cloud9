@@ -29,6 +29,7 @@
 #include "Cloud9/Weapon/Extensions/EWeaponId.h"
 
 const FPrimaryAssetId UWeaponDefinitionsAsset::PrimaryAssetId = FPrimaryAssetId("Weapon:Definitions");
+const FString UWeaponDefinitionsAsset::Path = TEXT("/Game/Blueprints/Weapons");
 
 template <typename WeaponIdType, typename ValidatorType>
 FWeaponDefinition UWeaponDefinitionsAsset::GetWeaponDefinition(
