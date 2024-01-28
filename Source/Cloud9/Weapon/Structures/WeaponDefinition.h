@@ -142,21 +142,21 @@ struct FWeaponDefinition
 	}
 
 protected:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
 	EWeaponClass WeaponClass = EWeaponClass::NoClass;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
 	FMeleeWeaponInfo MeleeWeaponInfo{};
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
 	FFirearmWeaponInfo FirearmWeaponInfo{};
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
 	FGrenadeWeaponInfo GrenadeWeaponInfo{};
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
 	FWeaponPosesMontages Montages{};
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
 	FWeaponCommonData WeaponCommonData{};
 };

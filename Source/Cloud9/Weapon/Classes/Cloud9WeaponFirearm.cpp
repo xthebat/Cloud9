@@ -79,6 +79,10 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 			return InitializeMeshComponent(SilencerMesh, MyWeaponInfo->SilencerModel, MySkinInfo.Material);
 		}
 
+		CurrentAmmo = MyWeaponInfo->MagazineSize;
+		MagazineSize = MyWeaponInfo->MagazineSize;
+		AmmoInReserve = MyWeaponInfo->MaxAmmoInReserve;
+
 		return true;
 	}
 
@@ -122,7 +126,11 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::ReloadStart,
 			WeaponInfo->ReloadTime,
-			[&] { return PlayAnimMontage(PoseMontages->ReloadMontage); },
+			[&]
+			{
+				return UpdateReloadAmmo(WeaponInfo->Type == EWeaponType::Shotgun)
+					and PlayAnimMontage(PoseMontages->ReloadMontage);
+			},
 			[this, HasLoopedReload]
 			{
 				WeaponState.ClearAction(EWeaponAction::ReloadStart);
@@ -141,7 +149,11 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			ExecuteAction(
 				EWeaponAction::ReloadLoop,
 				WeaponInfo->ReloadLoopTime,
-				[&] { return PlayAnimMontage(PoseMontages->ReloadLoopMontage); }
+				[&]
+				{
+					return UpdateReloadAmmo(WeaponInfo->Type == EWeaponType::Shotgun)
+						and PlayAnimMontage(PoseMontages->ReloadLoopMontage);
+				}
 			);
 		}
 		else if (WeaponState.IsActionActive(EWeaponAction::ReloadEnd))
@@ -175,6 +187,12 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			WeaponInfo->CycleTime,
 			[&]
 			{
+				if (not Fire(WeaponInfo, CommonData->Firearm))
+				{
+					log(Error, "[Weapon='%s'] Weapon fire failure", *GetName());
+					return false;
+				}
+
 				if (not PlayAnimMontage(PoseMontages->PrimaryActionMontage))
 				{
 					log(Error, "[Weapon='%s'] No montage for primary action specified", *GetName());
@@ -183,12 +201,6 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 				// TODO: May be move to notifier?
 				MuzzleFlash->Activate(true);
-
-				if (not Fire(WeaponInfo, CommonData->Firearm))
-				{
-					log(Error, "[Weapon='%s'] Weapon fire failure", *GetName());
-					return false;
-				}
 
 				return true;
 			}
@@ -214,7 +226,7 @@ const FFirearmWeaponInfo* ACloud9WeaponFirearm::GetWeaponInfo() const
 	return WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 }
 
-bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData) const
+bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData)
 {
 	let Character = GetOwner<ACloud9Character>();
 
@@ -231,6 +243,16 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFir
 		log(Error, "Can't hit object because player controller isn't valid")
 		return false;
 	}
+
+	if (CurrentAmmo == 0)
+	{
+		// TODO: Add click sound
+		return false;
+	}
+
+	CurrentAmmo -= 1;
+
+	log(Display, "[Weapon='%s'] CurrentAmmo=%d AmmoInReserve=%d", *GetName(), CurrentAmmo, AmmoInReserve);
 
 	EjectCase();
 
@@ -319,6 +341,27 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFir
 
 		return true;
 	}
+	return true;
+}
+
+bool ACloud9WeaponFirearm::UpdateReloadAmmo(bool IsShotgun)
+{
+	if (AmmoInReserve == 0)
+	{
+		log(Display, "[Weapon='%s'] No ammo in reserve", *GetName());
+		return false;
+	}
+
+	if (CurrentAmmo == MagazineSize)
+	{
+		log(Display, "[Weapon='%s'] Can't load more ammo", *GetName());
+		return false;
+	}
+
+	let RequiredAmmo = IsShotgun ? 1 : FMath::Min(MagazineSize - CurrentAmmo, AmmoInReserve);
+
+	AmmoInReserve -= RequiredAmmo;
+	CurrentAmmo += RequiredAmmo;
 	return true;
 }
 
