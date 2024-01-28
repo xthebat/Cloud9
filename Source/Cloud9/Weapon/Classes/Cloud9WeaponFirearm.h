@@ -47,7 +47,7 @@ class CLOUD9_API ACloud9WeaponFirearm : public ACloud9WeaponBase
 public:
 	static const FName TracerProbabilityParameterName;
 	static const FName TracerDirectionParameterName;
-	
+
 public:
 	virtual FWeaponId GetWeaponId() const override;
 
@@ -61,7 +61,8 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	bool Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData) const;
+	bool Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData);
+	bool UpdateReloadAmmo(bool IsShotgun);
 
 	bool UpdateMagazineAttachment(bool IsReload);
 	void DropMagazine() const;
@@ -73,4 +74,13 @@ protected: // properties
 	 */
 	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
 	EFirearm WeaponId;
+
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	int CurrentAmmo;
+
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	int MagazineSize;
+
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	int AmmoInReserve;
 };
