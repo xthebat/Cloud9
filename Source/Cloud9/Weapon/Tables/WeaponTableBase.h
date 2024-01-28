@@ -85,6 +85,12 @@ struct FBaseWeaponInfo : public FTableRowBase
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Base, AdvancedDisplay)
 	FText Description;
+
+	/**
+	 * Weapon icon
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Icon)
+	UTexture2D* Icon;
 };
 
 namespace EFWeaponInfo

@@ -67,6 +67,9 @@ public:
 	static const FName CaseEjectSocketName;
 
 public:
+	static UWeaponDefinitionsAsset* GetWeaponDefinitionsAsset();
+
+public:
 	ACloud9WeaponBase();
 
 	UFUNCTION(BlueprintCallable)
@@ -165,6 +168,9 @@ public:
 	virtual void SecondaryAction(bool IsReleased);
 	virtual void Reload(bool IsReleased);
 
+protected:
+	static void ChangeMeshCollisionState(UStaticMeshComponent* Mesh, bool bIsEnabled);
+
 protected: // functions
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
 	virtual void Deinitialize();
@@ -180,10 +186,6 @@ protected: // functions
 	 * process collision changes when weapon detached from character
 	 */
 	virtual void OnWeaponRemovedFromInventory();
-
-	static UWeaponDefinitionsAsset* GetWeaponDefinitionsAsset();
-
-	static void ChangeMeshCollisionState(UStaticMeshComponent* Mesh, bool bIsEnabled);
 
 	UStaticMeshComponent* CreateMeshComponent(FName ComponentName, FName SocketName = NAME_None);
 	UNiagaraComponent* CreateEffectComponent(FName ComponentName, FName SocketName = NAME_None);
