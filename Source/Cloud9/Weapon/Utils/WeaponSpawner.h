@@ -42,8 +42,6 @@ protected:
 		bool bFromSweep,
 		const FHitResult& Hit);
 
-	void Initialize();
-
 protected:
 	UPROPERTY(BlueprintReadOnly, Category=Implementation)
 	UBoxComponent* TriggerBoxComponent;
@@ -57,8 +55,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category=Config)
 	FWeaponConfig WeaponConfig;
 
+	UPROPERTY(EditAnywhere, Category=Config)
+	bool bIsDestroyOnActivation;
+
 	UPROPERTY(EditAnywhere, Category=Glowing)
 	UNiagaraSystem* GlowingEffect;
+
+	UPROPERTY(EditAnywhere, Category=Glowing)
+	bool bIsGlowingEffectPreview;
 
 	UPROPERTY(EditAnywhere, Category=WeaponSample)
 	float SampleScale;
