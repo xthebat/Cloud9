@@ -33,6 +33,7 @@
 #include "Cloud9/Game/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
+#include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
 
 const FName ACloud9WeaponFirearm::TracerProbabilityParameterName = TEXT("Probability");
@@ -76,12 +77,19 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 
 		if (MyWeaponInfo->SilencerModel)
 		{
-			return InitializeMeshComponent(SilencerMesh, MyWeaponInfo->SilencerModel, MySkinInfo.Material);
+			if (not InitializeMeshComponent(SilencerMesh, MyWeaponInfo->SilencerModel, MySkinInfo.Material))
+			{
+				log(Error, "[Weapon='%s'] Can't initilaize SilencerMesh", *GetName());
+				return false;
+			}
 		}
 
 		CurrentAmmo = MyWeaponInfo->MagazineSize;
 		MagazineSize = MyWeaponInfo->MagazineSize;
 		AmmoInReserve = MyWeaponInfo->MaxAmmoInReserve;
+
+		log(Display, "[Weapon='%s'] CurrentAmmo=%d MagazineSize=%d AmmoInReserve=%d",
+		    *GetName(), CurrentAmmo, MagazineSize, AmmoInReserve);
 
 		return true;
 	}
@@ -187,20 +195,25 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			WeaponInfo->CycleTime,
 			[&]
 			{
-				if (not Fire(WeaponInfo, CommonData->Firearm))
+				let Status = Fire(WeaponInfo, CommonData->Firearm);
+
+				if (Status == EFirearmFireStatus::Error)
 				{
 					log(Error, "[Weapon='%s'] Weapon fire failure", *GetName());
 					return false;
 				}
 
-				if (not PlayAnimMontage(PoseMontages->PrimaryActionMontage))
+				if (Status == EFirearmFireStatus::Success)
 				{
-					log(Error, "[Weapon='%s'] No montage for primary action specified", *GetName());
-					return false;
-				}
+					if (not PlayAnimMontage(PoseMontages->PrimaryActionMontage))
+					{
+						log(Error, "[Weapon='%s'] No montage for primary action specified", *GetName());
+						return false;
+					}
 
-				// TODO: May be move to notifier?
-				MuzzleFlash->Activate(true);
+					// TODO: May be move to notifier?
+					MuzzleFlash->Activate(true);
+				}
 
 				return true;
 			}
@@ -226,14 +239,18 @@ const FFirearmWeaponInfo* ACloud9WeaponFirearm::GetWeaponInfo() const
 	return WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 }
 
-bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData)
+EFirearmFireStatus ACloud9WeaponFirearm::Fire(
+	const FFirearmWeaponInfo* WeaponInfo,
+	const FFirearmCommonData& FirearmCommonData)
 {
+	static let Settings = UCloud9DeveloperSettings::Get();
+
 	let Character = GetOwner<ACloud9Character>();
 
 	if (not IsValid(Character))
 	{
 		log(Error, "Character is invalid")
-		return false;
+		return EFirearmFireStatus::Error;
 	}
 
 	let Controller = Character->GetCloud9Controller();
@@ -241,17 +258,35 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFir
 	if (not IsValid(Controller))
 	{
 		log(Error, "Can't hit object because player controller isn't valid")
-		return false;
+		return EFirearmFireStatus::Error;
 	}
 
 	if (CurrentAmmo == 0)
 	{
-		// TODO: Add click sound
-		return false;
+		let EmptyAmmoSound = WeaponInfo->Type == EWeaponType::Pistol
+			                     ? FirearmCommonData.EmptyAmmoPistol
+			                     : FirearmCommonData.EmptyAmmoRifle;
+
+		if (IsValid(EmptyAmmoSound))
+		{
+			UCloud9SoundPlayer::PlaySingleSound(EmptyAmmoSound, GetActorLocation(), Settings->Volume);
+		}
+
+		return EFirearmFireStatus::OutOfAmmo;
+	}
+
+	// TODO: LowAmmo count???
+	if (CurrentAmmo < 3)
+	{
+		if (let Sound = FirearmCommonData.LowAmmo; IsValid(Sound))
+		{
+			UCloud9SoundPlayer::PlaySingleSound(Sound, GetActorLocation(), Settings->Volume);
+		}
 	}
 
 	CurrentAmmo -= 1;
 
+	// TODO: Remove after HUD added
 	log(Display, "[Weapon='%s'] CurrentAmmo=%d AmmoInReserve=%d", *GetName(), CurrentAmmo, AmmoInReserve);
 
 	EjectCase();
@@ -260,10 +295,8 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFir
 	if (not Controller->GetHitResultUnderCursor(ECC_Visibility, true, CursorHit))
 	{
 		log(Error, "Cursor not hit anything")
-		return true;
+		return EFirearmFireStatus::Success;
 	}
-
-	let Settings = UCloud9DeveloperSettings::Get();
 
 	var CollisionParams = FCollisionQueryParams::DefaultQueryParam;
 
@@ -339,9 +372,10 @@ bool ACloud9WeaponFirearm::Fire(const FFirearmWeaponInfo* WeaponInfo, const FFir
 			Squib->SetAutoDestroy(true);
 		}
 
-		return true;
+		return EFirearmFireStatus::Success;
 	}
-	return true;
+
+	return EFirearmFireStatus::Success;
 }
 
 bool ACloud9WeaponFirearm::UpdateReloadAmmo(bool IsShotgun)

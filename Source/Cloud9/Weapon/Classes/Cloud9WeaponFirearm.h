@@ -35,6 +35,15 @@ class UCooldownActionComponent;
 struct FWeaponActionMontages;
 struct FFirearmWeaponInfo;
 
+// Maybe just remove verbose logging?
+UENUM()
+enum class EFirearmFireStatus : uint8
+{
+	Success = 0,
+	OutOfAmmo = 1,
+	Error = 0x80
+};
+
 UCLASS()
 class CLOUD9_API ACloud9WeaponFirearm : public ACloud9WeaponBase
 {
@@ -61,7 +70,7 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	bool Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData);
+	EFirearmFireStatus Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData);
 	bool UpdateReloadAmmo(bool IsShotgun);
 
 	bool UpdateMagazineAttachment(bool IsReload);
