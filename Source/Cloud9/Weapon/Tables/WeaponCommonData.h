@@ -51,6 +51,15 @@ struct FFirearmCommonData
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
 	UNiagaraSystem* Squib;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sound)
+	USoundBase* LowAmmo;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sound)
+	USoundBase* EmptyAmmoPistol;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sound)
+	USoundBase* EmptyAmmoRifle;
 };
 
 USTRUCT(BlueprintType)
