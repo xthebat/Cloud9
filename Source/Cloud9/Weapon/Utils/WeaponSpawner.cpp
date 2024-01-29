@@ -8,7 +8,6 @@
 
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
-#include "Components/BillboardComponent.h"
 
 FName AWeaponSpawner::RootComponentName = "RootComponent";
 FName AWeaponSpawner::TriggerBoxComponentName = "TriggerBox";
@@ -30,26 +29,15 @@ AWeaponSpawner::AWeaponSpawner()
 	WeaponSampleComponent->SetupAttachment(RootComponent);
 	GlowingEffectComponent->SetupAttachment(RootComponent);
 
+	bIsDestroyOnActivation = false;
 	GlowingEffect = nullptr;
-	SampleScale = 1.0f;
+	bIsGlowingEffectPreview = true;
+	SampleScale = 1.5f;
 	RotationSpeedInDegree = 0.0f;
 	bIsRandomInitialRotation = false;
 	ZoneSize = {20.0f, 20.0f, 20.0f};
 
 	TriggerBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AWeaponSpawner::OnBeginOverlap);
-
-#if WITH_EDITORONLY_DATA
-	// SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(SpriteComponentName);
-	// SpriteComponent->SetupAttachment(RootComponent);
-	//
-	// static ConstructorHelpers::FObjectFinderOptional<UTexture2D>
-	// 	TriggerTextureObject(TEXT("/Engine/EditorResources/S_Trigger"));
-	//
-	// SpriteComponent->Sprite = TriggerTextureObject.Get();
-	// SpriteComponent->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
-	// SpriteComponent->bHiddenInGame = true;
-	// SpriteComponent->bIsScreenSizeScaled = true;
-#endif
 }
 
 void AWeaponSpawner::OnConstruction(const FTransform& Transform)
@@ -58,7 +46,10 @@ void AWeaponSpawner::OnConstruction(const FTransform& Transform)
 
 	TriggerBoxComponent->SetBoxExtent(ZoneSize);
 
-	if (IsValid(GlowingEffect))
+	// Remove previous set glowing effect (required if preview disabled)
+	GlowingEffectComponent->SetAsset(nullptr);
+
+	if (IsValid(GlowingEffect) and bIsGlowingEffectPreview)
 	{
 		GlowingEffectComponent->SetAsset(GlowingEffect);
 	}
@@ -77,7 +68,6 @@ void AWeaponSpawner::OnConstruction(const FTransform& Transform)
 
 		if (not WeaponConfig.Initialize(WeaponSample))
 		{
-			// WeaponSampleComponent->DestroyChildActor();
 			SetActorTickEnabled(false);
 			return;
 		}
@@ -91,6 +81,27 @@ void AWeaponSpawner::OnConstruction(const FTransform& Transform)
 		WeaponSample->UpdateComponentTransforms();
 		WeaponSample->SetActorEnableCollision(false);
 		WeaponSample->SetActorScale3D({SampleScale, SampleScale, SampleScale});
+	}
+}
+
+void AWeaponSpawner::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (IsValid(WeaponConfig))
+	{
+		if (IsValid(GlowingEffect) and not bIsGlowingEffectPreview)
+		{
+			GlowingEffectComponent->SetAsset(GlowingEffect);
+		}
+
+		let WeaponSample = WeaponSampleComponent->GetChildActor();
+
+		if (not IsValid(WeaponSample))
+		{
+			log(Error, "WeaponSampleComponent child actor is invalid");
+			return;
+		}
 
 		if (bIsRandomInitialRotation)
 		{
@@ -101,28 +112,23 @@ void AWeaponSpawner::OnConstruction(const FTransform& Transform)
 	}
 }
 
-void AWeaponSpawner::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 void AWeaponSpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	if (IsValid(WeaponConfig))
 	{
-		let Actor = WeaponSampleComponent->GetChildActor();
+		let WeaponSample = WeaponSampleComponent->GetChildActor();
 
-		if (not IsValid(Actor))
+		if (not IsValid(WeaponSample))
 		{
 			log(Error, "WeaponSampleComponent child actor is invalid");
 			return;
 		}
 
-		var Rotation = Actor->GetActorRotation();
+		var Rotation = WeaponSample->GetActorRotation();
 		Rotation.Yaw += DeltaTime * RotationSpeedInDegree;
-		Actor->SetActorRotation(Rotation);
+		WeaponSample->SetActorRotation(Rotation);
 	}
 }
 
@@ -144,8 +150,9 @@ void AWeaponSpawner::OnBeginOverlap(
 			return;
 		}
 
-		Inventory->AddWeapon(WeaponConfig, true, true);
+		if (Inventory->AddWeapon(WeaponConfig, true, true) and bIsDestroyOnActivation)
+		{
+			Destroy();
+		}
 	}
 }
-
-void AWeaponSpawner::Initialize() {}

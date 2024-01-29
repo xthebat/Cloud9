@@ -30,6 +30,8 @@
 
 struct FWeaponConfig;
 
+// !DEPRECATED!
+
 UCLASS(Blueprintable, meta=(BlueprintSpawnableComponent))
 class CLOUD9_API UWeaponInitializerComponent : public UChildActorComponent
 {
