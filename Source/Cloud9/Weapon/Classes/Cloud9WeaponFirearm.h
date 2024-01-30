@@ -62,6 +62,9 @@ public:
 
 	const FFirearmWeaponInfo* GetWeaponInfo() const;
 
+	int GetCurrentAmmo() const;
+	int GetAmmoInReserve() const;
+
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
 

@@ -88,7 +88,7 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 		MagazineSize = MyWeaponInfo->MagazineSize;
 		AmmoInReserve = MyWeaponInfo->MaxAmmoInReserve;
 
-		log(Display, "[Weapon='%s'] CurrentAmmo=%d MagazineSize=%d AmmoInReserve=%d",
+		log(Verbose, "[Weapon='%s'] CurrentAmmo=%d MagazineSize=%d AmmoInReserve=%d",
 		    *GetName(), CurrentAmmo, MagazineSize, AmmoInReserve);
 
 		return true;
@@ -239,6 +239,10 @@ const FFirearmWeaponInfo* ACloud9WeaponFirearm::GetWeaponInfo() const
 	return WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 }
 
+int ACloud9WeaponFirearm::GetCurrentAmmo() const { return CurrentAmmo; }
+
+int ACloud9WeaponFirearm::GetAmmoInReserve() const { return AmmoInReserve; }
+
 EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 	const FFirearmWeaponInfo* WeaponInfo,
 	const FFirearmCommonData& FirearmCommonData)
@@ -275,19 +279,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 		return EFirearmFireStatus::OutOfAmmo;
 	}
 
-	// TODO: LowAmmo count???
-	if (CurrentAmmo < 3)
-	{
-		if (let Sound = FirearmCommonData.LowAmmo; IsValid(Sound))
-		{
-			UCloud9SoundPlayer::PlaySingleSound(Sound, GetActorLocation(), Settings->Volume);
-		}
-	}
-
 	CurrentAmmo -= 1;
-
-	// TODO: Remove after HUD added
-	log(Display, "[Weapon='%s'] CurrentAmmo=%d AmmoInReserve=%d", *GetName(), CurrentAmmo, AmmoInReserve);
 
 	EjectCase();
 
