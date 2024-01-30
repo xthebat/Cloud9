@@ -114,4 +114,16 @@ private:
 	/** An inventory of the character. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Inventory, meta=(AllowPrivateAccess))
 	UCloud9Inventory* Inventory;
+
+	/** Current percentage health of character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	float Health;
+
+	/** Current percentage armor of character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	float Armor;
+
+	/** Current number of frags made by character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	int Score;
 };

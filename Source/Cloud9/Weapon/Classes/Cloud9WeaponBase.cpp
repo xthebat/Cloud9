@@ -348,6 +348,11 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond 
 	return true;
 }
 
+const FWeaponCommonData* ACloud9WeaponBase::GetWeaponCommonData() const
+{
+	return WeaponDefinition.GetCommonData();
+}
+
 bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot)
 {
 	if (let MyOwner = GetOwner<ACloud9Character>())
@@ -553,6 +558,10 @@ EWeaponType ACloud9WeaponBase::GetWeaponType() const
 }
 
 EWeaponSlot ACloud9WeaponBase::GetWeaponSlot() const { return WeaponState.GetWeaponSlot(); }
+
+FText ACloud9WeaponBase::GetWeaponLabel() const { return WeaponDefinition.GetWeaponInfo()->Label; }
+
+UTexture2D* ACloud9WeaponBase::GetWeaponIcon() const { return WeaponDefinition.GetWeaponInfo()->Icon; }
 
 const UStaticMeshSocket* ACloud9WeaponBase::GetSocketByName(FName SocketName) const
 {

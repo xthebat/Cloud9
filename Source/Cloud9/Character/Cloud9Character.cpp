@@ -80,6 +80,10 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 
 	Inventory = CreateDefaultSubobject<UCloud9Inventory>(InventoryComponentName);
 
+	Health = 100.0f;
+	Armor = 25.0f; // TODO: Set armor to 0 after health shot and armor pack added
+	Score = 1; // TODO: Set score to 0 after implementation
+
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;

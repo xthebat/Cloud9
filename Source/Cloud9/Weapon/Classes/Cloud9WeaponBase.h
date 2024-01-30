@@ -96,6 +96,12 @@ public:
 	EWeaponSlot GetWeaponSlot() const;
 
 	UFUNCTION(BlueprintCallable)
+	FText GetWeaponLabel() const;
+
+	UFUNCTION(BlueprintCallable)
+	UTexture2D* GetWeaponIcon() const;
+	
+	UFUNCTION(BlueprintCallable)
 	const UStaticMeshSocket* GetSocketByName(FName SocketName) const;
 
 	UFUNCTION(BlueprintCallable)
@@ -204,6 +210,8 @@ protected: // functions
 	bool PlayAnimMontage(UAnimMontage* Montage, float StartTime = 0.0f, float Rate = 1.0f) const;
 
 	bool UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond NewBond, bool Instant = false);
+
+	const FWeaponCommonData* GetWeaponCommonData() const;
 
 #define WEAPON_IS_DEFINED_GUARD() \
 	if (not IsWeaponDefined()) \
