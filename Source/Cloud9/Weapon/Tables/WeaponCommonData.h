@@ -56,6 +56,9 @@ struct FFirearmCommonData
 	USoundBase* LowAmmo;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sound)
+	float LowAmmoVolumeMultiplier = 2.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sound)
 	USoundBase* EmptyAmmoPistol;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sound)

@@ -71,6 +71,7 @@ bool UCloud9AnimNotifyPlaySound::PlayFirearmSound(USkeletalMeshComponent* MeshCo
 	}
 
 	let WeaponInfo = SelectedWeapon->GetWeaponInfo();
+	let CommonData = SelectedWeapon->GetWeaponCommonData();
 	let Location = SelectedWeapon->GetActorLocation();
 
 	switch (SoundType)
@@ -83,6 +84,12 @@ bool UCloud9AnimNotifyPlaySound::PlayFirearmSound(USkeletalMeshComponent* MeshCo
 		return UCloud9SoundPlayer::PlayRandomSound(WeaponInfo->Sounds.FireSounds, Location, Volume);
 	case EWeaponSoundType::Secondary:
 		return UCloud9SoundPlayer::PlaySoundByName(WeaponInfo->Sounds.ZoomSounds, Name, Location, Volume);
+	case EWeaponSoundType::LowAmmo:
+		if (SelectedWeapon->GetCurrentAmmo() < WeaponInfo->LowAmmoCount)
+		{
+			let LowAmmoVolume = CommonData->Firearm.LowAmmoVolumeMultiplier * Volume;
+			return UCloud9SoundPlayer::PlaySingleSound(CommonData->Firearm.LowAmmo, Location, LowAmmoVolume);
+		}
 	default:
 		log(Error, "[Notify='%s'] Invalid sound type for firearm sound", *GetName());
 		return false;
