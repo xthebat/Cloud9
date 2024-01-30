@@ -31,5 +31,6 @@ enum class EWeaponSoundType : uint8
 	Primary = 2 UMETA(DisplayName="Primary"),
 	Secondary = 3 UMETA(DisplayName="Secondary"),
 	Third = 4 UMETA(DisplayName="Third"),
-	Pinpull = 5 UMETA(DisplayName="Pinpull")
+	Pinpull = 5 UMETA(DisplayName="Pinpull"),
+	LowAmmo = 6 UMETA(DisplayName="LowAmmo")
 };

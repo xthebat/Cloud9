@@ -280,6 +280,13 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	int MaxAmmoInReserve;
 
 	/**
+	 * Ammo when start play low ammo count sound
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Ammo,
+		meta=(UIMin="0", UIMax="1000", ClampMin="0", ClampMax="1000"))
+	int LowAmmoCount;
+
+	/**
 	 * Weapon price in buy menu
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
