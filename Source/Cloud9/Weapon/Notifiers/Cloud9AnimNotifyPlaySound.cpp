@@ -85,13 +85,14 @@ bool UCloud9AnimNotifyPlaySound::PlayFirearmSound(USkeletalMeshComponent* MeshCo
 	case EWeaponSoundType::Secondary:
 		return UCloud9SoundPlayer::PlaySoundByName(WeaponInfo->Sounds.ZoomSounds, Name, Location, Volume);
 	case EWeaponSoundType::LowAmmo:
-		if (SelectedWeapon->GetCurrentAmmo() < WeaponInfo->LowAmmoCount)
+		if (SelectedWeapon->GetCurrentAmmo() <= WeaponInfo->LowAmmoCount)
 		{
 			let LowAmmoVolume = CommonData->Firearm.LowAmmoVolumeMultiplier * Volume;
-			return UCloud9SoundPlayer::PlaySingleSound(CommonData->Firearm.LowAmmo, Location, LowAmmoVolume);
+			return UCloud9SoundPlayer::PlaySingleSound(CommonData->Firearm.LowAmmoSound, Location, LowAmmoVolume);
 		}
+		return false;
 	default:
-		log(Error, "[Notify='%s'] Invalid sound type for firearm sound", *GetName());
+		log(Error, "[Notify='%s'] Invalid sound type for firearm sound SoundType=%d", *GetName(), SoundType);
 		return false;
 	}
 }
@@ -119,7 +120,7 @@ bool UCloud9AnimNotifyPlaySound::PlayGrenadeSound(USkeletalMeshComponent* MeshCo
 	case EWeaponSoundType::Primary:
 		return UCloud9SoundPlayer::PlaySingleSound(WeaponInfo->Sounds.ThrowSound, Location, Volume);
 	default:
-		log(Error, "[Notify='%s'] Invalid sound type for firearm sound", *GetName());
+		log(Error, "[Notify='%s'] Invalid sound type for firearm sound SoundType=%d", *GetName(), SoundType);
 		return false;
 	}
 }
