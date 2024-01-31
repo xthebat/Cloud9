@@ -274,14 +274,14 @@ void ACloud9Character::Tick(float DeltaSeconds)
 		Inventory->SelectOtherAvailableWeapon(false);
 	}
 
-	// TODO: Remove auto grenade add after debug
-	if (not Inventory->GetWeaponAt(EWeaponSlot::Grenade) and Inventory->GetSelectedWeapon() != nullptr)
-	{
-		if (let GameInstance = GetGameInstance<UCloud9GameInstance>(); IsValid(GameInstance))
-		{
-			GameInstance->GetDefaultWeaponsConfig()
-				| ETContainer::Filter{[this](let& Config) { return IsValid(Config) and Config.IsGrenadeWeapon(); }}
-				| ETContainer::ForEach{[this](let& Config) { Inventory->AddWeapon(Config); }};
-		}
-	}
+	// // TODO: Remove auto grenade add after debug
+	// if (not Inventory->GetWeaponAt(EWeaponSlot::Grenade) and Inventory->GetSelectedWeapon() != nullptr)
+	// {
+	// 	if (let GameInstance = GetGameInstance<UCloud9GameInstance>(); IsValid(GameInstance))
+	// 	{
+	// 		GameInstance->GetDefaultWeaponsConfig()
+	// 			| ETContainer::Filter{[this](let& Config) { return IsValid(Config) and Config.IsGrenadeWeapon(); }}
+	// 			| ETContainer::ForEach{[this](let& Config) { Inventory->AddWeapon(Config); }};
+	// 	}
+	// }
 }

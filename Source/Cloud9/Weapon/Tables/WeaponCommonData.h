@@ -53,7 +53,7 @@ struct FFirearmCommonData
 	UNiagaraSystem* Squib;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sound)
-	USoundBase* LowAmmo;
+	USoundBase* LowAmmoSound;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sound)
 	float LowAmmoVolumeMultiplier = 2.0f;
