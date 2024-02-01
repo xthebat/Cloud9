@@ -72,12 +72,7 @@ void AWeaponSpawner::OnConstruction(const FTransform& Transform)
 			return;
 		}
 
-		if (not IsValid(WeaponSample))
-		{
-			log(Error, "WeaponSampleComponent child actor is invalid");
-			return;
-		}
-
+		WeaponSample->SetActorTickEnabled(false);
 		WeaponSample->UpdateComponentTransforms();
 		WeaponSample->SetActorEnableCollision(false);
 		WeaponSample->SetActorScale3D({SampleScale, SampleScale, SampleScale});

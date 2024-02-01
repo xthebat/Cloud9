@@ -38,6 +38,8 @@ const FName ACloud9WeaponBase::RootComponentName = TEXT("RootComponent");
 const FName ACloud9WeaponBase::WeaponMeshCollisionProfile = TEXT("WeaponCollisionProfile");
 const FString ACloud9WeaponBase::ActionComponentFormat = TEXT("{0}ActionComponent");
 
+const FName ACloud9WeaponBase::ExplosionEffectScaleName = TEXT("Scale");
+
 const FName ACloud9WeaponBase::WeaponMeshComponentName = TEXT("WeaponMeshComponent");
 const FName ACloud9WeaponBase::MagazineMeshComponentName = TEXT("MagazineMeshComponent");
 const FName ACloud9WeaponBase::SilencerMeshComponentName = TEXT("SilencerMeshComponent");
@@ -224,7 +226,7 @@ bool ACloud9WeaponBase::InitializeMeshComponent(
 bool ACloud9WeaponBase::InitializeEffectComponent(
 	UNiagaraComponent* Component,
 	UNiagaraSystem* Effect,
-	FVector Scale) const
+	float Scale) const
 {
 	if (Effect == nullptr)
 	{
@@ -233,8 +235,8 @@ bool ACloud9WeaponBase::InitializeEffectComponent(
 	}
 
 	Component->SetAsset(Effect);
+	Component->SetFloatParameter(ExplosionEffectScaleName, Scale);
 	Component->Deactivate();
-	Component->SetWorldScale3D(Scale);
 
 	return true;
 }
