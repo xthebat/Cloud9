@@ -104,6 +104,13 @@ bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 	return false;
 }
 
+void ACloud9WeaponGrenade::BeginPlay()
+{
+	Super::BeginPlay();
+	DetonationEffect->Deactivate();
+	ActiveEffect->Deactivate();
+}
+
 void ACloud9WeaponGrenade::OnWeaponAddedToInventory()
 {
 	Super::OnWeaponAddedToInventory();

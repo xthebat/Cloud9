@@ -56,6 +56,8 @@ public:
 	static const FName WeaponMeshCollisionProfile;
 	static const FString ActionComponentFormat;
 
+	static const FName ExplosionEffectScaleName;
+
 	static const FName WeaponMeshComponentName;
 	static const FName MagazineMeshComponentName;
 	static const FName SilencerMeshComponentName;
@@ -100,7 +102,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	UTexture2D* GetWeaponIcon() const;
-	
+
 	UFUNCTION(BlueprintCallable)
 	const UStaticMeshSocket* GetSocketByName(FName SocketName) const;
 
@@ -199,10 +201,7 @@ protected: // functions
 
 	void InitializeName(const FWeaponId& NewWeaponId);
 	bool InitializeMeshComponent(UStaticMeshComponent* Component, UStaticMesh* Mesh, UMaterialInstance* Material) const;
-	bool InitializeEffectComponent(
-		UNiagaraComponent* Component,
-		UNiagaraSystem* Effect,
-		FVector Scale = FVector::OneVector) const;
+	bool InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect, float Scale = 1.0f) const;
 
 	UAnimInstance* GetAnimInstance() const;
 

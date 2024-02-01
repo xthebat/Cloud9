@@ -82,13 +82,13 @@ struct FGrenadeWeaponEffects
 	UNiagaraSystem* OnDetonationEffect = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Effects)
-	FVector OnDetonationScale = FVector::OneVector;
+	float OnDetonationScale = 1.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Effects)
 	UNiagaraSystem* OnActiveEffect = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Effects)
-	FVector OnActiveScale = FVector::OneVector;
+	float OnActiveScale = 1.0f;
 };
 
 /**
