@@ -25,11 +25,11 @@
 
 #include "DrawDebugHelpers.h"
 
+#include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Game/Cloud9PlayerController.h"
-#include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
 #include "Cloud9/Weapon/Tables/WeaponTableGrenade.h"
 #include "PhysicsEngine/RadialForceComponent.h"

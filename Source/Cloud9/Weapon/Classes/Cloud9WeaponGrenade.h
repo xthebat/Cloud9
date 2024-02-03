@@ -24,7 +24,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Enums/GrenadeNames.h"
@@ -99,5 +98,3 @@ protected:
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	FTimerHandle ActiveTimerHandle;
 };
-
-struct FGrenadeWeaponInfo;
