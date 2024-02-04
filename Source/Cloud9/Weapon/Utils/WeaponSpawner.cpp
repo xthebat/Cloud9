@@ -21,7 +21,6 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-
 #include "WeaponSpawner.h"
 
 #include "Cloud9/Character/Cloud9Character.h"
@@ -41,15 +40,7 @@ AActor* AWeaponSpawner::CreateChildActor()
 {
 	if (IsValid(WeaponConfig))
 	{
-		ItemSampleComponent->SetChildActorClass(WeaponConfig.GetWeaponStaticClass());
-
-		var ItemSample = ItemSampleComponent->GetChildActor();
-
-		if (not IsValid(ItemSample))
-		{
-			ItemSampleComponent->CreateChildActor();
-			ItemSample = ItemSampleComponent->GetChildActor();
-		}
+		let ItemSample = CreateItemSample(WeaponConfig.GetWeaponStaticClass());
 
 		if (not WeaponConfig.Initialize(ItemSample))
 		{
@@ -57,7 +48,7 @@ AActor* AWeaponSpawner::CreateChildActor()
 			return nullptr;
 		}
 
-		return ItemSampleComponent->GetChildActor();
+		return ItemSample;
 	}
 
 	return nullptr;

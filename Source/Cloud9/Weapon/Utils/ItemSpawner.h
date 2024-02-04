@@ -26,6 +26,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Cloud9/Tools/Macro/Common.h"
 #include "ItemSpawner.generated.h"
 
 class ISpawnerDelegateComponent;
@@ -42,7 +43,7 @@ class CLOUD9_API AItemSpawner : public AActor
 public:
 	static FName RootComponentName;
 	static FName TriggerBoxComponentName;
-	static FName WeaponSampleComponentName;
+	static FName ItemSampleComponentName;
 	static FName GlowingEffectComponentName;
 	static FName SpriteComponentName;
 
@@ -69,6 +70,40 @@ protected:
 		bool bFromSweep,
 		const FHitResult& Hit);
 
+	/**
+ 	 * Function creates child actor of ItemSampleComponent or recreate it
+ 	 * when child has been destroyed during OnConstruction call.
+ 	 * Function targets to be somewhere safe to call in OnConstruction.
+ 	 * 
+ 	 * @tparam ActorType Return type or if StaticClass is nullptr use it ::StaticClass for SetChildActorClass
+ 	 * @param StaticClass Class for SetChildActorClass if nullptr ActorType::StaticClass will be used
+ 	 * @param Template An Actor to use as the template when spawning a child actor using this component
+ 	 */
+	template <typename ActorType = AActor>
+	ActorType* CreateItemSample(UClass* StaticClass = nullptr, ActorType* Template = nullptr)
+	{
+		StaticClass = StaticClass ? StaticClass : ActorType::StaticClass();
+
+		if (Template != nullptr)
+		{
+			ItemSampleComponent->SetChildActorClass(StaticClass, Template);
+		}
+		else
+		{
+			ItemSampleComponent->SetChildActorClass(StaticClass);
+		}
+
+		var ItemSample = ItemSampleComponent->GetChildActor();
+
+		if (not IsValid(ItemSample))
+		{
+			ItemSampleComponent->CreateChildActor();
+			ItemSample = ItemSampleComponent->GetChildActor();
+		}
+
+		return Cast<ActorType>(ItemSample);
+	}
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category=Implementation)
 	UBoxComponent* TriggerBoxComponent;
@@ -87,6 +122,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category=Glowing)
 	bool bIsGlowingEffectPreview;
+
+	UPROPERTY(EditDefaultsOnly, Category=Config)
+	TArray<USoundBase*> ActivationSounds;
+
+	UPROPERTY(EditAnywhere, Category=Sample)
+	FVector SampleOffset;
+
+	UPROPERTY(EditAnywhere, Category=Sample)
+	FRotator SampleRotator;
 
 	UPROPERTY(EditAnywhere, Category=Sample)
 	float SampleScale;
