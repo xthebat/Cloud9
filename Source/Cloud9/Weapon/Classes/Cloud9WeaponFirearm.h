@@ -64,6 +64,7 @@ public:
 
 	int GetCurrentAmmo() const;
 	int GetAmmoInReserve() const;
+	bool AddAmmoInReserve(int Count);
 
 protected:
 	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;

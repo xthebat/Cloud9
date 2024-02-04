@@ -62,6 +62,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetWeaponAt(EWeaponSlot Slot) const;
 
+	template <typename WeaponType>
+	WeaponType* GetWeaponAt(EWeaponSlot Slot) const { return Cast<WeaponType>(GetWeaponAt(Slot)); }
+
 	/**
 	 * Function shoves existed weapon into inventory
 	 * 

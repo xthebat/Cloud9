@@ -243,6 +243,18 @@ int ACloud9WeaponFirearm::GetCurrentAmmo() const { return CurrentAmmo; }
 
 int ACloud9WeaponFirearm::GetAmmoInReserve() const { return AmmoInReserve; }
 
+bool ACloud9WeaponFirearm::AddAmmoInReserve(int Count)
+{
+	if (let NewAmmoInReserve = FMath::Min(AmmoInReserve + Count, GetWeaponInfo()->MaxAmmoInReserve);
+		NewAmmoInReserve != AmmoInReserve)
+	{
+		AmmoInReserve = NewAmmoInReserve;
+		return true;
+	}
+
+	return false;
+}
+
 EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 	const FFirearmWeaponInfo* WeaponInfo,
 	const FFirearmCommonData& FirearmCommonData)
