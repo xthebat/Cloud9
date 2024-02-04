@@ -53,8 +53,6 @@ AItemSpawner::AItemSpawner()
 	ItemSampleComponent->SetupAttachment(RootComponent);
 	GlowingEffectComponent->SetupAttachment(RootComponent);
 
-	log(Error, "ATTACHEMENT DONE %s", *GetName())
-
 	bIsDestroyOnActivation = false;
 	GlowingEffect = nullptr;
 	bIsGlowingEffectPreview = true;
