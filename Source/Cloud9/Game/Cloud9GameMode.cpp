@@ -25,40 +25,13 @@
 
 #include "UObject/ConstructorHelpers.h"
 
-#include "Cloud9DeveloperSettings.h"
+#include "Cloud9GameState.h"
 #include "Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
 
 ACloud9GameMode::ACloud9GameMode()
 {
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = true;
 	PlayerControllerClass = ACloud9PlayerController::StaticClass();
 	DefaultPawnClass = ACloud9Character::StaticClass();
-}
-
-ACloud9Character* ACloud9GameMode::GetCharacter() const
-{
-	return Cast<ACloud9Character>(GetWorld()->GetFirstPlayerController()->GetCharacter());
-}
-
-void ACloud9GameMode::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-	let Settings = UCloud9DeveloperSettings::Get();
-
-	if (Settings->NetGraph > 0)
-	{
-		let Fps = 1.0f / DeltaSeconds;
-		let Location = GetCharacter()->GetActorLocation();
-		let Velocity = GetCharacter()->GetVelocity();
-		let Text = FString::Printf(
-			TEXT("Location = %s Velocity = %.0f fps = %.1f"),
-			*Location.ToString(),
-			Velocity.Size(),
-			Fps
-		);
-		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, Text);
-	}
+	GameStateClass = ACloud9GameState::StaticClass();
 }
