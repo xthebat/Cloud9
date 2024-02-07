@@ -3,6 +3,10 @@
 
 #include "Cloud9GameState.h"
 #include "Cloud9DeveloperSettings.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
+
 #include "Cloud9/Character/Cloud9Character.h"
 
 void ACloud9GameState::Tick(float DeltaSeconds)

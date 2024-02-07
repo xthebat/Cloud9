@@ -5,9 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
-
 #include "Cloud9GameState.generated.h"
 
 UCLASS()
