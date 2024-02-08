@@ -26,8 +26,8 @@
 #include "Engine/World.h"
 
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Game/Cloud9KeyboardController.h"
-#include "Cloud9/Game/Cloud9MouseController.h"
+#include "Cloud9/Contollers/Cloud9KeyboardController.h"
+#include "Cloud9/Contollers/Cloud9MouseController.h"
 #include "Cloud9/Console/Cloud9ConsoleComponent.h"
 
 const FName ACloud9PlayerController::ConsoleName = TEXT("Console");

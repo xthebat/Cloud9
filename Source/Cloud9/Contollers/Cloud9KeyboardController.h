@@ -26,9 +26,6 @@
 #include "CoreMinimal.h"
 #include "Cloud9ControllerComponent.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
-
 #include "Cloud9KeyboardController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMoveDelegate);

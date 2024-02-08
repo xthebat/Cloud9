@@ -23,7 +23,7 @@
 
 #include "Cloud9ToolsLibrary.h"
 
-#include "Cloud9/Game/Cloud9GameMode.h"
+#include "Cloud9/Modes//Cloud9GameMode.h"
 
 void UCloud9ToolsLibrary::SetCollisionComplexity(UStaticMesh* StaticMesh, uint8 CollisionTraceFlag)
 {

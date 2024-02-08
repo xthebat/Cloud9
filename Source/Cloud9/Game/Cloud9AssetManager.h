@@ -27,7 +27,6 @@
 #include "Engine/AssetManager.h"
 
 #include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
 
 #include "Cloud9AssetManager.generated.h"
 

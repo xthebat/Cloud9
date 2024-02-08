@@ -21,27 +21,27 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#include "Cloud9ControllerComponent.h"
+#pragma once
 
-#include "Cloud9/Game/Cloud9PlayerController.h"
+#include "CoreMinimal.h"
+#include "UObject/Interface.h"
+
 #include "Cloud9/Character/Cloud9Character.h"
 
-ACloud9Character* ICloud9ControllerComponent::GetCloud9Pawn() const
+#include "Cloud9ControllerComponent.generated.h"
+
+UINTERFACE()
+class UCloud9ControllerComponent : public UInterface
 {
-	if (let Controller = GetCloud9Controller(); IsValid(Controller))
-	{
-		return Controller->GetPawn<ACloud9Character>();
-	}
+	GENERATED_BODY()
+};
 
-	return nullptr;
-}
-
-ACloud9PlayerController* ICloud9ControllerComponent::GetCloud9Controller() const
+class CLOUD9_API ICloud9ControllerComponent
 {
-	if (let Component = Cast<UActorComponent>(this))
-	{
-		return Component->GetOwner<ACloud9PlayerController>();
-	}
+	GENERATED_BODY()
 
-	return nullptr;
-}
+public:
+	ACloud9Character* GetCloud9Pawn() const;
+
+	ACloud9PlayerController* GetCloud9Controller() const;
+};

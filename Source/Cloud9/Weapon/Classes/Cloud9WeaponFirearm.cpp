@@ -30,7 +30,7 @@
 #include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Tools/Extensions/FVector.h"
-#include "Cloud9/Game/Cloud9PlayerController.h"
+#include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"

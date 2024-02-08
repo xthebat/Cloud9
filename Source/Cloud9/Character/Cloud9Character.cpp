@@ -37,12 +37,10 @@
 
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Game/Cloud9PlayerController.h"
+#include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Character/Components/Cloud9CharacterMovement.h"
 #include "Cloud9/Character/Components/Cloud9Inventory.h"
 #include "Cloud9/Character/Components/Cloud9SpringArmComponent.h"
-#include "Cloud9/Tools/Extensions/FVector.h"
-#include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 
 const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");

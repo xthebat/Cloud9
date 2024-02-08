@@ -23,7 +23,7 @@
 
 #include "Cloud9AssetManager.h"
 
-#include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
+#include "Cloud9/Tools/Macro/Logging.h"
 
 UObject* UCloud9AssetManager::GetOrLoadAssetSync(
 	FPrimaryAssetId PrimaryAssetId,

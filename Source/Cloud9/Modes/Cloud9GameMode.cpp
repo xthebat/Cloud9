@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 Alexei Gladkikh
+// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -21,29 +21,17 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#pragma once
+#include "Cloud9GameMode.h"
 
-#include "CoreMinimal.h"
-#include "UObject/Interface.h"
+#include "UObject/ConstructorHelpers.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
+#include "Cloud9/Game/Cloud9GameState.h"
+#include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
 
-#include "Cloud9ControllerComponent.generated.h"
-
-UINTERFACE()
-class UCloud9ControllerComponent : public UInterface
+ACloud9GameMode::ACloud9GameMode()
 {
-	GENERATED_BODY()
-};
-
-class CLOUD9_API ICloud9ControllerComponent
-{
-	GENERATED_BODY()
-
-public:
-	ACloud9Character* GetCloud9Pawn() const;
-
-	ACloud9PlayerController* GetCloud9Controller() const;
-};
+	PlayerControllerClass = ACloud9PlayerController::StaticClass();
+	DefaultPawnClass = ACloud9Character::StaticClass();
+	GameStateClass = ACloud9GameState::StaticClass();
+}

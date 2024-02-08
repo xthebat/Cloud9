@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Alexei Gladkikh
+﻿// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -21,17 +21,27 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#include "Cloud9GameMode.h"
+#include "Cloud9ControllerComponent.h"
 
-#include "UObject/ConstructorHelpers.h"
-
-#include "Cloud9GameState.h"
-#include "Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Contollers/Cloud9PlayerController.h"
 
-ACloud9GameMode::ACloud9GameMode()
+ACloud9Character* ICloud9ControllerComponent::GetCloud9Pawn() const
 {
-	PlayerControllerClass = ACloud9PlayerController::StaticClass();
-	DefaultPawnClass = ACloud9Character::StaticClass();
-	GameStateClass = ACloud9GameState::StaticClass();
+	if (let Controller = GetCloud9Controller(); IsValid(Controller))
+	{
+		return Controller->GetPawn<ACloud9Character>();
+	}
+
+	return nullptr;
+}
+
+ACloud9PlayerController* ICloud9ControllerComponent::GetCloud9Controller() const
+{
+	if (let Component = Cast<UActorComponent>(this))
+	{
+		return Component->GetOwner<ACloud9PlayerController>();
+	}
+
+	return nullptr;
 }
