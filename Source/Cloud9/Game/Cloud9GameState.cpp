@@ -13,9 +13,7 @@ void ACloud9GameState::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	let Settings = UCloud9DeveloperSettings::Get();
-
-	if (Settings->NetGraph > 0)
+	if (let Settings = UCloud9DeveloperSettings::Get(); Settings->NetGraph > 0)
 	{
 		let MyWorld = GetWorld();
 
@@ -51,6 +49,7 @@ void ACloud9GameState::Tick(float DeltaSeconds)
 			Velocity.Size(),
 			Fps
 		);
+
 		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, Text);
 	}
 }
