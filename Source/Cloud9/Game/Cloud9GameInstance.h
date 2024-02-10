@@ -26,9 +26,6 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
-
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
 
@@ -47,6 +44,9 @@ public:
 protected: // properties
 
 	virtual void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
+
+	UPROPERTY()
+	TArray<FWeaponConfig> SavedInfo;
 
 	// TODO: May better to move these into GameMode?
 

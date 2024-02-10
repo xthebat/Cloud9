@@ -23,6 +23,9 @@
 
 #include "Cloud9GameInstance.h"
 
+#include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
+
 const TArray<FWeaponConfig>& UCloud9GameInstance::GetDefaultWeaponsConfig() const { return DefaultWeaponsConfig; }
 
 EWeaponSlot UCloud9GameInstance::GetInitialWeaponSlot() const { return InitialWeaponSlot; }
@@ -33,6 +36,28 @@ void UCloud9GameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
 	{
 		log(Verbose, "Cleanup world timers = %p", OldWorld);
 		OldWorld | EUWorld::ClearAllTimers{};
+	}
+
+	for (let LocalPlayer : GetLocalPlayers())
+	{
+		let PlayerController = LocalPlayer->GetPlayerController(OldWorld);
+		if (not IsValid(PlayerController))
+		{
+			log(Error, "PlayerController isn't valid");
+			continue;
+		}
+
+		let Character = Cast<ACloud9Character>(PlayerController->GetCharacter());
+		if (not IsValid(Character))
+		{
+			log(Error, "Character isn't valid");
+			continue;
+		}
+
+		for (let Weapon : Character->GetInventory()->GetWeapons())
+		{
+			FWeaponConfig::FromWeapon(Weapon);
+		}
 	}
 
 	Super::OnWorldChanged(OldWorld, NewWorld);

@@ -43,6 +43,7 @@
 
 #include "Cloud9WeaponBase.generated.h"
 
+struct FWeaponConfig;
 class ACloud9Character;
 class UCloud9Inventory;
 
@@ -82,6 +83,9 @@ public:
 	 */
 	virtual FWeaponId GetWeaponId() const;
 
+	UFUNCTION(BlueprintCallable)
+	FName GetWeaponSkin() const;
+
 	/**
 	 * Function returns weapon unique name as string (identifier from weapon asset table)
 	 */
@@ -109,7 +113,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UStaticMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 
-	bool Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
+	/**
+	 * Outer method to initialize weapon as concrete weapon type by it WeaponId and WeaponSkin.
+	 * Called from FWeaponConfig to initialize method.
+	 */
+	bool Initialize(const FWeaponConfig& WeaponConfig);
 
 	template <typename WeaponIdType>
 	bool Initialize(WeaponIdType NewWeaponName, FName NewWeaponSkin)
@@ -180,7 +188,7 @@ protected:
 	static void ChangeMeshCollisionState(UStaticMeshComponent* Mesh, bool bIsEnabled);
 
 protected: // functions
-	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin);
+	virtual bool OnInitialize(const FWeaponConfig& WeaponConfig);
 	virtual void Deinitialize();
 
 	/**

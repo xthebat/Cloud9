@@ -24,11 +24,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "WeaponDefinition.h"
 #include "UObject/Object.h"
 
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Extensions/UWorld.h"
+#include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
+#include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
 #include "Cloud9/Weapon/Enums/FirearmNames.h"
 #include "Cloud9/Weapon/Enums/GrenadeNames.h"
 #include "Cloud9/Weapon/Enums/MeleeNames.h"
@@ -45,6 +48,8 @@ USTRUCT(BlueprintType)
 struct FWeaponConfig
 {
 	GENERATED_BODY()
+
+	virtual ~FWeaponConfig() = default;
 
 	friend bool IsValid(const FWeaponConfig& Config)
 	{
@@ -67,6 +72,22 @@ struct FWeaponConfig
 
 	FName GetSkinName() const { return SkinName; }
 
+	/**
+	 * WARNING: Can return -1 if AmmoInMagazine not configured
+	 */
+	int GetAmmoInMagazine(int Default = -1) const
+	{
+		return AmmoInMagazine < 0 ? Default : AmmoInMagazine;
+	}
+
+	/**
+	 * WARNING: Can return -1 if AmmoInReserve not configured
+	 */
+	int GetAmmoInReserve(int Default = -1) const
+	{
+		return AmmoInReserve < 0 ? Default : AmmoInReserve;
+	}
+
 	TSubclassOf<AActor> GetWeaponStaticClass() const;
 
 	bool Initialize(AActor* Actor) const;
@@ -81,7 +102,7 @@ struct FWeaponConfig
 		}
 
 		log(Display, "[Config='%s'] Initializing weapon...", *ToString());
-		return Weapon->Initialize(GetWeaponId(), GetSkinName());
+		return Weapon->Initialize(*this);
 	}
 
 	ACloud9WeaponBase* SpawnWeapon(UWorld* World) const;
@@ -94,9 +115,52 @@ struct FWeaponConfig
 		};
 	}
 
+	/**
+	 * Function converts WeaponConfig to a human-readable string
+	 */
 	FString ToString() const;
 
+	/**
+	 * Creates WeaponConfig from a specified Weapon (required for map change with save Weapon)
+	 * 
+	 * @param Weapon Weapon to save configuration and state
+	 */
+	static FWeaponConfig FromWeapon(const ACloud9WeaponBase* Weapon);
+
 protected:
+	/**
+ 	 * Required for WeaponSpawner to correct AmmoInMagazine and AmmoInReserve for a Weapon
+ 	 */
+	void PostEditChangeProperty()
+	{
+		let Asset = ACloud9WeaponBase::GetWeaponDefinitionsAsset();
+
+		if (not IsValid(Asset))
+		{
+			log(Error, "Can't get WeaponDefinitionsAsset");
+			return;
+		}
+
+		if (WeaponClass == EWeaponClass::Firearm)
+		{
+			FWeaponDefinition WeaponDefinition;
+
+			if (not Asset->GetWeaponDefinition(GetWeaponId(), WeaponDefinition))
+			{
+				log(Error, "Can't get WeaponDefinition for firearm = %d", FirearmWeaponId);
+				return;
+			}
+
+			let FirearmWeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
+
+			AmmoInMagazine = FirearmWeaponInfo->MagazineSize;
+			AmmoInReserve = FirearmWeaponInfo->MaxAmmoInReserve;
+		}
+	}
+
+protected:
+	friend class AWeaponSpawner;
+
 	/**
 	 * Is weapon enabled (useful when testing different kind of weapons)
 	 */
@@ -136,6 +200,22 @@ protected:
 	UPROPERTY(Category=Weapon, EditAnywhere, BlueprintReadOnly,
 		meta=(EditCondition="bIsEnabled && WeaponClass == EWeaponClass::Firearm", EditConditionHides))
 	bool bIsPrimary = false;
+
+	/**
+	 * Number of ammo to set in magazine for this weapon
+	 */
+	UPROPERTY(Category=Weapon, EditAnywhere, BlueprintReadOnly,
+		meta=(EditCondition="bIsEnabled && WeaponClass == EWeaponClass::Firearm",
+			UIMin="0", UIMax="150", ClampMin="0", ClampMax="150", EditConditionHides))
+	int AmmoInMagazine = -1; // set to max clamped in PostEditChangeProperty event
+
+	/**
+	 * Number of ammo to set in reserve for this weapon
+	 */
+	UPROPERTY(Category=Weapon, EditAnywhere, BlueprintReadOnly,
+		meta=(EditCondition="bIsEnabled && WeaponClass == EWeaponClass::Firearm",
+			UIMin="0", UIMax="150", ClampMin="0", ClampMax="150", EditConditionHides))
+	int AmmoInReserve = -1; // set to max clamped in PostEditChangeProperty event
 
 	/**
 	 * Skin name of the weapon 

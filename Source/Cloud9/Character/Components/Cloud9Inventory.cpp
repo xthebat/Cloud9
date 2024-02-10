@@ -321,3 +321,13 @@ bool UCloud9Inventory::IsWeaponChanging() const
 	let Weapon = GetSelectedWeapon();
 	return Weapon and Weapon->IsDeploying();
 }
+
+TArray<ACloud9WeaponBase*>::TConstIterator UCloud9Inventory::GetWeaponsIterator() const
+{
+	return WeaponSlots.CreateConstIterator();
+}
+
+const TArray<ACloud9WeaponBase*>& UCloud9Inventory::GetWeapons() const
+{
+	return WeaponSlots;
+}

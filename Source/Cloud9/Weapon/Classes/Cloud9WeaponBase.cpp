@@ -478,12 +478,12 @@ void ACloud9WeaponBase::Reload(bool IsReleased)
 		IsReleased);
 }
 
-bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
+bool ACloud9WeaponBase::Initialize(const FWeaponConfig& WeaponConfig)
 {
-	InitializeName(NewWeaponId);
-	WeaponSkin = NewWeaponSkin;
+	InitializeName(WeaponConfig.GetWeaponId());
+	WeaponSkin = WeaponConfig.GetSkinName();
 
-	if (not OnInitialize(NewWeaponId, NewWeaponSkin))
+	if (not OnInitialize(WeaponConfig))
 	{
 		log(Error, "[Weapon='%s'] Weapon initialization failure", *GetName());
 		Deinitialize();
@@ -496,7 +496,7 @@ bool ACloud9WeaponBase::Initialize(const FWeaponId& NewWeaponId, FName NewWeapon
 	return true;
 }
 
-bool ACloud9WeaponBase::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
+bool ACloud9WeaponBase::OnInitialize(const FWeaponConfig& WeaponConfig)
 {
 	let Asset = GetWeaponDefinitionsAsset();
 
@@ -506,7 +506,7 @@ bool ACloud9WeaponBase::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeap
 		return false;
 	}
 
-	if (not Asset->GetWeaponDefinition(GetWeaponId(), WeaponDefinition))
+	if (not Asset->GetWeaponDefinition(WeaponConfig.GetWeaponId(), WeaponDefinition))
 	{
 		log(Error, "[Weapon='%s'] Not initialized and Tick() will be disabled", *GetName());
 		return false;
@@ -552,6 +552,8 @@ FWeaponId ACloud9WeaponBase::GetWeaponId() const
 	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName())
 	return UnknownWeaponId;
 }
+
+FName ACloud9WeaponBase::GetWeaponSkin() const { return WeaponSkin; }
 
 EWeaponType ACloud9WeaponBase::GetWeaponType() const
 {

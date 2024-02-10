@@ -46,7 +46,7 @@ public:
 	const FMeleeWeaponInfo* GetWeaponInfo() const;
 
 protected:
-	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
+	virtual bool OnInitialize(const FWeaponConfig& WeaponConfig) override;
 
 	virtual void OnWeaponAddedToInventory() override;
 	virtual void OnWeaponRemovedFromInventory() override;

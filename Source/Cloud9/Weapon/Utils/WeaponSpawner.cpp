@@ -24,7 +24,6 @@
 #include "WeaponSpawner.h"
 
 #include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 
 bool AWeaponSpawner::ActivateSpawner(ACloud9Character* Character)
 {
@@ -53,3 +52,17 @@ AActor* AWeaponSpawner::CreateChildActor()
 
 	return nullptr;
 }
+
+#if WITH_EDITOR
+void AWeaponSpawner::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	if (let PropertyName = PropertyChangedEvent.Property->GetFName();
+		PropertyName != GET_MEMBER_NAME_CHECKED(FWeaponConfig, AmmoInMagazine) and
+		PropertyName != GET_MEMBER_NAME_CHECKED(FWeaponConfig, AmmoInReserve))
+	{
+		WeaponConfig.PostEditChangeProperty();
+	}
+}
+#endif

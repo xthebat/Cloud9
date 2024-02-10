@@ -104,6 +104,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsWeaponChanging() const;
 
+	TArray<ACloud9WeaponBase*>::TConstIterator GetWeaponsIterator() const;
+
+	const TArray<ACloud9WeaponBase*>& GetWeapons() const;
+
 protected:
 	virtual void BeginPlay() override;
 

@@ -37,12 +37,12 @@ const FMeleeWeaponInfo* ACloud9WeaponMelee::GetWeaponInfo() const
 	return WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
 }
 
-bool ACloud9WeaponMelee::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
+bool ACloud9WeaponMelee::OnInitialize(const FWeaponConfig& WeaponConfig)
 {
-	if (Super::OnInitialize(NewWeaponId, NewWeaponSkin))
+	if (Super::OnInitialize(WeaponConfig))
 	{
 		let MyWeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
-		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(NewWeaponSkin);
+		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(WeaponConfig.GetSkinName());
 
 		if (MySkinInfo.Material == nullptr)
 		{

@@ -66,12 +66,12 @@ const FGrenadeWeaponInfo* ACloud9WeaponGrenade::GetWeaponInfo() const
 	return WeaponDefinition.GetWeaponInfo<FGrenadeWeaponInfo>();
 }
 
-bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
+bool ACloud9WeaponGrenade::OnInitialize(const FWeaponConfig& WeaponConfig)
 {
-	if (Super::OnInitialize(NewWeaponId, NewWeaponSkin))
+	if (Super::OnInitialize(WeaponConfig))
 	{
 		let MyWeaponInfo = GetWeaponInfo();
-		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(NewWeaponSkin);
+		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(WeaponConfig.GetSkinName());
 
 		if (MySkinInfo.Material == nullptr)
 		{
