@@ -71,7 +71,7 @@ void UCloud9Inventory::BeginPlay()
 	}
 }
 
-bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant, bool Force)
+bool UCloud9Inventory::SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool Force)
 {
 	if (Slot == EWeaponSlot::NotSelected)
 	{
@@ -111,6 +111,7 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant, bool Force)
 		if (PendingWeapon->ChangeState(EWeaponBond::Armed, Instant, Force))
 		{
 			SelectedWeaponSlot = Slot;
+			OnWeaponSwitchDelegate.Broadcast();
 			return true;
 		}
 
@@ -123,8 +124,8 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant, bool Force)
 		if (not SelectedWeapon->ChangeState(EWeaponBond::Holstered, true, Force))
 		{
 			log(Verbose,
-			    "[Inventory='%s'] Can't change state of selected weapon from slot='%d'",
-			    *GetName(), SelectedWeaponSlot);
+				"[Inventory='%s'] Can't change state of selected weapon from slot='%d'",
+				*GetName(), SelectedWeaponSlot);
 			return false;
 		}
 	}
@@ -132,14 +133,25 @@ bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant, bool Force)
 	if (not PendingWeapon->ChangeState(EWeaponBond::Armed, Instant, Force))
 	{
 		log(Verbose,
-		    "[Inventory='%s'] Can't change state of pending weapon to slot='%d'",
-		    *GetName(), Slot);
+			"[Inventory='%s'] Can't change state of pending weapon to slot='%d'",
+			*GetName(), Slot);
 		return false;
 	}
 
 	SelectedWeaponSlot = Slot;
-
+	
 	return true;
+}
+
+bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant, bool Force)
+{
+	let Result = SelectWeaponImpl(Slot, Instant, Force); 
+	if (Result)
+	{
+		OnWeaponSwitchDelegate.Broadcast();
+	}
+	
+	return Result;
 }
 
 ACloud9WeaponBase* UCloud9Inventory::GetWeaponAt(EWeaponSlot Slot) const { return WeaponAt(Slot); }
@@ -267,6 +279,7 @@ bool UCloud9Inventory::AddWeapon(const FWeaponConfig& Config, bool Select, bool 
 
 	log(Display, "[Inventory='%s'] Added configured weapon = '%s'", *GetName(), *Config.ToString());
 
+	OnWeaponAddDelegate.Broadcast();
 	return true;
 }
 
@@ -298,6 +311,7 @@ bool UCloud9Inventory::RemoveWeapon(EWeaponSlot Slot)
 	WeaponAt(Slot)->Destroy();
 	WeaponAt(Slot) = nullptr;
 
+	OnWeaponRemoveDelegate.Broadcast();
 	return true;
 }
 

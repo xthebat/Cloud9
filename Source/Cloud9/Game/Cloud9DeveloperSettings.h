@@ -82,6 +82,9 @@ public: // properties
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 NetGraph;
 
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	int32 bIsAutoSelectWeapon;
+
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Sound)
 	float Volume;
 
