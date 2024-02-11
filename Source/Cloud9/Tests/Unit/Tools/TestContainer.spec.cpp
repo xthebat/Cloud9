@@ -89,5 +89,48 @@ void FRangeSpec::Define()
 				| ETContainer::ToArray{};
 			TestEqual("Result == {3, 4, 5}", Result, {3, 4, 5});
 		});
+
+		It("Transform", [=]
+		{
+			{
+				let Result = Container
+					| ETContainer::Transform{[&](let It) { return It * 2; }}
+					| ETContainer::ToArray{};
+				TestEqual("Result == {2, 4, 6, 8, 10}", Result, {2, 4, 6, 8, 10});
+			}
+
+			{
+				let Result = Container
+					| ETContainer::Transform{[&](let It) { return It; }}
+					| ETContainer::ToArray{};
+				TestEqual("Result == {1, 2, 3, 4, 5}", Result, {1, 2, 3, 4, 5});
+			}
+		});
+
+		It("Associate", [=]
+		{
+			let Result = Container
+				| ETContainer::Associate
+				{
+					[&](let It) { return It; },
+					[&](let It) { return static_cast<float>(It) / 2.0f; }
+				};
+
+			let Expected = TMap<int, float>{
+				{1, 0.5f},
+				{2, 1.0f},
+				{3, 1.5f},
+				{4, 2.0f},
+				{5, 2.5f},
+			};
+
+			for (let It : Result)
+			{
+				let Key = It.Get<0>();
+				let Value = It.Get<1>();
+				TestTrue("Contains Result / 2.0f", Expected.Contains(Key));
+				TestEqual("Result / 2.0f", Value, Expected[Key]);
+			}
+		});
 	});
 }
