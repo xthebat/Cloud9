@@ -11,8 +11,16 @@ class CLOUD9_API ACloud9DefaultGameMode : public ACloud9GameMode
 {
 	GENERATED_BODY()
 
+	ACloud9DefaultGameMode();
+
 protected:
-	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
-	
-	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual bool OnWorldLoadComplete(FPlayerSavedInfo& SavedInfo) override;
+
+	virtual bool OnWorldTearDown(FPlayerSavedInfo& SavedInfo) override;
+
+	UPROPERTY(Category=Weapon, EditDefaultsOnly)
+	TArray<FWeaponConfig> InitialWeaponsConfig;
+
+	UPROPERTY(Category=Weapon, EditDefaultsOnly)
+	EWeaponSlot InitialWeaponSlot;
 };

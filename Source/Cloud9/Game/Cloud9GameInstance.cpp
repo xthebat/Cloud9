@@ -23,42 +23,82 @@
 
 #include "Cloud9GameInstance.h"
 
-#include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
+#include "Cloud9/Modes/Cloud9GameMode.h"
+#include "GameFramework/GameModeBase.h"
+#include "Kismet/GameplayStatics.h"
 
 const TArray<FWeaponConfig>& UCloud9GameInstance::GetDefaultWeaponsConfig() const { return DefaultWeaponsConfig; }
 
 EWeaponSlot UCloud9GameInstance::GetInitialWeaponSlot() const { return InitialWeaponSlot; }
 
-void UCloud9GameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
+ACloud9GameMode* UCloud9GameInstance::GetGameMode(const UWorld* World)
 {
-	if (IsValid(OldWorld))
+	if (not IsValid(World))
 	{
-		log(Verbose, "Cleanup world timers = %p", OldWorld);
-		OldWorld | EUWorld::ClearAllTimers{};
+		log(Error, "World isn't valid to get GameMode")
+		return nullptr;
 	}
 
-	for (let LocalPlayer : GetLocalPlayers())
+	let MyGameMode = UGameplayStatics::GetGameMode(World);
+
+	if (not IsValid(MyGameMode))
 	{
-		let PlayerController = LocalPlayer->GetPlayerController(OldWorld);
-		if (not IsValid(PlayerController))
-		{
-			log(Error, "PlayerController isn't valid");
-			continue;
-		}
-
-		let Character = Cast<ACloud9Character>(PlayerController->GetCharacter());
-		if (not IsValid(Character))
-		{
-			log(Error, "Character isn't valid");
-			continue;
-		}
-
-		for (let Weapon : Character->GetInventory()->GetWeapons())
-		{
-			FWeaponConfig::FromWeapon(Weapon);
-		}
+		log(Error, "Current GameMode isn't valid")
+		return nullptr;
 	}
 
-	Super::OnWorldChanged(OldWorld, NewWorld);
+	return Cast<ACloud9GameMode>(MyGameMode);
+}
+
+void UCloud9GameInstance::StartGameInstance()
+{
+	Super::StartGameInstance();
+	FWorldDelegates::OnWorldBeginTearDown.AddStatic(&OnWorldBeginTearDown);
+}
+
+void UCloud9GameInstance::OnWorldBeginTearDown(UWorld* World)
+{
+	log(Verbose, "Cleanup world timers = %p", World);
+	World | EUWorld::ClearAllTimers{};
+
+	let WorldGameMode = GetGameMode(World);
+	log(Display, "World = %p WorldGameMode = %p", World, WorldGameMode);
+
+	let GameInstance = World->GetGameInstance<UCloud9GameInstance>();
+
+	if (not GameInstance)
+	{
+		log(Error, "GameInstance isn't valid tear down Map='%s'", *World->GetMapName());
+		return;
+	}
+
+	if (not WorldGameMode->OnWorldTearDown(GameInstance->SavedInfo))
+	{
+		log(Error, "GameMode->OnWorldTearDown failure for Map='%s'", *World->GetMapName());
+		return;
+	}
+
+	log(Display, "Successfully tear down Map='%s'", *World->GetMapName());
+}
+
+void UCloud9GameInstance::LoadComplete(const float LoadTime, const FString& MapName)
+{
+	Super::LoadComplete(LoadTime, MapName);
+
+	let NewGameMode = GetGameMode();
+
+	if (not IsValid(NewGameMode))
+	{
+		log(Error, "GameMode isn't valid when level load complete for Map='%s'", *MapName)
+		return;
+	}
+
+	if (not NewGameMode->OnWorldLoadComplete(SavedInfo))
+	{
+		log(Error, "GameMode OnMapLoadComplete failure");
+		return;
+	}
+
+	log(Display, "Successfully load Map='%s' load time=%.1f", *MapName, LoadTime);
 }

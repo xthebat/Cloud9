@@ -24,6 +24,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9/Structures/SavedInfo.h"
 #include "Engine/GameInstance.h"
 
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
@@ -31,24 +32,67 @@
 
 #include "Cloud9GameInstance.generated.h"
 
+class ACloud9GameMode;
+
 UCLASS()
 class CLOUD9_API UCloud9GameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
 public:
+	/**
+	 * @deprecated (?)
+	 */
 	const TArray<FWeaponConfig>& GetDefaultWeaponsConfig() const;
 
+	/**
+	 * @deprecated (?)
+	 */
 	EWeaponSlot GetInitialWeaponSlot() const;
 
+	/**
+	 * Function gets game mode for specified World
+	 * 
+	 * WARNING: Can only be used during game (avoid it in OnConstruction and etc)
+	 */
+	static ACloud9GameMode* GetGameMode(const UWorld* World);
+
+	/**
+	 * Function gets specialized type of game mode for specified World
+	 * 
+	 * WARNING: Can only be used during game (avoid it in OnConstruction and etc)
+	 */
+	template <typename GameModeType = ACloud9GameMode>
+	static GameModeType* GetGameMode(const UWorld* World) { return Cast<GameModeType>(GetGameMode(World)); }
+
+	/**
+	 * Function gets current game mode
+	 * 
+	 * WARNING: Can only be used during game (avoid it in OnConstruction and etc)
+	 */
+	ACloud9GameMode* GetGameMode() const { return GetGameMode(GetWorld()); }
+
+	/**
+	 * Function gets specialized type of current game mode
+	 * 
+	 * WARNING: Can only be used during game (avoid it in OnConstruction and etc)
+	 */
+	template <typename GameModeType = ACloud9GameMode>
+	GameModeType* GetGameMode() const { return Cast<GameModeType>(GetGameMode()); }
+
 protected: // properties
+	virtual void StartGameInstance() override final;
 
-	virtual void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
+	virtual void LoadComplete(const float LoadTime, const FString& MapName) override final;
 
+private:
+	static void OnWorldBeginTearDown(UWorld* World);
+
+protected:
 	UPROPERTY()
-	TArray<FWeaponConfig> SavedInfo;
+	FPlayerSavedInfo SavedInfo;
 
-	// TODO: May better to move these into GameMode?
+	// TODO: Remove DefaultWeaponsConfig and InitialWeaponSlot from GameInstance
 
 	UPROPERTY(Category=Weapon, EditDefaultsOnly)
 	TArray<FWeaponConfig> DefaultWeaponsConfig;

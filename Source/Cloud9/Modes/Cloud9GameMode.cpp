@@ -35,3 +35,13 @@ ACloud9GameMode::ACloud9GameMode()
 	DefaultPawnClass = ACloud9Character::StaticClass();
 	GameStateClass = ACloud9GameState::StaticClass();
 }
+
+bool ACloud9GameMode::OnWorldLoadComplete(FPlayerSavedInfo& SavedInfo)
+{
+	return true;
+}
+
+bool ACloud9GameMode::OnWorldTearDown(FPlayerSavedInfo& SavedInfo)
+{
+	return true;
+}
