@@ -12,6 +12,9 @@ class CLOUD9_API ACloud9GameState : public AGameStateBase
 {
 	GENERATED_BODY()
 
+public:
+	ACloud9GameState();
+
 protected:
 	virtual void Tick(float DeltaSeconds) override;
 };

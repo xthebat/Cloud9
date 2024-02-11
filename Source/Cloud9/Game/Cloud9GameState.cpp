@@ -8,11 +8,18 @@
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 
+ACloud9GameState::ACloud9GameState()
+{
+	PrimaryActorTick.bCanEverTick = true;
+}
+
 void ACloud9GameState::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (let Settings = UCloud9DeveloperSettings::Get(); Settings->NetGraph > 0)
+	static let Settings = UCloud9DeveloperSettings::Get();
+
+	if (Settings->NetGraph > 0)
 	{
 		let MyWorld = GetWorld();
 

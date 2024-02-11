@@ -124,8 +124,8 @@ bool UCloud9Inventory::SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool For
 		if (not SelectedWeapon->ChangeState(EWeaponBond::Holstered, true, Force))
 		{
 			log(Verbose,
-				"[Inventory='%s'] Can't change state of selected weapon from slot='%d'",
-				*GetName(), SelectedWeaponSlot);
+			    "[Inventory='%s'] Can't change state of selected weapon from slot='%d'",
+			    *GetName(), SelectedWeaponSlot);
 			return false;
 		}
 	}
@@ -133,25 +133,25 @@ bool UCloud9Inventory::SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool For
 	if (not PendingWeapon->ChangeState(EWeaponBond::Armed, Instant, Force))
 	{
 		log(Verbose,
-			"[Inventory='%s'] Can't change state of pending weapon to slot='%d'",
-			*GetName(), Slot);
+		    "[Inventory='%s'] Can't change state of pending weapon to slot='%d'",
+		    *GetName(), Slot);
 		return false;
 	}
 
 	SelectedWeaponSlot = Slot;
-	
+
 	return true;
 }
 
 bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant, bool Force)
 {
-	let Result = SelectWeaponImpl(Slot, Instant, Force); 
-	if (Result)
+	if (SelectWeaponImpl(Slot, Instant, Force))
 	{
 		OnWeaponSwitchDelegate.Broadcast();
+		return true;
 	}
-	
-	return Result;
+
+	return false;
 }
 
 ACloud9WeaponBase* UCloud9Inventory::GetWeaponAt(EWeaponSlot Slot) const { return WeaponAt(Slot); }
