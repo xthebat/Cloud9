@@ -63,6 +63,9 @@ namespace ETIterator
 namespace Private_ETContainer
 {
 	template <typename OperatorType, typename ContainerType>
+	struct TTransformIterator;
+
+	template <typename OperatorType, typename ContainerType>
 	struct TFilterIterator;
 
 	template <typename OperatorType, typename ContainerType>
@@ -102,15 +105,62 @@ namespace ETContainer
 		{
 			for (let& It : Self)
 			{
-				if constexpr (TIsSame<decltype(It), int>::Value)
-				{
-					log(Error, "%d", It);
-				}
 				Block(It);
 			}
 		}
 
 		OPERATOR_BODY(ForEach)
+	};
+
+	template <typename BlockType>
+	struct ForEachIndexed
+	{
+		const BlockType& Block;
+
+		template <typename ContainerType>
+		constexpr void operator()(ContainerType&& Self) const
+		{
+			int Index = 0;
+			for (let& It : Self)
+			{
+				Block(Index++, It);
+			}
+		}
+
+		OPERATOR_BODY(ForEachIndexed)
+	};
+
+	template <typename KeyBlockType, typename ValueBlockType>
+	struct Associate
+	{
+		const KeyBlockType& KeyBlock;
+		const ValueBlockType& ValueBlock;
+
+		template <typename ContainerType>
+		constexpr auto operator()(ContainerType&& Self) const
+		{
+			using FKeyType = typename TInvokeResult<KeyBlockType, typename ContainerType::ElementType>::Type;
+			using FValueType = typename TInvokeResult<ValueBlockType, typename ContainerType::ElementType>::Type;
+
+			TMap<FKeyType, FValueType> Output;
+			for (let& It : Self)
+			{
+				Output.Emplace(KeyBlock(It), ValueBlock(It));
+			}
+			return Output;
+		}
+
+		OPERATOR_BODY(Associate)
+	};
+
+	template <typename InOperationType>
+	struct Transform
+	{
+		using OperationType = InOperationType;
+
+		const OperationType& Operation;
+
+		SEQUENCE_OPERATOR_BODY(Transform, Private_ETContainer::TTransformIterator)
 	};
 
 	template <typename PredicateType>
@@ -249,6 +299,42 @@ namespace ETContainer
 
 namespace Private_ETContainer
 {
+	template <typename OperatorType, typename ContainerType>
+	struct TTransformIterator
+	{
+		using ElementType = typename TInvokeResult<
+			typename OperatorType::OperationType,
+			typename TDecay<ContainerType>::Type::ElementType
+		>::Type;
+
+		constexpr TTransformIterator(ContainerType&& Container, OperatorType&& Operator)
+			: Container(Container)
+			, Iterator(Container.CreateConstIterator())
+			, Operator(Operator) {}
+
+		// ReSharper disable once CppMemberFunctionMayBeStatic
+		constexpr void Initialize() {}
+
+		constexpr TTransformIterator& operator++()
+		{
+			++Iterator;
+			return *this;
+		}
+
+		// constexpr const ElementType& operator->() const { return Iterator; }
+
+		constexpr ElementType operator*() const { return Operator.Operation(*Iterator); }
+
+		constexpr explicit operator bool() const { return not Iterator; }
+
+	private:
+		using IteratorType = typename TDecay<ContainerType>::Type::TConstIterator;
+
+		ContainerType Container;
+		IteratorType Iterator;
+		OperatorType Operator;
+	};
+
 	template <typename OperatorType, typename ContainerType>
 	struct TFilterIterator
 	{
