@@ -17,7 +17,7 @@ class ACloud9GameMode : public AGameModeBase
 public:
 	ACloud9GameMode();
 
-	virtual bool OnWorldLoadComplete(FPlayerSavedInfo& SavedInfo);
+	virtual bool OnWorldChanged(FSavedInfo& SavedInfo);
 
-	virtual bool OnWorldTearDown(FPlayerSavedInfo& SavedInfo);
+	virtual bool OnWorldTearDown(FSavedInfo& SavedInfo);
 };

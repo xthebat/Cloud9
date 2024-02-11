@@ -37,7 +37,9 @@ class ACloud9WeaponFirearm;
 class ACloud9WeaponMelee;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponAddDelegate);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponRemoveDelegate);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponSwitchDelegate);
 
 UCLASS(Blueprintable)
@@ -49,6 +51,8 @@ class CLOUD9_API UCloud9Inventory
 
 public:
 	UCloud9Inventory();
+
+	bool Initialize(const TArray<FWeaponConfig>& WeaponConfigs, EWeaponSlot WeaponSlot);
 
 	/**
 	 * Function selects weapon in new slot.
@@ -113,17 +117,15 @@ public:
 	const TArray<ACloud9WeaponBase*>& GetWeapons() const;
 
 protected:
-	virtual void BeginPlay() override;
-
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnWeaponAddDelegate OnWeaponAddDelegate;
-	
+
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnWeaponRemoveDelegate OnWeaponRemoveDelegate;
 
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnWeaponSwitchDelegate OnWeaponSwitchDelegate;
-	
+
 	template <typename WeaponType = ACloud9WeaponBase>
 	WeaponType* WeaponAt(EWeaponSlot Slot) const { return WeaponSlots[Slot | EUEnum::To<int>{}]; }
 
@@ -132,7 +134,7 @@ protected:
 
 private:
 	bool SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool Force);
-	
+
 protected:
 	UPROPERTY()
 	TArray<ACloud9WeaponBase*> WeaponSlots;

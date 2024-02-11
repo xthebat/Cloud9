@@ -5,5 +5,5 @@
 void FSavedInfo::Reset()
 {
 	bIsLoadRequired = false;
-	PlayersSavedInfo.Reset();
+	Players.Reset();
 }

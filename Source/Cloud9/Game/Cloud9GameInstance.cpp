@@ -28,10 +28,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 
-const TArray<FWeaponConfig>& UCloud9GameInstance::GetDefaultWeaponsConfig() const { return DefaultWeaponsConfig; }
-
-EWeaponSlot UCloud9GameInstance::GetInitialWeaponSlot() const { return InitialWeaponSlot; }
-
 ACloud9GameMode* UCloud9GameInstance::GetGameMode(const UWorld* World)
 {
 	if (not IsValid(World))
@@ -57,6 +53,33 @@ void UCloud9GameInstance::StartGameInstance()
 	FWorldDelegates::OnWorldBeginTearDown.AddStatic(&OnWorldBeginTearDown);
 }
 
+void UCloud9GameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
+{
+	Super::OnWorldChanged(OldWorld, NewWorld);
+
+	if (NewWorld != nullptr)
+	{
+		let WorldGameMode = GetGameMode(NewWorld);
+		log(Display, "World = %p WorldGameMode = %p", NewWorld, WorldGameMode);
+
+		let GameInstance = NewWorld->GetGameInstance<UCloud9GameInstance>();
+
+		if (not GameInstance)
+		{
+			log(Error, "GameInstance isn't valid tear down Map='%s'", *NewWorld->GetMapName());
+			return;
+		}
+
+		if (not WorldGameMode->OnWorldChanged(GameInstance->SavedInfo))
+		{
+			log(Error, "GameMode OnMapLoadComplete failure");
+			return;
+		}
+
+		log(Display, "Successfully load Map='%s'", *NewWorld->GetMapName());
+	}
+}
+
 void UCloud9GameInstance::OnWorldBeginTearDown(UWorld* World)
 {
 	log(Verbose, "Cleanup world timers = %p", World);
@@ -80,25 +103,4 @@ void UCloud9GameInstance::OnWorldBeginTearDown(UWorld* World)
 	}
 
 	log(Display, "Successfully tear down Map='%s'", *World->GetMapName());
-}
-
-void UCloud9GameInstance::LoadComplete(const float LoadTime, const FString& MapName)
-{
-	Super::LoadComplete(LoadTime, MapName);
-
-	let NewGameMode = GetGameMode();
-
-	if (not IsValid(NewGameMode))
-	{
-		log(Error, "GameMode isn't valid when level load complete for Map='%s'", *MapName)
-		return;
-	}
-
-	if (not NewGameMode->OnWorldLoadComplete(SavedInfo))
-	{
-		log(Error, "GameMode OnMapLoadComplete failure");
-		return;
-	}
-
-	log(Display, "Successfully load Map='%s' load time=%.1f", *MapName, LoadTime);
 }

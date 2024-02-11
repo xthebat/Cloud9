@@ -24,9 +24,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9/Structures/SavedInfo.h"
 #include "Engine/GameInstance.h"
 
+#include "Cloud9/Structures/SavedInfo.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
 
@@ -40,16 +40,6 @@ class CLOUD9_API UCloud9GameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	/**
-	 * @deprecated (?)
-	 */
-	const TArray<FWeaponConfig>& GetDefaultWeaponsConfig() const;
-
-	/**
-	 * @deprecated (?)
-	 */
-	EWeaponSlot GetInitialWeaponSlot() const;
-
 	/**
 	 * Function gets game mode for specified World
 	 * 
@@ -83,14 +73,14 @@ public:
 protected: // properties
 	virtual void StartGameInstance() override final;
 
-	virtual void LoadComplete(const float LoadTime, const FString& MapName) override final;
+	virtual void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
 
 private:
 	static void OnWorldBeginTearDown(UWorld* World);
 
 protected:
 	UPROPERTY()
-	FPlayerSavedInfo SavedInfo;
+	FSavedInfo SavedInfo;
 
 	// TODO: Remove DefaultWeaponsConfig and InitialWeaponSlot from GameInstance
 

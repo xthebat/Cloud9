@@ -11,7 +11,10 @@ struct FPlayerSavedInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(Category=Weapon, BlueprintReadOnly)
+	UPROPERTY(Category=Weapon, EditDefaultsOnly, BlueprintReadOnly)
+	EWeaponSlot WeaponSlot = EWeaponSlot::NotSelected;
+
+	UPROPERTY(Category=Weapon, EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FWeaponConfig> WeaponConfigs;
 
 	void Reset();

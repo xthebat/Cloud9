@@ -15,7 +15,7 @@ struct FSavedInfo
 	bool bIsLoadRequired;
 
 	UPROPERTY(Category=Weapon, BlueprintReadOnly)
-	TMap<int, FPlayerSavedInfo> PlayersSavedInfo;
+	TMap<int32, FPlayerSavedInfo> Players;
 
 	void Reset();
 };

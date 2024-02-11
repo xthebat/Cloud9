@@ -36,12 +36,12 @@ ACloud9GameMode::ACloud9GameMode()
 	GameStateClass = ACloud9GameState::StaticClass();
 }
 
-bool ACloud9GameMode::OnWorldLoadComplete(FPlayerSavedInfo& SavedInfo)
+bool ACloud9GameMode::OnWorldChanged(FSavedInfo& SavedInfo)
 {
 	return true;
 }
 
-bool ACloud9GameMode::OnWorldTearDown(FPlayerSavedInfo& SavedInfo)
+bool ACloud9GameMode::OnWorldTearDown(FSavedInfo& SavedInfo)
 {
 	return true;
 }

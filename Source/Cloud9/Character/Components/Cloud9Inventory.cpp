@@ -38,37 +38,21 @@ UCloud9Inventory::UCloud9Inventory()
 	WeaponSlots.SetNum(SlotsNumber);
 }
 
-void UCloud9Inventory::BeginPlay()
+bool UCloud9Inventory::Initialize(const TArray<FWeaponConfig>& WeaponConfigs, EWeaponSlot WeaponSlot)
 {
-	Super::BeginPlay();
-
-	let MyOwner = GetOwner<ACloud9Character>();
-
-	if (not IsValid(MyOwner))
-	{
-		log(Error, "[Actor='%s'] ACloud9Character isn't valid", *GetName());
-		return;
-	}
-
-	let GameInstance = MyOwner->GetGameInstance<UCloud9GameInstance>();
-
-	if (not IsValid(GameInstance))
-	{
-		log(Error, "[Actor='%s'] UCloud9GameInstance isn't valid", *GetName());
-	}
-
-	GameInstance->GetDefaultWeaponsConfig()
-		| ETContainer::Filter{[this](let& Config) { return IsValid(Config); }}
+	WeaponConfigs
+		| ETContainer::Filter{[](let& Config) { return IsValid(Config); }}
 		| ETContainer::ForEach{[this](let& Config) { AddWeapon(Config); }};
 
-	let InitialWeaponSlot = GameInstance->GetInitialWeaponSlot();
-
-	if (not SelectWeapon(InitialWeaponSlot))
+	if (not SelectWeapon(WeaponSlot))
 	{
 		log(Error,
 		    "[Actor='%s'] Can't select default weapon slot='%s'",
-		    *GetName(), InitialWeaponSlot | EUEnum::GetValueName() | EFName::ToCStr());
+		    *GetName(), WeaponSlot | EUEnum::GetValueName() | EFName::ToCStr());
+		return false;
 	}
+
+	return true;
 }
 
 bool UCloud9Inventory::SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool Force)

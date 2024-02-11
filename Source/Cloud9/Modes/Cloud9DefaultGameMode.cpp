@@ -7,17 +7,92 @@
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
 
-ACloud9DefaultGameMode::ACloud9DefaultGameMode()
+FName ACloud9DefaultGameMode::CtSidePlayer = TEXT("CT");
+FName ACloud9DefaultGameMode::TSidePlayer = TEXT("T");
+FName ACloud9DefaultGameMode::GodSidePlayer = TEXT("God");
+
+ACloud9DefaultGameMode::ACloud9DefaultGameMode() {}
+
+ACloud9Character* GetPlayerCharacter(const ULocalPlayer* LocalPlayer)
 {
-	InitialWeaponSlot = EWeaponSlot::NotSelected;
+	let World = LocalPlayer->GetWorld();
+
+	let PlayerController = LocalPlayer->GetPlayerController(World);
+
+	if (not IsValid(PlayerController))
+	{
+		log(Fatal, "PlayerController isn't valid for LocalPlayer=%s", *LocalPlayer->GetName());
+		return nullptr;
+	}
+
+	let Character = PlayerController->GetPawn<ACloud9Character>();
+	if (not IsValid(Character))
+	{
+		log(Fatal, "Character isn't valid for LocalPlayer=%s", *LocalPlayer->GetName());
+		return nullptr;
+	}
+
+	return Character;
 }
 
-bool ACloud9DefaultGameMode::OnWorldLoadComplete(FPlayerSavedInfo& SavedInfo)
+bool ACloud9DefaultGameMode::OnWorldChanged(FSavedInfo& SavedInfo)
 {
+	log(Error, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+
+	let GameInstance = GetGameInstance<UCloud9GameInstance>();
+
+	if (not IsValid(GameInstance))
+	{
+		log(Error, "GameInstance isn't valid");
+		return false;
+	}
+
+	if (SavedInfo.bIsLoadRequired)
+	{
+		GameInstance->GetLocalPlayers()
+			| ETContainer::Filter{
+				[&SavedInfo](let LocalPlayer)
+				{
+					return SavedInfo.Players.Contains(LocalPlayer->GetControllerId());
+				}
+			}
+			| ETContainer::ForEach{
+				[this, &SavedInfo](let LocalPlayer)
+				{
+					let Character = GetPlayerCharacter(LocalPlayer);
+					let Inventory = Character->GetInventory();
+					let& PlayerSavedInfo = SavedInfo.Players[LocalPlayer->GetControllerId()];
+					Inventory->Initialize(PlayerSavedInfo.WeaponConfigs, PlayerSavedInfo.WeaponSlot);
+				}
+			};
+
+		SavedInfo.Reset();
+	}
+	else
+	{
+		if (not InitialPlayerConfig.Contains(GodSidePlayer))
+		{
+			log(Error, "Can't initialize player for now...")
+			return false;
+		}
+
+		let& PlayerConfig = InitialPlayerConfig[GodSidePlayer];
+
+		GameInstance->GetLocalPlayers()
+			| ETContainer::ForEach{
+				[&PlayerConfig](let LocalPlayer)
+				{
+					let Character = GetPlayerCharacter(LocalPlayer);
+					let Inventory = Character->GetInventory();
+					Inventory->Initialize(PlayerConfig.WeaponConfigs, PlayerConfig.WeaponSlot);
+				}
+			};
+	}
+
 	return true;
 }
 
-bool ACloud9DefaultGameMode::OnWorldTearDown(FPlayerSavedInfo& SavedInfo)
+bool ACloud9DefaultGameMode::OnWorldTearDown(FSavedInfo& SavedInfo)
 {
 	let GameInstance = GetGameInstance<UCloud9GameInstance>();
 
@@ -27,84 +102,23 @@ bool ACloud9DefaultGameMode::OnWorldTearDown(FPlayerSavedInfo& SavedInfo)
 		return false;
 	}
 
-	// GameInstance->GetLocalPlayers() | ETContainer::ForEachIndexed{
-	// 	[this, &SavedInfo](var Index, let LocalPlayer)
-	// 	{
-	// 		let PlayerController = LocalPlayer->GetPlayerController(GetWorld());
-	//
-	// 		if (not IsValid(PlayerController))
-	// 		{
-	// 			log(Error, "PlayerController isn't valid for LocalPlayer=%s", *LocalPlayer->GetName());
-	// 			continue;
-	// 		}
-	//
-	// 		let Character = PlayerController->template GetPawn<ACloud9Character>();
-	//
-	// 		if (not IsValid(Character))
-	// 		{
-	// 			log(Error, "Character isn't valid for LocalPlayer=%s", *LocalPlayer->GetName());
-	// 			continue;
-	// 		}
-	//
-	// 		SavedInfo.WeaponConfigs[Index] = FWeaponConfig::FromWeapon(Character);
-	// 	}
-	// };
+	SavedInfo.Players = GameInstance->GetLocalPlayers()
+		| ETContainer::Associate{
+			[](let LocalPlayer) { return LocalPlayer->GetControllerId(); },
+			[](let LocalPlayer)
+			{
+				var PlayerSavedInfo = FPlayerSavedInfo();
+				let Character = GetPlayerCharacter(LocalPlayer);
+				let Inventory = Character->GetInventory();
+				PlayerSavedInfo.WeaponConfigs = Inventory->GetWeapons()
+					| ETContainer::Filter{[](let Weapon) { return IsValid(Weapon); }}
+					| ETContainer::Transform{[](let Weapon) { return FWeaponConfig::FromWeapon(Weapon); }}
+					| ETContainer::ToArray{};
+				return PlayerSavedInfo;
+			}
+		};
 
-	let MyWorld = GetWorld();
-
-	let LocalPlayer = GameInstance->GetLocalPlayers()[0];
-	let PlayerController = LocalPlayer->GetPlayerController(MyWorld);
-	let Character = PlayerController->GetPawn<ACloud9Character>();
-
-	let q = Character->GetInventory()->GetWeapons()
-		| ETContainer::Transform{[](let Weapon) { return 1; }}
-		| ETContainer::ToArray{};
-
-	// SavedInfo = GameInstance->GetLocalPlayers() | ETContainer::Associate{
-	// 	[](let LocalPlayer) { return LocalPlayer->GetControllerId(); },
-	// 	[MyWorld](let LocalPlayer)
-	// 	{
-	// 		let PlayerController = LocalPlayer->GetPlayerController(MyWorld);
-	//
-	// 		if (not IsValid(PlayerController))
-	// 		{
-	// 			log(Fatal, "PlayerController isn't valid for LocalPlayer=%s", *LocalPlayer->GetName());
-	// 			return {};
-	// 		}
-	//
-	// 		let Character = PlayerController->template GetPawn<ACloud9Character>();
-	// 		if (not IsValid(Character))
-	// 		{
-	// 			log(Fatal, "Character isn't valid for LocalPlayer=%s", *LocalPlayer->GetName());
-	// 			return {};
-	// 		}
-	//
-	// 		return 
-	// 	}
-	// };
-
-	// for (let LocalPlayer : GameInstance->GetLocalPlayers())
-	// {
-	// 	let PlayerController = LocalPlayer->GetPlayerController(GetWorld());
-	//
-	// 	if (not IsValid(PlayerController))
-	// 	{
-	// 		log(Error, "PlayerController isn't valid for LocalPlayer=%s", *LocalPlayer->GetName());
-	// 		continue;
-	// 	}
-	//
-	// 	let Character = PlayerController->GetPawn<ACloud9Character>();
-	//
-	// 	if (not IsValid(Character))
-	// 	{
-	// 		log(Error, "Character isn't valid for LocalPlayer=%s", *LocalPlayer->GetName());
-	// 		continue;
-	// 	}
-	//
-	// 	Character->GetInventory()->
-	//
-	// 	           SavedInfo.WeaponConfigs[PlayerController->Get]
-	// }
+	SavedInfo.bIsLoadRequired = true;
 
 	return true;
 }

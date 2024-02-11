@@ -49,8 +49,6 @@ struct FWeaponConfig
 {
 	GENERATED_BODY()
 
-	virtual ~FWeaponConfig() = default;
-
 	friend bool IsValid(const FWeaponConfig& Config)
 	{
 		return Config.bIsEnabled and Config.WeaponClass != EWeaponClass::NoClass;
