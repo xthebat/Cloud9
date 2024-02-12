@@ -9,6 +9,8 @@
 
 #include "Cloud9GameMode.generated.h"
 
+class UCloud9GameInstance;
+
 UCLASS()
 class ACloud9GameMode : public AGameModeBase
 {
@@ -17,7 +19,14 @@ class ACloud9GameMode : public AGameModeBase
 public:
 	ACloud9GameMode();
 
-	virtual bool OnWorldChanged(FSavedInfo& SavedInfo);
+	virtual bool OnWorldStart(FSavedInfo& SavedInfo);
 
 	virtual bool OnWorldTearDown(FSavedInfo& SavedInfo);
+
+protected:
+	virtual void StartPlay() override final;
+
+	virtual void StartToLeaveMap() override final;
+
+	UCloud9GameInstance* GetCloud9GameInstance() const;
 };

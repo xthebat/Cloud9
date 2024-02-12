@@ -70,13 +70,7 @@ public:
 	template <typename GameModeType = ACloud9GameMode>
 	GameModeType* GetGameMode() const { return Cast<GameModeType>(GetGameMode()); }
 
-protected: // properties
-	virtual void StartGameInstance() override final;
-
-	virtual void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
-
-private:
-	static void OnWorldBeginTearDown(UWorld* World);
+	friend class ACloud9GameMode;
 
 protected:
 	UPROPERTY()

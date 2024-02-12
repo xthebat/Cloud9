@@ -48,6 +48,10 @@ public:
 	ACloud9WeaponGrenade();
 
 	virtual FWeaponId GetWeaponId() const override;
+
+	template <typename WeaponIdType>
+	WeaponIdType GetWeaponId() const;
+
 	const FGrenadeWeaponInfo* GetWeaponInfo() const;
 
 protected:
@@ -98,3 +102,6 @@ protected:
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	FTimerHandle ActiveTimerHandle;
 };
+
+template <>
+inline EGrenade ACloud9WeaponGrenade::GetWeaponId<EGrenade>() const { return WeaponId; }

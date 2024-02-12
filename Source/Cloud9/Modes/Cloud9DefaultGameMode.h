@@ -20,9 +20,7 @@ public:
 	ACloud9DefaultGameMode();
 
 protected:
-	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
-	
-	virtual bool OnWorldChanged(FSavedInfo& SavedInfo) override;
+	virtual bool OnWorldStart(FSavedInfo& SavedInfo) override;
 
 	virtual bool OnWorldTearDown(FSavedInfo& SavedInfo) override;
 

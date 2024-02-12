@@ -124,27 +124,33 @@ FString FWeaponConfig::ToString() const
 
 FWeaponConfig FWeaponConfig::FromWeapon(const ACloud9WeaponBase* Weapon)
 {
-	var WeaponConfig = FWeaponConfig();
+	let Config = Weapon
+		| WhenOrNone{
+			[](const ACloud9WeaponMelee* It)
+			{
+				return FWeaponConfig{It->GetWeaponId<EMelee>(), It->GetWeaponSkin()};
+			},
+			[](const ACloud9WeaponFirearm* It)
+			{
+				return FWeaponConfig{
+					It->GetWeaponId<EFirearm>(),
+					It->GetWeaponSlot() == EWeaponSlot::Main,
+					It->GetCurrentAmmo(),
+					It->GetAmmoInReserve(),
+					It->GetWeaponSkin()
+				};
+			},
+			[](const ACloud9WeaponGrenade* It)
+			{
+				return FWeaponConfig{It->GetWeaponId<EGrenade>(), It->GetWeaponSkin()};
+			}
+		};
 
-	WeaponConfig.WeaponClass = Weapon->GetWeaponClass();
-	WeaponConfig.SkinName = Weapon->GetWeaponSkin();
-	let WeaponId = Weapon->GetWeaponId();
-
-	switch (WeaponConfig.WeaponClass)
+	if (not Config.IsSet())
 	{
-	case EWeaponClass::Melee:
-		WeaponConfig.MeleeWeaponId = WeaponId.Get<EMelee>();
-		break;
-	case EWeaponClass::Firearm:
-		WeaponConfig.FirearmWeaponId = WeaponId.Get<EFirearm>();
-		WeaponConfig.bIsPrimary = Weapon->GetWeaponSlot() == EWeaponSlot::Main;
-		break;
-	case EWeaponClass::Grenade:
-		WeaponConfig.GrenadeWeaponId = WeaponId.Get<EGrenade>();
-		break;
-	default:
 		log(Fatal, "Weapon class is undefined")
+		return {};
 	}
 
-	return WeaponConfig;
+	return *Config;
 }

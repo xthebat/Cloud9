@@ -23,7 +23,6 @@
 
 #include "Cloud9GameInstance.h"
 
-#include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Modes/Cloud9GameMode.h"
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -45,62 +44,4 @@ ACloud9GameMode* UCloud9GameInstance::GetGameMode(const UWorld* World)
 	}
 
 	return Cast<ACloud9GameMode>(MyGameMode);
-}
-
-void UCloud9GameInstance::StartGameInstance()
-{
-	Super::StartGameInstance();
-	FWorldDelegates::OnWorldBeginTearDown.AddStatic(&OnWorldBeginTearDown);
-}
-
-void UCloud9GameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
-{
-	Super::OnWorldChanged(OldWorld, NewWorld);
-
-	if (NewWorld != nullptr)
-	{
-		let WorldGameMode = GetGameMode(NewWorld);
-		log(Display, "World = %p WorldGameMode = %p", NewWorld, WorldGameMode);
-
-		let GameInstance = NewWorld->GetGameInstance<UCloud9GameInstance>();
-
-		if (not GameInstance)
-		{
-			log(Error, "GameInstance isn't valid tear down Map='%s'", *NewWorld->GetMapName());
-			return;
-		}
-
-		if (not WorldGameMode->OnWorldChanged(GameInstance->SavedInfo))
-		{
-			log(Error, "GameMode OnMapLoadComplete failure");
-			return;
-		}
-
-		log(Display, "Successfully load Map='%s'", *NewWorld->GetMapName());
-	}
-}
-
-void UCloud9GameInstance::OnWorldBeginTearDown(UWorld* World)
-{
-	log(Verbose, "Cleanup world timers = %p", World);
-	World | EUWorld::ClearAllTimers{};
-
-	let WorldGameMode = GetGameMode(World);
-	log(Display, "World = %p WorldGameMode = %p", World, WorldGameMode);
-
-	let GameInstance = World->GetGameInstance<UCloud9GameInstance>();
-
-	if (not GameInstance)
-	{
-		log(Error, "GameInstance isn't valid tear down Map='%s'", *World->GetMapName());
-		return;
-	}
-
-	if (not WorldGameMode->OnWorldTearDown(GameInstance->SavedInfo))
-	{
-		log(Error, "GameMode->OnWorldTearDown failure for Map='%s'", *World->GetMapName());
-		return;
-	}
-
-	log(Display, "Successfully tear down Map='%s'", *World->GetMapName());
 }

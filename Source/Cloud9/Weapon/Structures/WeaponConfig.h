@@ -49,6 +49,31 @@ struct FWeaponConfig
 {
 	GENERATED_BODY()
 
+	FWeaponConfig() = default;
+
+	explicit FWeaponConfig(EMelee WeaponId, FName SkinName = FWeaponSkin::Default)
+		: WeaponClass(EWeaponClass::Melee)
+		, MeleeWeaponId(WeaponId)
+		, SkinName(SkinName) {}
+
+	explicit FWeaponConfig(EGrenade WeaponId, FName SkinName = FWeaponSkin::Default)
+		: WeaponClass(EWeaponClass::Grenade)
+		, GrenadeWeaponId(WeaponId)
+		, SkinName(SkinName) {}
+
+	FWeaponConfig(
+		EFirearm WeaponId,
+		bool IsPrimary,
+		int AmmoInMagazine,
+		int AmmoInReserve,
+		FName SkinName = FWeaponSkin::Default
+	) : WeaponClass(EWeaponClass::Firearm)
+	  , FirearmWeaponId(WeaponId)
+	  , bIsPrimary(IsPrimary)
+	  , AmmoInMagazine(AmmoInMagazine)
+	  , AmmoInReserve(AmmoInReserve)
+	  , SkinName(SkinName) {}
+
 	friend bool IsValid(const FWeaponConfig& Config)
 	{
 		return Config.bIsEnabled and Config.WeaponClass != EWeaponClass::NoClass;

@@ -60,6 +60,9 @@ public:
 public:
 	virtual FWeaponId GetWeaponId() const override;
 
+	template <typename WeaponIdType>
+	WeaponIdType GetWeaponId() const;
+
 	const FFirearmWeaponInfo* GetWeaponInfo() const;
 
 	int GetCurrentAmmo() const;
@@ -100,3 +103,6 @@ protected: // properties
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	int MaxAmmoInReserve;
 };
+
+template <>
+inline EFirearm ACloud9WeaponFirearm::GetWeaponId<EFirearm>() const { return WeaponId; }

@@ -43,6 +43,9 @@ public:
 	virtual FWeaponId GetWeaponId() const override;
 	virtual bool CanBeDropped() const override;
 
+	template <typename WeaponIdType>
+	WeaponIdType GetWeaponId() const;
+
 	const FMeleeWeaponInfo* GetWeaponInfo() const;
 
 protected:
@@ -60,3 +63,6 @@ protected:
 	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
 	EMelee WeaponId;
 };
+
+template <>
+inline EMelee ACloud9WeaponMelee::GetWeaponId<EMelee>() const { return WeaponId; }

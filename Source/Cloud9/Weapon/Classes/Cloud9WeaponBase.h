@@ -83,6 +83,9 @@ public:
 	 */
 	virtual FWeaponId GetWeaponId() const;
 
+	template <typename WeaponIdType>
+	WeaponIdType GetWeaponId() const { return GetWeaponId().Get<WeaponIdType>(); }
+
 	UFUNCTION(BlueprintCallable)
 	FName GetWeaponSkin() const;
 

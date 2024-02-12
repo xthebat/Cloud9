@@ -35,17 +35,9 @@ ACloud9Character* GetPlayerCharacter(const ULocalPlayer* LocalPlayer)
 	return Character;
 }
 
-bool ACloud9DefaultGameMode::OnWorldChanged(FSavedInfo& SavedInfo)
+bool ACloud9DefaultGameMode::OnWorldStart(FSavedInfo& SavedInfo)
 {
-	log(Error, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-
-	let GameInstance = GetGameInstance<UCloud9GameInstance>();
-
-	if (not IsValid(GameInstance))
-	{
-		log(Error, "GameInstance isn't valid");
-		return false;
-	}
+	let GameInstance = GetCloud9GameInstance();
 
 	if (SavedInfo.bIsLoadRequired)
 	{
@@ -94,13 +86,7 @@ bool ACloud9DefaultGameMode::OnWorldChanged(FSavedInfo& SavedInfo)
 
 bool ACloud9DefaultGameMode::OnWorldTearDown(FSavedInfo& SavedInfo)
 {
-	let GameInstance = GetGameInstance<UCloud9GameInstance>();
-
-	if (not IsValid(GameInstance))
-	{
-		log(Error, "GameInstance isn't valid");
-		return false;
-	}
+	let GameInstance = GetCloud9GameInstance();
 
 	SavedInfo.Players = GameInstance->GetLocalPlayers()
 		| ETContainer::Associate{
@@ -110,10 +96,17 @@ bool ACloud9DefaultGameMode::OnWorldTearDown(FSavedInfo& SavedInfo)
 				var PlayerSavedInfo = FPlayerSavedInfo();
 				let Character = GetPlayerCharacter(LocalPlayer);
 				let Inventory = Character->GetInventory();
+
 				PlayerSavedInfo.WeaponConfigs = Inventory->GetWeapons()
 					| ETContainer::Filter{[](let Weapon) { return IsValid(Weapon); }}
 					| ETContainer::Transform{[](let Weapon) { return FWeaponConfig::FromWeapon(Weapon); }}
 					| ETContainer::ToArray{};
+
+				if (let SelectedWeapon = Inventory->GetSelectedWeapon(); IsValid(SelectedWeapon))
+				{
+					PlayerSavedInfo.WeaponSlot = SelectedWeapon->GetWeaponSlot();
+				}
+
 				return PlayerSavedInfo;
 			}
 		};

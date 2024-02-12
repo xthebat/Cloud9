@@ -23,11 +23,10 @@
 
 #include "Cloud9GameMode.h"
 
-#include "UObject/ConstructorHelpers.h"
-
 #include "Cloud9/Game/Cloud9GameState.h"
 #include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Game/Cloud9GameInstance.h"
 
 ACloud9GameMode::ACloud9GameMode()
 {
@@ -36,7 +35,7 @@ ACloud9GameMode::ACloud9GameMode()
 	GameStateClass = ACloud9GameState::StaticClass();
 }
 
-bool ACloud9GameMode::OnWorldChanged(FSavedInfo& SavedInfo)
+bool ACloud9GameMode::OnWorldStart(FSavedInfo& SavedInfo)
 {
 	return true;
 }
@@ -44,4 +43,36 @@ bool ACloud9GameMode::OnWorldChanged(FSavedInfo& SavedInfo)
 bool ACloud9GameMode::OnWorldTearDown(FSavedInfo& SavedInfo)
 {
 	return true;
+}
+
+void ACloud9GameMode::StartPlay()
+{
+	Super::StartPlay();
+	OnWorldStart(GetCloud9GameInstance()->SavedInfo);
+}
+
+void ACloud9GameMode::StartToLeaveMap()
+{
+	Super::StartToLeaveMap();
+
+	if (let MyWorld = GetWorld(); MyWorld != nullptr)
+	{
+		log(Verbose, "Cleanup world timers = %p", this);
+		MyWorld | EUWorld::ClearAllTimers{};
+	}
+
+	OnWorldTearDown(GetCloud9GameInstance()->SavedInfo);
+}
+
+UCloud9GameInstance* ACloud9GameMode::GetCloud9GameInstance() const
+{
+	let GameInstance = GetGameInstance<UCloud9GameInstance>();
+
+	if (not IsValid(GameInstance))
+	{
+		log(Fatal, "GameInstance isn't valid");
+		return nullptr;
+	}
+
+	return GameInstance;
 }
