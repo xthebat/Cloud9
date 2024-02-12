@@ -24,15 +24,15 @@
 #include "Cloud9WeaponGrenade.h"
 
 #include "DrawDebugHelpers.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
-#include "Cloud9/Game/Cloud9PlayerController.h"
+#include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
 #include "Cloud9/Weapon/Tables/WeaponTableGrenade.h"
-#include "PhysicsEngine/RadialForceComponent.h"
 
 const FName ACloud9WeaponGrenade::ExplosionComponentName = TEXT("ExplosionComponent");
 const FName ACloud9WeaponGrenade::DetonationEffectComponentName = TEXT("DetonationEffectComponent");
@@ -66,12 +66,12 @@ const FGrenadeWeaponInfo* ACloud9WeaponGrenade::GetWeaponInfo() const
 	return WeaponDefinition.GetWeaponInfo<FGrenadeWeaponInfo>();
 }
 
-bool ACloud9WeaponGrenade::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
+bool ACloud9WeaponGrenade::OnInitialize(const FWeaponConfig& WeaponConfig)
 {
-	if (Super::OnInitialize(NewWeaponId, NewWeaponSkin))
+	if (Super::OnInitialize(WeaponConfig))
 	{
 		let MyWeaponInfo = GetWeaponInfo();
-		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(NewWeaponSkin);
+		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(WeaponConfig.GetSkinName());
 
 		if (MySkinInfo.Material == nullptr)
 		{

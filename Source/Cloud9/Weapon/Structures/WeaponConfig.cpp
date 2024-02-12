@@ -121,3 +121,36 @@ FString FWeaponConfig::ToString() const
 		GetSkinName() | EFName::ToCStr()
 	);
 }
+
+FWeaponConfig FWeaponConfig::FromWeapon(const ACloud9WeaponBase* Weapon)
+{
+	let Config = Weapon
+		| WhenOrNone{
+			[](const ACloud9WeaponMelee* It)
+			{
+				return FWeaponConfig{It->GetWeaponId<EMelee>(), It->GetWeaponSkin()};
+			},
+			[](const ACloud9WeaponFirearm* It)
+			{
+				return FWeaponConfig{
+					It->GetWeaponId<EFirearm>(),
+					It->GetWeaponSlot() == EWeaponSlot::Main,
+					It->GetCurrentAmmo(),
+					It->GetAmmoInReserve(),
+					It->GetWeaponSkin()
+				};
+			},
+			[](const ACloud9WeaponGrenade* It)
+			{
+				return FWeaponConfig{It->GetWeaponId<EGrenade>(), It->GetWeaponSkin()};
+			}
+		};
+
+	if (not Config.IsSet())
+	{
+		log(Fatal, "Weapon class is undefined")
+		return {};
+	}
+
+	return *Config;
+}

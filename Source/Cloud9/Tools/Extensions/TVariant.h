@@ -22,9 +22,22 @@
 
 namespace ETVariant
 {
+	/**
+	 * Function converts input Value with ValueType to specified VariantType
+	 * 
+	 * @tparam VariantType Output type of Variant
+	 * @tparam ValueType Input type of Value
+	 * 
+	 * @param Value Input Value to convert into Variant
+	 */
 	template <typename VariantType, typename ValueType>
 	constexpr VariantType Convert(ValueType Value) { return VariantType(TInPlaceType<ValueType>(), Value); }
 
+	/**
+	 * Function gets an empty state for given VariantType
+	 * 
+	 * @tparam VariantType Type of Variant to get empty state (i.e. monostate)
+	 */
 	template <typename VariantType>
 	constexpr VariantType Empty()
 	{

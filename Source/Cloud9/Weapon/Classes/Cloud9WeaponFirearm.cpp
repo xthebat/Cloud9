@@ -30,7 +30,7 @@
 #include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Tools/Extensions/FVector.h"
-#include "Cloud9/Game/Cloud9PlayerController.h"
+#include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
@@ -41,12 +41,12 @@ const FName ACloud9WeaponFirearm::TracerDirectionParameterName = TEXT("Direction
 
 FWeaponId ACloud9WeaponFirearm::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
 
-bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin)
+bool ACloud9WeaponFirearm::OnInitialize(const FWeaponConfig& WeaponConfig)
 {
-	if (Super::OnInitialize(NewWeaponId, NewWeaponSkin))
+	if (Super::OnInitialize(WeaponConfig))
 	{
 		let MyWeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
-		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(NewWeaponSkin);
+		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(WeaponConfig.GetSkinName());
 
 		if (MySkinInfo.Material == nullptr)
 		{
@@ -84,12 +84,14 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponId& NewWeaponId, FName NewW
 			}
 		}
 
-		CurrentAmmo = MyWeaponInfo->MagazineSize;
-		MagazineSize = MyWeaponInfo->MagazineSize;
-		AmmoInReserve = MyWeaponInfo->MaxAmmoInReserve;
+		MaxMagazineSize = MyWeaponInfo->MagazineSize;
+		MaxAmmoInReserve = MyWeaponInfo->MaxAmmoInReserve;
 
-		log(Verbose, "[Weapon='%s'] CurrentAmmo=%d MagazineSize=%d AmmoInReserve=%d",
-		    *GetName(), CurrentAmmo, MagazineSize, AmmoInReserve);
+		CurrentAmmo = WeaponConfig.GetAmmoInMagazine(MaxMagazineSize);
+		AmmoInReserve = WeaponConfig.GetAmmoInReserve(MaxAmmoInReserve);
+
+		log(Verbose, "[Weapon='%s'] CurrentAmmo=%d MaxMagazineSize=%d AmmoInReserve=%d MaxAmmoInReserve=%d",
+		    *GetName(), CurrentAmmo, MaxMagazineSize, AmmoInReserve, MaxAmmoInReserve);
 
 		return true;
 	}
@@ -390,13 +392,13 @@ bool ACloud9WeaponFirearm::UpdateReloadAmmo(bool IsShotgun)
 		return false;
 	}
 
-	if (CurrentAmmo == MagazineSize)
+	if (CurrentAmmo == MaxMagazineSize)
 	{
 		log(Display, "[Weapon='%s'] Can't load more ammo", *GetName());
 		return false;
 	}
 
-	let RequiredAmmo = IsShotgun ? 1 : FMath::Min(MagazineSize - CurrentAmmo, AmmoInReserve);
+	let RequiredAmmo = IsShotgun ? 1 : FMath::Min(MaxMagazineSize - CurrentAmmo, AmmoInReserve);
 
 	AmmoInReserve -= RequiredAmmo;
 	CurrentAmmo += RequiredAmmo;

@@ -43,10 +43,13 @@ public:
 	virtual FWeaponId GetWeaponId() const override;
 	virtual bool CanBeDropped() const override;
 
+	template <typename WeaponIdType>
+	WeaponIdType GetWeaponId() const;
+
 	const FMeleeWeaponInfo* GetWeaponInfo() const;
 
 protected:
-	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
+	virtual bool OnInitialize(const FWeaponConfig& WeaponConfig) override;
 
 	virtual void OnWeaponAddedToInventory() override;
 	virtual void OnWeaponRemovedFromInventory() override;
@@ -60,3 +63,6 @@ protected:
 	UPROPERTY(Category=Weapon, EditDefaultsOnly, meta=(AllowPrivateAccess))
 	EMelee WeaponId;
 };
+
+template <>
+inline EMelee ACloud9WeaponMelee::GetWeaponId<EMelee>() const { return WeaponId; }

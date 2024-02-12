@@ -23,17 +23,25 @@
 
 #include "Cloud9GameInstance.h"
 
-const TArray<FWeaponConfig>& UCloud9GameInstance::GetDefaultWeaponsConfig() const { return DefaultWeaponsConfig; }
+#include "Cloud9/Modes/Cloud9GameMode.h"
+#include "GameFramework/GameModeBase.h"
+#include "Kismet/GameplayStatics.h"
 
-EWeaponSlot UCloud9GameInstance::GetInitialWeaponSlot() const { return InitialWeaponSlot; }
-
-void UCloud9GameInstance::OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld)
+ACloud9GameMode* UCloud9GameInstance::GetGameMode(const UWorld* World)
 {
-	if (IsValid(OldWorld))
+	if (not IsValid(World))
 	{
-		log(Verbose, "Cleanup world timers = %p", OldWorld);
-		OldWorld | EUWorld::ClearAllTimers{};
+		log(Error, "World isn't valid to get GameMode")
+		return nullptr;
 	}
 
-	Super::OnWorldChanged(OldWorld, NewWorld);
+	let MyGameMode = UGameplayStatics::GetGameMode(World);
+
+	if (not IsValid(MyGameMode))
+	{
+		log(Error, "Current GameMode isn't valid")
+		return nullptr;
+	}
+
+	return Cast<ACloud9GameMode>(MyGameMode);
 }

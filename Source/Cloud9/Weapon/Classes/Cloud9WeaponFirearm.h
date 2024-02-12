@@ -60,6 +60,9 @@ public:
 public:
 	virtual FWeaponId GetWeaponId() const override;
 
+	template <typename WeaponIdType>
+	WeaponIdType GetWeaponId() const;
+
 	const FFirearmWeaponInfo* GetWeaponInfo() const;
 
 	int GetCurrentAmmo() const;
@@ -67,7 +70,7 @@ public:
 	bool AddAmmoInReserve(int Count);
 
 protected:
-	virtual bool OnInitialize(const FWeaponId& NewWeaponId, FName NewWeaponSkin) override;
+	virtual bool OnInitialize(const FWeaponConfig& WeaponConfig) override;
 
 	virtual void OnWeaponAddedToInventory() override;
 	virtual void OnWeaponRemovedFromInventory() override;
@@ -92,8 +95,14 @@ protected: // properties
 	int CurrentAmmo;
 
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	int MagazineSize;
+	int AmmoInReserve;
 
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
-	int AmmoInReserve;
+	int MaxMagazineSize;
+
+	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
+	int MaxAmmoInReserve;
 };
+
+template <>
+inline EFirearm ACloud9WeaponFirearm::GetWeaponId<EFirearm>() const { return WeaponId; }

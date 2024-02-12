@@ -25,8 +25,7 @@
 
 #include "Cloud9/Character/Cloud9Character.h"
 
-#include "Cloud9/Game/Cloud9PlayerController.h"
-
+#include "Cloud9/Contollers//Cloud9PlayerController.h"
 
 ACloud9Character* ICloud9CharacterComponent::GetPawn() const
 {

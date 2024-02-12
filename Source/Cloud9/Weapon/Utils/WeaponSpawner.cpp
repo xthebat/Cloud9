@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2024 Alexei Gladkikh
+// Copyright (c) 2024 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -55,3 +55,17 @@ AActor* AWeaponSpawner::CreateChildActor()
 
 	return nullptr;
 }
+
+#if WITH_EDITOR
+void AWeaponSpawner::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	if (let PropertyName = PropertyChangedEvent.Property->GetFName();
+		PropertyName != GET_MEMBER_NAME_CHECKED(FWeaponConfig, AmmoInMagazine) and
+		PropertyName != GET_MEMBER_NAME_CHECKED(FWeaponConfig, AmmoInReserve))
+	{
+		WeaponConfig.PostEditChangeProperty();
+	}
+}
+#endif

@@ -38,37 +38,21 @@ UCloud9Inventory::UCloud9Inventory()
 	WeaponSlots.SetNum(SlotsNumber);
 }
 
-void UCloud9Inventory::BeginPlay()
+bool UCloud9Inventory::Initialize(const TArray<FWeaponConfig>& WeaponConfigs, EWeaponSlot WeaponSlot)
 {
-	Super::BeginPlay();
-
-	let MyOwner = GetOwner<ACloud9Character>();
-
-	if (not IsValid(MyOwner))
-	{
-		log(Error, "[Actor='%s'] ACloud9Character isn't valid", *GetName());
-		return;
-	}
-
-	let GameInstance = MyOwner->GetGameInstance<UCloud9GameInstance>();
-
-	if (not IsValid(GameInstance))
-	{
-		log(Error, "[Actor='%s'] UCloud9GameInstance isn't valid", *GetName());
-	}
-
-	GameInstance->GetDefaultWeaponsConfig()
-		| ETContainer::Filter{[this](let& Config) { return IsValid(Config); }}
+	WeaponConfigs
+		| ETContainer::Filter{[](let& Config) { return IsValid(Config); }}
 		| ETContainer::ForEach{[this](let& Config) { AddWeapon(Config); }};
 
-	let InitialWeaponSlot = GameInstance->GetInitialWeaponSlot();
-
-	if (not SelectWeapon(InitialWeaponSlot))
+	if (not SelectWeapon(WeaponSlot))
 	{
 		log(Error,
 		    "[Actor='%s'] Can't select default weapon slot='%s'",
-		    *GetName(), InitialWeaponSlot | EUEnum::GetValueName() | EFName::ToCStr());
+		    *GetName(), WeaponSlot | EUEnum::GetValueName() | EFName::ToCStr());
+		return false;
 	}
+
+	return true;
 }
 
 bool UCloud9Inventory::SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool Force)
@@ -124,8 +108,8 @@ bool UCloud9Inventory::SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool For
 		if (not SelectedWeapon->ChangeState(EWeaponBond::Holstered, true, Force))
 		{
 			log(Verbose,
-				"[Inventory='%s'] Can't change state of selected weapon from slot='%d'",
-				*GetName(), SelectedWeaponSlot);
+			    "[Inventory='%s'] Can't change state of selected weapon from slot='%d'",
+			    *GetName(), SelectedWeaponSlot);
 			return false;
 		}
 	}
@@ -133,25 +117,25 @@ bool UCloud9Inventory::SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool For
 	if (not PendingWeapon->ChangeState(EWeaponBond::Armed, Instant, Force))
 	{
 		log(Verbose,
-			"[Inventory='%s'] Can't change state of pending weapon to slot='%d'",
-			*GetName(), Slot);
+		    "[Inventory='%s'] Can't change state of pending weapon to slot='%d'",
+		    *GetName(), Slot);
 		return false;
 	}
 
 	SelectedWeaponSlot = Slot;
-	
+
 	return true;
 }
 
 bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant, bool Force)
 {
-	let Result = SelectWeaponImpl(Slot, Instant, Force); 
-	if (Result)
+	if (SelectWeaponImpl(Slot, Instant, Force))
 	{
 		OnWeaponSwitchDelegate.Broadcast();
+		return true;
 	}
-	
-	return Result;
+
+	return false;
 }
 
 ACloud9WeaponBase* UCloud9Inventory::GetWeaponAt(EWeaponSlot Slot) const { return WeaponAt(Slot); }
@@ -334,4 +318,14 @@ bool UCloud9Inventory::IsWeaponChanging() const
 {
 	let Weapon = GetSelectedWeapon();
 	return Weapon and Weapon->IsDeploying();
+}
+
+TArray<ACloud9WeaponBase*>::TConstIterator UCloud9Inventory::GetWeaponsIterator() const
+{
+	return WeaponSlots.CreateConstIterator();
+}
+
+const TArray<ACloud9WeaponBase*>& UCloud9Inventory::GetWeapons() const
+{
+	return WeaponSlots;
 }

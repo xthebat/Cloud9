@@ -26,13 +26,13 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
-
+#include "Cloud9/Structures/SavedInfo.h"
 #include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
 
 #include "Cloud9GameInstance.generated.h"
+
+class ACloud9GameMode;
 
 UCLASS()
 class CLOUD9_API UCloud9GameInstance : public UGameInstance
@@ -40,15 +40,43 @@ class CLOUD9_API UCloud9GameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	const TArray<FWeaponConfig>& GetDefaultWeaponsConfig() const;
+	/**
+	 * Function gets game mode for specified World
+	 * 
+	 * WARNING: Can only be used during game (avoid it in OnConstruction and etc)
+	 */
+	static ACloud9GameMode* GetGameMode(const UWorld* World);
 
-	EWeaponSlot GetInitialWeaponSlot() const;
+	/**
+	 * Function gets specialized type of game mode for specified World
+	 * 
+	 * WARNING: Can only be used during game (avoid it in OnConstruction and etc)
+	 */
+	template <typename GameModeType = ACloud9GameMode>
+	static GameModeType* GetGameMode(const UWorld* World) { return Cast<GameModeType>(GetGameMode(World)); }
 
-protected: // properties
+	/**
+	 * Function gets current game mode
+	 * 
+	 * WARNING: Can only be used during game (avoid it in OnConstruction and etc)
+	 */
+	ACloud9GameMode* GetGameMode() const { return GetGameMode(GetWorld()); }
 
-	virtual void OnWorldChanged(UWorld* OldWorld, UWorld* NewWorld) override;
+	/**
+	 * Function gets specialized type of current game mode
+	 * 
+	 * WARNING: Can only be used during game (avoid it in OnConstruction and etc)
+	 */
+	template <typename GameModeType = ACloud9GameMode>
+	GameModeType* GetGameMode() const { return Cast<GameModeType>(GetGameMode()); }
 
-	// TODO: May better to move these into GameMode?
+	friend class ACloud9GameMode;
+
+protected:
+	UPROPERTY()
+	FSavedInfo SavedInfo;
+
+	// TODO: Remove DefaultWeaponsConfig and InitialWeaponSlot from GameInstance
 
 	UPROPERTY(Category=Weapon, EditDefaultsOnly)
 	TArray<FWeaponConfig> DefaultWeaponsConfig;
