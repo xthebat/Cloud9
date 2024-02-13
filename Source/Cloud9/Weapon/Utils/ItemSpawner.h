@@ -27,6 +27,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Cloud9/Tools/Macro/Common.h"
+#include "Engine/StaticMeshActor.h"
 #include "ItemSpawner.generated.h"
 
 class ISpawnerDelegateComponent;
@@ -103,6 +104,8 @@ protected:
 
 		return Cast<ActorType>(ItemSample);
 	}
+
+	static AStaticMeshActor* InitializeStaticMeshSample(UStaticMesh* Mesh);
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category=Implementation)

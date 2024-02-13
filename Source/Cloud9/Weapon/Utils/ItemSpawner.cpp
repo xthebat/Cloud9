@@ -30,6 +30,7 @@
 
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
+#include "Engine/StaticMeshActor.h"
 
 FName AItemSpawner::RootComponentName = "RootComponent";
 FName AItemSpawner::TriggerBoxComponentName = "TriggerBox";
@@ -160,4 +161,18 @@ void AItemSpawner::OnBeginOverlap(
 			}
 		}
 	}
+}
+
+AStaticMeshActor* AItemSpawner::InitializeStaticMeshSample(UStaticMesh* Mesh)
+{
+	if (IsValid(Mesh))
+	{
+		let Sample = CreateItemSample<AStaticMeshActor>();
+		let StaticMeshComponent = Sample->GetStaticMeshComponent();
+		StaticMeshComponent->SetMobility(EComponentMobility::Movable);
+		StaticMeshComponent->SetStaticMesh(Mesh);
+		return Sample;
+	}
+
+	return nullptr;
 }

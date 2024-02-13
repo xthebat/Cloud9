@@ -55,16 +55,4 @@ bool AAmmoSpawner::ActivateSpawner(ACloud9Character* Character)
 	return false;
 }
 
-AActor* AAmmoSpawner::CreateChildActor()
-{
-	if (IsValid(SampleMesh))
-	{
-		let ItemSample = CreateItemSample<AStaticMeshActor>();
-		let StaticMeshComponent = ItemSample->GetStaticMeshComponent();
-		StaticMeshComponent->SetMobility(EComponentMobility::Movable);
-		StaticMeshComponent->SetStaticMesh(SampleMesh);
-		return ItemSample;
-	}
-
-	return nullptr;
-}
+AActor* AAmmoSpawner::CreateChildActor() { return InitializeStaticMeshSample(SampleMesh); }
