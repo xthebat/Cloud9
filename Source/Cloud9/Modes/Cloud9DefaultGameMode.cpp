@@ -2,10 +2,11 @@
 
 #include "Cloud9DefaultGameMode.h"
 
-#include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
+#include "Cloud9/Game/Cloud9GameInstance.h"
+#include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Components/Cloud9CharacterHealthComponent.h"
 
 FName ACloud9DefaultGameMode::CtSidePlayer = TEXT("CT");
 FName ACloud9DefaultGameMode::TSidePlayer = TEXT("T");
@@ -76,7 +77,10 @@ bool ACloud9DefaultGameMode::OnWorldStart(FSavedInfo& SavedInfo)
 				{
 					let Character = GetPlayerCharacter(LocalPlayer);
 					let Inventory = Character->GetInventory();
+					let Health = Character->GetHealthComponent();
+
 					Inventory->Initialize(PlayerConfig.WeaponConfigs, PlayerConfig.WeaponSlot);
+					Health->Initialize(PlayerConfig.HealthConfig);
 				}
 			};
 	}

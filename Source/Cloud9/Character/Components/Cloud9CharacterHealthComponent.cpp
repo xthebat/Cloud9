@@ -12,39 +12,71 @@ UCloud9CharacterHealthComponent::UCloud9CharacterHealthComponent()
 	bHasHelmet = false;
 }
 
-void UCloud9CharacterHealthComponent::ChangeHealth(float Change)
+void UCloud9CharacterHealthComponent::Initialize(FHealthConfig Config)
 {
-	Health = FMath::Max(Health + Change, 0.0f);
+	ChangeHealth(Config.Health);
+	ChangeArmor(Config.Armor);
+	ChangeHasHelmet(Config.bHasHelmet);
+}
 
-	OnHealthChange.Broadcast();
+bool UCloud9CharacterHealthComponent::TakeHealthDamage(float Change)
+{
+	return ChangeHealth(Health - Change);
+}
 
-	if (Health == 0.0f)
+bool UCloud9CharacterHealthComponent::TakeArmorDamage(float Change)
+{
+	return ChangeArmor(Armor - Change);
+}
+
+bool UCloud9CharacterHealthComponent::ChangeHealth(float NewHealth)
+{
+	if (let Value = FMath::Max(NewHealth, 0.0f); Value != Health)
 	{
-		let Owner = GetOwner();
+		Health = Value;
+		OnHealthChange.Broadcast(Health);
 
-		if (not IsValid(Owner))
+		if (Health == 0.0f)
 		{
-			log(Fatal, "[Component = %s] Owner isn't valid", *GetName());
-			return;
+			let Owner = GetOwner();
+
+			if (not IsValid(Owner))
+			{
+				log(Fatal, "[Component = %s] Owner isn't valid", *GetName());
+				return false;
+			}
+
+			Owner->MarkPendingKill();
 		}
 
-		Owner->MarkPendingKill();
+		return true;
 	}
+
+	return false;
 }
 
-void UCloud9CharacterHealthComponent::ChangeArmor(float Change)
+bool UCloud9CharacterHealthComponent::ChangeArmor(float NewArmor)
 {
-	Armor = FMath::Clamp(Armor + Change, 0.0f, 100.0f);
-	OnArmorChange.Broadcast();
+	if (let Value = FMath::Clamp(NewArmor, 0.0f, 100.0f); Value != Armor)
+	{
+		Armor = Value;
+		OnArmorChange.Broadcast(Armor);
+		return true;
+	}
+
+	return false;
 }
 
-void UCloud9CharacterHealthComponent::ChangeHasHelmet(bool NewState)
+bool UCloud9CharacterHealthComponent::ChangeHasHelmet(bool NewState)
 {
 	if (bHasHelmet != NewState)
 	{
 		bHasHelmet = NewState;
-		OnHelmetChange.Broadcast();
+		OnHelmetChange.Broadcast(NewState);
+		return true;
 	}
+
+	return false;
 }
 
 void UCloud9CharacterHealthComponent::OnTakePointDamage(
@@ -58,7 +90,8 @@ void UCloud9CharacterHealthComponent::OnTakePointDamage(
 	const UDamageType* DamageType,
 	AActor* DamageCauser)
 {
-	ChangeHealth(-Damage);
+	TakeHealthDamage(Damage); // TODO: Add factor by armor
+	TakeArmorDamage(0.0f); // TODO: Add armor damage calc
 }
 
 void UCloud9CharacterHealthComponent::OnTakeRadialDamage(
@@ -70,5 +103,6 @@ void UCloud9CharacterHealthComponent::OnTakeRadialDamage(
 	AController* InstigatedBy,
 	AActor* DamageCauser)
 {
-	ChangeHealth(-Damage);
+	TakeHealthDamage(Damage); // TODO: Add factor by armor
+	TakeArmorDamage(0.0f); // TODO: Add armor damage calc
 }

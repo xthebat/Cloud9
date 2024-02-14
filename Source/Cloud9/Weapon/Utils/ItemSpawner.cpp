@@ -71,6 +71,8 @@ AActor* AItemSpawner::CreateChildActor() { return nullptr; }
 
 bool AItemSpawner::ActivateSpawner(ACloud9Character* Character) { return false; }
 
+bool AItemSpawner::CanBeDestroyed() const { return true; }
+
 void AItemSpawner::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
@@ -155,7 +157,7 @@ void AItemSpawner::OnBeginOverlap(
 
 			UCloud9SoundPlayer::PlayRandomSound(ActivationSounds, GetActorLocation(), Settings->Volume);
 
-			if (bIsDestroyOnActivation)
+			if (bIsDestroyOnActivation and CanBeDestroyed())
 			{
 				Destroy();
 			}

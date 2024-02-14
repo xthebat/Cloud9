@@ -26,14 +26,15 @@
 #include "CoreMinimal.h"
 
 #include "Cloud9/Character/Components/Cloud9CharacterComponent.h"
+#include "Cloud9/Character/Structures/HealthConfig.h"
 
 #include "Cloud9CharacterHealthComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHealthChange);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChange, float, Health);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnArmorChange);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnArmorChange, float, Armor);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHelmetChange);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHelmetChange, bool, State);
 
 
 class ACloud9Character;
@@ -48,9 +49,13 @@ class CLOUD9_API UCloud9CharacterHealthComponent
 public:
 	UCloud9CharacterHealthComponent();
 
-	void ChangeHealth(float Change);
-	void ChangeArmor(float Change);
-	void ChangeHasHelmet(bool NewState);
+	void Initialize(FHealthConfig Config);
+
+	bool TakeHealthDamage(float Change);
+	bool TakeArmorDamage(float Change);
+
+	// Helmet is permanent(?)
+	bool ChangeHasHelmet(bool NewState);
 
 	UFUNCTION()
 	void OnTakePointDamage(
@@ -75,14 +80,22 @@ public:
 		AActor* DamageCauser
 	);
 
+	float GetHealth() const { return Health; }
+	float GetArmor() const { return Armor; }
+	bool HasHelmet() const { return bHasHelmet; }
+
 protected:
-	UPROPERTY(BlueprintAssignable)
+	bool ChangeHealth(float NewHealth);
+	bool ChangeArmor(float NewArmor);
+
+protected:
+	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnHealthChange OnHealthChange;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnArmorChange OnArmorChange;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnHelmetChange OnHelmetChange;
 
 	/** Current percentage health of character */

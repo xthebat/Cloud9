@@ -56,6 +56,8 @@ protected:
 
 	virtual bool ActivateSpawner(ACloud9Character* Character);
 
+	virtual bool CanBeDestroyed() const;
+
 	virtual void OnConstruction(const FTransform& Transform) override final;
 
 	virtual void BeginPlay() override final;
@@ -105,7 +107,7 @@ protected:
 		return Cast<ActorType>(ItemSample);
 	}
 
-	static AStaticMeshActor* InitializeStaticMeshSample(UStaticMesh* Mesh);
+	AStaticMeshActor* InitializeStaticMeshSample(UStaticMesh* Mesh);
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category=Implementation)
