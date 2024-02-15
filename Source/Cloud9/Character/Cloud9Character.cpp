@@ -35,18 +35,19 @@
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 
-#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Contollers//Cloud9PlayerController.h"
-#include "Cloud9/Character/Components/Cloud9CharacterMovement.h"
-#include "Cloud9/Character/Components/Cloud9Inventory.h"
-#include "Cloud9/Character/Components/Cloud9SpringArmComponent.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
+#include "Cloud9/Character/Components/Cloud9Inventory.h"
+#include "Cloud9/Character/Components/Cloud9CharacterMovement.h"
+#include "Cloud9/Character/Components/Cloud9SpringArmComponent.h"
+#include "Cloud9/Character/Components/Cloud9CharacterHealthComponent.h"
 
 const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
 const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");
 const FName ACloud9Character::DecalComponentName = TEXT("CursorToWorld");
 const FName ACloud9Character::InventoryComponentName = TEXT("Inventory");
+const FName ACloud9Character::HealthComponentName = TEXT("HealthComponent");
 
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
@@ -77,10 +78,12 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	CursorToWorld->SetupAttachment(RootComponent);
 
 	Inventory = CreateDefaultSubobject<UCloud9Inventory>(InventoryComponentName);
+	HealthComponent = CreateDefaultSubobject<UCloud9CharacterHealthComponent>(HealthComponentName);
 
-	Health = 100.0f;
-	Armor = 25.0f; // TODO: Set armor to 0 after health shot and armor pack added
 	Score = 1; // TODO: Set score to 0 after implementation
+
+	OnTakePointDamage.AddDynamic(HealthComponent, &UCloud9CharacterHealthComponent::OnTakePointDamage);
+	OnTakeRadialDamage.AddDynamic(HealthComponent, &UCloud9CharacterHealthComponent::OnTakeRadialDamage);
 
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
@@ -226,6 +229,8 @@ void ACloud9Character::SetCameraZoomHeight(float Value) const
 
 UCloud9Inventory* ACloud9Character::GetInventory() const { return Inventory; }
 
+UCloud9CharacterHealthComponent* ACloud9Character::GetHealthComponent() const { return HealthComponent; }
+
 void ACloud9Character::UseObject()
 {
 	// TODO: Implement UseObject
@@ -271,15 +276,4 @@ void ACloud9Character::Tick(float DeltaSeconds)
 	{
 		Inventory->SelectOtherAvailableWeapon(false);
 	}
-
-	// // TODO: Remove auto grenade add after debug
-	// if (not Inventory->GetWeaponAt(EWeaponSlot::Grenade) and Inventory->GetSelectedWeapon() != nullptr)
-	// {
-	// 	if (let GameInstance = GetGameInstance<UCloud9GameInstance>(); IsValid(GameInstance))
-	// 	{
-	// 		GameInstance->GetDefaultWeaponsConfig()
-	// 			| ETContainer::Filter{[this](let& Config) { return IsValid(Config) and Config.IsGrenadeWeapon(); }}
-	// 			| ETContainer::ForEach{[this](let& Config) { Inventory->AddWeapon(Config); }};
-	// 	}
-	// }
 }

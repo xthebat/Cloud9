@@ -32,6 +32,8 @@
 #include "Cloud9Character.generated.h"
 
 
+class UCloud9CharacterHealthComponent;
+
 UCLASS(config=Game, Blueprintable)
 class ACloud9Character : public ACharacter
 {
@@ -42,6 +44,7 @@ public:
 	static const FName CameraComponentName;
 	static const FName DecalComponentName;
 	static const FName InventoryComponentName;
+	static const FName HealthComponentName;
 
 	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
@@ -79,6 +82,9 @@ public:
 	void SetCameraZoomHeight(float Value) const;
 
 	UCloud9Inventory* GetInventory() const;
+
+	UCloud9CharacterHealthComponent* GetHealthComponent() const;
+
 	void UseObject();
 
 	// Set by character movement to specify that this Character is currently sneaking.
@@ -115,13 +121,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Inventory, meta=(AllowPrivateAccess))
 	UCloud9Inventory* Inventory;
 
-	/** Current percentage health of character */
+	/** A state of the character health and armor. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
-	float Health;
-
-	/** Current percentage armor of character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
-	float Armor;
+	UCloud9CharacterHealthComponent* HealthComponent;
 
 	/** Current number of frags made by character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))

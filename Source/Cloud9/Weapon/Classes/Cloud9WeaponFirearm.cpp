@@ -35,6 +35,7 @@
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
+#include "Kismet/GameplayStatics.h"
 
 const FName ACloud9WeaponFirearm::TracerProbabilityParameterName = TEXT("Probability");
 const FName ACloud9WeaponFirearm::TracerDirectionParameterName = TEXT("Direction");
@@ -377,6 +378,16 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 				CursorHit.Normal.Rotation());
 			Squib->SetAutoDestroy(true);
 		}
+
+		UGameplayStatics::ApplyPointDamage(
+			LineHit.Actor.Get(),
+			WeaponInfo->Damage,
+			Direction,
+			LineHit,
+			GetInstigatorController(),
+			this,
+			UDamageType::StaticClass()
+		);
 
 		return EFirearmFireStatus::Success;
 	}

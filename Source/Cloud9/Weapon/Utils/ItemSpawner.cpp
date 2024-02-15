@@ -30,6 +30,7 @@
 
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
+#include "Engine/StaticMeshActor.h"
 
 FName AItemSpawner::RootComponentName = "RootComponent";
 FName AItemSpawner::TriggerBoxComponentName = "TriggerBox";
@@ -69,6 +70,8 @@ AItemSpawner::AItemSpawner()
 AActor* AItemSpawner::CreateChildActor() { return nullptr; }
 
 bool AItemSpawner::ActivateSpawner(ACloud9Character* Character) { return false; }
+
+bool AItemSpawner::CanBeDestroyed() const { return true; }
 
 void AItemSpawner::OnConstruction(const FTransform& Transform)
 {
@@ -154,10 +157,24 @@ void AItemSpawner::OnBeginOverlap(
 
 			UCloud9SoundPlayer::PlayRandomSound(ActivationSounds, GetActorLocation(), Settings->Volume);
 
-			if (bIsDestroyOnActivation)
+			if (bIsDestroyOnActivation and CanBeDestroyed())
 			{
 				Destroy();
 			}
 		}
 	}
+}
+
+AStaticMeshActor* AItemSpawner::InitializeStaticMeshSample(UStaticMesh* Mesh)
+{
+	if (IsValid(Mesh))
+	{
+		let Sample = CreateItemSample<AStaticMeshActor>();
+		let StaticMeshComponent = Sample->GetStaticMeshComponent();
+		StaticMeshComponent->SetMobility(EComponentMobility::Movable);
+		StaticMeshComponent->SetStaticMesh(Mesh);
+		return Sample;
+	}
+
+	return nullptr;
 }

@@ -27,6 +27,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Cloud9/Tools/Macro/Common.h"
+#include "Engine/StaticMeshActor.h"
 #include "ItemSpawner.generated.h"
 
 class ISpawnerDelegateComponent;
@@ -54,6 +55,8 @@ protected:
 	virtual AActor* CreateChildActor();
 
 	virtual bool ActivateSpawner(ACloud9Character* Character);
+
+	virtual bool CanBeDestroyed() const;
 
 	virtual void OnConstruction(const FTransform& Transform) override final;
 
@@ -103,6 +106,8 @@ protected:
 
 		return Cast<ActorType>(ItemSample);
 	}
+
+	AStaticMeshActor* InitializeStaticMeshSample(UStaticMesh* Mesh);
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category=Implementation)
