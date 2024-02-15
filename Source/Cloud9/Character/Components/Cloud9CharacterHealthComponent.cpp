@@ -61,6 +61,10 @@ bool UCloud9CharacterHealthComponent::ChangeArmor(float NewArmor)
 	{
 		Armor = Value;
 		OnArmorChange.Broadcast(Armor);
+		if (Armor == 0.0f)
+		{
+			ChangeHasHelmet(false);
+		}
 		return true;
 	}
 

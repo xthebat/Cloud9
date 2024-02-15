@@ -21,6 +21,11 @@ public:
 	virtual bool CanBeDestroyed() const override;
 
 protected:
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+
+protected:
 	UPROPERTY(EditDefaultsOnly, Category=Config)
 	UStaticMesh* SampleMesh;
 
@@ -28,7 +33,7 @@ protected:
 		meta=(PinHiddenByDefault, InlineEditConditionToggle))
 	bool bChangeHealth;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Config, AdvancedDisplay,
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Config,
 		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="20000.0", EditCondition="bChangeHealth"))
 	float Health;
 
@@ -36,11 +41,11 @@ protected:
 		meta=(PinHiddenByDefault, InlineEditConditionToggle))
 	bool bChangeArmor;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Config, AdvancedDisplay,
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Config,
 		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0", EditCondition="bChangeArmor"))
 	float Armor;
 
-	UPROPERTY(EditAnywhere, Category=Config)
+	UPROPERTY(EditAnywhere, Category=Config, meta=(EditCondition="bChangeArmor"))
 	bool bHelmet;
 
 	UPROPERTY(BlueprintReadOnly, Category=State)

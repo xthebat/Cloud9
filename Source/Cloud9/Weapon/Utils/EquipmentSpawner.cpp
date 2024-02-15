@@ -29,22 +29,27 @@ bool AEquipmentSpawner::ActivateSpawner(ACloud9Character* Character)
 	{
 		let HealthComponent = Character->GetHealthComponent();
 
+		var Activated = false;
+
 		if (bChangeHealth and HealthComponent->TakeHealthDamage(-Health))
 		{
 			bHealthActivated = true;
+			Activated = true;
 		}
 
 		if (bChangeArmor and HealthComponent->TakeArmorDamage(-Armor))
 		{
 			bArmorActivated = true;
+			Activated = true;
 		}
 
 		if (bHelmet and HealthComponent->ChangeHasHelmet(true))
 		{
 			bHelmetActivated = true;
+			Activated = true;
 		}
 
-		return true;
+		return Activated;
 	}
 
 	return false;
@@ -52,9 +57,20 @@ bool AEquipmentSpawner::ActivateSpawner(ACloud9Character* Character)
 
 bool AEquipmentSpawner::CanBeDestroyed() const
 {
-	return bChangeHealth xor bHealthActivated and
-		bChangeArmor xor bArmorActivated and
-		bHelmetActivated xor bHelmet;
+	return not(bChangeHealth xor bHealthActivated) and
+		not(bChangeArmor xor bArmorActivated) and
+		not(bHelmetActivated xor bHelmet);
+}
+
+void AEquipmentSpawner::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	if (not bChangeArmor)
+	{
+		log(Warning, "Can't add helmet without kevlar vest")
+		bHelmet = false;
+	}
 }
 
 AActor* AEquipmentSpawner::CreateChildActor() { return InitializeStaticMeshSample(SampleMesh); }
