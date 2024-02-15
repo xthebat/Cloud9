@@ -82,9 +82,6 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 
 	Score = 1; // TODO: Set score to 0 after implementation
 
-	OnTakePointDamage.AddDynamic(HealthComponent, &UCloud9CharacterHealthComponent::OnTakePointDamage);
-	OnTakeRadialDamage.AddDynamic(HealthComponent, &UCloud9CharacterHealthComponent::OnTakeRadialDamage);
-
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;

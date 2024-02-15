@@ -33,6 +33,7 @@
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
 #include "Cloud9/Weapon/Tables/WeaponTableGrenade.h"
+#include "Kismet/GameplayStatics.h"
 
 const FName ACloud9WeaponGrenade::ExplosionComponentName = TEXT("ExplosionComponent");
 const FName ACloud9WeaponGrenade::DetonationEffectComponentName = TEXT("DetonationEffectComponent");
@@ -253,8 +254,6 @@ bool ACloud9WeaponGrenade::OnGrenadeActionLoop()
 		UCloud9SoundPlayer::PlaySingleSound(LoopSound, GetActorLocation(), Settings->Volume);
 	}
 
-	log(Display, "OnGrenadeActionLoop()")
-
 	if (GetWeaponInfo()->bIsDestroyedOnDetonation)
 	{
 		GetWeaponMesh()->SetHiddenInGame(true);
@@ -266,11 +265,27 @@ bool ACloud9WeaponGrenade::OnGrenadeActionLoop()
 		DetonationEffect->Activate();
 	}
 
+	let Location = GetActorLocation();
+
+	let IgnoredActors = TArray<AActor*>{};
+
+	// TODO: Handle other types of nades if required
+	UGameplayStatics::ApplyRadialDamage(
+		GetWorld(),
+		GetWeaponInfo()->Damage,
+		GetActorLocation(),
+		Explosion->Radius,
+		UDamageType::StaticClass(),
+		IgnoredActors,
+		this,
+		nullptr,
+		false,
+		ECC_Visibility);
 	Explosion->FireImpulse();
 
 	if (let ExplodeSounds = GetWeaponInfo()->Sounds.ExplodeSounds; ExplodeSounds.Num() > 0)
 	{
-		UCloud9SoundPlayer::PlayRandomSound(ExplodeSounds, GetActorLocation(), Settings->Volume);
+		UCloud9SoundPlayer::PlayRandomSound(ExplodeSounds, Location, Settings->Volume);
 	}
 
 	if (Settings->bIsDrawExplosionSpheres)
