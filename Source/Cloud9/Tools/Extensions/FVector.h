@@ -24,6 +24,7 @@
 #pragma once
 
 #include "Cloud9/Tools/Macro/Operator.h"
+#include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Concepts.h"
 
 namespace EFVector
@@ -40,4 +41,23 @@ namespace EFVector
 
 		OPERATOR_BODY(Normalize)
 	};
+
+	inline FVector Random(FVector Min, FVector Max)
+	{
+		return {
+			FMath::RandRange(Min.X, Max.X),
+			FMath::RandRange(Min.Y, Max.Y),
+			FMath::RandRange(Min.Z, Max.Z),
+		};
+	}
+
+	inline FVector Random(FVector Min, FVector Max, FVector Grid)
+	{
+		let Vector = Random(Min, Max);
+		return {
+			FMath::GridSnap(Vector.X, Grid.X),
+			FMath::GridSnap(Vector.Y, Grid.Y),
+			FMath::GridSnap(Vector.Z, Grid.Z),
+		};
+	}
 }
