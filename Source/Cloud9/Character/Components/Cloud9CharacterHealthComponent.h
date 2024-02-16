@@ -39,7 +39,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHelmetChange, bool, State);
 
 class ACloud9Character;
 
-UCLASS(Blueprintable)
+UCLASS(Blueprintable, meta=(BlueprintSpawnableComponent))
 class CLOUD9_API UCloud9CharacterHealthComponent
 	: public UActorComponent
 	, public ICloud9CharacterComponent
@@ -88,6 +88,8 @@ protected:
 	bool ChangeHealth(float NewHealth);
 	bool ChangeArmor(float NewArmor);
 
+	virtual void OnRegister() override;
+
 protected:
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnHealthChange OnHealthChange;
@@ -99,14 +101,14 @@ protected:
 	FOnHelmetChange OnHelmetChange;
 
 	/** Current percentage health of character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
 	float Health;
 
 	/** Current percentage armor of character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
 	float Armor;
 
 	/** Current percentage armor of character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
 	bool bHasHelmet;
 };

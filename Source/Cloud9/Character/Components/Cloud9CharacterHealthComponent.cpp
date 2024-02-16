@@ -46,7 +46,7 @@ bool UCloud9CharacterHealthComponent::ChangeHealth(float NewHealth)
 				return false;
 			}
 
-			Owner->MarkPendingKill();
+			Owner->Destroy();
 		}
 
 		return true;
@@ -69,6 +69,24 @@ bool UCloud9CharacterHealthComponent::ChangeArmor(float NewArmor)
 	}
 
 	return false;
+}
+
+void UCloud9CharacterHealthComponent::OnRegister()
+{
+	Super::OnRegister();
+
+	let MyOwner = GetOwner();
+
+	if (not IsValid(MyOwner))
+	{
+		log(Error, "HealthComponent isn't valid");
+		return;
+	}
+
+	log(Display, "Register HealthComponent for '%s'", *MyOwner->GetName());
+	// Register twice or delegate add twice (?)
+	MyOwner->OnTakePointDamage.AddUniqueDynamic(this, &UCloud9CharacterHealthComponent::OnTakePointDamage);
+	MyOwner->OnTakeRadialDamage.AddUniqueDynamic(this, &UCloud9CharacterHealthComponent::OnTakeRadialDamage);
 }
 
 bool UCloud9CharacterHealthComponent::ChangeHasHelmet(bool NewState)
