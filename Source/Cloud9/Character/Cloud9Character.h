@@ -31,6 +31,7 @@
 
 #include "Cloud9Character.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreChanged, int, Count);
 
 class UCloud9CharacterHealthComponent;
 
@@ -85,6 +86,8 @@ public:
 
 	UCloud9CharacterHealthComponent* GetHealthComponent() const;
 
+	void AddScore();
+
 	void UseObject();
 
 	// Set by character movement to specify that this Character is currently sneaking.
@@ -124,6 +127,10 @@ private:
 	/** A state of the character health and armor. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
 	UCloud9CharacterHealthComponent* HealthComponent;
+
+	/** Event called when character score changed. */
+	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
+	FOnScoreChanged OnScoreChanged;
 
 	/** Current number of frags made by character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))

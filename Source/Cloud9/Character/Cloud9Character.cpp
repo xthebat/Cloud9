@@ -228,6 +228,12 @@ UCloud9Inventory* ACloud9Character::GetInventory() const { return Inventory; }
 
 UCloud9CharacterHealthComponent* ACloud9Character::GetHealthComponent() const { return HealthComponent; }
 
+void ACloud9Character::AddScore()
+{
+	Score += 1;
+	OnScoreChanged.Broadcast(1);
+}
+
 void ACloud9Character::UseObject()
 {
 	// TODO: Implement UseObject

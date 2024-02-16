@@ -25,6 +25,9 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	void OnChildActorDestroyed(AActor* DestroyedActor);
+
 	UPROPERTY(BlueprintReadOnly, Category=Implementation)
 	UBoxComponent* ZoneComponent;
 
@@ -35,7 +38,7 @@ protected:
 	int Count;
 
 	UPROPERTY(EditAnywhere, Category=Config)
-	TSoftClassPtr<AActor> Class;
+	UClass* Template;
 
 	UPROPERTY(EditAnywhere, Category=Config)
 	FVector ZoneSize;

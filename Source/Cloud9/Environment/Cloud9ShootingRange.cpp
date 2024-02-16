@@ -27,16 +27,28 @@ void ACloud9ShootingRange::OnConstruction(const FTransform& Transform)
 void ACloud9ShootingRange::BeginPlay()
 {
 	Super::BeginPlay();
+	SpawnShootingActors();
 }
 
 void ACloud9ShootingRange::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void ACloud9ShootingRange::OnChildActorDestroyed(AActor* DestroyedActor)
+{
+	Actors.Remove(DestroyedActor);
 	SpawnShootingActors();
 }
 
 bool ACloud9ShootingRange::SpawnShootingActors()
 {
+	if (not IsValid(Template))
+	{
+		log(Error, "Actor class not specified!");
+		return false;
+	}
+
 	int Retries = 0;
 	FVector Origin;
 	FVector BoxExtent;
@@ -44,10 +56,19 @@ bool ACloud9ShootingRange::SpawnShootingActors()
 	while (Actors.Num() != Count)
 	{
 		// GridSize items can be zero (GridSnap should handle it)
-		let Location = EFVector::Random(BoxExtent - Origin, BoxExtent + Origin, GridSize);
-		let Actor = GetWorld()->SpawnActor(Class.Get(), &Location);
+		let Location = EFVector::Random(Origin - BoxExtent, Origin + BoxExtent, GridSize);
+		let Actor = GetWorld()->SpawnActor(Template, &Location, nullptr);
+
+		if (not IsValid(Actor))
+		{
+			log(Fatal, "Can't spawn actor at location = %s", *Location.ToString());
+			return false;
+		}
+
 		if (Actors | ETContainer::AnyByPredicate{[Actor](let It) { return It->IsOverlappingActor(Actor); }})
 		{
+			Actor->Destroy();
+
 			if (constexpr int MaxRetries = 10; Retries++ == MaxRetries)
 			{
 				log(
@@ -55,7 +76,6 @@ bool ACloud9ShootingRange::SpawnShootingActors()
 					"[Range=%s] parameters seems to be invalid can't spawn specified count of Actors = %d",
 					*GetName(), Count
 				);
-				SetActorTickEnabled(false);
 				return false;
 			}
 
@@ -63,6 +83,7 @@ bool ACloud9ShootingRange::SpawnShootingActors()
 		}
 
 		Actors.Add(Actor);
+		Actor->OnDestroyed.AddDynamic(this, &ACloud9ShootingRange::OnChildActorDestroyed);
 	}
 
 	return true;
