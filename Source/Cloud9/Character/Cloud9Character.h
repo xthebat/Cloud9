@@ -85,6 +85,8 @@ public:
 
 	UCloud9CharacterHealthComponent* GetHealthComponent() const;
 
+	void AddScore();
+
 	void UseObject();
 
 	// Set by character movement to specify that this Character is currently sneaking.

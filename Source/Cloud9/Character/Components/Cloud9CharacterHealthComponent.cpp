@@ -2,6 +2,7 @@
 
 #include "Cloud9CharacterHealthComponent.h"
 
+#include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
 
@@ -114,6 +115,12 @@ void UCloud9CharacterHealthComponent::OnTakePointDamage(
 {
 	TakeHealthDamage(Damage); // TODO: Add factor by armor
 	TakeArmorDamage(0.0f); // TODO: Add armor damage calc
+
+	if (DamagedActor->IsPendingKill())
+	{
+		log(Display, "DamageCauser=%s", *DamageCauser->GetOwner()->GetName());
+		Cast<ACloud9Character>(DamageCauser->GetOwner())->AddScore();
+	}
 }
 
 void UCloud9CharacterHealthComponent::OnTakeRadialDamage(
