@@ -231,6 +231,7 @@ UCloud9CharacterHealthComponent* ACloud9Character::GetHealthComponent() const { 
 void ACloud9Character::AddScore()
 {
 	Score += 1;
+	OnScoreChanged.Broadcast(1);
 }
 
 void ACloud9Character::UseObject()
