@@ -69,7 +69,7 @@ bool UCloud9Inventory::SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool For
 		return false;
 	}
 
-	if (Slot == SelectedWeaponSlot)
+	if (not Force and Slot == SelectedWeaponSlot)
 	{
 		log(Warning, "[Inventory='%s'] No switching will be performed", *GetName());
 		return false;

@@ -165,8 +165,6 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryStart))
 	{
-		log(Display, "EWeaponAction::Primary");
-
 		ExecuteAction(
 			EWeaponAction::PrimaryStart,
 			GetWeaponInfo()->PinpullTime,
@@ -180,8 +178,6 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryLoop))
 	{
-		log(Display, "EWeaponAction::PrimaryLoop");
-
 		// Play hold frame of montage
 		PlayAnimMontage(
 			PoseMontages->PinpullPrimaryActionMontage,
@@ -202,8 +198,6 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
 	{
-		log(Display, "EWeaponAction::PrimaryEnd");
-
 		ExecuteAction(
 			EWeaponAction::PrimaryEnd,
 			GetWeaponInfo()->ThrowTime,
@@ -225,7 +219,6 @@ bool ACloud9WeaponGrenade::OnGrenadeActionFinished()
 {
 	if (IsValid(this))
 	{
-		log(Display, "OnGrenadeActionFinished()")
 		Destroy();
 		SetActorTickEnabled(false);
 		return true;
@@ -269,6 +262,8 @@ bool ACloud9WeaponGrenade::OnGrenadeActionLoop()
 
 	let IgnoredActors = TArray<AActor*>{};
 
+	let InstigatorController = GetInstigatorController();
+
 	// TODO: Handle other types of nades if required
 	UGameplayStatics::ApplyRadialDamage(
 		GetWorld(),
@@ -278,7 +273,7 @@ bool ACloud9WeaponGrenade::OnGrenadeActionLoop()
 		UDamageType::StaticClass(),
 		IgnoredActors,
 		this,
-		nullptr,
+		InstigatorController,
 		false,
 		ECC_Visibility);
 	Explosion->FireImpulse();
@@ -356,8 +351,6 @@ bool ACloud9WeaponGrenade::OnGrenadeThrown()
 		return false;
 	}
 
-	log(Display, "OnGrenadeThrown()")
-
 	DetonationTimerHandle = GetWorld()
 		| EUWorld::AsyncAfter{
 			[this] { WeaponState.GrenadeActionLoop(); },
@@ -419,6 +412,8 @@ bool ACloud9WeaponGrenade::Throw() const
 	if (IsInfiniteAmmo)
 	{
 		Inventory->AddWeapon(GrenadeConfig);
+		// need to force select for valid grenade state
+		Inventory->SelectWeapon(GrenadeConfig.GetWeaponSlot(), true, true);
 	}
 
 	return true;

@@ -90,6 +90,8 @@ protected:
 
 	virtual void OnRegister() override;
 
+	void CheckIfDeath(const AActor* DamagedActor, const AController* InstigatedBy);
+
 protected:
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnHealthChange OnHealthChange;
