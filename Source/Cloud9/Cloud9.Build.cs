@@ -18,7 +18,8 @@ public class Cloud9 : ModuleRules
 			"NavigationSystem",
 			"DeveloperSettings",
 			"AIModule",
-			"Niagara"
+			"Niagara",
+			"UMG"
 		});
 
 		// CppStandard = CppStandardVersion.Cpp17;
