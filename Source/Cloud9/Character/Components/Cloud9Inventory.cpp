@@ -95,7 +95,6 @@ bool UCloud9Inventory::SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool For
 		if (PendingWeapon->ChangeState(EWeaponBond::Armed, Instant, Force))
 		{
 			SelectedWeaponSlot = Slot;
-			OnWeaponSwitchDelegate.Broadcast();
 			return true;
 		}
 
@@ -129,9 +128,11 @@ bool UCloud9Inventory::SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool For
 
 bool UCloud9Inventory::SelectWeapon(EWeaponSlot Slot, bool Instant, bool Force)
 {
+	let BeforeSwitch = GetSelectedWeapon();
 	if (SelectWeaponImpl(Slot, Instant, Force))
 	{
-		OnWeaponSwitchDelegate.Broadcast();
+		let AfterSwitch = GetSelectedWeapon();
+		OnWeaponSwitchDelegate.Broadcast(BeforeSwitch, AfterSwitch);
 		return true;
 	}
 
@@ -263,7 +264,7 @@ bool UCloud9Inventory::AddWeapon(const FWeaponConfig& Config, bool Select, bool 
 
 	log(Display, "[Inventory='%s'] Added configured weapon = '%s'", *GetName(), *Config.ToString());
 
-	OnWeaponAddDelegate.Broadcast();
+	OnWeaponAddDelegate.Broadcast(Weapon);
 	return true;
 }
 

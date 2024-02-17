@@ -91,6 +91,9 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponConfig& WeaponConfig)
 		CurrentAmmo = WeaponConfig.GetAmmoInMagazine(MaxMagazineSize);
 		AmmoInReserve = WeaponConfig.GetAmmoInReserve(MaxAmmoInReserve);
 
+		OnAmmoInMagazineChanged.Broadcast(CurrentAmmo);
+		OnAmmoInReserveChanged.Broadcast(AmmoInReserve);
+
 		log(Verbose, "[Weapon='%s'] CurrentAmmo=%d MaxMagazineSize=%d AmmoInReserve=%d MaxAmmoInReserve=%d",
 		    *GetName(), CurrentAmmo, MaxMagazineSize, AmmoInReserve, MaxAmmoInReserve);
 
@@ -252,6 +255,7 @@ bool ACloud9WeaponFirearm::AddAmmoInReserve(int Count)
 		NewAmmoInReserve != AmmoInReserve)
 	{
 		AmmoInReserve = NewAmmoInReserve;
+		OnAmmoInReserveChanged.Broadcast(AmmoInReserve);
 		return true;
 	}
 
@@ -294,7 +298,11 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 		return EFirearmFireStatus::OutOfAmmo;
 	}
 
-	CurrentAmmo -= 1;
+	if (not Settings->bIsCheatsEnabled or not Settings->bIsInfiniteAmmo)
+	{
+		CurrentAmmo -= 1;
+		OnAmmoInMagazineChanged.Broadcast(CurrentAmmo);
+	}
 
 	EjectCase();
 
@@ -413,6 +421,8 @@ bool ACloud9WeaponFirearm::UpdateReloadAmmo(bool IsShotgun)
 
 	AmmoInReserve -= RequiredAmmo;
 	CurrentAmmo += RequiredAmmo;
+	OnAmmoInReserveChanged.Broadcast(AmmoInReserve);
+	OnAmmoInMagazineChanged.Broadcast(CurrentAmmo);
 	return true;
 }
 

@@ -82,6 +82,12 @@ public: // properties
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 bIsAutoSelectWeapon;
 
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	int32 bIsInfiniteAmmo;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	int32 bIsCheatsEnabled;
+
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Sound)
 	float Volume;
 

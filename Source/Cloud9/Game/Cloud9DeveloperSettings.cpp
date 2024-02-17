@@ -39,6 +39,8 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	CameraVerticalSpeedLag = 0.0;
 	NetGraph = 0;
 	bIsAutoSelectWeapon = 0;
+	bIsInfiniteAmmo = 0;
+	bIsCheatsEnabled = 0;
 	Volume = 0.1;
 }
 
@@ -131,6 +133,18 @@ void UCloud9DeveloperSettings::InitializeCVars()
 			bIsAutoSelectWeapon,
 			TEXT("r.AutoSelectWeapon"),
 			TEXT("Select weapon after picking it up")
+		);
+
+		RegisterConsoleVariable(
+			bIsInfiniteAmmo,
+			TEXT("r.InfiniteAmmo"),
+			TEXT("Infinite Weapon Ammo")
+		);
+
+		RegisterConsoleVariable(
+			bIsCheatsEnabled,
+			TEXT("r.Cheats"),
+			TEXT("Enable cheats")
 		);
 
 		RegisterConsoleVariable(

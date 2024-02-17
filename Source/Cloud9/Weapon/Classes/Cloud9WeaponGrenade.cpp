@@ -400,12 +400,26 @@ bool ACloud9WeaponGrenade::Throw() const
 		return false;
 	}
 
+	static let Settings = UCloud9DeveloperSettings::Get();
+	FWeaponConfig GrenadeConfig;
+	let IsInfiniteAmmo = Settings->bIsCheatsEnabled and Settings->bIsInfiniteAmmo;
+
+	if (IsInfiniteAmmo)
+	{
+		GrenadeConfig = FWeaponConfig::FromWeapon(this);
+	}
+
 	let CommonData = WeaponDefinition.GetCommonData();
 	Inventory->DropWeapon(
 		GetWeaponSlot(),
 		CursorHit.Location,
 		CommonData->Grenade.MaxThrowAngle,
 		CommonData->Grenade.MaxThrowImpulse);
+
+	if (IsInfiniteAmmo)
+	{
+		Inventory->AddWeapon(GrenadeConfig);
+	}
 
 	return true;
 }

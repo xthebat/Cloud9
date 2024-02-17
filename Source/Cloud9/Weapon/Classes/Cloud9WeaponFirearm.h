@@ -35,6 +35,10 @@ class UCooldownActionComponent;
 struct FWeaponActionMontages;
 struct FFirearmWeaponInfo;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAmmoInReserveChanged, int, Count);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAmmoInMagazineChanged, int, Count);
+
 // Maybe just remove verbose logging?
 UENUM()
 enum class EFirearmFireStatus : uint8
@@ -85,6 +89,12 @@ protected:
 	void EjectCase() const;
 
 protected: // properties
+	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
+	FOnAmmoInReserveChanged OnAmmoInReserveChanged;
+
+	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
+	FOnAmmoInMagazineChanged OnAmmoInMagazineChanged;
+
 	/**
 	 * Weapon Identifier
 	 */

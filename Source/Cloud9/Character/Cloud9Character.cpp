@@ -80,7 +80,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	Inventory = CreateDefaultSubobject<UCloud9Inventory>(InventoryComponentName);
 	HealthComponent = CreateDefaultSubobject<UCloud9CharacterHealthComponent>(HealthComponentName);
 
-	Score = 1; // TODO: Set score to 0 after implementation
+	Score = 0;
 
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
@@ -231,7 +231,7 @@ UCloud9CharacterHealthComponent* ACloud9Character::GetHealthComponent() const { 
 void ACloud9Character::AddScore()
 {
 	Score += 1;
-	OnScoreChanged.Broadcast(1);
+	OnScoreChanged.Broadcast(Score);
 }
 
 void ACloud9Character::UseObject()
