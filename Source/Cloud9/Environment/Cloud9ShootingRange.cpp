@@ -5,23 +5,45 @@
 #include "Cloud9/Tools/Extensions/FVector.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
 
 FName ACloud9ShootingRange::ZoneComponentName = "ZoneComponentName";
+FName ACloud9ShootingRange::WidgetComponentName = "WidgetComponentName";
 
 ACloud9ShootingRange::ACloud9ShootingRange()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	ZoneComponent = CreateDefaultSubobject<UBoxComponent>(ZoneComponentName);
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(WidgetComponentName);
+	WidgetComponent->SetupAttachment(ZoneComponent);
+	WidgetClass = nullptr;
+	Template = nullptr;
 	RootComponent = ZoneComponent;
 	ZoneSize = {100.0f, 100.0f, 100.0f};
 	Count = 1;
 	GridSize = FVector::OneVector;
+	bIsStarted = false;
+	TimeElapsed = 0.0f;
+	Killed = 0;
+}
+
+float ACloud9ShootingRange::GetKillPerMinute() const
+{
+	if (FMath::IsNearlyZero(TimeElapsed))
+	{
+		return Killed;
+	}
+
+	return Killed / TimeElapsed * 60.0f;
 }
 
 void ACloud9ShootingRange::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 	ZoneComponent->SetBoxExtent(ZoneSize);
+	WidgetComponent->SetWidgetClass(WidgetClass);
+	WidgetComponent->SetRelativeRotation({0.0f, 90.0f, 0.0f});
+	WidgetComponent->SetDrawSize({ZoneSize.X * 2.0f, ZoneSize.Z * 2.0f});
 }
 
 void ACloud9ShootingRange::BeginPlay()
@@ -33,10 +55,17 @@ void ACloud9ShootingRange::BeginPlay()
 void ACloud9ShootingRange::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bIsStarted)
+	{
+		TimeElapsed += DeltaTime;
+	}
 }
 
 void ACloud9ShootingRange::OnChildActorDestroyed(AActor* DestroyedActor)
 {
+	bIsStarted = true;
+	OnTargetDestroyed.Broadcast(++Killed);
 	Actors.Remove(DestroyedActor);
 	SpawnShootingActors();
 }
