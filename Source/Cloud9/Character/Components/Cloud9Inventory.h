@@ -36,11 +36,12 @@ class ACloud9WeaponBase;
 class ACloud9WeaponFirearm;
 class ACloud9WeaponMelee;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponAddDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponAddDelegate, ACloud9WeaponBase*, Weapon);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
+	FOnWeaponSwitchDelegate, ACloud9WeaponBase*, BeforeSwitch, ACloud9WeaponBase*, AfterSwitch);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponRemoveDelegate);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponSwitchDelegate);
 
 UCLASS(Blueprintable)
 class CLOUD9_API UCloud9Inventory

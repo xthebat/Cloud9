@@ -84,7 +84,6 @@ void UCloud9CharacterHealthComponent::OnRegister()
 		return;
 	}
 
-	log(Display, "Register HealthComponent for '%s'", *MyOwner->GetName());
 	// Register twice or delegate add twice (?)
 	MyOwner->OnTakePointDamage.AddUniqueDynamic(this, &UCloud9CharacterHealthComponent::OnTakePointDamage);
 	MyOwner->OnTakeRadialDamage.AddUniqueDynamic(this, &UCloud9CharacterHealthComponent::OnTakeRadialDamage);
@@ -118,8 +117,11 @@ void UCloud9CharacterHealthComponent::OnTakePointDamage(
 
 	if (DamagedActor->IsPendingKill())
 	{
-		log(Display, "DamageCauser=%s", *DamageCauser->GetOwner()->GetName());
-		Cast<ACloud9Character>(DamageCauser->GetOwner())->AddScore();
+		// TODO: Make score component
+		if (let Character = Cast<ACloud9Character>(DamageCauser->GetOwner()); IsValid(Character))
+		{
+			Character->AddScore();
+		}
 	}
 }
 
