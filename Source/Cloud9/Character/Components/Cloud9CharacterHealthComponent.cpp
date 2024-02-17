@@ -89,6 +89,24 @@ void UCloud9CharacterHealthComponent::OnRegister()
 	MyOwner->OnTakeRadialDamage.AddUniqueDynamic(this, &UCloud9CharacterHealthComponent::OnTakeRadialDamage);
 }
 
+void UCloud9CharacterHealthComponent::CheckIfDeath(const AActor* DamagedActor, const AController* InstigatedBy)
+{
+	if (DamagedActor->IsPendingKill())
+	{
+		if (not IsValid(InstigatedBy))
+		{
+			log(Error, "[Component = %s] InstigatedBy is invalid", *GetName());
+			return;
+		}
+
+		// TODO: Make score component
+		if (let Character = Cast<ACloud9Character>(InstigatedBy->GetCharacter()); IsValid(Character))
+		{
+			Character->AddScore();
+		}
+	}
+}
+
 bool UCloud9CharacterHealthComponent::ChangeHasHelmet(bool NewState)
 {
 	if (bHasHelmet != NewState)
@@ -114,15 +132,7 @@ void UCloud9CharacterHealthComponent::OnTakePointDamage(
 {
 	TakeHealthDamage(Damage); // TODO: Add factor by armor
 	TakeArmorDamage(0.0f); // TODO: Add armor damage calc
-
-	if (DamagedActor->IsPendingKill())
-	{
-		// TODO: Make score component
-		if (let Character = Cast<ACloud9Character>(DamageCauser->GetOwner()); IsValid(Character))
-		{
-			Character->AddScore();
-		}
-	}
+	CheckIfDeath(DamagedActor, InstigatedBy);
 }
 
 void UCloud9CharacterHealthComponent::OnTakeRadialDamage(
@@ -136,4 +146,5 @@ void UCloud9CharacterHealthComponent::OnTakeRadialDamage(
 {
 	TakeHealthDamage(Damage); // TODO: Add factor by armor
 	TakeArmorDamage(0.0f); // TODO: Add armor damage calc
+	CheckIfDeath(DamagedActor, InstigatedBy);
 }

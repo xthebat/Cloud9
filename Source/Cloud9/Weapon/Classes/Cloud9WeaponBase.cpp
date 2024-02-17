@@ -394,6 +394,11 @@ bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot 
 
 	SetOwner(Character);
 
+	// Set new instigator for this weapon so When weapon thrown owner will be changed
+	// to nothing but we need to know who do it (throw a weapon)
+	// This is important for nades to get handle number of kills for player
+	SetInstigator(Character);
+
 	if (not UpdateWeaponAttachment(NewSlot, EWeaponBond::Holstered))
 	{
 		log(Error, "Failed to update attachment for weapon '%s' slot '%s'", *GetName(), SLOT_NAME);
@@ -431,12 +436,6 @@ bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant, bool Forc
 	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
 	{
 		log(Error, "[Weapon='%s' Bond='%s'] Weapon not in any inventory", *GetName(), BOND_NAME);
-		return false;
-	}
-
-	if (WeaponState.IsWeaponBond(NewBond))
-	{
-		log(Error, "[Weapon='%s' Bond='%s'] Weapon will remain the same", *GetName(), BOND_NAME);
 		return false;
 	}
 
