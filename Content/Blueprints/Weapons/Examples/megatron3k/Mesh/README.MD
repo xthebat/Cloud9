@@ -1,1 +1,0 @@
-Place weapon mesh here
