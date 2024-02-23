@@ -33,6 +33,7 @@
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
+#include "Cloud9/Tools/Extensions/APlayerController.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
 #include "Kismet/GameplayStatics.h"
@@ -306,11 +307,36 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 
 	EjectCase();
 
-	FHitResult CursorHit;
-	if (not Controller->GetHitResultUnderCursor(TRACE_CHANNEL, true, CursorHit))
+	// When we do line hit scan ignore our character in any case (Enabled or not SelfAimOption)
+	let ActorsToIgnore = TArray<AActor*>{Character};
+
+	let StartLocation = MuzzleFlash->GetComponentLocation();
+
+	FVector EndLocation;
+	if (not Settings->bIsSelfAimEnabled)
 	{
-		log(Error, "Cursor not hit anything")
-		return EFirearmFireStatus::Success;
+		TOptional<FHitResult> CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
+			TRACE_CHANNEL,
+			true,
+			ActorsToIgnore
+		};
+
+		if (not CursorHit)
+		{
+			log(Error, "Cursor not hit anything")
+			return EFirearmFireStatus::Success;
+		}
+
+		// GetHitResultUnderCursor can return coordinates slightly upper then surface
+		// Prolong line in shoot direction
+		EndLocation = FMath::Lerp(StartLocation, FVector{CursorHit->Location}, FirearmCommonData.LineTraceAlpha);
+	}
+	else
+	{
+		EndLocation = FMath::Lerp(
+			StartLocation,
+			StartLocation + MuzzleFlash->GetForwardVector(),
+			FirearmCommonData.UnknownTraceAlpha);
 	}
 
 	var CollisionParams = FCollisionQueryParams::DefaultQueryParam;
@@ -321,12 +347,8 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 		GetWorld()->DebugDrawTraceTag = TraceTag;
 		CollisionParams.TraceTag = TraceTag;
 		CollisionParams.bTraceComplex = true;
+		CollisionParams.AddIgnoredActors(ActorsToIgnore);
 	}
-
-	let StartLocation = MuzzleFlash->GetComponentLocation();
-	// GetHitResultUnderCursor can return coordinates slightly upper then surface
-	// Prolong line in shoot direction
-	let EndLocation = FMath::Lerp(StartLocation, FVector{CursorHit.Location}, FirearmCommonData.LineTraceAlpha);
 
 	FHitResult LineHit;
 	let IsHit = GetWorld()->LineTraceSingleByChannel(
@@ -377,13 +399,14 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 			Tracer->SetAutoDestroy(true);
 		}
 
+		// TODO: Move Squibs to other asset
 		if (IsValid(FirearmCommonData.Squib))
 		{
 			let Squib = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 				GetWorld(),
 				FirearmCommonData.Squib,
 				LineHit.Location,
-				CursorHit.Normal.Rotation());
+				LineHit.Normal.Rotation());
 			Squib->SetAutoDestroy(true);
 		}
 

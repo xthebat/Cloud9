@@ -67,7 +67,7 @@ public:
 
 	void UnSneak() const;
 
-	void SetViewDirection(const FHitResult& HitResult, bool bIsHitValid);
+	void SetViewDirection(const TOptional<FHitResult>& HitResult);
 
 	UFUNCTION(BlueprintCallable)
 	float GetViewVerticalRotation() const { return ViewVerticalRotation; }

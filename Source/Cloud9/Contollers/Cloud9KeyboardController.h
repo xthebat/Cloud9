@@ -77,6 +77,8 @@ public:
 	void OnReloadPressed();
 	void OnReloadReleased();
 
+	void OnCursorSelfAim();
+
 protected:
 	float ForwardScale;
 	float RightScale;

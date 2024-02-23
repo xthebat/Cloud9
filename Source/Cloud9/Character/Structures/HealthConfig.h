@@ -10,7 +10,7 @@ struct FHealthConfig
 	GENERATED_BODY()
 
 	UPROPERTY(Category=Config, EditDefaultsOnly, BlueprintReadOnly,
-		meta=(UIMin="0", UIMax="20000.0", ClampMin="0", ClampMax="20000.0"))
+		meta=(UIMin="0", UIMax="999.0", ClampMin="0", ClampMax="999.0"))
 	float Health = 100.0f;
 
 	UPROPERTY(Category=Config, EditDefaultsOnly, BlueprintReadOnly,

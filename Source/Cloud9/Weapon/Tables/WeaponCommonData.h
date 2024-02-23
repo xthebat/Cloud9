@@ -43,6 +43,12 @@ struct FFirearmCommonData
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
 	float LineTraceAlpha = 5.0f;
 
+	/**
+	 * If have no end location for aiming then just trace by forward vector using this alpha
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Settings)
+	float UnknownTraceAlpha = 1000.0f;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
 	float MagazineLifetime = 10.0f;
 

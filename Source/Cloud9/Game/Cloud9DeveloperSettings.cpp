@@ -26,6 +26,20 @@
 #include "Cloud9/Tools/Extensions/FString.h"
 #include "Cloud9/Tools/Extensions/UObject.h"
 
+FString UCloud9DeveloperSettings::ShowMouseCursorName = "r.ShowMouseCursor";
+FString UCloud9DeveloperSettings::DrawDeprojectedCursorLineName = "r.DrawDeprojectedCursorLine";
+FString UCloud9DeveloperSettings::DrawHitCursorLineName = "r.DrawHitCursorLine";
+FString UCloud9DeveloperSettings::DrawExplosionSphereName = "r.DrawExplosionSphere";
+FString UCloud9DeveloperSettings::DrawHitScanName = "r.DrawHitScan";
+FString UCloud9DeveloperSettings::PrintHitScanInfoName = "r.PrintHitScanInfo";
+FString UCloud9DeveloperSettings::NetGraphName = "r.NetGraph";
+FString UCloud9DeveloperSettings::AutoSelectWeaponName = "r.AutoSelectWeapon";
+FString UCloud9DeveloperSettings::InfiniteAmmoName = "r.InfiniteAmmo";
+FString UCloud9DeveloperSettings::CheatsName = "r.Cheats";
+FString UCloud9DeveloperSettings::SelfAimEnabledName = "r.SelfAimEnabled";
+FString UCloud9DeveloperSettings::CameraVerticalSpeedLagName = "r.CameraVerticalSpeedLag";
+FString UCloud9DeveloperSettings::VolumeName = "r.Volume";
+
 // ReSharper disable once CppPossiblyUninitializedMember
 UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -41,12 +55,13 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	bIsAutoSelectWeapon = 0;
 	bIsInfiniteAmmo = 0;
 	bIsCheatsEnabled = 0;
+	bIsSelfAimEnabled = 0;
 	Volume = 0.1;
 }
 
-const UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
+UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
 {
-	static let Settings = StaticClass()->GetDefaultObject<UCloud9DeveloperSettings>();
+	static var Settings = StaticClass()->GetDefaultObject<UCloud9DeveloperSettings>();
 	Settings->InitializeCVars();
 	return Settings;
 }
@@ -57,14 +72,14 @@ void UCloud9DeveloperSettings::Save()
 	log(Display, "%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 }
 
-template <typename TValue>
-auto UCloud9DeveloperSettings::RegisterConsoleVariable(TValue& ValueRef, const TCHAR* Name, const TCHAR* Help)
+template <typename ValueType>
+auto UCloud9DeveloperSettings::RegisterConsoleVariable(ValueType& ValueRef, const TCHAR* Name, const TCHAR* Help)
 {
 	static_assert(
-		TIsSame<TValue, int>::Value ||
-		TIsSame<TValue, float>::Value ||
-		TIsSame<TValue, bool>::Value ||
-		TIsSame<TValue, FString>::Value,
+		TIsSame<ValueType, int>::Value ||
+		TIsSame<ValueType, float>::Value ||
+		TIsSame<ValueType, bool>::Value ||
+		TIsSame<ValueType, FString>::Value,
 		"TValue must be int, float, bool or FString"
 	);
 
@@ -89,73 +104,79 @@ void UCloud9DeveloperSettings::InitializeCVars()
 
 		RegisterConsoleVariable(
 			bIsShowMouseCursor,
-			TEXT("r.IsShowMouseCursor"),
+			*ShowMouseCursorName,
 			TEXT("Whether to draw line from character to GetHitResultUnderCursor point")
 		);
 
 		RegisterConsoleVariable(
 			bIsDrawDeprojectedCursorLine,
-			TEXT("r.IsDrawDeprojectedCursorLine"),
+			*DrawDeprojectedCursorLineName,
 			TEXT("Whether to draw line from character to deprojected mouse cursor")
 		);
 
 		RegisterConsoleVariable(
 			bIsDrawHitCursorLine,
-			TEXT("r.bIsDrawHitCursorLine"),
+			*DrawHitCursorLineName,
 			TEXT("Whether to show mouse cursor on screen or not in game")
 		);
 
 		RegisterConsoleVariable(
 			bIsDrawExplosionSpheres,
-			TEXT("r.bIsDrawExplosionSpheres"),
+			*DrawExplosionSphereName,
 			TEXT("Whether to draw debug explosions spheres")
 		);
 
 		RegisterConsoleVariable(
 			bIsDrawHitScan,
-			TEXT("r.bIsDrawHitScan"),
+			*DrawHitScanName,
 			TEXT("Whether to draw debug hit scan lines")
 		);
 
 		RegisterConsoleVariable(
 			bIsPrintHitScanInfo,
-			TEXT("r.bIsPrintHitScanInfo"),
+			*PrintHitScanInfoName,
 			TEXT("Whether to print hit scan info")
 		);
 
 		RegisterConsoleVariable(
 			NetGraph,
-			TEXT("r.NetGraph"),
+			*NetGraphName,
 			TEXT("Whether to show FPS and other specific debug info")
 		);
 
 		RegisterConsoleVariable(
 			bIsAutoSelectWeapon,
-			TEXT("r.AutoSelectWeapon"),
+			*AutoSelectWeaponName,
 			TEXT("Select weapon after picking it up")
 		);
 
 		RegisterConsoleVariable(
 			bIsInfiniteAmmo,
-			TEXT("r.InfiniteAmmo"),
+			*InfiniteAmmoName,
 			TEXT("Infinite Weapon Ammo")
 		);
 
 		RegisterConsoleVariable(
 			bIsCheatsEnabled,
-			TEXT("r.Cheats"),
+			*CheatsName,
 			TEXT("Enable cheats")
 		);
 
 		RegisterConsoleVariable(
+			bIsSelfAimEnabled,
+			*SelfAimEnabledName,
+			TEXT("Enable self aim")
+		);
+
+		RegisterConsoleVariable(
 			CameraVerticalSpeedLag,
-			TEXT("r.CameraVerticalSpeedLag"),
+			*CameraVerticalSpeedLagName,
 			TEXT("Configure how smoothly does the camera change its position vertically")
 		);
 
 		RegisterConsoleVariable(
 			Volume,
-			TEXT("r.Volume"),
+			*VolumeName,
 			TEXT("Basic game volume")
 		);
 

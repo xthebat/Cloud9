@@ -25,6 +25,7 @@
 
 #include "Cloud9KeyboardController.h"
 
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "GameFramework/SpringArmComponent.h"
 
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
@@ -106,6 +107,12 @@ void UCloud9KeyboardController::OnSecondaryActionReleased() { WeaponAction([](le
 void UCloud9KeyboardController::OnReloadPressed() { WeaponAction([](let It) { It->Reload(false); }); }
 
 void UCloud9KeyboardController::OnReloadReleased() { WeaponAction([](let It) { It->Reload(true); }); }
+
+void UCloud9KeyboardController::OnCursorSelfAim()
+{
+	static var Settings = UCloud9DeveloperSettings::Get();
+	Settings->SetVariableValue(UCloud9DeveloperSettings::SelfAimEnabledName, not Settings->bIsSelfAimEnabled);
+}
 
 void UCloud9KeyboardController::OnUseAction()
 {
