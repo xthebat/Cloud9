@@ -33,6 +33,7 @@
 UCloud9Inventory::UCloud9Inventory()
 {
 	SelectedWeaponSlot = EWeaponSlot::NotSelected;
+	WeaponsCount = 0;
 
 	let SlotsNumber = StaticEnum<EWeaponSlot>()->NumEnums();
 	WeaponSlots.SetNum(SlotsNumber);
@@ -264,6 +265,7 @@ bool UCloud9Inventory::AddWeapon(const FWeaponConfig& Config, bool Select, bool 
 
 	log(Display, "[Inventory='%s'] Added configured weapon = '%s'", *GetName(), *Config.ToString());
 
+	WeaponsCount++;
 	OnWeaponAddDelegate.Broadcast(Weapon);
 	return true;
 }
@@ -296,9 +298,12 @@ bool UCloud9Inventory::RemoveWeapon(EWeaponSlot Slot)
 	WeaponAt(Slot)->Destroy();
 	WeaponAt(Slot) = nullptr;
 
+	WeaponsCount--;
 	OnWeaponRemoveDelegate.Broadcast();
 	return true;
 }
+
+bool UCloud9Inventory::IsEmpty() const { return WeaponsCount == 0; }
 
 bool UCloud9Inventory::SelectOtherAvailableWeapon(bool Instant, bool Force)
 {

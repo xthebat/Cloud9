@@ -275,7 +275,7 @@ bool ACloud9WeaponGrenade::OnGrenadeActionLoop()
 		this,
 		InstigatorController,
 		false,
-		ECC_Visibility);
+		TRACE_CHANNEL);
 	Explosion->FireImpulse();
 
 	if (let ExplodeSounds = GetWeaponInfo()->Sounds.ExplodeSounds; ExplodeSounds.Num() > 0)
@@ -387,7 +387,7 @@ bool ACloud9WeaponGrenade::Throw() const
 	}
 
 	FHitResult CursorHit;
-	if (not Controller->GetHitResultUnderCursor(ECC_Visibility, true, CursorHit))
+	if (not Controller->GetHitResultUnderCursor(TRACE_CHANNEL, true, CursorHit))
 	{
 		log(Error, "[Weapon='%s'] Cursor not hit anything", *GetName());
 		return false;

@@ -119,7 +119,7 @@ void UCloud9MouseController::ProcessCharacterView() const
 		{
 			FHitResult TraceHitResult;
 			let bIsHitValid = Controller->GetHitResultUnderCursor(
-				ECC_Visibility,
+				TRACE_CHANNEL,
 				true,
 				TraceHitResult);
 			Pawn->SetViewDirection(TraceHitResult, bIsHitValid);
