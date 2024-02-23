@@ -275,7 +275,7 @@ void ACloud9Character::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	// Auto select any available weapon if nothing selected
-	if (not Inventory->GetSelectedWeapon())
+	if (not Inventory->GetSelectedWeapon() and not Inventory->IsEmpty())
 	{
 		Inventory->SelectOtherAvailableWeapon(false);
 	}

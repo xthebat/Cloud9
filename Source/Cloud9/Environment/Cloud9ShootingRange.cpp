@@ -12,6 +12,8 @@ FName ACloud9ShootingRange::WidgetComponentName = "WidgetComponentName";
 
 ACloud9ShootingRange::ACloud9ShootingRange()
 {
+	// Disable collision to remove firearms hit screen
+	SetActorEnableCollision(false);
 	PrimaryActorTick.bCanEverTick = true;
 	ZoneComponent = CreateDefaultSubobject<UBoxComponent>(ZoneComponentName);
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(WidgetComponentName);
@@ -44,6 +46,9 @@ void ACloud9ShootingRange::OnConstruction(const FTransform& Transform)
 	WidgetComponent->SetWidgetClass(WidgetClass);
 	WidgetComponent->SetRelativeRotation({0.0f, 90.0f, 0.0f});
 	WidgetComponent->SetDrawSize({ZoneSize.X * 2.0f, ZoneSize.Z * 2.0f});
+	// Not work's quit well (currently disable all collision in constructor)
+	// But required for future to make possible for shooting range configuration
+	WidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ACloud9ShootingRange::BeginPlay()

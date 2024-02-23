@@ -307,7 +307,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 	EjectCase();
 
 	FHitResult CursorHit;
-	if (not Controller->GetHitResultUnderCursor(ECC_Visibility, true, CursorHit))
+	if (not Controller->GetHitResultUnderCursor(TRACE_CHANNEL, true, CursorHit))
 	{
 		log(Error, "Cursor not hit anything")
 		return EFirearmFireStatus::Success;
@@ -333,7 +333,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 		LineHit,
 		StartLocation,
 		EndLocation,
-		ECC_Visibility,
+		TRACE_CHANNEL,
 		CollisionParams);
 
 	if (Settings->bIsPrintHitScanInfo)

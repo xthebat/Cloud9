@@ -108,6 +108,9 @@ public:
 	bool RemoveWeapon(EWeaponSlot Slot);
 
 	UFUNCTION(BlueprintCallable)
+	bool IsEmpty() const;
+	
+	UFUNCTION(BlueprintCallable)
 	ACloud9WeaponBase* GetSelectedWeapon() const;
 
 	UFUNCTION(BlueprintCallable)
@@ -127,12 +130,15 @@ protected:
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnWeaponSwitchDelegate OnWeaponSwitchDelegate;
 
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess), Category=State)
+	int WeaponsCount;
+
 	template <typename WeaponType = ACloud9WeaponBase>
 	WeaponType* WeaponAt(EWeaponSlot Slot) const { return WeaponSlots[Slot | EUEnum::To<int>{}]; }
 
 	template <typename WeaponType = ACloud9WeaponBase>
 	WeaponType*& WeaponAt(EWeaponSlot Slot) { return WeaponSlots[Slot | EUEnum::To<int>{}]; }
-
+	
 private:
 	bool SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool Force);
 

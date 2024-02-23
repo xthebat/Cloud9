@@ -25,4 +25,7 @@
 
 #include "CoreMinimal.h"
 
+// TODO: should be reworked somehow ... TRACE_CHANNEL
+#define TRACE_CHANNEL ECC_PhysicsBody
+
 DECLARE_LOG_CATEGORY_EXTERN(LogCloud9, Log, All);
