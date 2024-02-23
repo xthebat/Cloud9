@@ -25,6 +25,8 @@
 
 #include "CoreMinimal.h"
 
+#include "Cloud9/Tools/Macro/Common.h"
+
 #include "Cloud9DeveloperSettings.generated.h"
 
 USTRUCT(BlueprintType)
@@ -54,6 +56,21 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 {
 	GENERATED_UCLASS_BODY()
 
+public:
+	static FString ShowMouseCursorName;
+	static FString DrawDeprojectedCursorLineName;
+	static FString DrawHitCursorLineName;
+	static FString DrawExplosionSphereName;
+	static FString DrawHitScanName;
+	static FString PrintHitScanInfoName;
+	static FString NetGraphName;
+	static FString AutoSelectWeaponName;
+	static FString InfiniteAmmoName;
+	static FString CheatsName;
+	static FString SelfAimEnabledName;
+	static FString CameraVerticalSpeedLagName;
+	static FString VolumeName;
+	
 public: // properties
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 bIsDrawHitCursorLine;
@@ -88,6 +105,9 @@ public: // properties
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 bIsCheatsEnabled;
 
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	int32 bIsSelfAimEnabled;
+
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Sound)
 	float Volume;
 
@@ -99,11 +119,27 @@ public: // properties
 
 public: // static functions
 	UFUNCTION(BlueprintCallable, Category=Settings, DisplayName=GetCloud9DeveloperSettings)
-	static const UCloud9DeveloperSettings* Get();
+	static UCloud9DeveloperSettings* Get();
 
 public: // functions
 	UFUNCTION(BlueprintCallable)
 	void Save();
+
+	template <typename ValueType>
+	void SetVariableValue(const FString& Name, ValueType Value)
+	{
+		static_assert(
+			TIsSame<ValueType, int>::Value ||
+			TIsSame<ValueType, float>::Value ||
+			TIsSame<ValueType, bool>::Value ||
+			TIsSame<ValueType, FString>::Value,
+			"TValue must be int, float, bool or FString"
+		);
+
+		let ConsoleManager = &IConsoleManager::Get();
+		var Variable = ConsoleManager->FindConsoleVariable(*Name);
+		Variable->Set(Value);
+	}
 
 #if WITH_EDITOR
 	virtual void PostInitProperties() override;

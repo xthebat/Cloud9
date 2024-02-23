@@ -26,6 +26,7 @@
 #include "DrawDebugHelpers.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 
+#include "Cloud9/Tools/Extensions/APlayerController.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
@@ -386,8 +387,14 @@ bool ACloud9WeaponGrenade::Throw() const
 		return false;
 	}
 
-	FHitResult CursorHit;
-	if (not Controller->GetHitResultUnderCursor(TRACE_CHANNEL, true, CursorHit))
+	let ActorsToIgnore = TArray<AActor*>{Character};
+	let CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
+		TRACE_CHANNEL,
+		true,
+		ActorsToIgnore
+	};
+
+	if (not CursorHit)
 	{
 		log(Error, "[Weapon='%s'] Cursor not hit anything", *GetName());
 		return false;
@@ -405,7 +412,7 @@ bool ACloud9WeaponGrenade::Throw() const
 	let CommonData = WeaponDefinition.GetCommonData();
 	Inventory->DropWeapon(
 		GetWeaponSlot(),
-		CursorHit.Location,
+		CursorHit->Location,
 		CommonData->Grenade.MaxThrowAngle,
 		CommonData->Grenade.MaxThrowImpulse);
 

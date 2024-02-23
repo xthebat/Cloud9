@@ -124,58 +124,65 @@ void ACloud9Character::UnSneak() const
 	}
 }
 
-void ACloud9Character::SetViewDirection(const FHitResult& HitResult, bool bIsHitValid)
+void ACloud9Character::SetViewDirection(const TOptional<FHitResult>& HitResult)
 {
-	if (IsValid(CursorToWorld))
+	if (HitResult)
 	{
-		let ImpactNormal = HitResult.ImpactNormal;
-		let ImpactRotation = ImpactNormal.Rotation();
+		if (IsValid(CursorToWorld))
+		{
+			let ImpactNormal = HitResult->ImpactNormal;
+			let ImpactRotation = ImpactNormal.Rotation();
 
-		CursorToWorld->SetWorldLocation(HitResult.Location);
-		CursorToWorld->SetWorldRotation(ImpactRotation);
-		SetCursorIsHidden(false);
-	}
+			if (HitResult->GetActor() != this)
+			{
+				CursorToWorld->SetWorldLocation(HitResult->Location);
+				CursorToWorld->SetWorldRotation(ImpactRotation);
+				SetCursorIsHidden(false);
+			}
+			else
+			{
+				SetCursorIsHidden(true);
+			}
+		}
 
-	let Settings = UCloud9DeveloperSettings::Get();
+		let Settings = UCloud9DeveloperSettings::Get();
 
-	let StartLocation = GetMesh()->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
+		let StartLocation = GetMesh()->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
 
-	if (Settings->bIsDrawHitCursorLine)
-	{
-		DrawDebugLine(
-			GetWorld(),
-			StartLocation,
-			HitResult.Location,
-			FColor::Green,
-			false,
-			0.0);
-	}
+		if (Settings->bIsDrawHitCursorLine)
+		{
+			DrawDebugLine(
+				GetWorld(),
+				StartLocation,
+				HitResult->Location,
+				FColor::Green,
+				false,
+				0.0);
+		}
 
-	if (Settings->bIsDrawDeprojectedCursorLine)
-	{
-		FVector WorldLocation;
-		FVector WorldDirection;
-		FVector2D MousePosition;
+		if (Settings->bIsDrawDeprojectedCursorLine)
+		{
+			FVector WorldLocation;
+			FVector WorldDirection;
+			FVector2D MousePosition;
 
-		GetCloud9Controller()->GetMousePosition(MousePosition.X, MousePosition.Y);
-		GetCloud9Controller()->DeprojectScreenPositionToWorld(
-			MousePosition.X,
-			MousePosition.Y,
-			WorldLocation,
-			WorldDirection);
+			GetCloud9Controller()->GetMousePosition(MousePosition.X, MousePosition.Y);
+			GetCloud9Controller()->DeprojectScreenPositionToWorld(
+				MousePosition.X,
+				MousePosition.Y,
+				WorldLocation,
+				WorldDirection);
 
-		DrawDebugLine(
-			GetWorld(),
-			StartLocation,
-			WorldLocation,
-			FColor::Red,
-			false,
-			0.0);
-	}
+			DrawDebugLine(
+				GetWorld(),
+				StartLocation,
+				WorldLocation,
+				FColor::Red,
+				false,
+				0.0);
+		}
 
-	if (bIsHitValid)
-	{
-		let TargetLocation = HitResult.Location;
+		let TargetLocation = HitResult->Location;
 		let LookRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
 		ViewVerticalRotation = LookRotation.Pitch;
 		GetCloud9CharacterMovement()->Rotate({0.0f, LookRotation.Yaw, 0.0f});

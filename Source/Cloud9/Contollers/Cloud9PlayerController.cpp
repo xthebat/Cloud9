@@ -101,6 +101,9 @@ void ACloud9PlayerController::SetupInputComponent()
 	InputComponent->BindAction(
 		"Use", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnUseAction);
 
+	InputComponent->BindAction(
+		"CursorSelfAim", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnCursorSelfAim);
+
 	KeyboardController->OnMoveDelegate.AddDynamic(MouseController, &UCloud9MouseController::OnCharacterMove);
 }
 

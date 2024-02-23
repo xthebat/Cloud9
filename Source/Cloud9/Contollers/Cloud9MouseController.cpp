@@ -24,7 +24,9 @@
 #include "Cloud9MouseController.h"
 
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
+#include "Cloud9/Tools/Extensions/APlayerController.h"
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 
 UCloud9MouseController::UCloud9MouseController()
 {
@@ -117,12 +119,14 @@ void UCloud9MouseController::ProcessCharacterView() const
 	{
 		if (let Controller = GetCloud9Controller(); IsValid(Controller))
 		{
-			FHitResult TraceHitResult;
-			let bIsHitValid = Controller->GetHitResultUnderCursor(
+			static var Settings = UCloud9DeveloperSettings::Get();
+			let ActorsToIgnore = Settings->bIsSelfAimEnabled ? TArray<AActor*>{} : TArray<AActor*>{Pawn};
+			let CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
 				TRACE_CHANNEL,
 				true,
-				TraceHitResult);
-			Pawn->SetViewDirection(TraceHitResult, bIsHitValid);
+				ActorsToIgnore
+			};
+			Pawn->SetViewDirection(CursorHit);
 		}
 	}
 }
