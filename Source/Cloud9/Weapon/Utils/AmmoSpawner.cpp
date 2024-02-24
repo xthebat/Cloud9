@@ -23,10 +23,11 @@
 
 #include "AmmoSpawner.h"
 
+#include "Engine/StaticMeshActor.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponFirearm.h"
-#include "Engine/StaticMeshActor.h"
 
 AAmmoSpawner::AAmmoSpawner()
 {
@@ -37,7 +38,7 @@ AAmmoSpawner::AAmmoSpawner()
 
 bool AAmmoSpawner::ActivateSpawner(ACloud9Character* Character)
 {
-	if (let Inventory = Character->GetInventory(); IsValid(Inventory))
+	if (let Inventory = Character->GetInventoryComponent(); IsValid(Inventory))
 	{
 		if (let Weapon = Inventory->GetWeaponAt<ACloud9WeaponFirearm>(EWeaponSlot::Main);
 			IsValid(Weapon) and Weapon->GetWeaponType() == WeaponType)

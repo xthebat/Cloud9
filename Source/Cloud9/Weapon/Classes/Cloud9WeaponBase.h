@@ -45,7 +45,7 @@
 
 struct FWeaponConfig;
 class ACloud9Character;
-class UCloud9Inventory;
+class UCloud9InventoryComponent;
 
 UCLASS()
 class CLOUD9_API ACloud9WeaponBase : public AActor
@@ -213,11 +213,6 @@ protected: // functions
 	void InitializeName(const FWeaponId& NewWeaponId);
 	bool InitializeMeshComponent(UStaticMeshComponent* Component, UStaticMesh* Mesh, UMaterialInstance* Material) const;
 	bool InitializeEffectComponent(UNiagaraComponent* Component, UNiagaraSystem* Effect, float Scale = 1.0f) const;
-
-	UAnimInstance* GetAnimInstance() const;
-
-	bool IsAnyMontagePlaying() const;
-	bool PlayAnimMontage(UAnimMontage* Montage, float StartTime = 0.0f, float Rate = 1.0f) const;
 
 	bool UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond NewBond, bool Instant = false);
 

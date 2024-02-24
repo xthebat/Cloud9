@@ -29,6 +29,8 @@
 #include "Cloud9/Tools/Extensions/APlayerController.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Components/Cloud9AnimationComponent.h"
+#include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
@@ -153,6 +155,7 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 
 	let Character = GetOwner<ACloud9Character>();
+	let AnimComponent = Character->GetAnimationComponent();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 
 	if (WeaponState.IsActionActive(EWeaponAction::Deploy))
@@ -160,7 +163,7 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::Deploy,
 			GetWeaponInfo()->DeployTime,
-			[&] { return PlayAnimMontage(PoseMontages->DeployMontage); },
+			[&] { return AnimComponent->PlayMontage(PoseMontages->DeployMontage); },
 			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
 		);
 	}
@@ -169,7 +172,7 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::PrimaryStart,
 			GetWeaponInfo()->PinpullTime,
-			[&] { return PlayAnimMontage(PoseMontages->PinpullPrimaryActionMontage); },
+			[&] { return AnimComponent->PlayMontage(PoseMontages->PinpullPrimaryActionMontage); },
 			[this]
 			{
 				WeaponState.ClearAction(EWeaponAction::PrimaryStart);
@@ -180,7 +183,7 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryLoop))
 	{
 		// Play hold frame of montage
-		PlayAnimMontage(
+		AnimComponent->PlayMontage(
 			PoseMontages->PinpullPrimaryActionMontage,
 			PoseMontages->PinpullPrimaryActionHoldTiming);
 
@@ -202,7 +205,7 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::PrimaryEnd,
 			GetWeaponInfo()->ThrowTime,
-			[&] { return PlayAnimMontage(PoseMontages->PrimaryActionMontage); },
+			[&] { return AnimComponent->PlayMontage(PoseMontages->PrimaryActionMontage); },
 			[this]
 			{
 				WeaponState.ClearAction(EWeaponAction::PrimaryEnd);
@@ -379,7 +382,7 @@ bool ACloud9WeaponGrenade::Throw() const
 		return false;
 	}
 
-	let Inventory = Character->GetInventory();
+	let Inventory = Character->GetInventoryComponent();
 
 	if (not IsValid(Inventory))
 	{

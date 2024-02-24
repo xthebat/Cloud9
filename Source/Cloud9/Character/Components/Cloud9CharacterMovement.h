@@ -26,16 +26,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-#include "Cloud9/Character/Components/Cloud9CharacterComponent.h"
-
 #include "Cloud9CharacterMovement.generated.h"
 
 class ACloud9Character;
 
 UCLASS(Blueprintable)
-class CLOUD9_API UCloud9CharacterMovement
-	: public UCharacterMovementComponent
-	, public ICloud9CharacterComponent
+class CLOUD9_API UCloud9CharacterMovement : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
 

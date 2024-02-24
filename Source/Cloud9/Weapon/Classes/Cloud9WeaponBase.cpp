@@ -23,16 +23,18 @@
 
 #include "Cloud9WeaponBase.h"
 
+#include "PhysicsEngine/RadialForceComponent.h"
 #include "Cloud9/Tools/Components/CooldownActionComponent.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Components/Cloud9AnimationComponent.h"
+#include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Game/Cloud9AssetManager.h"
 #include "Cloud9/Weapon/Assets/WeaponDefinitionsAsset.h"
 #include "Cloud9/Weapon/Enums/WeaponAction.h"
 #include "Cloud9/Weapon/Enums/WeaponClass.h"
 #include "Cloud9/Weapon/Extensions/EWeaponId.h"
-#include "PhysicsEngine/RadialForceComponent.h"
 
 const FName ACloud9WeaponBase::RootComponentName = TEXT("RootComponent");
 const FName ACloud9WeaponBase::WeaponMeshCollisionProfile = TEXT("WeaponCollisionProfile");
@@ -241,65 +243,6 @@ bool ACloud9WeaponBase::InitializeEffectComponent(
 	return true;
 }
 
-UAnimInstance* ACloud9WeaponBase::GetAnimInstance() const
-{
-	let Character = GetOwner<ACloud9Character>();
-
-	if (not IsValid(Character))
-	{
-		log(Error, "[Weapon='%s'] Character is invalid", *GetName());
-		return nullptr;
-	}
-
-	let Mesh = Character->GetMesh();
-
-	if (not IsValid(Mesh))
-	{
-		log(Error, "[Weapon='%s'] Mesh is invalid", *GetName());
-		return nullptr;
-	}
-
-	return Mesh->GetAnimInstance();
-}
-
-bool ACloud9WeaponBase::PlayAnimMontage(UAnimMontage* Montage, float StartTime, float Rate) const
-{
-	if (not IsValid(Montage))
-	{
-		log(Error, "[Weapon='%s'] Montage is invalid", *GetName());
-		return false;
-	}
-
-	let AnimInstance = GetAnimInstance();
-
-	if (not IsValid(AnimInstance))
-	{
-		log(Error, "[Weapon='%s'] AnimInstance is invalid for montage '%s'", *GetName(), *Montage->GetName());
-		return false;
-	}
-
-	if (not AnimInstance->Montage_Play(Montage, Rate, EMontagePlayReturnType::MontageLength, StartTime))
-	{
-		log(Error, "[Weapon='%s'] Can't play montage '%s'", *GetName(), *Montage->GetName());
-		return false;
-	}
-
-	return true;
-}
-
-bool ACloud9WeaponBase::IsAnyMontagePlaying() const
-{
-	let AnimInstance = GetAnimInstance();
-
-	if (not IsValid(AnimInstance))
-	{
-		log(Error, "[Weapon='%s'] AnimInstance is invalid", *GetName());
-		return false;
-	}
-
-	return AnimInstance->IsAnyMontagePlaying();
-}
-
 #define SLOT_NAME *UWeaponSlot::ToString(NewSlot)
 #define BOND_NAME *UWeaponBond::ToString(NewBond)
 
@@ -378,7 +321,7 @@ bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot 
 		return false;
 	}
 
-	let Inventory = Character->GetInventory();
+	let Inventory = Character->GetInventoryComponent();
 
 	if (not IsValid(Inventory))
 	{
@@ -433,13 +376,16 @@ bool ACloud9WeaponBase::RemoveFromInventory()
 
 bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant, bool Force)
 {
-	if (let Character = GetOwner<ACloud9Character>(); not IsValid(Character))
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
 	{
 		log(Error, "[Weapon='%s' Bond='%s'] Weapon not in any inventory", *GetName(), BOND_NAME);
 		return false;
 	}
 
-	if (not Force and IsAnyMontagePlaying())
+	if (let AnimComponent = Character->GetAnimationComponent();
+		not Force and AnimComponent->IsAnyMontagePlaying())
 	{
 		log(Verbose, "[Weapon='%s' Bond='%s'] Montage is playing now", *GetName(), BOND_NAME);
 		return false;

@@ -26,14 +26,17 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 
-#include "Components/Cloud9Inventory.h"
 #include "Components/Cloud9CharacterMovement.h"
 
 #include "Cloud9Character.generated.h"
 
+class ACloud9PlayerController;
+class UCloud9InventoryComponent;
+class UCloud9AnimationComponent;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreChanged, int, Count);
 
-class UCloud9CharacterHealthComponent;
+class UCloud9HealthComponent;
 
 UCLASS(config=Game, Blueprintable)
 class ACloud9Character : public ACharacter
@@ -46,6 +49,7 @@ public:
 	static const FName DecalComponentName;
 	static const FName InventoryComponentName;
 	static const FName HealthComponentName;
+	static const FName AnimationComponentName;
 
 	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
@@ -82,18 +86,29 @@ public:
 	float GetCameraZoomHeight() const;
 	void SetCameraZoomHeight(float Value) const;
 
-	UCloud9Inventory* GetInventory() const;
+	UCloud9InventoryComponent* GetInventoryComponent() const;
 
-	UCloud9CharacterHealthComponent* GetHealthComponent() const;
+	UCloud9HealthComponent* GetHealthComponent() const;
+
+	UCloud9AnimationComponent* GetAnimationComponent() const;
 
 	void AddScore();
 
 	void UseObject();
 
+public:
+	/** Event called when character score changed. */
+	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
+	FOnScoreChanged OnScoreChanged;
+
 	// Set by character movement to specify that this Character is currently sneaking.
 	// TODO: replicatedUsing=OnRep_IsSneaking
 	UPROPERTY(BlueprintReadOnly, Category=Character)
 	uint32 bIsSneaking : 1;
+
+protected:
+	UFUNCTION(BlueprintCallable)
+	void OnCharacterDie(AActor* Actor);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -122,17 +137,17 @@ private:
 
 	/** An inventory of the character. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Inventory, meta=(AllowPrivateAccess))
-	UCloud9Inventory* Inventory;
+	UCloud9InventoryComponent* InventoryComponent;
 
 	/** A state of the character health and armor. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
-	UCloud9CharacterHealthComponent* HealthComponent;
-
-	/** Event called when character score changed. */
-	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
-	FOnScoreChanged OnScoreChanged;
+	UCloud9HealthComponent* HealthComponent;
 
 	/** Current number of frags made by character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
 	int Score;
+
+	/** Helper to play animation montages for character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Utility, meta=(AllowPrivateAccess))
+	UCloud9AnimationComponent* AnimationComponent;
 };

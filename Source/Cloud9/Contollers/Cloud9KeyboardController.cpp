@@ -25,9 +25,10 @@
 
 #include "Cloud9KeyboardController.h"
 
-#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
+#include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 
 UCloud9KeyboardController::UCloud9KeyboardController()
@@ -72,7 +73,7 @@ void UCloud9KeyboardController::WeaponAction(FunctionType Function)
 		return;
 	}
 
-	let Inventory = Pawn->GetInventory();
+	let Inventory = Pawn->GetInventoryComponent();
 
 	if (not IsValid(Inventory))
 	{
@@ -192,7 +193,7 @@ void UCloud9KeyboardController::OnSlot1()
 {
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
-		Pawn->GetInventory()->SelectWeapon(EWeaponSlot::Main);
+		Pawn->GetInventoryComponent()->SelectWeapon(EWeaponSlot::Main);
 	}
 }
 
@@ -200,7 +201,7 @@ void UCloud9KeyboardController::OnSlot2()
 {
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
-		Pawn->GetInventory()->SelectWeapon(EWeaponSlot::Pistol);
+		Pawn->GetInventoryComponent()->SelectWeapon(EWeaponSlot::Pistol);
 	}
 }
 
@@ -208,7 +209,7 @@ void UCloud9KeyboardController::OnSlot3()
 {
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
-		Pawn->GetInventory()->SelectWeapon(EWeaponSlot::Knife);
+		Pawn->GetInventoryComponent()->SelectWeapon(EWeaponSlot::Knife);
 	}
 }
 
@@ -216,7 +217,7 @@ void UCloud9KeyboardController::OnSlot4()
 {
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
-		Pawn->GetInventory()->SelectWeapon(EWeaponSlot::Grenade);
+		Pawn->GetInventoryComponent()->SelectWeapon(EWeaponSlot::Grenade);
 	}
 }
 
@@ -224,6 +225,6 @@ void UCloud9KeyboardController::OnSlot5()
 {
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
-		Pawn->GetInventory()->SelectWeapon(EWeaponSlot::Stuff);
+		Pawn->GetInventoryComponent()->SelectWeapon(EWeaponSlot::Stuff);
 	}
 }
