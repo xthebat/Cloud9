@@ -313,6 +313,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 	let StartLocation = MuzzleFlash->GetComponentLocation();
 
 	FVector EndLocation;
+	float Alpha;
 	if (not Settings->bIsSelfAimEnabled)
 	{
 		TOptional<FHitResult> CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
@@ -323,21 +324,42 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 
 		if (not CursorHit)
 		{
-			log(Error, "Cursor not hit anything")
+			log(Error, "Cursor wasn't hit anything")
 			return EFirearmFireStatus::Success;
 		}
 
-		// GetHitResultUnderCursor can return coordinates slightly upper then surface
-		// Prolong line in shoot direction
-		EndLocation = FMath::Lerp(StartLocation, FVector{CursorHit->Location}, FirearmCommonData.LineTraceAlpha);
+		EndLocation = CursorHit->Location;
+		Alpha = FirearmCommonData.LineTraceAlpha;
 	}
 	else
 	{
-		EndLocation = FMath::Lerp(
-			StartLocation,
-			StartLocation + MuzzleFlash->GetForwardVector(),
-			FirearmCommonData.UnknownTraceAlpha);
+		TOptional<FHitResult> CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
+			TRACE_CHANNEL,
+			true
+		};
+
+		if (not CursorHit)
+		{
+			log(Error, "Cursor wasn't anything")
+			return EFirearmFireStatus::Success;
+		}
+
+		// Check if use Somali shooting (when cursor on Character)
+		if (CursorHit->Actor == Character)
+		{
+			EndLocation = StartLocation + MuzzleFlash->GetForwardVector();
+			Alpha = FirearmCommonData.UnknownTraceAlpha;
+		}
+		else
+		{
+			EndLocation = CursorHit->Location;
+			Alpha = FirearmCommonData.LineTraceAlpha;
+		}
 	}
+
+	// GetHitResultUnderCursor can return coordinates slightly upper then surface
+	// Prolong line in shoot direction
+	EndLocation = FMath::Lerp(StartLocation, EndLocation, Alpha);
 
 	var CollisionParams = FCollisionQueryParams::DefaultQueryParam;
 
