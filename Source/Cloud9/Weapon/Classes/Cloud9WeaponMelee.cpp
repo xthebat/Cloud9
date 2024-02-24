@@ -24,7 +24,9 @@
 #include "Cloud9WeaponMelee.h"
 
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Components/Cloud9AnimationComponent.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
+#include "Cloud9/Weapon/Structures/WeaponConfig.h"
 #include "Cloud9/Weapon/Tables/WeaponTableMelee.h"
 #include "Cloud9/Weapon/Structures/WeaponDefinition.h"
 
@@ -77,6 +79,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 
 	let Character = GetOwner<ACloud9Character>();
+	let AnimComponent = Character->GetAnimationComponent();
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 
@@ -87,7 +90,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::Deploy,
 			WeaponInfo->DeployTime,
-			[&] { return PlayAnimMontage(PoseMontages->DeployMontage); },
+			[&] { return AnimComponent->PlayMontage(PoseMontages->DeployMontage); },
 			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
 		);
 	}
@@ -100,7 +103,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::PrimaryLoop,
 			WeaponInfo->SlashCycleTime,
-			[&] { return PlayAnimMontage(PoseMontages->PrimaryActionMontage); }
+			[&] { return AnimComponent->PlayMontage(PoseMontages->PrimaryActionMontage); }
 		);
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
@@ -112,7 +115,7 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::Secondary,
 			WeaponInfo->StabCycleTime,
-			[&] { return PlayAnimMontage(PoseMontages->SecondaryActionMontage); }
+			[&] { return AnimComponent->PlayMontage(PoseMontages->SecondaryActionMontage); }
 		);
 
 		// no auto stab

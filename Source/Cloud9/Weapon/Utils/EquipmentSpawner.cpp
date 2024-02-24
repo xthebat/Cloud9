@@ -4,8 +4,10 @@
 
 #include "Engine/StaticMeshActor.h"
 
+#include "Cloud9/Tools/Macro/Logging.h"
+
 #include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Character/Components/Cloud9CharacterHealthComponent.h"
+#include "Cloud9/Character/Components/Cloud9HealthComponent.h"
 
 AEquipmentSpawner::AEquipmentSpawner()
 {
@@ -68,7 +70,7 @@ void AEquipmentSpawner::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
 	if (not bChangeArmor)
 	{
-		log(Warning, "Can't add helmet without kevlar vest")
+		log(Warning, "Can't add helmet without kevlar vest");
 		bHelmet = false;
 	}
 }

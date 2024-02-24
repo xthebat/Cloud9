@@ -38,16 +38,18 @@
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
-#include "Cloud9/Character/Components/Cloud9Inventory.h"
+#include "Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Character/Components/Cloud9CharacterMovement.h"
 #include "Cloud9/Character/Components/Cloud9SpringArmComponent.h"
-#include "Cloud9/Character/Components/Cloud9CharacterHealthComponent.h"
+#include "Components/Cloud9HealthComponent.h"
+#include "Components/Cloud9AnimationComponent.h"
 
 const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
 const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");
 const FName ACloud9Character::DecalComponentName = TEXT("CursorToWorld");
-const FName ACloud9Character::InventoryComponentName = TEXT("Inventory");
+const FName ACloud9Character::InventoryComponentName = TEXT("InventoryComponent");
 const FName ACloud9Character::HealthComponentName = TEXT("HealthComponent");
+const FName ACloud9Character::AnimationComponentName = TEXT("AnimationComponent");
 
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
@@ -77,8 +79,11 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	CursorToWorld = CreateDefaultSubobject<UDecalComponent>(DecalComponentName);
 	CursorToWorld->SetupAttachment(RootComponent);
 
-	Inventory = CreateDefaultSubobject<UCloud9Inventory>(InventoryComponentName);
-	HealthComponent = CreateDefaultSubobject<UCloud9CharacterHealthComponent>(HealthComponentName);
+	InventoryComponent = CreateDefaultSubobject<UCloud9InventoryComponent>(InventoryComponentName);
+	HealthComponent = CreateDefaultSubobject<UCloud9HealthComponent>(HealthComponentName);
+	AnimationComponent = CreateDefaultSubobject<UCloud9AnimationComponent>(AnimationComponentName);
+
+	// HealthComponent->OnCharacterDie.AddDynamic(this, &ACloud9Character::OnCharacterDie);
 
 	Score = 0;
 
@@ -231,9 +236,15 @@ void ACloud9Character::SetCameraZoomHeight(float Value) const
 	CameraBoom->TargetArmLength = Value;
 }
 
-UCloud9Inventory* ACloud9Character::GetInventory() const { return Inventory; }
+UCloud9InventoryComponent* ACloud9Character::GetInventoryComponent() const { return InventoryComponent; }
 
-UCloud9CharacterHealthComponent* ACloud9Character::GetHealthComponent() const { return HealthComponent; }
+UCloud9HealthComponent* ACloud9Character::GetHealthComponent() const { return HealthComponent; }
+
+UCloud9AnimationComponent* ACloud9Character::GetAnimationComponent() const
+{
+	assertf(IsValid(AnimationComponent), "AnimationComponent isn't valid")
+	return AnimationComponent;
+}
 
 void ACloud9Character::AddScore()
 {
@@ -244,6 +255,11 @@ void ACloud9Character::AddScore()
 void ACloud9Character::UseObject()
 {
 	// TODO: Implement UseObject
+}
+
+void ACloud9Character::OnCharacterDie(AActor* Actor)
+{
+	// AnimationComponent->PlayAnimMontage();
 }
 
 void ACloud9Character::OnConstruction(const FTransform& Transform)
@@ -282,8 +298,8 @@ void ACloud9Character::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	// Auto select any available weapon if nothing selected
-	if (not Inventory->GetSelectedWeapon() and not Inventory->IsEmpty())
+	if (not InventoryComponent->GetSelectedWeapon() and not InventoryComponent->IsEmpty())
 	{
-		Inventory->SelectOtherAvailableWeapon(false);
+		InventoryComponent->SelectOtherAvailableWeapon(false);
 	}
 }

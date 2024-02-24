@@ -9,6 +9,7 @@
 #include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Macro/Template.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 
 #include "Cloud9AnimNotifyWeapon.generated.h"
@@ -30,7 +31,7 @@ protected:
 			return nullptr;
 		}
 
-		let Inventory = Character->GetInventory();
+		let Inventory = Character->GetInventoryComponent();
 
 		if (not IsValid(Inventory))
 		{

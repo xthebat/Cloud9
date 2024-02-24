@@ -24,12 +24,12 @@
 #include "WeaponSpawner.h"
 
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 
 bool AWeaponSpawner::ActivateSpawner(ACloud9Character* Character)
 {
-	if (let Inventory = Character->GetInventory(); IsValid(Inventory))
+	if (let Inventory = Character->GetInventoryComponent(); IsValid(Inventory))
 	{
 		static let Settings = UCloud9DeveloperSettings::Get();
 		return Inventory->AddWeapon(WeaponConfig, static_cast<bool>(Settings->bIsAutoSelectWeapon), true);

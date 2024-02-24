@@ -22,7 +22,7 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Cloud9SpringArmComponent.h"
-
+#include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
 

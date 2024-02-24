@@ -30,11 +30,14 @@
 #include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Tools/Extensions/FVector.h"
+#include "Cloud9/Tools/Extensions/APlayerController.h"
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Components/Cloud9AnimationComponent.h"
+#include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Tools/Extensions/APlayerController.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
+#include "Cloud9/Weapon/Structures/WeaponConfig.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -128,7 +131,8 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	WEAPON_IS_DISARMED_GUARD();
 	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 
-	let Character = GetOwner<ACloud9Character>();
+	let Character = GetOwner<ACloud9Character>(); // suppose weapon has owner cus we pass bond guard
+	let AnimComponent = Character->GetAnimationComponent();
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 	let CommonData = WeaponDefinition.GetCommonData();
@@ -144,7 +148,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			[&]
 			{
 				return UpdateReloadAmmo(WeaponInfo->Type == EWeaponType::Shotgun)
-					and PlayAnimMontage(PoseMontages->ReloadMontage);
+					and AnimComponent->PlayMontage(PoseMontages->ReloadMontage);
 			},
 			[this, HasLoopedReload]
 			{
@@ -167,7 +171,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 				[&]
 				{
 					return UpdateReloadAmmo(WeaponInfo->Type == EWeaponType::Shotgun)
-						and PlayAnimMontage(PoseMontages->ReloadLoopMontage);
+						and AnimComponent->PlayMontage(PoseMontages->ReloadLoopMontage);
 				}
 			);
 		}
@@ -176,7 +180,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			ExecuteAction(
 				EWeaponAction::ReloadLoop,
 				WeaponInfo->ReloadEndTime,
-				[&] { return PlayAnimMontage(PoseMontages->ReloadEndMontage); }
+				[&] { return AnimComponent->PlayMontage(PoseMontages->ReloadEndMontage); }
 			);
 
 			WeaponState.ClearAction(EWeaponAction::ReloadEnd);
@@ -187,7 +191,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::Deploy,
 			WeaponInfo->DeployTime,
-			[&] { return PlayAnimMontage(PoseMontages->DeployMontage); },
+			[&] { return AnimComponent->PlayMontage(PoseMontages->DeployMontage); },
 			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
 		);
 	}
@@ -212,7 +216,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 				if (Status == EFirearmFireStatus::Success)
 				{
-					if (not PlayAnimMontage(PoseMontages->PrimaryActionMontage))
+					if (not AnimComponent->PlayMontage(PoseMontages->PrimaryActionMontage))
 					{
 						log(Error, "[Weapon='%s'] No montage for primary action specified", *GetName());
 						return false;
@@ -514,7 +518,7 @@ bool ACloud9WeaponFirearm::UpdateMagazineAttachment(bool IsReload)
 	}
 	else
 	{
-		let Inventory = Character->GetInventory();
+		let Inventory = Character->GetInventoryComponent();
 
 		if (not IsValid(Inventory))
 		{

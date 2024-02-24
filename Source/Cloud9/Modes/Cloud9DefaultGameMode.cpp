@@ -6,7 +6,8 @@
 #include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Character/Components/Cloud9CharacterHealthComponent.h"
+#include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
+#include "Cloud9/Character/Components/Cloud9HealthComponent.h"
 
 FName ACloud9DefaultGameMode::CtSidePlayer = TEXT("CT");
 FName ACloud9DefaultGameMode::TSidePlayer = TEXT("T");
@@ -53,7 +54,7 @@ bool ACloud9DefaultGameMode::OnWorldStart(FSavedInfo& SavedInfo)
 				[this, &SavedInfo](let LocalPlayer)
 				{
 					let Character = GetPlayerCharacter(LocalPlayer);
-					let Inventory = Character->GetInventory();
+					let Inventory = Character->GetInventoryComponent();
 					let& PlayerSavedInfo = SavedInfo.Players[LocalPlayer->GetControllerId()];
 					Inventory->Initialize(PlayerSavedInfo.WeaponConfigs, PlayerSavedInfo.WeaponSlot);
 				}
@@ -76,7 +77,7 @@ bool ACloud9DefaultGameMode::OnWorldStart(FSavedInfo& SavedInfo)
 				[&PlayerConfig](let LocalPlayer)
 				{
 					let Character = GetPlayerCharacter(LocalPlayer);
-					let Inventory = Character->GetInventory();
+					let Inventory = Character->GetInventoryComponent();
 					let Health = Character->GetHealthComponent();
 
 					Inventory->Initialize(PlayerConfig.WeaponConfigs, PlayerConfig.WeaponSlot);
@@ -99,7 +100,7 @@ bool ACloud9DefaultGameMode::OnWorldTearDown(FSavedInfo& SavedInfo)
 			{
 				var PlayerSavedInfo = FPlayerSavedInfo();
 				let Character = GetPlayerCharacter(LocalPlayer);
-				let Inventory = Character->GetInventory();
+				let Inventory = Character->GetInventoryComponent();
 
 				PlayerSavedInfo.WeaponConfigs = Inventory->GetWeapons()
 					| ETContainer::Filter{[](let Weapon) { return IsValid(Weapon); }}
