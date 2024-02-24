@@ -82,6 +82,7 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 
 	EFirearmFireStatus Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData);
+	TOptional<FHitResult> HitScan(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData);
 	bool UpdateReloadAmmo(bool IsShotgun);
 
 	bool UpdateMagazineAttachment(bool IsReload);
