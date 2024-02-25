@@ -277,8 +277,9 @@ void ACloud9Character::OnCharacterDie(AActor* Actor)
 	// {
 	// AnimationComponent->PlayMontage(*DeathAnimation);
 	let MyMesh = GetMesh();
-	MyMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+	// MyMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 	// MyMesh->SetAnimation(*DeathAnimation);
+	MyMesh->SetMobility(EComponentMobility::Movable);
 	MyMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	MyMesh->SetSimulatePhysics(true);
 	// GetWorld() | EUWorld::AsyncAfter{
