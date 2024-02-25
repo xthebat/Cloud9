@@ -273,24 +273,24 @@ void ACloud9Character::UseObject()
 
 void ACloud9Character::OnCharacterDie(AActor* Actor)
 {
-	if (let DeathAnimation = DeathAnimations | ETContainer::Random{})
-	{
-		AnimationComponent->PlayMontage(*DeathAnimation);
-		let MyMesh = GetMesh();
-		MyMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-		// MyMesh->SetAnimation(*DeathAnimation);
-		MyMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-		MyMesh->SetSimulatePhysics(true);
-		// GetWorld() | EUWorld::AsyncAfter{
-		// 	[this]
-		// 	{
-		// 		let MyMesh = GetMesh();
-		// 		MyMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-		// 		MyMesh->SetSimulatePhysics(true);
-		// 	},
-		// 	0.2f
-		// };
-	}
+	// if (let DeathAnimation = DeathAnimations | ETContainer::Random{})
+	// {
+	// AnimationComponent->PlayMontage(*DeathAnimation);
+	let MyMesh = GetMesh();
+	MyMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+	// MyMesh->SetAnimation(*DeathAnimation);
+	MyMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	MyMesh->SetSimulatePhysics(true);
+	// GetWorld() | EUWorld::AsyncAfter{
+	// 	[this]
+	// 	{
+	// 		let MyMesh = GetMesh();
+	// 		MyMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	// 		MyMesh->SetSimulatePhysics(true);
+	// 	},
+	// 	0.2f
+	// };
+	// }
 }
 
 void ACloud9Character::OnConstruction(const FTransform& Transform)
