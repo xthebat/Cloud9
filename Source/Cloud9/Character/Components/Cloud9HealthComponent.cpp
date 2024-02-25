@@ -35,8 +35,6 @@ bool UCloud9HealthComponent::ChangeHealth(float NewHealth)
 {
 	if (let Value = FMath::Max(NewHealth, 0.0f); Value != Health)
 	{
-		log(Display, "[Component=%s] Health changed from %.1f to %.1f", *GetName(), Health, Value);
-
 		Health = Value;
 		OnHealthChange.Broadcast(Health);
 
@@ -49,8 +47,6 @@ bool UCloud9HealthComponent::ChangeHealth(float NewHealth)
 				log(Fatal, "[Component=%s] Owner isn't valid", *GetName());
 				return false;
 			}
-
-			log(Display, "[Actor=%s] Character was killed or missed in action", *Owner->GetName());
 
 			bIsAlive = false;
 			OnCharacterDie.Broadcast(Owner);

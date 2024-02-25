@@ -114,6 +114,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float ViewVerticalRotation;
 
+	UPROPERTY(EditDefaultsOnly, Category=Animation)
+	TArray<UAnimMontage*> DeathAnimations;
+
 private:
 	// TODO: Move to GameInstance
 	UPROPERTY(EditDefaultsOnly)

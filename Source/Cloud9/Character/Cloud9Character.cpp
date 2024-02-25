@@ -54,26 +54,40 @@ const FName ACloud9Character::AnimationComponentName = TEXT("AnimationComponent"
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
 {
+	constexpr float CharacterHeight = 72.0f;
+	constexpr float CharacterRadius = 32.0f;
+	constexpr float CharacterRotationYaw = -90.0f;
+	constexpr float CharacterCameraBoomYaw = -60.0f;
+	constexpr float CharacterJumpZVelocity = 320.0f;
+	constexpr ECanBeCharacterBase CanStepUpOn = ECB_Yes;
+
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	GetCapsuleComponent()->InitCapsuleSize(32.f, 72.0f);
+	let MyCapsuleComponent = GetCapsuleComponent();
+	MyCapsuleComponent->InitCapsuleSize(CharacterRadius, CharacterHeight);
+	MyCapsuleComponent->CanCharacterStepUpOn = CanStepUpOn;
 
 	let Movement = GetCharacterMovement();
 	Movement->bOrientRotationToMovement = false;
 	Movement->bConstrainToPlane = true;
 	Movement->bSnapToPlaneAtStart = true;
-	Movement->JumpZVelocity = 320.0f;
+	Movement->JumpZVelocity = CharacterJumpZVelocity;
 
 	CameraBoom = CreateDefaultSubobject<UCloud9SpringArmComponent>(SpringArmComponentName);
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
 	CameraBoom->bDoCollisionTest = true; // Don't want to pull camera in when it collides with level
+	CameraBoom->SetWorldRotation({CharacterCameraBoomYaw, 0.0f, 0.0f});
 
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(CameraComponentName);
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	let MyMesh = GetMesh();
+	MyMesh->SetRelativeLocation({0.0f, 0.0f, -CharacterHeight});
+	MyMesh->SetRelativeRotation({0.0f, CharacterRotationYaw, 0.0f});
 
 	// Create a decal in the world to show the cursor's location
 	CursorToWorld = CreateDefaultSubobject<UDecalComponent>(DecalComponentName);
@@ -83,7 +97,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	HealthComponent = CreateDefaultSubobject<UCloud9HealthComponent>(HealthComponentName);
 	AnimationComponent = CreateDefaultSubobject<UCloud9AnimationComponent>(AnimationComponentName);
 
-	// HealthComponent->OnCharacterDie.AddDynamic(this, &ACloud9Character::OnCharacterDie);
+	HealthComponent->OnCharacterDie.AddDynamic(this, &ACloud9Character::OnCharacterDie);
 
 	Score = 0;
 
@@ -259,7 +273,24 @@ void ACloud9Character::UseObject()
 
 void ACloud9Character::OnCharacterDie(AActor* Actor)
 {
-	// AnimationComponent->PlayAnimMontage();
+	if (let DeathAnimation = DeathAnimations | ETContainer::Random{})
+	{
+		AnimationComponent->PlayMontage(*DeathAnimation);
+		let MyMesh = GetMesh();
+		MyMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+		// MyMesh->SetAnimation(*DeathAnimation);
+		MyMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		MyMesh->SetSimulatePhysics(true);
+		// GetWorld() | EUWorld::AsyncAfter{
+		// 	[this]
+		// 	{
+		// 		let MyMesh = GetMesh();
+		// 		MyMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		// 		MyMesh->SetSimulatePhysics(true);
+		// 	},
+		// 	0.2f
+		// };
+	}
 }
 
 void ACloud9Character::OnConstruction(const FTransform& Transform)

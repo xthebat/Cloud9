@@ -408,12 +408,6 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 
 		let Direction = LineHit.Location - StartLocation | EFVector::Normalize{};
 
-		if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
-		{
-			let Velocity = WeaponInfo->Damage * FirearmCommonData.ImpulseMultiplier * Direction;
-			Target->AddImpulse(Velocity, NAME_None, true);
-		}
-
 		if (IsValid(FirearmCommonData.Tracer))
 		{
 			let Tracer = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
@@ -445,6 +439,12 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 			this,
 			UDamageType::StaticClass()
 		);
+
+		if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
+		{
+			let Velocity = WeaponInfo->Damage * FirearmCommonData.ImpulseMultiplier * Direction;
+			Target->AddImpulse(Velocity, NAME_None, true);
+		}
 
 		return EFirearmFireStatus::Success;
 	}
