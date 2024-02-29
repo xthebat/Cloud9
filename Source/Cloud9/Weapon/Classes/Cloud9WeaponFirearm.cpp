@@ -440,10 +440,10 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 			UDamageType::StaticClass()
 		);
 
-		if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
+		if (Target.IsValid() and Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
 		{
 			let Velocity = WeaponInfo->Damage * FirearmCommonData.ImpulseMultiplier * Direction;
-			Target->AddImpulse(Velocity, NAME_None, true);
+			Target->AddImpulseAtLocation(Velocity, LineHit.Location, LineHit.BoneName);
 		}
 
 		return EFirearmFireStatus::Success;

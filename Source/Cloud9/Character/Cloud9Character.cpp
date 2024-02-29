@@ -85,7 +85,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	let MyMesh = GetMesh();
+	USkeletalMeshComponent* MyMesh = GetMesh();
 	MyMesh->SetRelativeLocation({0.0f, 0.0f, -CharacterHeight});
 	MyMesh->SetRelativeRotation({0.0f, CharacterRotationYaw, 0.0f});
 
@@ -273,24 +273,16 @@ void ACloud9Character::UseObject()
 
 void ACloud9Character::OnCharacterDie(AActor* Actor)
 {
-	if (let DeathAnimation = DeathAnimations | ETContainer::Random{})
+	if (let MyCapsuleComponent = GetCapsuleComponent(); IsValid(MyCapsuleComponent))
 	{
-		AnimationComponent->PlayMontage(*DeathAnimation);
-		let MyMesh = GetMesh();
-		MyMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-		// MyMesh->SetAnimation(*DeathAnimation);
-		MyMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-		MyMesh->SetSimulatePhysics(true);
-		// GetWorld() | EUWorld::AsyncAfter{
-		// 	[this]
-		// 	{
-		// 		let MyMesh = GetMesh();
-		// 		MyMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-		// 		MyMesh->SetSimulatePhysics(true);
-		// 	},
-		// 	0.2f
-		// };
+		MyCapsuleComponent->DestroyComponent();
 	}
+
+	let MyMesh = GetMesh();
+	MyMesh->SetMobility(EComponentMobility::Movable);
+	MyMesh->SetSimulatePhysics(true);
+	MyMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	MyMesh->SetCollisionProfileName(COLLISION_PROFILE_RAGDOLL);
 }
 
 void ACloud9Character::OnConstruction(const FTransform& Transform)
@@ -313,7 +305,7 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 		CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
 	}
 
-	if (let MyMesh = GetMesh(); IsValid(MyMesh) && not CameraTargetBoneName.IsNone())
+	if (let MyMesh = GetMesh(); IsValid(MyMesh) and not CameraTargetBoneName.IsNone())
 	{
 		let HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
 		log(Display, "Setup CameraBoom = %s", *HeadBoneLocation.ToString());
@@ -321,6 +313,35 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 
 		MyMesh->bCastDynamicShadow = true;
 		MyMesh->bAffectDynamicIndirectLighting = true;
+		MyMesh->SetCollisionProfileName(COLLISION_PROFILE_HITBOX);
+
+#ifdef USE_PHYSICAL_ASSET_HITBOX
+		// TODO: Make same hit boxes for all character's type - currently disabled
+		let PhysicsAsset = MyMesh->GetPhysicsAsset();
+		for (let BodySetup : PhysicsAsset->SkeletalBodySetups)
+		{
+			let AggGeom = BodySetup->AggGeom;
+			for (let& Capsule : AggGeom.SphylElems)
+			{
+				let HitBox = NewObject<UCapsuleComponent>(
+					MyMesh,
+					UCapsuleComponent::StaticClass(),
+					Capsule.GetName());
+		
+				HitBox->RegisterComponent();
+				HitBox->AttachToComponent(MyMesh, FAttachmentTransformRules::KeepRelativeTransform, Capsule.GetName());
+		
+				HitBox->SetCapsuleSize(
+					Capsule.GetScaledRadius(Transform.GetScale3D()),
+					Capsule.GetScaledHalfLength(Transform.GetScale3D()));
+				HitBox->SetRelativeTransform(Capsule.GetTransform());
+				HitBox->SetCollisionProfileName(TRACE_HITBOX);
+				HitBox->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+		
+				log(Error, "Hitbox registered = %s [%f]", *HitBox->GetName(), HitBox->GetUnscaledCapsuleRadius());
+			}
+		}
+#endif
 	}
 }
 
