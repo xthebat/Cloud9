@@ -27,6 +27,7 @@
 
 // TODO: should be reworked somehow ... TRACE_CHANNEL
 #define TRACE_CHANNEL ECC_Visibility
-#define TRACE_HITBOX "Hitbox"
+#define COLLISION_PROFILE_HITBOX "Hitbox"
+#define COLLISION_PROFILE_RAGDOLL "Ragdoll"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCloud9, Log, All);

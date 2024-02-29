@@ -114,11 +114,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float ViewVerticalRotation;
 
-	UPROPERTY(EditDefaultsOnly, Category=Animation)
-	TArray<UAnimMontage*> DeathAnimations;
-
 private:
-	// TODO: Move to GameInstance
+	// TODO: Move to decals asset
 	UPROPERTY(EditDefaultsOnly)
 	UMaterial* CursorDecal;
 
