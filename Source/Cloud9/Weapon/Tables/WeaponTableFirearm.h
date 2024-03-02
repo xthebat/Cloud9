@@ -193,7 +193,7 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	float PenetrationPower = 1.0f;
 
 	/**
-	 * Damage is multiplied by 'RangeModifier ^ (Distance(u)/500u)'
+	 * Damage is multiplied by 'RangeModifier ^ (Distance(u)/1000u)'
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
 		meta=(UIMin="0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
@@ -204,7 +204,28 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
 		meta=(UIMin="0", UIMax="100", ClampMin="0", ClampMax="100"))
-	float HeadshotMultiplier = 1.0f;
+	float HeadshotMultiplier = 4.0f;
+
+	/**
+	 * The amount damage is multiplied for body and arms shots
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
+		meta=(UIMin="0", UIMax="100", ClampMin="0", ClampMax="100"))
+	float UpperBodyMultiplier = 1.0f;
+
+	/**
+	 * The amount damage is multiplied for shot in pelvis part of body
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
+		meta=(UIMin="0", UIMax="100", ClampMin="0", ClampMax="100"))
+	float LowerBodyMultiplier = 1.25f;
+
+	/**
+	 * The amount damage is multiplied for shot in any part of legs
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
+		meta=(UIMin="0", UIMax="100", ClampMin="0", ClampMax="100"))
+	float LegMultiplier = 0.75f;
 
 	/**
 	 * Maximum fire weapon range (no any impact after this distance)

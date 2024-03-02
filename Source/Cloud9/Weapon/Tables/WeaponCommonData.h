@@ -32,8 +32,17 @@ struct FFirearmCommonData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage)
-	float ImpulseMultiplier = 50.0f;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
+		meta=(UIMin="0", UIMax="500", ClampMin="0", ClampMax="500"))
+	float ImpulseMultiplier = 250.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
+		meta=(UIMin="0", UIMax="40000", ClampMin="0", ClampMax="40000"))
+	float MinAppliedImpulse = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
+		meta=(UIMin="0", UIMax="40000", ClampMin="0", ClampMax="40000"))
+	float MaxAppliedImpulse = 20000.0f;
 
 	/**
 	 * Alpha coefficient to fixup hit-scan registration.

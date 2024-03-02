@@ -31,6 +31,7 @@
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Character/Components/Cloud9AnimationComponent.h"
 #include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
+#include "Cloud9/Character/Damages/GrenadeDamageType.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
@@ -274,7 +275,7 @@ bool ACloud9WeaponGrenade::OnGrenadeActionLoop()
 		GetWeaponInfo()->Damage,
 		GetActorLocation(),
 		Explosion->Radius,
-		UDamageType::StaticClass(),
+		UGrenadeDamageType::StaticClass(),
 		IgnoredActors,
 		this,
 		InstigatorController,

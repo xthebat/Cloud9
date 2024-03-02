@@ -35,6 +35,7 @@
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Character/Components/Cloud9AnimationComponent.h"
 #include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
+#include "Cloud9/Character/Damages/FirearmDamageType.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
@@ -430,20 +431,24 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 			Squib->SetAutoDestroy(true);
 		}
 
-		UGameplayStatics::ApplyPointDamage(
+		let Damage = UGameplayStatics::ApplyPointDamage(
 			LineHit.Actor.Get(),
 			WeaponInfo->Damage,
 			Direction,
 			LineHit,
 			GetInstigatorController(),
 			this,
-			UDamageType::StaticClass()
+			UFirearmDamageType::StaticClass()
 		);
 
 		if (Target.IsValid() and Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
 		{
-			let Velocity = WeaponInfo->Damage * FirearmCommonData.ImpulseMultiplier * Direction;
-			Target->AddImpulseAtLocation(Velocity, LineHit.Location, LineHit.BoneName);
+			let Impulse = FMath::Clamp(
+				Damage * FirearmCommonData.ImpulseMultiplier,
+				FirearmCommonData.MinAppliedImpulse,
+				FirearmCommonData.MaxAppliedImpulse);
+			log(Display, "[Weapon='%s'] Damage=%f Impulse=%f", *GetName(), Damage, Impulse);
+			Target->AddImpulseAtLocation(Direction * Impulse, LineHit.Location, LineHit.BoneName);
 		}
 
 		return EFirearmFireStatus::Success;

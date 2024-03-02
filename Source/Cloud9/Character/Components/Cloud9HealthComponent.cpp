@@ -23,12 +23,46 @@ void UCloud9HealthComponent::Initialize(FHealthConfig Config)
 
 bool UCloud9HealthComponent::TakeHealthDamage(float Change)
 {
-	return ChangeHealth(Health - Change);
+	if (Change >= 0.0f)
+	{
+		return ChangeHealth(Health - Change);
+	}
+
+	log(Warning, "Can't increase health using this method Change=%f", Change);
+	return false;
 }
 
 bool UCloud9HealthComponent::TakeArmorDamage(float Change)
 {
-	return ChangeArmor(Armor - Change);
+	if (Change >= 0.0f)
+	{
+		return ChangeArmor(Armor - Change);
+	}
+
+	log(Warning, "Can't increase armor using this method Change=%f", Change);
+	return false;
+}
+
+bool UCloud9HealthComponent::IncreaseHealth(float Change)
+{
+	if (Change >= 0.0f)
+	{
+		return ChangeHealth(Health + Change);
+	}
+
+	log(Warning, "Can't decimante health using this method Change=%f", Change);
+	return false;
+}
+
+bool UCloud9HealthComponent::IncreaseArmor(float Change)
+{
+	if (Change >= 0.0f)
+	{
+		return ChangeArmor(Health + Change);
+	}
+
+	log(Warning, "Can't decimante armor using this method Change=%f", Change);
+	return false;
 }
 
 bool UCloud9HealthComponent::ChangeHealth(float NewHealth)
@@ -132,7 +166,7 @@ void UCloud9HealthComponent::OnTakePointDamage(
 	const UDamageType* DamageType,
 	AActor* DamageCauser)
 {
-	TakeHealthDamage(Damage); // TODO: Add factor by armor
+	TakeHealthDamage(Damage);
 	TakeArmorDamage(0.0f); // TODO: Add armor damage calc
 	AddAttackerScore(InstigatedBy);
 }
@@ -146,7 +180,7 @@ void UCloud9HealthComponent::OnTakeRadialDamage(
 	AController* InstigatedBy,
 	AActor* DamageCauser)
 {
-	TakeHealthDamage(Damage); // TODO: Add factor by armor
+	TakeHealthDamage(Damage);
 	TakeArmorDamage(0.0f); // TODO: Add armor damage calc
 	AddAttackerScore(InstigatedBy);
 }

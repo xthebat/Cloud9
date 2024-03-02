@@ -52,6 +52,9 @@ public:
 	bool TakeHealthDamage(float Change);
 	bool TakeArmorDamage(float Change);
 
+	bool IncreaseHealth(float Change);
+	bool IncreaseArmor(float Change);
+
 	// Helmet is permanent(?)
 	bool ChangeHasHelmet(bool NewState);
 
