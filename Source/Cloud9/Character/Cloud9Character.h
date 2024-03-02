@@ -54,6 +54,7 @@ public:
 	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
 	virtual void OnConstruction(const FTransform& Transform) override;
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
 	/** Returns TopDownCameraComponent subobject **/
@@ -110,14 +111,40 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void OnCharacterDie(AActor* Actor);
 
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float ViewVerticalRotation;
+	virtual float InternalTakePointDamage(
+		float Damage,
+		const FPointDamageEvent& PointDamageEvent,
+		AController* EventInstigator,
+		AActor* DamageCauser) override;
 
 private:
+	/**
+	 * Time after which character will be destroyed after death
+	 */
+	UPROPERTY(EditAnywhere, Category=Config)
+	float DestroyAfterTime;
+
+	UPROPERTY(EditDefaultsOnly, Category=Config, meta=(AllowPrivateAccess))
+	TSet<FName> HeadBoneNames;
+
+	UPROPERTY(EditDefaultsOnly, Category=Config, meta=(AllowPrivateAccess))
+	TSet<FName> UpperBodyBoneNames;
+
+	UPROPERTY(EditDefaultsOnly, Category=Config, meta=(AllowPrivateAccess))
+	TSet<FName> LowerBodyBoneNames;
+
+	UPROPERTY(EditDefaultsOnly, Category=Config, meta=(AllowPrivateAccess))
+	TSet<FName> LegsBoneNames;
+
 	// TODO: Move to decals asset
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category=Crosshair, meta=(AllowPrivateAccess))
 	UMaterial* CursorDecal;
+
+	UPROPERTY(EditDefaultsOnly, Category=Crosshair, meta=(AllowPrivateAccess))
+	FVector CursorSize;
+
+	UPROPERTY(EditDefaultsOnly, Category=Camera)
+	float ViewVerticalRotation;
 
 	/** A decal that projects to the cursor location. */
 	UPROPERTY(EditDefaultsOnly, Category=Camera, meta=(AllowPrivateAccess))
@@ -140,14 +167,14 @@ private:
 	UCloud9InventoryComponent* InventoryComponent;
 
 	/** A state of the character health and armor. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
 	UCloud9HealthComponent* HealthComponent;
-
-	/** Current number of frags made by character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
-	int Score;
 
 	/** Helper to play animation montages for character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Utility, meta=(AllowPrivateAccess))
 	UCloud9AnimationComponent* AnimationComponent;
+
+	/** Current number of frags made by character */
+	UPROPERTY(BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	int Score;
 };

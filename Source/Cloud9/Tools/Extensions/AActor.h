@@ -84,9 +84,9 @@ namespace EAActor
 			assertf(Self != nullptr, "Actor should not be nullptr");
 
 			// May be not needed?
-			if (Self->IsPendingKillPending())
+			if (Self->IsPendingKill())
 			{
-				log(Verbose, "[Actor='%s'] Already waiting it's death", *Self->GetName())
+				log(Warning, "[Actor='%s'] Already waiting it's death", *Self->GetName())
 				return {};
 			}
 

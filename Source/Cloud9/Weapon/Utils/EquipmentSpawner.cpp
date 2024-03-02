@@ -33,13 +33,13 @@ bool AEquipmentSpawner::ActivateSpawner(ACloud9Character* Character)
 
 		var Activated = false;
 
-		if (bChangeHealth and HealthComponent->TakeHealthDamage(-Health))
+		if (bChangeHealth and HealthComponent->IncreaseHealth(Health))
 		{
 			bHealthActivated = true;
 			Activated = true;
 		}
 
-		if (bChangeArmor and HealthComponent->TakeArmorDamage(-Armor))
+		if (bChangeArmor and HealthComponent->IncreaseArmor(Armor))
 		{
 			bArmorActivated = true;
 			Activated = true;

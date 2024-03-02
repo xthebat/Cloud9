@@ -41,6 +41,7 @@
 #include "Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Character/Components/Cloud9CharacterMovement.h"
 #include "Cloud9/Character/Components/Cloud9SpringArmComponent.h"
+#include "Cloud9/Tools/Extensions/AActor.h"
 #include "Components/Cloud9HealthComponent.h"
 #include "Components/Cloud9AnimationComponent.h"
 
@@ -59,11 +60,14 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	constexpr float CharacterRotationYaw = -90.0f;
 	constexpr float CharacterCameraBoomYaw = -60.0f;
 	constexpr float CharacterJumpZVelocity = 320.0f;
+	constexpr float CharacterCrosshairRotationPitch = -90.0f;
 	constexpr ECanBeCharacterBase CanStepUpOn = ECB_Yes;
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
+
+	DestroyAfterTime = 10.0f;
 
 	let MyCapsuleComponent = GetCapsuleComponent();
 	MyCapsuleComponent->InitCapsuleSize(CharacterRadius, CharacterHeight);
@@ -92,6 +96,14 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	// Create a decal in the world to show the cursor's location
 	CursorToWorld = CreateDefaultSubobject<UDecalComponent>(DecalComponentName);
 	CursorToWorld->SetupAttachment(RootComponent);
+	CursorSize = {16.0f, 32.0f, 32.0f};
+	CursorToWorld->SetRelativeLocation({
+			0.0f,
+			0.0f,
+			-MyCapsuleComponent->GetScaledCapsuleHalfHeight()
+		}
+	);
+	CursorToWorld->SetRelativeRotation({CharacterCrosshairRotationPitch, 0.0, 0.0f});
 
 	InventoryComponent = CreateDefaultSubobject<UCloud9InventoryComponent>(InventoryComponentName);
 	HealthComponent = CreateDefaultSubobject<UCloud9HealthComponent>(HealthComponentName);
@@ -212,7 +224,6 @@ void ACloud9Character::SetCameraRotationYaw(float Angle) const
 {
 	var Rotation = CameraBoom->GetRelativeRotation();
 	Rotation.Yaw = Angle;
-	log(Display, "SetRelativeRotation Pitch: %s", *Rotation.ToString());
 	CameraBoom->SetRelativeRotation(Rotation);
 }
 
@@ -231,13 +242,12 @@ void ACloud9Character::SetCameraRotationRoll(float Angle) const
 {
 	var Rotation = CameraBoom->GetRelativeRotation();
 	Rotation.Pitch = -Angle;
-	log(Verbose, "SetRelativeRotation Yaw: %s", *Rotation.ToString());
 	CameraBoom->SetRelativeRotation(Rotation);
 }
 
 void ACloud9Character::SetCursorIsHidden(bool Hidden) const
 {
-	CursorToWorld->SetHiddenInGame(Hidden || !IsValid(CursorDecal));
+	CursorToWorld->SetHiddenInGame(Hidden or not IsValid(CursorDecal));
 }
 
 float ACloud9Character::GetCameraZoomHeight() const
@@ -278,18 +288,75 @@ void ACloud9Character::OnCharacterDie(AActor* Actor)
 		MyCapsuleComponent->DestroyComponent();
 	}
 
+	// TODO: Clean up timers tethered with character
+	// TODO: Drop the most expensive weapon
+
 	let MyMesh = GetMesh();
 	MyMesh->SetMobility(EComponentMobility::Movable);
 	MyMesh->SetSimulatePhysics(true);
 	MyMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	MyMesh->SetCollisionProfileName(COLLISION_PROFILE_RAGDOLL);
+	this | EAActor::DestroyAfter{DestroyAfterTime};
+}
+
+constexpr let RangeExponentCoefficient = 1e-6f;
+constexpr let ArmorCoefficient = 0.5f;
+
+float ACloud9Character::InternalTakePointDamage(
+	float Damage,
+	const FPointDamageEvent& PointDamageEvent,
+	AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	let BoneName = PointDamageEvent.HitInfo.BoneName;
+	Damage = Super::InternalTakePointDamage(Damage, PointDamageEvent, EventInstigator, DamageCauser);
+
+	let Armor = HealthComponent->GetArmor();
+
+	if (let Weapon = Cast<ACloud9WeaponFirearm>(DamageCauser))
+	{
+		let WeaponInfo = Weapon->GetWeaponInfo();
+
+		bool HitInArmor = false;
+
+		if (HeadBoneNames.Contains(BoneName))
+		{
+			Damage *= WeaponInfo->HeadshotMultiplier;
+			HitInArmor = true;
+		}
+		else if (UpperBodyBoneNames.Contains(BoneName))
+		{
+			Damage *= WeaponInfo->UpperBodyMultiplier;
+			HitInArmor = true;
+		}
+		else if (LowerBodyBoneNames.Contains(BoneName))
+		{
+			Damage *= WeaponInfo->LowerBodyMultiplier;
+		}
+		else if (LegsBoneNames.Contains(BoneName))
+		{
+			Damage *= WeaponInfo->LegMultiplier;
+		}
+
+		if (Armor != 0.0f and HitInArmor)
+		{
+			Damage *= WeaponInfo->ArmorPenetration * ArmorCoefficient;
+		}
+
+		let Distance = FVector::DistSquared(DamageCauser->GetActorLocation(), GetActorLocation());
+		let RangeCoefficient = FMath::Pow(WeaponInfo->RangeModifier, Distance * RangeExponentCoefficient);
+		log(Display, "[Actor='%s'] Distance=%f RangeCoefficient=%f",
+		    *GetName(), FMath::Sqrt (Distance), RangeCoefficient)
+		Damage *= RangeCoefficient;
+	}
+
+	log(Display, "[Actor='%s'] BoneName=%s ApplyDamage=%f", *GetName(), *BoneName.ToString(), Damage);
+	return Damage;
 }
 
 void ACloud9Character::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-
-	log(Display, "Contruction transform %s", *Transform.ToString());
 
 	let Rotator = Transform.Rotator();
 
@@ -300,16 +367,18 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 
 	if (IsValid(CursorDecal))
 	{
-		log(Display, "Setup CursorDecal = %s", *CursorDecal->GetName());
 		CursorToWorld->SetDecalMaterial(CursorDecal);
-		CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
+		CursorToWorld->DecalSize = CursorSize;
 	}
 
-	if (let MyMesh = GetMesh(); IsValid(MyMesh) and not CameraTargetBoneName.IsNone())
+	if (let MyMesh = GetMesh(); IsValid(MyMesh))
 	{
-		let HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
-		log(Display, "Setup CameraBoom = %s", *HeadBoneLocation.ToString());
-		CameraBoom->SetWorldLocation(HeadBoneLocation);
+		if (not CameraTargetBoneName.IsNone() and IsPlayerControlled())
+		{
+			let HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
+			log(Display, "Setup CameraBoom = %s", *HeadBoneLocation.ToString());
+			CameraBoom->SetWorldLocation(HeadBoneLocation);
+		}
 
 		MyMesh->bCastDynamicShadow = true;
 		MyMesh->bAffectDynamicIndirectLighting = true;
@@ -342,6 +411,18 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 			}
 		}
 #endif
+	}
+}
+
+void ACloud9Character::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (not IsPlayerControlled())
+	{
+		CursorToWorld->Deactivate();
+		TopDownCameraComponent->Deactivate();
+		CameraBoom->Deactivate();
 	}
 }
 
