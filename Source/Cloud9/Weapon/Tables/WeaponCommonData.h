@@ -64,9 +64,6 @@ struct FFirearmCommonData
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
 	UNiagaraSystem* Tracer;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Visual)
-	UNiagaraSystem* Squib;
-
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Sound)
 	USoundBase* LowAmmoSound;
 

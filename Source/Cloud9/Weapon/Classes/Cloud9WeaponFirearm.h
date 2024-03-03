@@ -24,6 +24,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9/Physicals/Cloud9PhysicalMaterial.h"
 
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Enums/FirearmNames.h"
@@ -82,7 +83,6 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 
 	EFirearmFireStatus Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData);
-	TOptional<FHitResult> HitScan(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData);
 	bool UpdateReloadAmmo(bool IsShotgun);
 
 	bool UpdateMagazineAttachment(bool IsReload);

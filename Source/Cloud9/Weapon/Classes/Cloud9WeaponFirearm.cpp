@@ -37,10 +37,12 @@
 #include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Character/Damages/FirearmDamageType.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
+#include "Cloud9/Physicals/Cloud9PhysicalMaterial.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 const FName ACloud9WeaponFirearm::TracerProbabilityParameterName = TEXT("Probability");
 const FName ACloud9WeaponFirearm::TracerDirectionParameterName = TEXT("Direction");
@@ -368,6 +370,8 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 
 	var CollisionParams = FCollisionQueryParams::DefaultQueryParam;
 
+	CollisionParams.bReturnPhysicalMaterial = true;
+
 	if (Settings->bIsDrawHitScan)
 	{
 		const FName TraceTag("HitScanTraceTag");
@@ -405,8 +409,6 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 
 	if (IsHit)
 	{
-		let Target = LineHit.Component;
-
 		let Direction = LineHit.Location - StartLocation | EFVector::Normalize{};
 
 		if (IsValid(FirearmCommonData.Tracer))
@@ -420,19 +422,16 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 			Tracer->SetAutoDestroy(true);
 		}
 
-		// TODO: Move Squibs to other asset
-		if (IsValid(FirearmCommonData.Squib))
+		let DamagedActor = Cast<AActor>(LineHit.Actor);
+
+		if (not IsValid(DamagedActor))
 		{
-			let Squib = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-				GetWorld(),
-				FirearmCommonData.Squib,
-				LineHit.Location,
-				LineHit.Normal.Rotation());
-			Squib->SetAutoDestroy(true);
+			log(Error, "[Weapon='%s'] Line trace got hit but target actor is invalid", *GetName());
+			return EFirearmFireStatus::Success;
 		}
 
 		let Damage = UGameplayStatics::ApplyPointDamage(
-			LineHit.Actor.Get(),
+			DamagedActor,
 			WeaponInfo->Damage,
 			Direction,
 			LineHit,
@@ -441,14 +440,59 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 			UFirearmDamageType::StaticClass()
 		);
 
-		if (Target.IsValid() and Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
+		if (let Target = LineHit.Component; Target.IsValid())
 		{
-			let Impulse = FMath::Clamp(
-				Damage * FirearmCommonData.ImpulseMultiplier,
-				FirearmCommonData.MinAppliedImpulse,
-				FirearmCommonData.MaxAppliedImpulse);
-			log(Display, "[Weapon='%s'] Damage=%f Impulse=%f", *GetName(), Damage, Impulse);
-			Target->AddImpulseAtLocation(Direction * Impulse, LineHit.Location, LineHit.BoneName);
+			if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
+			{
+				let Impulse = FMath::Clamp(
+					Damage * FirearmCommonData.ImpulseMultiplier,
+					FirearmCommonData.MinAppliedImpulse,
+					FirearmCommonData.MaxAppliedImpulse);
+				log(Display, "[Weapon='%s'] Damage=%f Impulse=%f", *GetName(), Damage, Impulse);
+				Target->AddImpulseAtLocation(Direction * Impulse, LineHit.Location, LineHit.BoneName);
+			}
+
+			let PhysicalMaterial = Cast<UCloud9PhysicalMaterial>(LineHit.PhysMaterial);
+
+			if (not IsValid(PhysicalMaterial))
+			{
+				log(
+					Warning,
+					"[Weapon='%s'] Invalid physical material for target '%s'",
+					*GetName(),
+					*DamagedActor->GetName()
+				);
+
+				return EFirearmFireStatus::Success;
+			}
+
+			log(Error, "Normal=%s Rotation=%s",
+			    *LineHit.Normal.ToString(),
+			    *LineHit.Normal.Rotation().ToString()
+			);
+
+			if (let FirearmSquib = PhysicalMaterial->GetRandomFirearmSquib(); IsValid(FirearmSquib))
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+					GetWorld(),
+					FirearmSquib,
+					LineHit.Location,
+					LineHit.Normal.Rotation(),
+					FVector::OneVector,
+					true);
+			}
+
+			if (let FirearmDecalMaterial = PhysicalMaterial->GetRandomFirearmDecal(); IsValid(FirearmDecalMaterial))
+			{
+				GetWorld() | EUWorld::SpawnDecal{
+					.Material = FirearmDecalMaterial,
+					.DecalSize = PhysicalMaterial->GetFirearmDecalSize(),
+					.Location = LineHit.Location,
+					.Rotator = PhysicalMaterial->GetFirearmDecalRotation(LineHit.Normal),
+					.Owner = DamagedActor,
+					.Instigator = Character
+				};
+			}
 		}
 
 		return EFirearmFireStatus::Success;
