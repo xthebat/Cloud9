@@ -26,6 +26,8 @@
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Macro/Operator.h"
+#include "Components/DecalComponent.h"
+#include "Engine/DecalActor.h"
 
 namespace Private_EUWorld
 {
@@ -40,7 +42,7 @@ namespace EUWorld
 		using FInitializerType = TFunction<bool(ClassType*)>;
 
 		FInitializerType Initializer;
-		const FTransform& Transform = {};
+		const FTransform& Transform{};
 		AActor* Owner = nullptr;
 		APawn* Instigator = nullptr;
 
@@ -57,6 +59,40 @@ namespace EUWorld
 
 		OPERATOR_BODY(SpawnActor)
 	};
+
+	struct SpawnDecal
+	{
+		UMaterialInterface* Material;
+		FVector DecalSize;
+		FVector Location;
+		FRotator Rotator;
+		float LifeSpan = 0.0f; // Disabled
+		AActor* Owner = nullptr;
+		APawn* Instigator = nullptr;
+
+		FORCEINLINE ADecalActor* operator()(UWorld* Self) const
+		{
+			FActorSpawnParameters Parameters;
+			Parameters.Owner = Owner;
+			Parameters.Instigator = Instigator;
+
+			if (let Actor = Self->SpawnActor<ADecalActor>(ADecalActor::StaticClass(), Location, Rotator, Parameters))
+			{
+				if (let Decal = Actor->GetDecal(); IsValid(Decal))
+				{
+					Decal->SetDecalMaterial(Material);
+					Decal->SetLifeSpan(LifeSpan);
+					Decal->DecalSize = DecalSize;
+					return Actor;
+				}
+			}
+
+			return nullptr;
+		}
+
+		OPERATOR_BODY(SpawnDecal)
+	};
+
 
 	template <typename BlockType>
 	struct AsyncAfter

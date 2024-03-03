@@ -14,6 +14,7 @@ public class Cloud9 : ModuleRules
 			"CoreUObject",
 			"Engine",
 			"InputCore",
+			"PhysicsCore",
 			"HeadMountedDisplay",
 			"NavigationSystem",
 			"DeveloperSettings",
