@@ -468,16 +468,59 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 						true);
 				}
 
-				if (let FirearmDecalMaterial = PhysicalMaterial->GetRandomFirearmDecal(); IsValid(FirearmDecalMaterial))
+				if (let HitDecal = PhysicalMaterial->GetRandomFirearmDecal(); IsValid(HitDecal))
 				{
 					GetWorld() | EUWorld::SpawnDecal{
-						.Material = FirearmDecalMaterial,
+						.Material = HitDecal,
 						.DecalSize = PhysicalMaterial->GetFirearmDecalSize(),
 						.Location = LineHit.Location,
 						.Rotator = PhysicalMaterial->GetFirearmDecalRotation(LineHit.Normal),
 						.Owner = DamagedActor,
 						.Instigator = Character
 					};
+				}
+
+				if (let BackgroundDecal = PhysicalMaterial->GetRandomBackgroundDecal(); IsValid(BackgroundDecal))
+				{
+					if (PhysicalMaterial->TestBackgroundDecalProbability())
+					{
+						var BackgroundCollisionParams = FCollisionQueryParams::DefaultQueryParam;
+						BackgroundCollisionParams.AddIgnoredActor(DamagedActor);
+
+						let StartBackgroundLocation = LineHit.Location;
+						let EndBackgroundLocation = FMath::Lerp(
+							FVector{StartBackgroundLocation},
+							StartBackgroundLocation + Direction,
+							PhysicalMaterial->GetBackgroundDecalMaxDistance());
+
+						FHitResult BackgroundHit;
+						let IsBackgroundHit = GetWorld()->LineTraceSingleByChannel(
+							BackgroundHit,
+							StartBackgroundLocation,
+							EndBackgroundLocation,
+							TRACE_CHANNEL,
+							BackgroundCollisionParams);
+
+						if (IsBackgroundHit)
+						{
+							let BackgroundActor = LineHit.Actor.Get();
+							if (not IsValid(BackgroundActor))
+							{
+								log(Error, "[Weapon='%s'] Background actor is invalid on hit", *GetName());
+								return EFirearmFireStatus::Success;
+							}
+
+							GetWorld() | EUWorld::SpawnDecal{
+								.Material = BackgroundDecal,
+								.DecalSize = PhysicalMaterial->GetBackgroundDecalSize(),
+								.Location = PhysicalMaterial->GetBackgroundDecalLocation(
+									BackgroundHit.Location, BackgroundHit.Normal),
+								.Rotator = PhysicalMaterial->GetBackgroundDecalRotation(BackgroundHit.Normal),
+								.Owner = BackgroundActor,
+								.Instigator = Character
+							};
+						}
+					}
 				}
 			}
 		}
