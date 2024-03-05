@@ -395,15 +395,18 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 		FString OwnerName = IsHit and LineHit.Component->GetOwner() != nullptr
 			                    ? *LineHit.Component->GetOwner()->GetName()
 			                    : TEXT("???");
+		FString PhysicalMaterial = LineHit.PhysMaterial.IsValid() ? *LineHit.PhysMaterial->GetName() : TEXT("???");
 
 		log(Display,
-		    "Target='%s' Owner='%s' Start={%s} End={%s} TraceEnd={%s} Hit={%s} ",
+		    "Target='%s' Owner='%s' Material='%s' Start={%s} End={%s} TraceEnd={%s} Hit={%s} Normal={%s}",
 		    *TargetName,
 		    *OwnerName,
+		    *PhysicalMaterial,
 		    *StartLocation.ToString(),
 		    *EndLocation.ToString(),
 		    *LineHit.TraceEnd.ToString(),
-		    *LineHit.Location.ToString()
+		    *LineHit.Location.ToString(),
+		    *LineHit.Normal.ToString()
 		);
 	}
 
@@ -448,50 +451,34 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 					Damage * FirearmCommonData.ImpulseMultiplier,
 					FirearmCommonData.MinAppliedImpulse,
 					FirearmCommonData.MaxAppliedImpulse);
-				log(Display, "[Weapon='%s'] Damage=%f Impulse=%f", *GetName(), Damage, Impulse);
+				log(Verbose, "[Weapon='%s'] Damage=%f Impulse=%f", *GetName(), Damage, Impulse);
 				Target->AddImpulseAtLocation(Direction * Impulse, LineHit.Location, LineHit.BoneName);
 			}
 
-			let PhysicalMaterial = Cast<UCloud9PhysicalMaterial>(LineHit.PhysMaterial);
-
-			if (not IsValid(PhysicalMaterial))
+			if (let PhysicalMaterial = Cast<UCloud9PhysicalMaterial>(LineHit.PhysMaterial); IsValid(PhysicalMaterial))
 			{
-				log(
-					Warning,
-					"[Weapon='%s'] Invalid physical material for target '%s'",
-					*GetName(),
-					*DamagedActor->GetName()
-				);
+				if (let FirearmSquib = PhysicalMaterial->GetRandomFirearmSquib(); IsValid(FirearmSquib))
+				{
+					UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+						GetWorld(),
+						FirearmSquib,
+						LineHit.Location,
+						LineHit.Normal.Rotation(),
+						FVector::OneVector,
+						true);
+				}
 
-				return EFirearmFireStatus::Success;
-			}
-
-			log(Error, "Normal=%s Rotation=%s",
-			    *LineHit.Normal.ToString(),
-			    *LineHit.Normal.Rotation().ToString()
-			);
-
-			if (let FirearmSquib = PhysicalMaterial->GetRandomFirearmSquib(); IsValid(FirearmSquib))
-			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-					GetWorld(),
-					FirearmSquib,
-					LineHit.Location,
-					LineHit.Normal.Rotation(),
-					FVector::OneVector,
-					true);
-			}
-
-			if (let FirearmDecalMaterial = PhysicalMaterial->GetRandomFirearmDecal(); IsValid(FirearmDecalMaterial))
-			{
-				GetWorld() | EUWorld::SpawnDecal{
-					.Material = FirearmDecalMaterial,
-					.DecalSize = PhysicalMaterial->GetFirearmDecalSize(),
-					.Location = LineHit.Location,
-					.Rotator = PhysicalMaterial->GetFirearmDecalRotation(LineHit.Normal),
-					.Owner = DamagedActor,
-					.Instigator = Character
-				};
+				if (let FirearmDecalMaterial = PhysicalMaterial->GetRandomFirearmDecal(); IsValid(FirearmDecalMaterial))
+				{
+					GetWorld() | EUWorld::SpawnDecal{
+						.Material = FirearmDecalMaterial,
+						.DecalSize = PhysicalMaterial->GetFirearmDecalSize(),
+						.Location = LineHit.Location,
+						.Rotator = PhysicalMaterial->GetFirearmDecalRotation(LineHit.Normal),
+						.Owner = DamagedActor,
+						.Instigator = Character
+					};
+				}
 			}
 		}
 

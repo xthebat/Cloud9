@@ -66,7 +66,8 @@ namespace EUWorld
 		FVector DecalSize;
 		FVector Location;
 		FRotator Rotator;
-		float LifeSpan = 0.0f; // Disabled
+		float LifeSpan = 20.0f;
+		float FadeScreenSize = 0.001f;
 		AActor* Owner = nullptr;
 		APawn* Instigator = nullptr;
 
@@ -82,6 +83,7 @@ namespace EUWorld
 				{
 					Decal->SetDecalMaterial(Material);
 					Decal->SetLifeSpan(LifeSpan);
+					Decal->SetFadeScreenSize(FadeScreenSize);
 					Decal->DecalSize = DecalSize;
 					return Actor;
 				}

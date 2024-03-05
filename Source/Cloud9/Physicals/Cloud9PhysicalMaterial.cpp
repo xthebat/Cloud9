@@ -20,10 +20,15 @@ FVector UCloud9PhysicalMaterial::GetFirearmDecalSize() const { return FirearmDec
 
 FRotator UCloud9PhysicalMaterial::GetFirearmDecalRotation(FVector Normal) const
 {
+	constexpr float DecalVPitch = 90.0f;
+	constexpr float DecalVRoll = -180.0f;
+	constexpr float DecalHYaw = 90.0f;
+	constexpr float DecalHRoll = -90.0;
+
 	let RandomRotation = FMath::RandRange(FirearmDecalRotationMin, FirearmDecalRotationMax);
 	let BaseRotation = Normal.Rotation();
 	let CorrectiveRotation = FMath::IsNearlyEqual(Normal.Z, 1.0f, 0.1f)
-		                         ? FRotator{DecalRotationPitchOrRoll, DecalRotationYaw, RandomRotation}
-		                         : FRotator{RandomRotation, DecalRotationYaw, DecalRotationPitchOrRoll};
+		                         ? FRotator{DecalVPitch, RandomRotation, DecalVRoll}
+		                         : FRotator{RandomRotation, DecalHYaw, DecalHRoll};
 	return BaseRotation + CorrectiveRotation;
 }

@@ -345,12 +345,16 @@ float ACloud9Character::InternalTakePointDamage(
 
 		let Distance = FVector::DistSquared(DamageCauser->GetActorLocation(), GetActorLocation());
 		let RangeCoefficient = FMath::Pow(WeaponInfo->RangeModifier, Distance * RangeExponentCoefficient);
-		log(Display, "[Actor='%s'] Distance=%f RangeCoefficient=%f",
-		    *GetName(), FMath::Sqrt (Distance), RangeCoefficient)
+
+		log(Verbose, "[Actor='%s'] Distance=%f RangeCoefficient=%f",
+		    *GetName(),
+		    FMath::Sqrt (Distance),
+		    RangeCoefficient)
+
 		Damage *= RangeCoefficient;
 	}
 
-	log(Display, "[Actor='%s'] BoneName=%s ApplyDamage=%f", *GetName(), *BoneName.ToString(), Damage);
+	log(Verbose, "[Actor='%s'] BoneName=%s ApplyDamage=%f", *GetName(), *BoneName.ToString(), Damage);
 	return Damage;
 }
 
