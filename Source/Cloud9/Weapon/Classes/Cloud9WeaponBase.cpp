@@ -385,7 +385,7 @@ bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant, bool Forc
 	}
 
 	if (let AnimComponent = Character->GetAnimationComponent();
-		not Force and AnimComponent->IsAnyMontagePlaying())
+		not Force and IsValid(AnimComponent) and AnimComponent->IsAnyMontagePlaying())
 	{
 		log(Verbose, "[Weapon='%s' Bond='%s'] Montage is playing now", *GetName(), BOND_NAME);
 		return false;

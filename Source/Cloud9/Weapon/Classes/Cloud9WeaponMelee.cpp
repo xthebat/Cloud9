@@ -80,6 +80,9 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 
 	let Character = GetOwner<ACloud9Character>();
 	let AnimComponent = Character->GetAnimationComponent();
+
+	WEAPON_ANIM_COMPONENT_GUARD();
+
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 

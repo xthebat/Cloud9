@@ -157,6 +157,9 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 
 	let Character = GetOwner<ACloud9Character>();
 	let AnimComponent = Character->GetAnimationComponent();
+
+	WEAPON_ANIM_COMPONENT_GUARD();
+
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 
 	if (WeaponState.IsActionActive(EWeaponAction::Deploy))

@@ -39,6 +39,15 @@ UCloud9InventoryComponent::UCloud9InventoryComponent()
 	WeaponSlots.SetNum(SlotsNumber);
 }
 
+void UCloud9InventoryComponent::OnUnregister()
+{
+	Super::OnUnregister();
+	// TODO: Drop the most expensive weapon when owner died but for now just destroy all items
+	WeaponSlots
+		| ETContainer::Filter{[](let It) { return It != nullptr; }}
+		| ETContainer::ForEach{[](let It) { It->Destroy(); }};
+}
+
 bool UCloud9InventoryComponent::Initialize(const TArray<FWeaponConfig>& WeaponConfigs, EWeaponSlot WeaponSlot)
 {
 	WeaponConfigs

@@ -50,6 +50,8 @@ class CLOUD9_API UCloud9InventoryComponent : public UActorComponent
 public:
 	UCloud9InventoryComponent();
 
+	virtual void OnUnregister() override;
+
 	bool Initialize(const TArray<FWeaponConfig>& WeaponConfigs, EWeaponSlot WeaponSlot);
 
 	/**
