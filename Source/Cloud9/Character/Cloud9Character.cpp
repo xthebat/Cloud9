@@ -220,6 +220,11 @@ void ACloud9Character::SetViewDirection(const TOptional<FHitResult>& HitResult)
 	}
 }
 
+void ACloud9Character::SetDestroyAfter(float NewTime)
+{
+	DestroyAfterTime = NewTime;
+}
+
 void ACloud9Character::SetCameraRotationYaw(float Angle) const
 {
 	var Rotation = CameraBoom->GetRelativeRotation();

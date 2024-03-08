@@ -75,6 +75,9 @@ public:
 	void SetViewDirection(const TOptional<FHitResult>& HitResult);
 
 	UFUNCTION(BlueprintCallable)
+	void SetDestroyAfter(float NewTime);
+
+	UFUNCTION(BlueprintCallable)
 	float GetViewVerticalRotation() const { return ViewVerticalRotation; }
 
 	void SetCameraRotationYaw(float Angle) const;
