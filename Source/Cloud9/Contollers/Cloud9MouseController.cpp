@@ -53,6 +53,8 @@ UCloud9MouseController::UCloud9MouseController()
 
 	CameraRotationBase = FVector2D::ZeroVector;
 	IsMouseRotationMode = false;
+
+	bIsLastCrosshairLocationValid = false;
 }
 
 FVector2D UCloud9MouseController::GetMousePosition() const
@@ -113,7 +115,7 @@ void UCloud9MouseController::SetCameraZoomLevel(float Value) const
 // ReSharper disable once CppMemberFunctionMayBeConst
 void UCloud9MouseController::OnCharacterMove() { ProcessCharacterView(); }
 
-void UCloud9MouseController::ProcessCharacterView() const
+void UCloud9MouseController::ProcessCharacterView()
 {
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
@@ -126,7 +128,17 @@ void UCloud9MouseController::ProcessCharacterView() const
 				true,
 				ActorsToIgnore
 			};
-			Pawn->SetViewDirection(CursorHit);
+
+			if (CursorHit.IsSet())
+			{
+				LastCrosshairLocation = CursorHit->Location;
+				bIsLastCrosshairLocationValid = true;
+				Pawn->SetViewDirection(CursorHit);
+			}
+			else
+			{
+				bIsLastCrosshairLocationValid = true;
+			}
 		}
 	}
 }

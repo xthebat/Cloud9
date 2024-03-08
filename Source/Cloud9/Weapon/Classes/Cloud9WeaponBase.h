@@ -225,6 +225,13 @@ protected: // functions
 		return; \
 	}
 
+#define WEAPON_ANIM_COMPONENT_GUARD() \
+	if (not IsValid(AnimComponent)) \
+	{ \
+		log(Warning, "[Weapon='%s'] AnimComponent isn't valid", *GetName()); \
+		return; \
+	}
+
 #define WEAPON_IS_ACTION_IN_PROGRESS_GUARD() \
 	if (IsActionInProgress()) \
 	{ \

@@ -55,7 +55,7 @@ const FName ACloud9Character::AnimationComponentName = TEXT("AnimationComponent"
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
 {
-	constexpr float CharacterHeight = 72.0f;
+	constexpr float CharacterHeight = 144.0f;
 	constexpr float CharacterRadius = 32.0f;
 	constexpr float CharacterRotationYaw = -90.0f;
 	constexpr float CharacterCameraBoomYaw = -60.0f;
@@ -70,7 +70,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	DestroyAfterTime = 10.0f;
 
 	let MyCapsuleComponent = GetCapsuleComponent();
-	MyCapsuleComponent->InitCapsuleSize(CharacterRadius, CharacterHeight);
+	MyCapsuleComponent->InitCapsuleSize(CharacterRadius, CharacterHeight / 2.0f);
 	MyCapsuleComponent->CanCharacterStepUpOn = CanStepUpOn;
 
 	let Movement = GetCharacterMovement();
@@ -90,7 +90,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	USkeletalMeshComponent* MyMesh = GetMesh();
-	MyMesh->SetRelativeLocation({0.0f, 0.0f, -CharacterHeight});
+	MyMesh->SetRelativeLocation({0.0f, 0.0f, -MyCapsuleComponent->GetScaledCapsuleHalfHeight()});
 	MyMesh->SetRelativeRotation({0.0f, CharacterRotationYaw, 0.0f});
 
 	// Create a decal in the world to show the cursor's location
@@ -264,11 +264,7 @@ UCloud9InventoryComponent* ACloud9Character::GetInventoryComponent() const { ret
 
 UCloud9HealthComponent* ACloud9Character::GetHealthComponent() const { return HealthComponent; }
 
-UCloud9AnimationComponent* ACloud9Character::GetAnimationComponent() const
-{
-	assertf(IsValid(AnimationComponent), "AnimationComponent isn't valid")
-	return AnimationComponent;
-}
+UCloud9AnimationComponent* ACloud9Character::GetAnimationComponent() const { return AnimationComponent; }
 
 void ACloud9Character::AddScore()
 {

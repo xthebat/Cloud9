@@ -67,7 +67,7 @@ protected:
 	float GetCameraZoomHeightLevel() const;
 	void SetCameraZoomLevel(float Value) const;
 
-	void ProcessCharacterView() const;
+	void ProcessCharacterView();
 	void ProcessCameraRotation();
 	void ProcessCameraZoom(float DeltaTime);
 
@@ -106,6 +106,12 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = Smooth, meta=(AllowPrivateAccess))
 	float CameraZoomSmoothSpeed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	FVector LastCrosshairLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	bool bIsLastCrosshairLocationValid;
 
 	FVector2D CameraRotationBase;
 	float TargetCameraZoomLevel;

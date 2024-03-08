@@ -136,6 +136,9 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 	let Character = GetOwner<ACloud9Character>(); // suppose weapon has owner cus we pass bond guard
 	let AnimComponent = Character->GetAnimationComponent();
+
+	WEAPON_ANIM_COMPONENT_GUARD();
+
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 	let CommonData = WeaponDefinition.GetCommonData();
