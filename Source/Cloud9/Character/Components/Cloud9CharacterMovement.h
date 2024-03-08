@@ -57,13 +57,15 @@ public:
 		FActorComponentTickFunction* ThisTickFunction
 	) override;
 
+protected:
+	/** Target rotator of character*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State)
+	FRotator TargetRotator;
+
 private:
 	static constexpr float RotationLagScale = 360.0f;
 
 	/** Character rotation lag*/
-	UPROPERTY(Category="Character Movement (Rotation Settings)", EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category=Config)
 	float RotationLag;
-
-	/** Target rotator of character*/
-	FRotator TargetRotator;
 };
