@@ -64,6 +64,7 @@ bool AEquipmentSpawner::CanBeDestroyed() const
 		not(bHelmetActivated xor bHelmet);
 }
 
+#if WITH_EDITOR
 void AEquipmentSpawner::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -74,5 +75,6 @@ void AEquipmentSpawner::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 		bHelmet = false;
 	}
 }
+#endif
 
 AActor* AEquipmentSpawner::CreateChildActor() { return InitializeStaticMeshSample(SampleMesh); }

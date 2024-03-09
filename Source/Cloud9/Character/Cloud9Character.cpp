@@ -44,6 +44,7 @@
 #include "Cloud9/Tools/Extensions/AActor.h"
 #include "Components/Cloud9HealthComponent.h"
 #include "Components/Cloud9AnimationComponent.h"
+#include "Components/WidgetInteractionComponent.h"
 
 const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
 const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");
@@ -51,6 +52,7 @@ const FName ACloud9Character::DecalComponentName = TEXT("CursorToWorld");
 const FName ACloud9Character::InventoryComponentName = TEXT("InventoryComponent");
 const FName ACloud9Character::HealthComponentName = TEXT("HealthComponent");
 const FName ACloud9Character::AnimationComponentName = TEXT("AnimationComponent");
+const FName ACloud9Character::WidgetInteractionComponentName = TEXT("WidgetInteractionComponent");
 
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
@@ -108,6 +110,10 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	InventoryComponent = CreateDefaultSubobject<UCloud9InventoryComponent>(InventoryComponentName);
 	HealthComponent = CreateDefaultSubobject<UCloud9HealthComponent>(HealthComponentName);
 	AnimationComponent = CreateDefaultSubobject<UCloud9AnimationComponent>(AnimationComponentName);
+	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(WidgetInteractionComponentName);
+	WidgetInteractionComponent->SetupAttachment(RootComponent);
+	WidgetInteractionComponent->InteractionSource = EWidgetInteractionSource::Custom;
+	WidgetInteractionComponent->bShowDebug = false;
 
 	HealthComponent->OnCharacterDie.AddDynamic(this, &ACloud9Character::OnCharacterDie);
 
@@ -223,6 +229,11 @@ void ACloud9Character::SetViewDirection(const TOptional<FHitResult>& HitResult)
 void ACloud9Character::SetDestroyAfter(float NewTime)
 {
 	DestroyAfterTime = NewTime;
+}
+
+UWidgetInteractionComponent* ACloud9Character::GetWidgetInteractionComponent() const
+{
+	return WidgetInteractionComponent;
 }
 
 void ACloud9Character::SetCameraRotationYaw(float Angle) const

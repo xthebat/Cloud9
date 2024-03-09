@@ -11,11 +11,12 @@ FName ACloud9PracticeSpawner::ZoneComponentName = "ZoneComponentName";
 ACloud9PracticeSpawner::ACloud9PracticeSpawner()
 {
 	// Disable collision to remove firearms hit screen
-	SetActorEnableCollision(false);
+	// SetActorEnableCollision(false);
 	PrimaryActorTick.bCanEverTick = true;
 	ZoneComponent = CreateDefaultSubobject<UBoxComponent>(ZoneComponentName);
 	RootComponent = ZoneComponent;
 	ZoneSize = {100.0f, 100.0f, 100.0f};
+	ZoneComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MaxTargetsCount = 10;
 	GridSize = FVector::OneVector;
 	bIsEnabled = true;
@@ -37,11 +38,16 @@ float ACloud9PracticeSpawner::GetKillPerMinute() const
 
 void ACloud9PracticeSpawner::RestartShooting()
 {
+	for (let Actor : Actors)
+	{
+		Actor->OnDestroyed.RemoveAll(this);
+		Actor->Destroy();
+	}
+	Actors.Reset();
+	AddPracticeTargets();
 	bIsStarted = false;
 	Killed = 0;
 	TimeElapsed = 0.0f;
-	Actors.Empty();
-	AddPracticeTargets();
 	OnRestartShooting.Broadcast();
 }
 
@@ -84,10 +90,13 @@ void ACloud9PracticeSpawner::Tick(float DeltaTime)
 
 void ACloud9PracticeSpawner::OnChildActorDestroyed(AActor* DestroyedActor)
 {
-	bIsStarted = true;
-	OnTargetDestroyed.Broadcast(++Killed);
-	Actors.Remove(DestroyedActor);
-	AddPracticeTargets();
+	if (bIsEnabled)
+	{
+		bIsStarted = true;
+		OnTargetDestroyed.Broadcast(++Killed);
+		Actors.Remove(DestroyedActor);
+		AddPracticeTargets();
+	}
 }
 
 AActor* ACloud9PracticeSpawner::SpawnTarget_Implementation(FVector Location)
@@ -100,7 +109,10 @@ AActor* ACloud9PracticeSpawner::SpawnTarget_Implementation(FVector Location)
 		return nullptr;
 	}
 
-	return GetWorld()->SpawnActor(Template, &Location, nullptr);
+	FActorSpawnParameters ActorSpawnParameters;
+	ActorSpawnParameters.Owner = this;
+
+	return GetWorld()->SpawnActor(Template, &Location, nullptr, ActorSpawnParameters);
 }
 
 bool ACloud9PracticeSpawner::AddPracticeTargets()
