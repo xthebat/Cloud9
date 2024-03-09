@@ -24,6 +24,7 @@
 #include "Cloud9WeaponFirearm.h"
 #include "Engine/StaticMeshActor.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Components/WidgetInteractionComponent.h"
 
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
@@ -41,8 +42,8 @@
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
+#include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 
 const FName ACloud9WeaponFirearm::TracerProbabilityParameterName = TEXT("Probability");
 const FName ACloud9WeaponFirearm::TracerDirectionParameterName = TEXT("Direction");
@@ -415,6 +416,15 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 
 	if (IsHit)
 	{
+		if (Cast<UWidgetComponent>(LineHit.Component))
+		{
+			let Component = Character->GetWidgetInteractionComponent();
+			Component->SetCustomHitResult(LineHit);
+			Component->PressPointerKey(EKeys::LeftMouseButton);
+			Component->ReleasePointerKey(EKeys::LeftMouseButton);
+			return EFirearmFireStatus::Success;
+		}
+
 		let Direction = LineHit.Location - StartLocation | EFVector::Normalize{};
 
 		if (IsValid(FirearmCommonData.Tracer))

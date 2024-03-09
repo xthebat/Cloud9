@@ -30,6 +30,7 @@
 
 #include "Cloud9Character.generated.h"
 
+class UWidgetInteractionComponent;
 class ACloud9PlayerController;
 class UCloud9InventoryComponent;
 class UCloud9AnimationComponent;
@@ -50,6 +51,7 @@ public:
 	static const FName InventoryComponentName;
 	static const FName HealthComponentName;
 	static const FName AnimationComponentName;
+	static const FName WidgetInteractionComponentName;
 
 	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
@@ -79,6 +81,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetViewVerticalRotation() const { return ViewVerticalRotation; }
+
+	UWidgetInteractionComponent* GetWidgetInteractionComponent() const;
 
 	void SetCameraRotationYaw(float Angle) const;
 	void AddCameraRotationYaw(float Angle) const;
@@ -176,6 +180,10 @@ private:
 	/** Helper to play animation montages for character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Utility, meta=(AllowPrivateAccess))
 	UCloud9AnimationComponent* AnimationComponent;
+
+	/** Helper to play animation montages for character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Utility, meta=(AllowPrivateAccess))
+	UWidgetInteractionComponent* WidgetInteractionComponent;
 
 	/** Current number of frags made by character */
 	UPROPERTY(BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
