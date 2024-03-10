@@ -323,8 +323,6 @@ float ACloud9Character::InternalTakePointDamage(
 	let BoneName = PointDamageEvent.HitInfo.BoneName;
 	Damage = Super::InternalTakePointDamage(Damage, PointDamageEvent, EventInstigator, DamageCauser);
 
-	let Armor = HealthComponent->GetArmor();
-
 	if (let Weapon = Cast<ACloud9WeaponFirearm>(DamageCauser))
 	{
 		let WeaponInfo = Weapon->GetWeaponInfo();
@@ -334,12 +332,12 @@ float ACloud9Character::InternalTakePointDamage(
 		if (HeadBoneNames.Contains(BoneName))
 		{
 			Damage *= WeaponInfo->HeadshotMultiplier;
-			HitInArmor = true;
+			HitInArmor = HealthComponent->HasHelmet();
 		}
 		else if (UpperBodyBoneNames.Contains(BoneName))
 		{
 			Damage *= WeaponInfo->UpperBodyMultiplier;
-			HitInArmor = true;
+			HitInArmor = HealthComponent->IsArmored();
 		}
 		else if (LowerBodyBoneNames.Contains(BoneName))
 		{
@@ -350,9 +348,10 @@ float ACloud9Character::InternalTakePointDamage(
 			Damage *= WeaponInfo->LegMultiplier;
 		}
 
-		if (Armor != 0.0f and HitInArmor)
+		if (HitInArmor)
 		{
 			Damage *= WeaponInfo->ArmorPenetration * ArmorCoefficient;
+			HealthComponent->TakeArmorDamage(Damage / 2);
 		}
 
 		let Distance = FVector::DistSquared(DamageCauser->GetActorLocation(), GetActorLocation());

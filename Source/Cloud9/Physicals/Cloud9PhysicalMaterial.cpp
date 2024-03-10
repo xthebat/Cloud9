@@ -88,4 +88,7 @@ bool UCloud9PhysicalMaterial::TestBackgroundDecalProbability() const
 	return FMath::RandRange(0.0f, 1.0f) < FirearmBackgroundDecalProbability;
 }
 
-UNiagaraSystem* UCloud9PhysicalMaterial::GetRandomFirearmSquib() const { return GetRandomItem(FirearmEffects); }
+UNiagaraSystem* UCloud9PhysicalMaterial::GetRandomFirearmSquib(bool IsAlternative) const
+{
+	return IsAlternative ? GetRandomItem(FirearmAltEffects) : GetRandomItem(FirearmEffects);
+}
