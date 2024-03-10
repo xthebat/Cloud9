@@ -18,7 +18,7 @@ public:
 	UCloud9PhysicalMaterial();
 
 	UMaterialInterface* GetRandomFirearmDecal() const;
-	UNiagaraSystem* GetRandomFirearmSquib() const;
+	UNiagaraSystem* GetRandomFirearmSquib(bool IsAlternative) const;
 
 	UMaterialInterface* GetRandomBackgroundDecal() const;
 	FVector GetBackgroundDecalSize() const;
@@ -48,6 +48,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Effect")
 	TSet<UNiagaraSystem*> FirearmEffects;
 
+	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Effect")
+	TSet<UNiagaraSystem*> FirearmAltEffects;
 
 	UPROPERTY(EditDefaultsOnly, Category="Firearm Background Decal")
 	TSet<UMaterialInterface*> FirearmBackgroundDecals;

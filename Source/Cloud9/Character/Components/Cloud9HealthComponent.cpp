@@ -167,7 +167,6 @@ void UCloud9HealthComponent::OnTakePointDamage(
 	AActor* DamageCauser)
 {
 	TakeHealthDamage(Damage);
-	TakeArmorDamage(0.0f); // TODO: Add armor damage calc
 	AddAttackerScore(InstigatedBy);
 }
 
@@ -181,6 +180,5 @@ void UCloud9HealthComponent::OnTakeRadialDamage(
 	AActor* DamageCauser)
 {
 	TakeHealthDamage(Damage);
-	TakeArmorDamage(0.0f); // TODO: Add armor damage calc
 	AddAttackerScore(InstigatedBy);
 }

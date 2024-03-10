@@ -35,6 +35,7 @@
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Character/Components/Cloud9AnimationComponent.h"
+#include "Cloud9/Character/Components/Cloud9HealthComponent.h"
 #include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Character/Damages/FirearmDamageType.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
@@ -470,7 +471,22 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 
 			if (let PhysicalMaterial = Cast<UCloud9PhysicalMaterial>(LineHit.PhysMaterial); IsValid(PhysicalMaterial))
 			{
-				if (let FirearmSquib = PhysicalMaterial->GetRandomFirearmSquib(); IsValid(FirearmSquib))
+				if (let HealthComponent = DamagedActor->FindComponentByClass<UCloud9HealthComponent>();
+					IsValid(HealthComponent) and HealthComponent->IsArmored())
+				{
+					if (let FirearmSquib = PhysicalMaterial->GetRandomFirearmSquib(true); IsValid(FirearmSquib))
+					{
+						UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+							GetWorld(),
+							FirearmSquib,
+							LineHit.Location,
+							LineHit.Normal.Rotation(),
+							FVector::OneVector,
+							true);
+					}
+				}
+
+				if (let FirearmSquib = PhysicalMaterial->GetRandomFirearmSquib(false); IsValid(FirearmSquib))
 				{
 					UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 						GetWorld(),

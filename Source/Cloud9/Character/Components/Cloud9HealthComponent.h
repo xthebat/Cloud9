@@ -83,6 +83,7 @@ public:
 
 	float GetHealth() const { return Health; }
 	float GetArmor() const { return Armor; }
+	bool IsArmored() const { return Armor > 0.0f; }
 	bool HasHelmet() const { return bHasHelmet; }
 	bool IsAlive() const { return bIsAlive; }
 
