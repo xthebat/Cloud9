@@ -54,7 +54,7 @@ public:
 	/**
 	 * Function returns current underlying Iterator value.
 	 */
-	ElementType operator*() const { return *Iterator; }
+	const ElementType& operator*() { return *Iterator; }
 
 	/**
 	 * Function returns false if sequence is empty.

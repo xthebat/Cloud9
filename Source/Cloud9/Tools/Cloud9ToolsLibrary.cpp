@@ -128,3 +128,18 @@ FVector UCloud9ToolsLibrary::VInterpTo(
 		ClampLerp(Current.Z, Dist.Z, Alpha.Z, Target.Z),
 	};
 }
+
+TArray<FString> UCloud9ToolsLibrary::GetObjectEditorProperties(UClass* Class)
+{
+	if (IsValid(Class))
+	{
+		return TFieldIterator<FProperty>(Class)
+			| ETContainer::FromIterator{}
+			| ETContainer::Filter{[](let& It) { return It.HasAnyPropertyFlags(CPF_Edit); }}
+			| ETContainer::Transform{[](let& It) { return It.GetName(); }}
+			| ETContainer::ToArray{};
+	}
+
+	log(Error, "Input class is invalid");
+	return {};
+}

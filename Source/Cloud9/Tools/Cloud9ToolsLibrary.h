@@ -101,4 +101,6 @@ public:
 		const FVector Target,
 		float DeltaTime,
 		const FVector InterpSpeed);
+
+	static TArray<FString> GetObjectEditorProperties(UClass* Class);
 };
