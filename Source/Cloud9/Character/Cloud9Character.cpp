@@ -388,7 +388,7 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 
 	if (let MyMesh = GetMesh(); IsValid(MyMesh))
 	{
-		if (not CameraTargetBoneName.IsNone() and IsPlayerControlled())
+		if (not CameraTargetBoneName.IsNone())
 		{
 			let HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
 			log(Display, "Setup CameraBoom = %s", *HeadBoneLocation.ToString());

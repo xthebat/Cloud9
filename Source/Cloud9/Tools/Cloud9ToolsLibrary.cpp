@@ -30,6 +30,19 @@ void UCloud9ToolsLibrary::SetCollisionComplexity(UStaticMesh* StaticMesh, uint8 
 	StaticMesh->GetBodySetup()->CollisionTraceFlag = static_cast<ECollisionTraceFlag>(CollisionTraceFlag);
 }
 
+bool UCloud9ToolsLibrary::SetCollisionProfile(const UStaticMesh* StaticMesh, FName CollisionProfile)
+{
+	var& DefaultInstance = StaticMesh->GetBodySetup()->DefaultInstance;
+
+	if (CollisionProfile != DefaultInstance.GetCollisionProfileName())
+	{
+		DefaultInstance.SetCollisionProfileName(CollisionProfile);
+		return true;
+	}
+
+	return false;
+}
+
 float UCloud9ToolsLibrary::CalculateCollisionVolumeScale(UStaticMesh* StaticMesh)
 {
 	let Scale = FVector{1.0f, 1.0f, 1.0f};

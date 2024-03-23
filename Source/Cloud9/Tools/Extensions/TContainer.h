@@ -420,8 +420,7 @@ namespace Private_ETContainer
 
 			if (not bIsFound)
 			{
-				let& Value = *Iterator;
-				while (Iterator and not Operator.Predicate(Value))
+				while (Iterator and not Operator.Predicate(*Iterator))
 				{
 					++Iterator;
 				}

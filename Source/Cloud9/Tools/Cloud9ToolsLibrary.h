@@ -52,6 +52,14 @@ public:
 	static void SetCollisionComplexity(UStaticMesh* StaticMesh, uint8 CollisionTraceFlag);
 
 	/**
+	 * 
+	 * @param StaticMesh 
+	 * @param CollisionProfile 
+	 */
+	UFUNCTION(BlueprintCallable)
+	static bool SetCollisionProfile(const UStaticMesh* StaticMesh, FName CollisionProfile);
+
+	/**
 	 * Function calculates a volume ratio between bounding box and simple collision mesh volume.
 	 * Research variant to fix collisions of CS:GO map. 
 	 */
@@ -102,5 +110,6 @@ public:
 		float DeltaTime,
 		const FVector InterpSpeed);
 
+	UFUNCTION(BlueprintCallable)
 	static TArray<FString> GetObjectEditorProperties(UClass* Class);
 };
