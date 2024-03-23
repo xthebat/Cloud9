@@ -1,20 +1,23 @@
-﻿import posixpath
+﻿from typing import List
 
 import unreal
-from Common import get_component_by_class_or_none
+from Common import get_component_by_class
 
-base_phys_material_dir = posixpath.join("Game", "Physicals")
+base_phys_material_dir = "/Game/Physicals"
 
 
 def load_phys_material(name: str):
-    path = posixpath.join(base_phys_material_dir, name)
-    return unreal.EditorAssetLibrary.load_asset(path)
+    path = f"{base_phys_material_dir}/{name}"
+    phys_material = unreal.EditorAssetLibrary.load_asset(path)
+    if phys_material is None:
+        raise ValueError(f"Can't load asset: {path}")
+    return phys_material
 
 
 prefixes = {"worldspawn_", "func_brush_", "func_detail_"}
 
 material_mapping = {
-    ("concreate",): load_phys_material("PM_Concreate"),
+    ("concrete",): load_phys_material("PM_Concrete"),
     ("glass",): load_phys_material("PM_Glass"),
     ("metal",): load_phys_material("PM_Metal"),
     ("dirt",): load_phys_material("PM_Mud"),
@@ -25,7 +28,7 @@ material_mapping = {
 
 
 def setup_phys_material_ex(actor: unreal.Actor, material: unreal.Material):
-    if material.phys_material is not None:
+    if material.get_editor_property("phys_material") is not None:
         return True
 
     material_name = material.get_name()
@@ -34,7 +37,7 @@ def setup_phys_material_ex(actor: unreal.Actor, material: unreal.Material):
             print(f"Setup phys material '{phys_material.get_name()}' "
                   f"for actor='{actor.get_name()}' "
                   f"material='{material.get_name()}'")
-            material.phys_material = phys_material
+            material.set_editor_property("phys_material", phys_material)
             return True
 
     return False
@@ -42,21 +45,25 @@ def setup_phys_material_ex(actor: unreal.Actor, material: unreal.Material):
 
 def setup_phys_material_actor(
         actor: unreal.Actor,
-        changed_materials: list[unreal.MaterialInterface],
-        actors_without_material: list[unreal.Actor]
+        changed_materials: List[unreal.MaterialInterface],
+        actors_without_material: List[unreal.Actor]
 ):
-    if component := get_component_by_class_or_none(actor, unreal.StaticMeshComponent):
-        for index in range(component.get_num_materials()):
-            material = component.get_material(index)
+    try:
+        component = get_component_by_class(actor, unreal.StaticMeshComponent)
+    except KeyError:
+        return
 
-            assert isinstance(material, unreal.Material), \
-                f"Material required, not a material interface for {material.get_name()}"
+    for index in range(component.get_num_materials()):
+        material = component.get_material(index)
 
-            if not setup_phys_material_ex(actor, material):
-                actors_without_material.append(actor)
+        assert isinstance(material, unreal.Material), \
+            f"Material required, not a material interface for {material.get_name()}"
 
-            unreal.MaterialEditingLibrary.recompile_material(material)
-            changed_materials.append(material)
+        if not setup_phys_material_ex(actor, material):
+            actors_without_material.append(actor)
+
+        unreal.MaterialEditingLibrary.recompile_material(material)
+        changed_materials.append(material)
 
 
 def fix_physical_materials():

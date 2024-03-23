@@ -24,10 +24,6 @@ def get_component_by_class(actor: unreal.Actor, cls: Type[T]) -> T:
     return component
 
 
-def get_component_by_class_or_none(actor: unreal.Actor, cls: Type[T]) -> T:
-    return actor.get_components_by_class(cls)
-
-
 def make_level_actors_dict() -> Dict[str, unreal.Actor]:
     actors = unreal.EditorLevelLibrary.get_all_level_actors()
     return {actor.get_name(): actor for actor in actors}
