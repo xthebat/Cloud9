@@ -1,4 +1,4 @@
-﻿from typing import List
+﻿from typing import Set
 
 import unreal
 from Common import get_component_by_class
@@ -14,7 +14,7 @@ def load_phys_material(name: str):
     return phys_material
 
 
-prefixes = {"worldspawn_", "func_brush_", "func_detail_"}
+prefixes = {"worldspawn_", "func_brush_", "func_detail_", "prop_static_"}
 
 material_mapping = {
     ("concrete",): load_phys_material("PM_Concrete"),
@@ -29,7 +29,7 @@ material_mapping = {
 
 def setup_phys_material_ex(actor: unreal.Actor, material: unreal.Material):
     if material.get_editor_property("phys_material") is not None:
-        return True
+        return False
 
     material_name = material.get_name()
     for keywords, phys_material in material_mapping.items():
@@ -40,18 +40,20 @@ def setup_phys_material_ex(actor: unreal.Actor, material: unreal.Material):
             material.set_editor_property("phys_material", phys_material)
             return True
 
-    return False
+    raise ValueError("Can't setup material")
 
 
 def setup_phys_material_actor(
         actor: unreal.Actor,
-        changed_materials: List[unreal.MaterialInterface],
-        actors_without_material: List[unreal.Actor]
+        changed_materials: Set[unreal.MaterialInterface],
+        without_material: Set[unreal.MaterialInterface]
 ):
     try:
         component = get_component_by_class(actor, unreal.StaticMeshComponent)
     except KeyError:
         return
+
+    # print(f"Analyze {component.static_mesh.get_name()}")
 
     for index in range(component.get_num_materials()):
         material = component.get_material(index)
@@ -59,21 +61,36 @@ def setup_phys_material_actor(
         assert isinstance(material, unreal.Material), \
             f"Material required, not a material interface for {material.get_name()}"
 
-        if not setup_phys_material_ex(actor, material):
-            actors_without_material.append(actor)
-
-        unreal.MaterialEditingLibrary.recompile_material(material)
-        changed_materials.append(material)
+        try:
+            if setup_phys_material_ex(actor, material):
+                # unreal.MaterialEditingLibrary.recompile_material(material)
+                changed_materials.add(material)
+        except ValueError:
+            without_material.add(material)
 
 
 def fix_physical_materials():
-    changed_materials = []
-    actors_without_material = []
+    changed_materials = set()
+    without_material = set()
 
     for actor in unreal.EditorLevelLibrary.get_all_level_actors():
         actor_name: str = actor.get_name()
         if any(prefix for prefix in prefixes if actor_name.startswith(prefix)):
-            setup_phys_material_actor(actor, changed_materials, actors_without_material)
+            setup_phys_material_actor(actor, changed_materials, without_material)
+
+    if changed_materials:
+        print("<============================================================>")
+        print("Changed materials:")
+
+        for material in changed_materials:
+            print(material.get_name())
+
+    if without_material:
+        print("<============================================================>")
+        print("Material without physical materials:")
+
+        for material in without_material:
+            print(material.get_name())
 
     unreal.EditorAssetLibrary.save_loaded_assets(changed_materials, only_if_is_dirty=False)
 
