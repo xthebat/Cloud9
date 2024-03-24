@@ -21,6 +21,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
+#include "Cloud9/Tests/Unit/Fake/UWhenOrNoneTestClassA.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 
 BEGIN_DEFINE_SPEC(
@@ -43,6 +44,21 @@ void FRangeSpec::Define()
 			let Value = Container | ETContainer::Random();
 			TestTrue("Value.IsSet()", Value.IsSet());
 			TestTrue("Collection.Contains(Value)", Container.Contains(*Value));
+		});
+	});
+
+	Describe("TFieldIterator", [this]
+	{
+		It("FromIterator", [=]
+		{
+			let Expected = TArray<FString>{"BoolField", "IntField", "FloatField"};
+
+			let Actual = TFieldIterator<FProperty>(UWhenOrNoneTestClassA::StaticClass())
+				| ETContainer::FromIterator{}
+				| ETContainer::Transform{[](let& It) { return It.GetName(); }}
+				| ETContainer::ToArray{};
+
+			TestEqual("Actual == {BoolField, IntField, FloatField}", Actual, Expected);
 		});
 	});
 

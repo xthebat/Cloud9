@@ -63,6 +63,9 @@ namespace ETIterator
 namespace Private_ETContainer
 {
 	template <typename OperatorType, typename ContainerType>
+	struct TFromIteratorIterator;
+
+	template <typename OperatorType, typename ContainerType>
 	struct TTransformIterator;
 
 	template <typename OperatorType, typename ContainerType>
@@ -77,6 +80,19 @@ namespace Private_ETContainer
 
 namespace ETContainer
 {
+	struct FromIterator
+	{
+		template <typename ElementType>
+		constexpr auto operator()(TFieldIterator<ElementType>&& Self) const
+		{
+			using FIteratorType = TFieldIterator<ElementType>;
+			var Iterator = Private_ETContainer::TFromIteratorIterator<ElementType, FIteratorType>(Self);
+			return TSequence<ElementType, decltype(Iterator)>(MoveTemp(Iterator));
+		}
+
+		OPERATOR_BODY(FromIterator)
+	};
+
 	struct Random
 	{
 		template <typename ContainerType, typename ElementType = typename ContainerType::ElementType>
@@ -299,6 +315,33 @@ namespace ETContainer
 
 namespace Private_ETContainer
 {
+	template <typename InElementType, typename InIteratorType>
+	struct TFromIteratorIterator
+	{
+		using IteratorType = InIteratorType;
+		using ElementType = InElementType;
+
+		constexpr explicit TFromIteratorIterator(IteratorType Iterator): Iterator(Iterator) {}
+
+		// ReSharper disable once CppMemberFunctionMayBeStatic
+		constexpr void Initialize() {}
+
+		constexpr TFromIteratorIterator& operator++()
+		{
+			++Iterator;
+			return *this;
+		}
+
+		constexpr const ElementType& operator*() { return **Iterator; }
+
+		// constexpr ElementType operator*() { return **Iterator; }
+
+		constexpr explicit operator bool() const { return not Iterator; }
+
+	private:
+		IteratorType Iterator;;
+	};
+
 	template <typename OperatorType, typename ContainerType>
 	struct TTransformIterator
 	{
@@ -323,7 +366,11 @@ namespace Private_ETContainer
 
 		// constexpr const ElementType& operator->() const { return Iterator; }
 
-		constexpr ElementType operator*() const { return Operator.Operation(*Iterator); }
+		constexpr const ElementType& operator*()
+		{
+			Cache = Operator.Operation(*Iterator);
+			return *Cache;
+		}
 
 		constexpr explicit operator bool() const { return not Iterator; }
 
@@ -333,6 +380,8 @@ namespace Private_ETContainer
 		ContainerType Container;
 		IteratorType Iterator;
 		OperatorType Operator;
+
+		TOptional<ElementType> Cache;
 	};
 
 	template <typename OperatorType, typename ContainerType>
@@ -356,7 +405,7 @@ namespace Private_ETContainer
 
 		constexpr const ElementType& operator->() const { return Iterator; }
 
-		constexpr ElementType operator*() const { return *Iterator; }
+		constexpr const ElementType& operator*() { return *Iterator; }
 
 		constexpr explicit operator bool() const { return not Iterator; }
 
@@ -416,7 +465,7 @@ namespace Private_ETContainer
 
 		constexpr const ElementType& operator->() const { return Iterator; }
 
-		constexpr ElementType operator*() const { return *Iterator; }
+		constexpr const ElementType& operator*() { return *Iterator; }
 
 		constexpr explicit operator bool() const { return not Iterator; }
 
@@ -449,7 +498,7 @@ namespace Private_ETContainer
 
 		constexpr const ElementType& operator->() const { return Iterator; }
 
-		constexpr ElementType operator*() const { return *Iterator; }
+		constexpr const ElementType& operator*() { return *Iterator; }
 
 		constexpr explicit operator bool() const
 		{

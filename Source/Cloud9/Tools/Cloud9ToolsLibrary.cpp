@@ -30,6 +30,19 @@ void UCloud9ToolsLibrary::SetCollisionComplexity(UStaticMesh* StaticMesh, uint8 
 	StaticMesh->GetBodySetup()->CollisionTraceFlag = static_cast<ECollisionTraceFlag>(CollisionTraceFlag);
 }
 
+bool UCloud9ToolsLibrary::SetCollisionProfile(const UStaticMesh* StaticMesh, FName CollisionProfile)
+{
+	var& DefaultInstance = StaticMesh->GetBodySetup()->DefaultInstance;
+
+	if (CollisionProfile != DefaultInstance.GetCollisionProfileName())
+	{
+		DefaultInstance.SetCollisionProfileName(CollisionProfile);
+		return true;
+	}
+
+	return false;
+}
+
 float UCloud9ToolsLibrary::CalculateCollisionVolumeScale(UStaticMesh* StaticMesh)
 {
 	let Scale = FVector{1.0f, 1.0f, 1.0f};
@@ -127,4 +140,19 @@ FVector UCloud9ToolsLibrary::VInterpTo(
 		ClampLerp(Current.Y, Dist.Y, Alpha.Y, Target.Y),
 		ClampLerp(Current.Z, Dist.Z, Alpha.Z, Target.Z),
 	};
+}
+
+TArray<FString> UCloud9ToolsLibrary::GetObjectEditorProperties(UClass* Class)
+{
+	if (IsValid(Class))
+	{
+		return TFieldIterator<FProperty>(Class)
+			| ETContainer::FromIterator{}
+			| ETContainer::Filter{[](let& It) { return It.HasAnyPropertyFlags(CPF_Edit); }}
+			| ETContainer::Transform{[](let& It) { return It.GetName(); }}
+			| ETContainer::ToArray{};
+	}
+
+	log(Error, "Input class is invalid");
+	return {};
 }
