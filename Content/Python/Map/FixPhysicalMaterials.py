@@ -1,30 +1,48 @@
-﻿from typing import Set
+﻿import re
+from dataclasses import dataclass
+from typing import Set
 
 import unreal
 from Common import get_component_by_class
 
-base_phys_material_dir = "/Game/Physicals"
+
+@dataclass
+class MaterialDesc:
+    pattern: re.Pattern
+    material: unreal.PhysicalMaterial
+
+    @staticmethod
+    def load_phys_material(name: str) -> unreal.PhysicalMaterial:
+        base_phys_material_dir = "/Game/Physicals"
+        path = f"{base_phys_material_dir}/{name}"
+        phys_material = unreal.EditorAssetLibrary.load_asset(path)
+        if phys_material is None:
+            raise ValueError(f"Can't load asset: {path}")
+        # noinspection PyTypeChecker
+        return phys_material
+
+    @classmethod
+    def load(cls, pattern: str, name: str):
+        return cls(re.compile(pattern), MaterialDesc.load_phys_material(name))
 
 
-def load_phys_material(name: str):
-    path = f"{base_phys_material_dir}/{name}"
-    phys_material = unreal.EditorAssetLibrary.load_asset(path)
-    if phys_material is None:
-        raise ValueError(f"Can't load asset: {path}")
-    return phys_material
-
+materials = [
+    MaterialDesc.load(r"\w*concrete\w*", "PM_Concrete"),
+    MaterialDesc.load(r"\w*plaster\w*", "PM_Concrete"),
+    MaterialDesc.load(r"\w*glass\w*", "PM_Glass"),
+    MaterialDesc.load(r"\w*metal\w*", "PM_Metal"),
+    MaterialDesc.load(r"\w*_tin_\w*", "PM_Metal"),
+    MaterialDesc.load(r"\w*dirt\w*", "PM_Mud"),
+    MaterialDesc.load(r"\w*wood\w*", "PM_Wood"),
+    MaterialDesc.load(r"\w*tree\w*", "PM_Wood"),
+    MaterialDesc.load(r"\w*crate\w*", "PM_Wood"),
+    MaterialDesc.load(r"\w*brick\w*", "PM_Rock"),
+    MaterialDesc.load(r"\w*stone\w*", "PM_Rock"),
+    MaterialDesc.load(r"\w*de_dust\w*wall\w*", "PM_Rock"),
+    MaterialDesc.load(r"\w*de_dust_sign\w*", "PM_Metal"),
+]
 
 prefixes = {"worldspawn_", "func_brush_", "func_detail_", "prop_static_"}
-
-material_mapping = {
-    ("concrete",): load_phys_material("PM_Concrete"),
-    ("glass",): load_phys_material("PM_Glass"),
-    ("metal",): load_phys_material("PM_Metal"),
-    ("dirt",): load_phys_material("PM_Mud"),
-    # ("???",): load_phys_material("PM_Paper"),
-    # ("???",): load_phys_material("PM_Rock"),
-    ("wood",): load_phys_material("PM_Wood")
-}
 
 
 def setup_phys_material_ex(actor: unreal.Actor, material: unreal.Material):
@@ -32,12 +50,12 @@ def setup_phys_material_ex(actor: unreal.Actor, material: unreal.Material):
         return False
 
     material_name = material.get_name()
-    for keywords, phys_material in material_mapping.items():
-        if any(keyword for keyword in keywords if keyword in material_name):
-            print(f"Setup phys material '{phys_material.get_name()}' "
+    for desc in materials:
+        if desc.pattern.match(material_name):
+            print(f"Setup phys material '{desc.material.get_name()}' "
                   f"for actor='{actor.get_name()}' "
                   f"material='{material.get_name()}'")
-            material.set_editor_property("phys_material", phys_material)
+            material.set_editor_property("phys_material", desc.material)
             return True
 
     raise ValueError("Can't setup material")
