@@ -40,6 +40,7 @@ materials = [
     MaterialDesc.load(r"\w*stone\w*", "PM_Rock"),
     MaterialDesc.load(r"\w*de_dust\w*wall\w*", "PM_Rock"),
     MaterialDesc.load(r"\w*de_dust_sign\w*", "PM_Metal"),
+    MaterialDesc.load(r"\w*train_wheels\w*", "PM_Metal"),
 ]
 
 prefixes = {"worldspawn_", "func_brush_", "func_detail_", "prop_static_"}
@@ -50,6 +51,10 @@ def setup_phys_material_ex(actor: unreal.Actor, material: unreal.Material):
         return False
 
     material_name = material.get_name()
+
+    if "tools_toolsblack" in material_name or "tools_toolsnodraw" in material_name:
+        return False
+
     for desc in materials:
         if desc.pattern.match(material_name):
             print(f"Setup phys material '{desc.material.get_name()}' "
@@ -101,14 +106,14 @@ def fix_physical_materials():
         print("Changed materials:")
 
         for material in changed_materials:
-            print(material.get_name())
+            print(f"  {material.get_name()}")
 
     if without_material:
         print("<============================================================>")
         print("Material without physical materials:")
 
         for material in without_material:
-            print(material.get_name())
+            print(f"  {material.get_name()}")
 
     unreal.EditorAssetLibrary.save_loaded_assets(changed_materials, only_if_is_dirty=False)
 
