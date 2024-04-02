@@ -39,21 +39,31 @@ materials = [
     MaterialDesc.load(r"\w*brick\w*", "PM_Rock"),
     MaterialDesc.load(r"\w*stone\w*", "PM_Rock"),
     MaterialDesc.load(r"\w*de_dust\w*wall\w*", "PM_Rock"),
+    MaterialDesc.load(r"\w*de_mirage\w*wall\w*", "PM_Rock"),
     MaterialDesc.load(r"\w*de_dust_sign\w*", "PM_Metal"),
     MaterialDesc.load(r"\w*train_wheels\w*", "PM_Metal"),
+    MaterialDesc.load(r"\w*rug\w*", "PM_Mud"),
+    MaterialDesc.load(r"\w*window\w*", "PM_Wood"),  # can be false-positive fixes
+    MaterialDesc.load(r"\w*cinderblock\w*", "PM_Rock"),
+    MaterialDesc.load(r"\w*tilewall\w*", "PM_Rock"),
 ]
 
 prefixes = {"worldspawn_", "func_brush_", "func_detail_", "prop_static_"}
 
 
+def is_skip_material(material: unreal.Material):
+    material_name = material.get_name()
+    return "tools_toolsblack" in material_name or \
+        "tools_toolsnodraw" in material_name or \
+        material.get_editor_property("blend_mode") == unreal.BlendMode.BLEND_TRANSLUCENT or \
+        material.get_editor_property("phys_material") is not None
+
+
 def setup_phys_material_ex(actor: unreal.Actor, material: unreal.Material):
-    if material.get_editor_property("phys_material") is not None:
+    if is_skip_material(material):
         return False
 
     material_name = material.get_name()
-
-    if "tools_toolsblack" in material_name or "tools_toolsnodraw" in material_name:
-        return False
 
     for desc in materials:
         if desc.pattern.match(material_name):
