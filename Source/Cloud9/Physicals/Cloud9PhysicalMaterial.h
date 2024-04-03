@@ -29,6 +29,8 @@ public:
 
 	FVector GetFirearmDecalSize() const;
 	FRotator GetFirearmDecalRotation(FVector Normal) const;
+	USoundBase* GetRandomFirearmHitSound() const;
+	float GetFirearmHitSoundVolume() const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Decal")
@@ -80,6 +82,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Firearm Background Decal",
 		meta=(UIMin="0", UIMax="1000", ClampMin="0", ClampMax="1000"))
 	float FirearmBackgroundDecalMaxDistance;
+
+	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Sound")
+	TSet<USoundBase*> FirearmHitSounds;
+
+	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Sound",
+		meta=(UIMin="0", UIMax="10.0", ClampMin="0", ClampMax="10.0"))
+	float FirearmHitSoundVolume;
 
 
 	UPROPERTY(EditDefaultsOnly, Category="Grenade Hit Decal")
