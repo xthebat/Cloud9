@@ -40,6 +40,7 @@
 #include "Cloud9/Character/Damages/FirearmDamageType.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Physicals/Cloud9PhysicalMaterial.h"
+#include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
@@ -506,6 +507,14 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 						.Rotator = PhysicalMaterial->GetFirearmDecalRotation(LineHit.Normal),
 						.Owner = DamagedActor,
 						.Instigator = Character
+					};
+				}
+
+				if (let HitSound = PhysicalMaterial->GetRandomFirearmHitSound(); IsValid(HitSound))
+				{
+					HitSound | EUSoundBase::PlaySoundAtLocation{
+						.Location = LineHit.Location,
+						.VolumeMultiplier = Settings->Volume * PhysicalMaterial->GetFirearmHitSoundVolume()
 					};
 				}
 

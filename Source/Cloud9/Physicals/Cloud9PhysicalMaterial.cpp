@@ -18,6 +18,7 @@ UCloud9PhysicalMaterial::UCloud9PhysicalMaterial()
 	FirearmBackgroundDecalRotationMax = 180.0f;
 	FirearmBackgroundDecalProbability = 0.5f;
 	FirearmBackgroundDecalMaxDistance = 200.0f;
+	FirearmHitSoundVolume = 1.0f;
 
 	GrenadeDecalSize = {8.0f, 8.0f, 8.0f};
 	MeleeDecalSize = {8.0f, 8.0f, 8.0f};
@@ -51,6 +52,10 @@ FRotator UCloud9PhysicalMaterial::GetFirearmDecalRotation(FVector Normal) const
 	let RandomRotation = FMath::RandRange(FirearmDecalRotationMin, FirearmDecalRotationMax);
 	return GetNormalSurfaceRotation(Normal, RandomRotation);
 }
+
+USoundBase* UCloud9PhysicalMaterial::GetRandomFirearmHitSound() const { return GetRandomItem(FirearmHitSounds); }
+
+float UCloud9PhysicalMaterial::GetFirearmHitSoundVolume() const { return FirearmHitSoundVolume; }
 
 UMaterialInterface* UCloud9PhysicalMaterial::GetRandomBackgroundDecal() const
 {
