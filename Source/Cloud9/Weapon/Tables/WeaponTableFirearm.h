@@ -458,4 +458,10 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Flinch, AdvancedDisplay,
 		meta=(UIMin="0.0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
 	float FlinchVelocityModifierNext = 1.0f;
+
+	float GetMaxSpeed(float Scale = 1.0f) const { return MaxPlayerSpeed * Scale; }
+
+	float GetInaccuracyMove(float Scale = 0.001f) const { return Inaccuracy.OnMove * Scale; }
+
+	float GetInaccuracyJump(float Scale = 0.001f) const { return Inaccuracy.OnJump * Scale; }
 };

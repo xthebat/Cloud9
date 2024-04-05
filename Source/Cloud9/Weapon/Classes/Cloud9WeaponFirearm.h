@@ -84,6 +84,7 @@ protected:
 
 	EFirearmFireStatus Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData);
 	bool UpdateReloadAmmo(bool IsShotgun);
+	float GetInaccuracy();
 
 	bool UpdateMagazineAttachment(bool IsReload);
 	void DropMagazine() const;
@@ -113,6 +114,9 @@ protected: // properties
 
 	UPROPERTY(Category=Weapon, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	int MaxAmmoInReserve;
+
+	UPROPERTY()
+	float AccuracyPenalty;
 };
 
 template <>

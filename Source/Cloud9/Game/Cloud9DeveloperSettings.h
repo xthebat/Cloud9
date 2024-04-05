@@ -70,7 +70,7 @@ public:
 	static FString SelfAimEnabledName;
 	static FString CameraVerticalSpeedLagName;
 	static FString VolumeName;
-	
+
 public: // properties
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 bIsDrawHitCursorLine;
@@ -110,6 +110,15 @@ public: // properties
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Sound)
 	float Volume;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category=Sound)
+	bool bIsNoSpread;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	float WeaponAirSpreadScale;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	float JumpImpulse;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	EUnUsedEnum UnUsedEnum;

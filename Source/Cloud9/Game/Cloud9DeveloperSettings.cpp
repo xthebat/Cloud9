@@ -57,6 +57,8 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	bIsCheatsEnabled = 0;
 	bIsSelfAimEnabled = 0;
 	Volume = 0.1;
+	WeaponAirSpreadScale = 1.0f;
+	JumpImpulse = 301.993377;
 }
 
 UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()

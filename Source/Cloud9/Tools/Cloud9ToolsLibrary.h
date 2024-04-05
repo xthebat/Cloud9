@@ -112,4 +112,47 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static TArray<FString> GetObjectEditorProperties(UClass* Class);
+
+	// see mathlib.h from cstrike15_src
+
+	template <typename InputType, typename OutputType>
+	static constexpr InputType Select(InputType Value, OutputType A, OutputType B)
+	{
+		return Value < 0.0f ? A : B;
+	}
+
+	template <typename ValueType>
+	static constexpr ValueType RemapValue(
+		ValueType Value,
+		ValueType InRangeMin,
+		ValueType InRangeMax,
+		ValueType OutRangeMin,
+		ValueType OutRangeMax)
+	{
+		if (InRangeMin == InRangeMax)
+		{
+			return Select(Value - InRangeMax, OutRangeMax, OutRangeMin);
+		}
+
+		return OutRangeMin + (OutRangeMax - OutRangeMin) * (Value - InRangeMin) / (InRangeMax - InRangeMin);
+	}
+
+	template <typename ValueType>
+	static constexpr ValueType RemapValueClamped(
+		ValueType Value,
+		ValueType InRangeMin,
+		ValueType InRangeMax,
+		ValueType OutRangeMin,
+		ValueType OutRangeMax)
+	{
+		if (InRangeMin == InRangeMax)
+		{
+			return Select(Value - InRangeMax, OutRangeMax, OutRangeMin);
+		}
+
+		float Temp = (Value - InRangeMin) / (InRangeMax - InRangeMin);
+		Temp = FMath::Clamp(Temp, 0.0f, 1.0f);
+
+		return OutRangeMin + (OutRangeMax - OutRangeMin) * Temp;
+	}
 };

@@ -24,6 +24,7 @@
 #include "Cloud9WeaponFirearm.h"
 #include "Engine/StaticMeshActor.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Cloud9/Cloud9Consts.h"
 #include "Components/WidgetInteractionComponent.h"
 
 #include "Cloud9/Tools/Macro/Common.h"
@@ -100,6 +101,8 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponConfig& WeaponConfig)
 
 		CurrentAmmo = WeaponConfig.GetAmmoInMagazine(MaxMagazineSize);
 		AmmoInReserve = WeaponConfig.GetAmmoInReserve(MaxAmmoInReserve);
+
+		AccuracyPenalty = 0.0f;
 
 		OnAmmoInMagazineChanged.Broadcast(CurrentAmmo);
 		OnAmmoInReserveChanged.Broadcast(AmmoInReserve);
@@ -590,6 +593,91 @@ bool ACloud9WeaponFirearm::UpdateReloadAmmo(bool IsShotgun)
 	OnAmmoInReserveChanged.Broadcast(AmmoInReserve);
 	OnAmmoInMagazineChanged.Broadcast(CurrentAmmo);
 	return true;
+}
+
+float ACloud9WeaponFirearm::GetInaccuracy()
+{
+	constexpr float MaxFallingPenalty = 2.0f; // Accuracy is never worse than 2x starting penalty
+	constexpr float MovementCurve01Exponent = 0.25f;
+
+	static let Settings = UCloud9DeveloperSettings::Get();
+
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
+	{
+		return 0.0f;
+	}
+
+	if (Settings->bIsNoSpread)
+	{
+		return 0.0f;
+	}
+
+	let WeaponInfo = GetWeaponInfo();
+
+	float Inaccuracy = AccuracyPenalty;
+
+	let Velocity = Character->GetVelocity();
+
+	let MaxSpeed = WeaponInfo->GetMaxSpeed();
+
+	var MovementInaccuracyScale = UCloud9ToolsLibrary::RemapValueClamped(
+		Velocity.Size2D(),
+		MaxSpeed * Cloud9Player::SpeedDuckModifier,
+		MaxSpeed * 0.95f, // max out at 95% of run speed to avoid jitter near max speed
+		0.0f,
+		1.0f);
+
+	if (MovementInaccuracyScale > 0.0f)
+	{
+		// power curve only applies at speeds greater than walk
+		if (not Character->bIsSneaking)
+		{
+			MovementInaccuracyScale = FMath::Pow(MovementInaccuracyScale, MovementCurve01Exponent);
+		}
+
+		Inaccuracy += MovementInaccuracyScale * WeaponInfo->GetInaccuracyMove();
+	}
+
+	// If we are in the air/on ladder, add inaccuracy based on vertical speed (maximum accuracy at apex of jump)
+	if (not Character->GetMovementComponent()->IsMovingOnGround())
+	{
+		let VerticalSpeed = FMath::Abs(Velocity.Z);
+
+		let InaccuracyJumpInitial = WeaponInfo->GetInaccuracyJump() * Settings->WeaponAirSpreadScale;
+
+		// Use sqrt here to make the curve more "sudden" around the accurate point at the apex of the jump
+		let SqrtMaxJumpSpeed = FMath::Sqrt(Settings->JumpImpulse);
+		let SqrtVerticalSpeed = FMath::Sqrt(VerticalSpeed);
+
+		var AirSpeedInaccuracy = UCloud9ToolsLibrary::RemapValue(
+			SqrtVerticalSpeed,
+
+			SqrtMaxJumpSpeed * 0.25f,
+			// Anything less than 6.25% of maximum speed has no additional accuracy penalty for z-motion (6.25% = .25 * .25)
+			SqrtMaxJumpSpeed, // Penalty at max jump speed
+
+			0.0f, // No movement-related penalty when close to stopped
+			InaccuracyJumpInitial
+		); // Movement-penalty at start of jump
+
+		// Clamp to min/max values.  (Don't use RemapValClamped because it makes clamping to > kJumpMovePenalty hard)
+		if (AirSpeedInaccuracy < 0.0f)
+		{
+			AirSpeedInaccuracy = 0.0f;
+		}
+		else if (AirSpeedInaccuracy > MaxFallingPenalty * InaccuracyJumpInitial)
+		{
+			AirSpeedInaccuracy = MaxFallingPenalty * InaccuracyJumpInitial;
+		}
+
+		// Apply air velocity inaccuracy penalty
+		// (There is an additional penalty for being in the air at all applied in UpdateAccuracyPenalty())
+		Inaccuracy += AirSpeedInaccuracy;
+	}
+
+	return FMath::Min(Inaccuracy, 1.0f);
 }
 
 bool ACloud9WeaponFirearm::UpdateMagazineAttachment(bool IsReload)
