@@ -121,6 +121,12 @@ public: // properties
 	float JumpImpulse;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	int32 WeaponDebugMaxInaccuracy;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	int32 WeaponDebugInaccuracyOnlyUp;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	EUnUsedEnum UnUsedEnum;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)

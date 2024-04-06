@@ -22,6 +22,8 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Cloud9WeaponFirearm.h"
+
+#include "DrawDebugHelpers.h"
 #include "Engine/StaticMeshActor.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Cloud9/Cloud9Consts.h"
@@ -41,6 +43,7 @@
 #include "Cloud9/Character/Damages/FirearmDamageType.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Physicals/Cloud9PhysicalMaterial.h"
+#include "Cloud9/Tools/Extensions/TArray.h"
 #include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
@@ -103,6 +106,7 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponConfig& WeaponConfig)
 		AmmoInReserve = WeaponConfig.GetAmmoInReserve(MaxAmmoInReserve);
 
 		AccuracyPenalty = 0.0f;
+		RecoilIndex = 0;
 
 		OnAmmoInMagazineChanged.Broadcast(CurrentAmmo);
 		OnAmmoInReserveChanged.Broadcast(AmmoInReserve);
@@ -328,7 +332,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 
 	let StartLocation = MuzzleFlash->GetComponentLocation();
 
-	FVector EndLocation;
+	FVector EndLocationNoSpread;
 	float Alpha;
 	if (not Settings->bIsSelfAimEnabled)
 	{
@@ -344,7 +348,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 			return EFirearmFireStatus::Success;
 		}
 
-		EndLocation = CursorHit->Location;
+		EndLocationNoSpread = CursorHit->Location;
 		Alpha = FirearmCommonData.LineTraceAlpha;
 	}
 	else
@@ -363,15 +367,21 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 		// Check if use Somali shooting (when cursor on Character)
 		if (CursorHit->Actor == Character)
 		{
-			EndLocation = StartLocation + MuzzleFlash->GetForwardVector();
+			EndLocationNoSpread = StartLocation + MuzzleFlash->GetForwardVector();
 			Alpha = FirearmCommonData.UnknownTraceAlpha;
 		}
 		else
 		{
-			EndLocation = CursorHit->Location;
+			EndLocationNoSpread = CursorHit->Location;
 			Alpha = FirearmCommonData.LineTraceAlpha;
 		}
 	}
+
+	log(Warning, "EndLocationNoSpread = %s", *EndLocationNoSpread.ToString());
+
+	var EndLocation = ApplyShootInaccuracy(StartLocation, EndLocationNoSpread);
+
+	AccuracyPenalty += WeaponInfo->GetInaccuracyFire();
 
 	// GetHitResultUnderCursor can return coordinates slightly upper then surface
 	// Prolong line in shoot direction
@@ -595,10 +605,9 @@ bool ACloud9WeaponFirearm::UpdateReloadAmmo(bool IsShotgun)
 	return true;
 }
 
-float ACloud9WeaponFirearm::GetInaccuracy()
+float ACloud9WeaponFirearm::GetInaccuracy() const
 {
-	constexpr float MaxFallingPenalty = 2.0f; // Accuracy is never worse than 2x starting penalty
-	constexpr float MovementCurve01Exponent = 0.25f;
+	// ======================================== begin cstrike15_src ====================================================
 
 	static let Settings = UCloud9DeveloperSettings::Get();
 
@@ -634,7 +643,10 @@ float ACloud9WeaponFirearm::GetInaccuracy()
 		// power curve only applies at speeds greater than walk
 		if (not Character->bIsSneaking)
 		{
-			MovementInaccuracyScale = FMath::Pow(MovementInaccuracyScale, MovementCurve01Exponent);
+			MovementInaccuracyScale = FMath::Pow(
+				MovementInaccuracyScale,
+				Cloud9WeaponConsts::MovementCurve01Exponent
+			);
 		}
 
 		Inaccuracy += MovementInaccuracyScale * WeaponInfo->GetInaccuracyMove();
@@ -667,9 +679,9 @@ float ACloud9WeaponFirearm::GetInaccuracy()
 		{
 			AirSpeedInaccuracy = 0.0f;
 		}
-		else if (AirSpeedInaccuracy > MaxFallingPenalty * InaccuracyJumpInitial)
+		else if (AirSpeedInaccuracy > Cloud9WeaponConsts::MaxFallingPenalty * InaccuracyJumpInitial)
 		{
-			AirSpeedInaccuracy = MaxFallingPenalty * InaccuracyJumpInitial;
+			AirSpeedInaccuracy = Cloud9WeaponConsts::MaxFallingPenalty * InaccuracyJumpInitial;
 		}
 
 		// Apply air velocity inaccuracy penalty
@@ -678,7 +690,182 @@ float ACloud9WeaponFirearm::GetInaccuracy()
 	}
 
 	return FMath::Min(Inaccuracy, 1.0f);
+
+	// ======================================== end cstrike15_src ======================================================
 }
+
+FVector ACloud9WeaponFirearm::ApplyShootInaccuracy(FVector StartLocation, FVector EndLocation) const
+{
+	// ======================================== begin cstrike15_src ====================================================
+
+	static let Settings = UCloud9DeveloperSettings::Get();
+
+	let WeaponInfo = GetWeaponInfo();
+
+	// RandomSeed(iSeed); // init random system with this seed
+
+	let Direction = EndLocation - StartLocation;
+
+	log(Warning, "Direction = %s", *Direction.ToString());
+
+	// Accuracy curve density adjustment FOR R8 REVOLVER SECONDARY FIRE, NEGEV WILD BEAST
+	var RadiusCurveDensity = FMath::FRand();
+
+	/*R8 REVOLVER SECONDARY FIRE*/
+	if (GetWeaponId<EFirearm>() == EFirearm::Revolver and WeaponState.IsActionActive(EWeaponAction::Secondary))
+	{
+		RadiusCurveDensity = 1.0f - RadiusCurveDensity * RadiusCurveDensity;
+	}
+
+	// Negev currently not implemented but left this check if will be added
+	if (GetWeaponId<EFirearm>() == EFirearm::Negev and RecoilIndex < 3) /* NEGEV WILD BEAST */
+	{
+		for (int j = 3; j > RecoilIndex; --j)
+		{
+			RadiusCurveDensity *= RadiusCurveDensity;
+		}
+		RadiusCurveDensity = 1.0f - RadiusCurveDensity;
+	}
+
+	if (Settings->WeaponDebugMaxInaccuracy)
+	{
+		RadiusCurveDensity = 1.0f;
+	}
+
+	// Get accuracy displacement
+	var Theta0 = FMath::FRandRange(0.0f, 2.0f * PI);
+
+	if (Settings->WeaponDebugInaccuracyOnlyUp)
+	{
+		Theta0 = PI * 0.5f;
+	}
+
+	let Inaccuracy = GetInaccuracy();
+	let Radius0 = RadiusCurveDensity * Inaccuracy;
+	let OffsetX0 = Radius0 * FMath::Cos(Theta0);
+	let OffsetY0 = Radius0 * FMath::Sin(Theta0);
+
+	assert(
+		WeaponInfo->BulletsPerShot >= 1 and
+		WeaponInfo->BulletsPerShot <= Cloud9WeaponConsts::MaxBullets
+	);
+
+	var OffsetX1 = ETArray::ArrayOf<float>(Cloud9WeaponConsts::MaxBullets);
+	var OffsetY1 = ETArray::ArrayOf<float>(Cloud9WeaponConsts::MaxBullets);
+
+	// the RNG can be desynchronized by FireBullet(), so pre-generate all spread offsets
+	for (int Bullet = 0; Bullet < WeaponInfo->BulletsPerShot; Bullet++)
+	{
+		// Spread curve density adjustment for R8 REVOLVER SECONDARY FIRE, NEGEV WILD BEAST
+		var SpreadCurveDensity = FMath::FRand();
+
+		if (GetWeaponId<EFirearm>() == EFirearm::Revolver and WeaponState.IsActionActive(EWeaponAction::Secondary))
+		{
+			SpreadCurveDensity = 1.0f - SpreadCurveDensity * SpreadCurveDensity;
+		}
+
+		if (GetWeaponId<EFirearm>() == EFirearm::Negev and RecoilIndex < 3) /*NEGEV WILD BEAST*/
+		{
+			for (int j = 3; j > RecoilIndex; --j)
+			{
+				SpreadCurveDensity *= SpreadCurveDensity;
+			}
+
+			SpreadCurveDensity = 1.0f - SpreadCurveDensity;
+		}
+
+		if (Settings->WeaponDebugMaxInaccuracy)
+		{
+			SpreadCurveDensity = 1.0f;
+		}
+
+		var Theta1 = FMath::FRandRange(0.0f, 2.0f * PI);
+
+		if (Settings->WeaponDebugInaccuracyOnlyUp)
+		{
+			Theta1 = PI * 0.5f;
+		}
+
+		let Radius1 = SpreadCurveDensity * WeaponInfo->Spread;
+		OffsetX1[Bullet] = OffsetX0 + Radius1 * FMath::Cos(Theta1);
+		OffsetY1[Bullet] = OffsetY0 + Radius1 * FMath::Sin(Theta1);
+	}
+
+	log(Warning, "Spread OffsetX = %f OffsetY = %f", OffsetX1[0], OffsetY1[0]);
+
+	FVector Forward, Up, Right;
+	Direction.CreateOrthonormalBasis(Forward, Up, Right);
+
+	DrawDebugLine(
+		GetWorld(),
+		StartLocation,
+		StartLocation + Direction,
+		FColor::Purple,
+		false,
+		5.0);
+
+	
+	// let XY = FVector{Direction.X, Direction.Y, 0.0f};
+	
+	// let Forward = XY;
+	// let Up = Direction.
+	// let Right = FVector{Direction.X, Direction.Y, 0.0f};
+
+	DrawDebugLine(
+		GetWorld(),
+		StartLocation,
+		StartLocation + Forward,
+		FColor::Green,
+		false,
+		5.0);
+
+	DrawDebugLine(
+		GetWorld(),
+		StartLocation,
+		StartLocation + Up,
+		FColor::Red,
+		false,
+		5.0);
+
+	DrawDebugLine(
+		GetWorld(),
+		StartLocation,
+		StartLocation + Right,
+		FColor::Blue,
+		false,
+		5.0);
+
+	// TODO: Implement shotgun fire
+	let InaccuracyDirection = Forward + Up * OffsetX1[0] + Right * OffsetY1[0] | EFVector::Normalize{};
+	return InaccuracyDirection + EndLocation;
+
+	// for (int Bullet = 0; Bullet < WeaponInfo->BulletsPerShot; Bullet++)
+	// {
+	// 	if (!pPlayer)
+	// 	{
+	// 		break;
+	// 	}
+	//
+	// 	constexpr int PenetrationCount = 4;
+	//
+	// 	pPlayer->FireBullet(
+	// 		vOrigin,
+	// 		adjustedAngles,
+	// 		flRange,
+	// 		flPenetration,
+	// 		PenetrationCount,
+	// 		iAmmoType,
+	// 		iDamage,
+	// 		flRangeModifier,
+	// 		pPlayer,
+	// 		bDoEffects,
+	// 		OffsetX0 + OffsetX1[Bullet], OffsetY0 + OffsetY1[Bullet]
+	// 	);
+	// }
+
+	// ======================================== end cstrike15_src ======================================================
+}
+
 
 bool ACloud9WeaponFirearm::UpdateMagazineAttachment(bool IsReload)
 {

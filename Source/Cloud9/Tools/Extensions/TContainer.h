@@ -66,6 +66,9 @@ namespace Private_ETContainer
 	struct TFromIteratorIterator;
 
 	template <typename OperatorType, typename ContainerType>
+	struct TIndexesIterator;
+
+	template <typename OperatorType, typename ContainerType>
 	struct TTransformIterator;
 
 	template <typename OperatorType, typename ContainerType>
@@ -167,6 +170,11 @@ namespace ETContainer
 		}
 
 		OPERATOR_BODY(Associate)
+	};
+
+	struct Indexes
+	{
+		SEQUENCE_OPERATOR_BODY(Indexes, Private_ETContainer::TIndexesIterator)
 	};
 
 	template <typename InOperationType>
@@ -340,6 +348,40 @@ namespace Private_ETContainer
 
 	private:
 		IteratorType Iterator;;
+	};
+
+	template <typename OperatorType, typename ContainerType>
+	struct TIndexesIterator
+	{
+		using ElementType = int;
+
+		constexpr TIndexesIterator(ContainerType&& Container, OperatorType&& Operator)
+			: Container(Container)
+			, Iterator(Container.CreateConstIterator())
+			, Operator(Operator) {}
+
+		// ReSharper disable once CppMemberFunctionMayBeStatic
+		constexpr void Initialize() {}
+
+		constexpr TIndexesIterator& operator++()
+		{
+			++Index;
+			++Iterator;
+			return *this;
+		}
+
+		constexpr const ElementType& operator*() const { return Index; }
+
+		constexpr explicit operator bool() const { return not Iterator; }
+
+	private:
+		using IteratorType = typename TDecay<ContainerType>::Type::TConstIterator;
+
+		ContainerType Container;
+		IteratorType Iterator;
+		OperatorType Operator;
+
+		ElementType Index = 0;
 	};
 
 	template <typename OperatorType, typename ContainerType>

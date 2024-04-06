@@ -464,4 +464,6 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	float GetInaccuracyMove(float Scale = 0.001f) const { return Inaccuracy.OnMove * Scale; }
 
 	float GetInaccuracyJump(float Scale = 0.001f) const { return Inaccuracy.OnJump * Scale; }
+
+	float GetInaccuracyFire(float Scale = 0.001f) const { return Inaccuracy.OnFire * Scale; }
 };

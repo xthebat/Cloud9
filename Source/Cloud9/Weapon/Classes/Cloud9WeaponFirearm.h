@@ -84,7 +84,9 @@ protected:
 
 	EFirearmFireStatus Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData);
 	bool UpdateReloadAmmo(bool IsShotgun);
-	float GetInaccuracy();
+
+	float GetInaccuracy() const;
+	FVector ApplyShootInaccuracy(FVector StartLocation, FVector EndLocation) const;
 
 	bool UpdateMagazineAttachment(bool IsReload);
 	void DropMagazine() const;
@@ -117,6 +119,9 @@ protected: // properties
 
 	UPROPERTY()
 	float AccuracyPenalty;
+
+	UPROPERTY()
+	int RecoilIndex;
 };
 
 template <>

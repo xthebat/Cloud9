@@ -22,3 +22,12 @@ namespace Cloud9Player
 
 	constexpr float DuckSpeedIdeal = 8.0f;
 }
+
+
+namespace Cloud9WeaponConsts
+{
+	constexpr int MaxBullets = 16;
+
+	constexpr float MaxFallingPenalty = 2.0f; // Accuracy is never worse than 2x starting penalty
+	constexpr float MovementCurve01Exponent = 0.25f;
+}

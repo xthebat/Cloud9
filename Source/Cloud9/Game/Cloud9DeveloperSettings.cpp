@@ -59,6 +59,8 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	Volume = 0.1;
 	WeaponAirSpreadScale = 1.0f;
 	JumpImpulse = 301.993377;
+	WeaponDebugMaxInaccuracy = 0;
+	WeaponDebugInaccuracyOnlyUp = 0;
 }
 
 UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
