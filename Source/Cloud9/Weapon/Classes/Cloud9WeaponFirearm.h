@@ -24,7 +24,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9/Physicals/Cloud9PhysicalMaterial.h"
+#include "Cloud9/Tools/Structures.h"
 
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Weapon/Enums/FirearmNames.h"
@@ -45,8 +45,34 @@ UENUM()
 enum class EFirearmFireStatus : uint8
 {
 	Success = 0,
-	OutOfAmmo = 1,
+	NoCursorHit = 1,
+
+	PlayAnimation = NoCursorHit,
+
+	OutOfAmmo = 2,
 	Error = 0x80
+};
+
+USTRUCT()
+struct FCursorHitScanInfo
+{
+	GENERATED_BODY()
+
+	FVector StartLocation;
+	FVector EndLocation;
+	float Alpha = 0.0f;
+
+	UPROPERTY()
+	TArray<AActor*> ActorsToIgnore;
+
+	FVector Direction() const { return EndLocation - StartLocation; }
+
+	FVector ExtendedEndLocation() const { return FMath::Lerp(StartLocation, EndLocation, Alpha); }
+
+	static TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> Create(
+		const ACloud9WeaponFirearm* Firearm,
+		const FFirearmWeaponInfo* WeaponInfo,
+		const FFirearmCommonData& FirearmCommonData);
 };
 
 UCLASS()
@@ -82,11 +108,17 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	EFirearmFireStatus Fire(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData);
+	EFirearmFireStatus PrimaryAttack(const FFirearmWeaponInfo* WeaponInfo, const FFirearmCommonData& FirearmCommonData);
+
+	EFirearmFireStatus GunFire(
+		const FFirearmWeaponInfo* WeaponInfo,
+		const FFirearmCommonData& FirearmCommonData,
+		const FCursorHitScanInfo& HitScanInfo);
+
 	bool UpdateReloadAmmo(bool IsShotgun);
 
 	float GetInaccuracy() const;
-	FVector ApplyShootInaccuracy(FVector StartLocation, FVector EndLocation) const;
+	TArray<FVector> CalcShootInaccuracy(const FCursorHitScanInfo& HitScanInfo, float Seed = 0) const;
 
 	bool UpdateMagazineAttachment(bool IsReload);
 	void DropMagazine() const;

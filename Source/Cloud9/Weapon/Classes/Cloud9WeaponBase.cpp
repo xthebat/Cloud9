@@ -298,6 +298,12 @@ const FWeaponCommonData* ACloud9WeaponBase::GetWeaponCommonData() const
 	return WeaponDefinition.GetCommonData();
 }
 
+USceneComponent* ACloud9WeaponBase::GetShootLocationActor() const
+{
+	// TODO: Make it independent from animation
+	return MuzzleFlash;
+}
+
 bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot)
 {
 	if (let MyOwner = GetOwner<ACloud9Character>())

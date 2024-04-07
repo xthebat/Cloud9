@@ -30,4 +30,5 @@ namespace Cloud9WeaponConsts
 
 	constexpr float MaxFallingPenalty = 2.0f; // Accuracy is never worse than 2x starting penalty
 	constexpr float MovementCurve01Exponent = 0.25f;
+	constexpr int PenetrationCount = 4;
 }

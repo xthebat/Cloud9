@@ -187,6 +187,8 @@ public:
 	virtual void SecondaryAction(bool IsReleased);
 	virtual void Reload(bool IsReleased);
 
+	USceneComponent* GetShootLocationActor() const;
+
 protected:
 	static void ChangeMeshCollisionState(UStaticMeshComponent* Mesh, bool bIsEnabled);
 

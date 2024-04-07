@@ -23,7 +23,6 @@
 
 #include "Cloud9WeaponFirearm.h"
 
-#include "DrawDebugHelpers.h"
 #include "Engine/StaticMeshActor.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Cloud9/Cloud9Consts.h"
@@ -43,6 +42,7 @@
 #include "Cloud9/Character/Damages/FirearmDamageType.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Physicals/Cloud9PhysicalMaterial.h"
+#include "Cloud9/Tools/Structures.h"
 #include "Cloud9/Tools/Extensions/TArray.h"
 #include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
@@ -53,6 +53,82 @@
 
 const FName ACloud9WeaponFirearm::TracerProbabilityParameterName = TEXT("Probability");
 const FName ACloud9WeaponFirearm::TracerDirectionParameterName = TEXT("Direction");
+
+
+TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
+	const ACloud9WeaponFirearm* Firearm,
+	const FFirearmWeaponInfo* WeaponInfo,
+	const FFirearmCommonData& FirearmCommonData)
+{
+	static let Settings = UCloud9DeveloperSettings::Get();
+
+	let Character = Firearm->GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
+	{
+		log(Error, "Character is invalid")
+		return EFirearmFireStatus::Error;
+	}
+
+	let Controller = Character->GetCloud9Controller();
+
+	if (not IsValid(Controller))
+	{
+		log(Error, "Can't hit object because player controller isn't valid")
+		return EFirearmFireStatus::Error;
+	}
+
+	var Result = FCursorHitScanInfo();
+
+	// When we do line hit scan ignore our character in any case (Enabled or not SelfAimOption)
+	Result.ActorsToIgnore.Add(Character);
+	Result.StartLocation = Firearm->GetShootLocationActor()->GetComponentLocation();
+
+	if (not Settings->bIsSelfAimEnabled)
+	{
+		TOptional<FHitResult> CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
+			TRACE_CHANNEL,
+			true,
+			Result.ActorsToIgnore
+		};
+
+		if (not CursorHit)
+		{
+			log(Error, "Cursor wasn't hit anything")
+			return EFirearmFireStatus::NoCursorHit;
+		}
+
+		Result.EndLocation = CursorHit->Location;
+		Result.Alpha = FirearmCommonData.LineTraceAlpha;
+	}
+	else
+	{
+		TOptional<FHitResult> CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
+			TRACE_CHANNEL,
+			true
+		};
+
+		if (not CursorHit)
+		{
+			log(Error, "Cursor wasn't anything")
+			return EFirearmFireStatus::NoCursorHit;
+		}
+
+		// Check if use Somali shooting (when cursor on Character)
+		if (CursorHit->Actor == Character)
+		{
+			Result.EndLocation = Result.StartLocation + Firearm->GetShootLocationActor()->GetForwardVector();
+			Result.Alpha = FirearmCommonData.UnknownTraceAlpha;
+		}
+		else
+		{
+			Result.EndLocation = CursorHit->Location;
+			Result.Alpha = FirearmCommonData.LineTraceAlpha;
+		}
+	}
+
+	return MoveTemp(Result);
+}
 
 FWeaponId ACloud9WeaponFirearm::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
 
@@ -222,25 +298,21 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			WeaponInfo->CycleTime,
 			[&]
 			{
-				let Status = Fire(WeaponInfo, CommonData->Firearm);
-
-				if (Status == EFirearmFireStatus::Error)
+				if (let Status = PrimaryAttack(WeaponInfo, CommonData->Firearm);
+					Status > EFirearmFireStatus::PlayAnimation)
 				{
-					log(Error, "[Weapon='%s'] Weapon fire failure", *GetName());
+					log(Error, "[Weapon='%s'] Weapon fire failure status = %d", *GetName(), Status);
 					return false;
 				}
 
-				if (Status == EFirearmFireStatus::Success)
+				if (not AnimComponent->PlayMontage(PoseMontages->PrimaryActionMontage))
 				{
-					if (not AnimComponent->PlayMontage(PoseMontages->PrimaryActionMontage))
-					{
-						log(Error, "[Weapon='%s'] No montage for primary action specified", *GetName());
-						return false;
-					}
-
-					// TODO: May be move to notifier?
-					MuzzleFlash->Activate(true);
+					log(Error, "[Weapon='%s'] No montage for primary action specified", *GetName());
+					return false;
 				}
+
+				// TODO: May be move to notifier?
+				MuzzleFlash->Activate(true);
 
 				return true;
 			}
@@ -283,27 +355,11 @@ bool ACloud9WeaponFirearm::AddAmmoInReserve(int Count)
 	return false;
 }
 
-EFirearmFireStatus ACloud9WeaponFirearm::Fire(
+EFirearmFireStatus ACloud9WeaponFirearm::PrimaryAttack(
 	const FFirearmWeaponInfo* WeaponInfo,
 	const FFirearmCommonData& FirearmCommonData)
 {
 	static let Settings = UCloud9DeveloperSettings::Get();
-
-	let Character = GetOwner<ACloud9Character>();
-
-	if (not IsValid(Character))
-	{
-		log(Error, "Character is invalid")
-		return EFirearmFireStatus::Error;
-	}
-
-	let Controller = Character->GetCloud9Controller();
-
-	if (not IsValid(Controller))
-	{
-		log(Error, "Can't hit object because player controller isn't valid")
-		return EFirearmFireStatus::Error;
-	}
 
 	if (CurrentAmmo == 0)
 	{
@@ -319,6 +375,29 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 		return EFirearmFireStatus::OutOfAmmo;
 	}
 
+	if (var [Error, HitScanInfo] = FCursorHitScanInfo::Create(this, WeaponInfo, FirearmCommonData);
+		Error == EFirearmFireStatus::Success)
+	{
+		let EndLocations = CalcShootInaccuracy(*HitScanInfo);
+
+		AccuracyPenalty += WeaponInfo->GetInaccuracyFire();
+
+		let IsOk = EndLocations | ETContainer::AllByPredicate{
+			[&](let EndLocation)
+			{
+				HitScanInfo->EndLocation = EndLocation;
+				// 'PEW PEW' HAPPENS HERE
+				return GunFire(WeaponInfo, FirearmCommonData, *HitScanInfo) == EFirearmFireStatus::Success;
+			}
+		};
+
+		if (not IsOk)
+		{
+			log(Error, "[Weapon='%s'] Gun fire error...", *GetName());
+			return EFirearmFireStatus::Error;
+		}
+	}
+
 	if (not Settings->bIsCheatsEnabled or not Settings->bIsInfiniteAmmo)
 	{
 		CurrentAmmo -= 1;
@@ -327,65 +406,27 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 
 	EjectCase();
 
-	// When we do line hit scan ignore our character in any case (Enabled or not SelfAimOption)
-	let ActorsToIgnore = TArray<AActor*>{Character};
+	return EFirearmFireStatus::Success;
+}
 
-	let StartLocation = MuzzleFlash->GetComponentLocation();
+EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
+	const FFirearmWeaponInfo* WeaponInfo,
+	const FFirearmCommonData& FirearmCommonData,
+	const FCursorHitScanInfo& HitScanInfo)
+{
+	static let Settings = UCloud9DeveloperSettings::Get();
 
-	FVector EndLocationNoSpread;
-	float Alpha;
-	if (not Settings->bIsSelfAimEnabled)
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
 	{
-		TOptional<FHitResult> CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
-			TRACE_CHANNEL,
-			true,
-			ActorsToIgnore
-		};
-
-		if (not CursorHit)
-		{
-			log(Error, "Cursor wasn't hit anything")
-			return EFirearmFireStatus::Success;
-		}
-
-		EndLocationNoSpread = CursorHit->Location;
-		Alpha = FirearmCommonData.LineTraceAlpha;
+		log(Error, "Character is invalid")
+		return EFirearmFireStatus::Error;
 	}
-	else
-	{
-		TOptional<FHitResult> CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
-			TRACE_CHANNEL,
-			true
-		};
-
-		if (not CursorHit)
-		{
-			log(Error, "Cursor wasn't anything")
-			return EFirearmFireStatus::Success;
-		}
-
-		// Check if use Somali shooting (when cursor on Character)
-		if (CursorHit->Actor == Character)
-		{
-			EndLocationNoSpread = StartLocation + MuzzleFlash->GetForwardVector();
-			Alpha = FirearmCommonData.UnknownTraceAlpha;
-		}
-		else
-		{
-			EndLocationNoSpread = CursorHit->Location;
-			Alpha = FirearmCommonData.LineTraceAlpha;
-		}
-	}
-
-	log(Warning, "EndLocationNoSpread = %s", *EndLocationNoSpread.ToString());
-
-	var EndLocation = ApplyShootInaccuracy(StartLocation, EndLocationNoSpread);
-
-	AccuracyPenalty += WeaponInfo->GetInaccuracyFire();
 
 	// GetHitResultUnderCursor can return coordinates slightly upper then surface
 	// Prolong line in shoot direction
-	EndLocation = FMath::Lerp(StartLocation, EndLocation, Alpha);
+	let EndLocation = HitScanInfo.ExtendedEndLocation();
 
 	var CollisionParams = FCollisionQueryParams::DefaultQueryParam;
 
@@ -397,13 +438,13 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 		GetWorld()->DebugDrawTraceTag = TraceTag;
 		CollisionParams.TraceTag = TraceTag;
 		CollisionParams.bTraceComplex = true;
-		CollisionParams.AddIgnoredActors(ActorsToIgnore);
+		CollisionParams.AddIgnoredActors(HitScanInfo.ActorsToIgnore);
 	}
 
 	FHitResult LineHit;
 	let IsHit = GetWorld()->LineTraceSingleByChannel(
 		LineHit,
-		StartLocation,
+		HitScanInfo.StartLocation,
 		EndLocation,
 		TRACE_CHANNEL,
 		CollisionParams);
@@ -421,7 +462,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 		    *TargetName,
 		    *OwnerName,
 		    *PhysicalMaterial,
-		    *StartLocation.ToString(),
+		    *HitScanInfo.StartLocation.ToString(),
 		    *EndLocation.ToString(),
 		    *LineHit.TraceEnd.ToString(),
 		    *LineHit.Location.ToString(),
@@ -440,14 +481,14 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 			return EFirearmFireStatus::Success;
 		}
 
-		let Direction = LineHit.Location - StartLocation | EFVector::Normalize{};
+		let Direction = LineHit.Location - HitScanInfo.StartLocation | EFVector::Normalize{};
 
 		if (IsValid(FirearmCommonData.Tracer))
 		{
 			let Tracer = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 				GetWorld(),
 				FirearmCommonData.Tracer,
-				StartLocation);
+				HitScanInfo.StartLocation);
 			Tracer->SetVectorParameter(TracerDirectionParameterName, Direction);
 			Tracer->SetFloatParameter(TracerProbabilityParameterName, WeaponInfo->TracerProbability);
 			Tracer->SetAutoDestroy(true);
@@ -457,7 +498,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 
 		if (not IsValid(DamagedActor))
 		{
-			log(Error, "[Weapon='%s'] Line trace got hit but target actor is invalid", *GetName());
+			log(Warning, "[Weapon='%s'] Line trace got hit but target actor is invalid", *GetName());
 			return EFirearmFireStatus::Success;
 		}
 
@@ -554,20 +595,13 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 
 						if (IsBackgroundHit)
 						{
-							let BackgroundActor = LineHit.Actor.Get();
-							if (not IsValid(BackgroundActor))
-							{
-								log(Error, "[Weapon='%s'] Background actor is invalid on hit", *GetName());
-								return EFirearmFireStatus::Success;
-							}
-
 							GetWorld() | EUWorld::SpawnDecal{
 								.Material = BackgroundDecal,
 								.DecalSize = PhysicalMaterial->GetBackgroundDecalSize(),
 								.Location = PhysicalMaterial->GetBackgroundDecalLocation(
 									BackgroundHit.Location, BackgroundHit.Normal),
 								.Rotator = PhysicalMaterial->GetBackgroundDecalRotation(BackgroundHit.Normal),
-								.Owner = BackgroundActor,
+								.Owner = LineHit.Actor.Get(),
 								.Instigator = Character
 							};
 						}
@@ -575,8 +609,6 @@ EFirearmFireStatus ACloud9WeaponFirearm::Fire(
 				}
 			}
 		}
-
-		return EFirearmFireStatus::Success;
 	}
 
 	return EFirearmFireStatus::Success;
@@ -694,7 +726,7 @@ float ACloud9WeaponFirearm::GetInaccuracy() const
 	// ======================================== end cstrike15_src ======================================================
 }
 
-FVector ACloud9WeaponFirearm::ApplyShootInaccuracy(FVector StartLocation, FVector EndLocation) const
+TArray<FVector> ACloud9WeaponFirearm::CalcShootInaccuracy(const FCursorHitScanInfo& HitScanInfo, float Seed) const
 {
 	// ======================================== begin cstrike15_src ====================================================
 
@@ -702,11 +734,9 @@ FVector ACloud9WeaponFirearm::ApplyShootInaccuracy(FVector StartLocation, FVecto
 
 	let WeaponInfo = GetWeaponInfo();
 
-	// RandomSeed(iSeed); // init random system with this seed
+	// RandomSeed(Seed); // init random system with this seed
 
-	let Direction = EndLocation - StartLocation;
-
-	log(Warning, "Direction = %s", *Direction.ToString());
+	let Direction = HitScanInfo.Direction();
 
 	// Accuracy curve density adjustment FOR R8 REVOLVER SECONDARY FIRE, NEGEV WILD BEAST
 	var RadiusCurveDensity = FMath::FRand();
@@ -750,118 +780,54 @@ FVector ACloud9WeaponFirearm::ApplyShootInaccuracy(FVector StartLocation, FVecto
 		WeaponInfo->BulletsPerShot <= Cloud9WeaponConsts::MaxBullets
 	);
 
-	var OffsetX1 = ETArray::ArrayOf<float>(Cloud9WeaponConsts::MaxBullets);
-	var OffsetY1 = ETArray::ArrayOf<float>(Cloud9WeaponConsts::MaxBullets);
+	FVector Forward, Right, Up;
+	let RotMatrix = FRotationMatrix(Direction.Rotation());
+	RotMatrix.GetScaledAxes(Forward, Right, Up);
 
 	// the RNG can be desynchronized by FireBullet(), so pre-generate all spread offsets
-	for (int Bullet = 0; Bullet < WeaponInfo->BulletsPerShot; Bullet++)
-	{
-		// Spread curve density adjustment for R8 REVOLVER SECONDARY FIRE, NEGEV WILD BEAST
-		var SpreadCurveDensity = FMath::FRand();
-
-		if (GetWeaponId<EFirearm>() == EFirearm::Revolver and WeaponState.IsActionActive(EWeaponAction::Secondary))
+	return ETArray::ArrayOf(
+		WeaponInfo->BulletsPerShot,
+		[&](let Bullet)
 		{
-			SpreadCurveDensity = 1.0f - SpreadCurveDensity * SpreadCurveDensity;
-		}
+			// Spread curve density adjustment for R8 REVOLVER SECONDARY FIRE, NEGEV WILD BEAST
+			var SpreadCurveDensity = FMath::FRand();
 
-		if (GetWeaponId<EFirearm>() == EFirearm::Negev and RecoilIndex < 3) /*NEGEV WILD BEAST*/
-		{
-			for (int j = 3; j > RecoilIndex; --j)
+			if (GetWeaponId<EFirearm>() == EFirearm::Revolver and WeaponState.IsActionActive(
+				EWeaponAction::Secondary))
 			{
-				SpreadCurveDensity *= SpreadCurveDensity;
+				SpreadCurveDensity = 1.0f - SpreadCurveDensity * SpreadCurveDensity;
 			}
 
-			SpreadCurveDensity = 1.0f - SpreadCurveDensity;
+			if (GetWeaponId<EFirearm>() == EFirearm::Negev and RecoilIndex < 3) /*NEGEV WILD BEAST*/
+			{
+				for (int j = 3; j > RecoilIndex; --j)
+				{
+					SpreadCurveDensity *= SpreadCurveDensity;
+				}
+
+				SpreadCurveDensity = 1.0f - SpreadCurveDensity;
+			}
+
+			if (Settings->WeaponDebugMaxInaccuracy)
+			{
+				SpreadCurveDensity = 1.0f;
+			}
+
+			var Theta1 = FMath::FRandRange(0.0f, 2.0f * PI);
+
+			if (Settings->WeaponDebugInaccuracyOnlyUp)
+			{
+				Theta1 = PI * 0.5f;
+			}
+
+			let Radius1 = SpreadCurveDensity * WeaponInfo->Spread;
+			let OffsetX1 = OffsetX0 + Radius1 * FMath::Cos(Theta1);
+			let OffsetY1 = OffsetY0 + Radius1 * FMath::Sin(Theta1);
+
+			let InaccuracyDirection = Forward + Up * OffsetX1 + Right * OffsetY1 | EFVector::Normalize{};
+			return InaccuracyDirection * Direction.Size();
 		}
-
-		if (Settings->WeaponDebugMaxInaccuracy)
-		{
-			SpreadCurveDensity = 1.0f;
-		}
-
-		var Theta1 = FMath::FRandRange(0.0f, 2.0f * PI);
-
-		if (Settings->WeaponDebugInaccuracyOnlyUp)
-		{
-			Theta1 = PI * 0.5f;
-		}
-
-		let Radius1 = SpreadCurveDensity * WeaponInfo->Spread;
-		OffsetX1[Bullet] = OffsetX0 + Radius1 * FMath::Cos(Theta1);
-		OffsetY1[Bullet] = OffsetY0 + Radius1 * FMath::Sin(Theta1);
-	}
-
-	log(Warning, "Spread OffsetX = %f OffsetY = %f", OffsetX1[0], OffsetY1[0]);
-
-	FVector Forward, Up, Right;
-	Direction.CreateOrthonormalBasis(Forward, Up, Right);
-
-	DrawDebugLine(
-		GetWorld(),
-		StartLocation,
-		StartLocation + Direction,
-		FColor::Purple,
-		false,
-		5.0);
-
-	
-	// let XY = FVector{Direction.X, Direction.Y, 0.0f};
-	
-	// let Forward = XY;
-	// let Up = Direction.
-	// let Right = FVector{Direction.X, Direction.Y, 0.0f};
-
-	DrawDebugLine(
-		GetWorld(),
-		StartLocation,
-		StartLocation + Forward,
-		FColor::Green,
-		false,
-		5.0);
-
-	DrawDebugLine(
-		GetWorld(),
-		StartLocation,
-		StartLocation + Up,
-		FColor::Red,
-		false,
-		5.0);
-
-	DrawDebugLine(
-		GetWorld(),
-		StartLocation,
-		StartLocation + Right,
-		FColor::Blue,
-		false,
-		5.0);
-
-	// TODO: Implement shotgun fire
-	let InaccuracyDirection = Forward + Up * OffsetX1[0] + Right * OffsetY1[0] | EFVector::Normalize{};
-	return InaccuracyDirection + EndLocation;
-
-	// for (int Bullet = 0; Bullet < WeaponInfo->BulletsPerShot; Bullet++)
-	// {
-	// 	if (!pPlayer)
-	// 	{
-	// 		break;
-	// 	}
-	//
-	// 	constexpr int PenetrationCount = 4;
-	//
-	// 	pPlayer->FireBullet(
-	// 		vOrigin,
-	// 		adjustedAngles,
-	// 		flRange,
-	// 		flPenetration,
-	// 		PenetrationCount,
-	// 		iAmmoType,
-	// 		iDamage,
-	// 		flRangeModifier,
-	// 		pPlayer,
-	// 		bDoEffects,
-	// 		OffsetX0 + OffsetX1[Bullet], OffsetY0 + OffsetY1[Bullet]
-	// 	);
-	// }
+	);
 
 	// ======================================== end cstrike15_src ======================================================
 }
