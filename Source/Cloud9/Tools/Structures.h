@@ -10,7 +10,7 @@ struct TErrorValue
 
 	TErrorValue(ErrorType Error, ValueType&& Value) : Error(Error), Value(MoveTemp(Value)) {}
 
-	TErrorValue(ValueType&& Value) : TErrorValue({}, Value) {}
+	TErrorValue(ValueType&& Value) : TErrorValue({}, MoveTemp(Value)) {}
 
 	TErrorValue(ErrorType Error) : TErrorValue(Error, {}) {}
 };

@@ -127,7 +127,7 @@ TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
 		}
 	}
 
-	return MoveTemp(Result);
+	return Result;
 }
 
 FWeaponId ACloud9WeaponFirearm::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
