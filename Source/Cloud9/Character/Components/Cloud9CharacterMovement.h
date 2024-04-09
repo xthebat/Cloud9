@@ -45,6 +45,7 @@ public:
 	void UnSneak() const;
 
 	void Rotate(FRotator Rotator, bool Instant = false);
+	bool IsOnLadder() const;
 
 	UPROPERTY(Category="Character Movement: Sneaking", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="0"))
 	float MaxSneakSpeed;

@@ -291,7 +291,7 @@ bool ACloud9WeaponGrenade::OnGrenadeActionLoop()
 		UCloud9SoundPlayer::PlayRandomSound(ExplodeSounds, Location, Settings->Volume);
 	}
 
-	if (Settings->bIsDrawExplosionSpheres)
+	if (Settings->IsDrawExplosionSpheres)
 	{
 		constexpr int SphereSegments = 32;
 		constexpr int SphereLifeTime = 4.0f;
@@ -409,7 +409,7 @@ bool ACloud9WeaponGrenade::Throw() const
 
 	static let Settings = UCloud9DeveloperSettings::Get();
 	FWeaponConfig GrenadeConfig;
-	let IsInfiniteAmmo = Settings->bIsCheatsEnabled and Settings->bIsInfiniteAmmo;
+	let IsInfiniteAmmo = Settings->IsCheatsEnabled and Settings->IsInfiniteAmmo;
 
 	if (IsInfiniteAmmo)
 	{

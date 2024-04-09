@@ -21,7 +21,7 @@ namespace Cloud9Player
 	constexpr float HeavyArmorFlinchModifier = 0.5f;
 
 	constexpr float DuckSpeedIdeal = 8.0f;
-}
+};
 
 
 namespace Cloud9WeaponConsts
@@ -31,4 +31,6 @@ namespace Cloud9WeaponConsts
 	constexpr float MaxFallingPenalty = 2.0f; // Accuracy is never worse than 2x starting penalty
 	constexpr float MovementCurve01Exponent = 0.25f;
 	constexpr int PenetrationCount = 4;
-}
+
+	constexpr float WeaponRecoilDecayThreshold = 1.10;
+};

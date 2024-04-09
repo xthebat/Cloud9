@@ -1,0 +1,48 @@
+		"weapon_base"
+		{
+			"prefab"		"statted_item_base"
+			"craft_class"		"weapon"
+			"craft_material_type"		"weapon"
+			"item_type_name"		"#CSGO_Type_Weapon"
+			"item_quality"		"unique"
+			"item_rarity"		"common"
+			"min_ilevel"		"1"
+			"max_ilevel"		"1"
+			"image_inventory_size_w"		"128"
+			"image_inventory_size_h"		"82"
+			"mouse_pressed_sound"		"weapons/m4a1/m4a1_clipout.wav"
+			"drop_sound"		"weapons/m4a1/m4a1_clipint.wav"
+			"inventory_image_data"
+			{
+				"camera_angles"		"2.0 -130.0 0.0"
+				"camera_offset"		"0.0 1.0 -2.0"
+				"camera_fov"		"35.000000"
+				"override_default_light"		"1"
+				"spot_light_key"
+				{
+					"position"		"-120 120 180"
+					"color"		"2 2.1 2.3"
+					"lookat"		"0.0 0.0 0.0"
+					"inner_cone"		"0.500000"
+					"outer_cone"		"1.000000"
+				}
+				"spot_light_rim"
+				{
+					"position"		"10.0 -90.0 -60.0"
+					"color"		"3 5 5"
+					"lookat"		"0.0 0.0 0.0"
+					"inner_cone"		"0.040000"
+					"outer_cone"		"0.500000"
+				}
+			}
+			"attributes"
+			{
+				"recovery time crouch final"		"-1.000000"
+				"recovery time stand final"		"-1.000000"
+			}
+			"taxonomy"
+			{
+				"weapon"		"1"
+				"self_damage_on_miss__inflicts_damage"		"1"
+			}
+		}

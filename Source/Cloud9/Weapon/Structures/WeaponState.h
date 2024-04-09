@@ -90,6 +90,24 @@ struct FWeaponState
 
 	bool IsMagazineDetached() const { return bIsMagazineDetached; }
 
+	bool IsPrimary() const
+	{
+		return IsActionActive(
+			EWeaponAction::PrimaryStart,
+			EWeaponAction::PrimaryLoop,
+			EWeaponAction::PrimaryEnd);
+	}
+
+	bool IsSecondary() const { return IsActionActive(EWeaponAction::Secondary); }
+
+	bool IsReloading() const
+	{
+		return IsActionActive(
+			EWeaponAction::ReloadStart,
+			EWeaponAction::ReloadLoop,
+			EWeaponAction::ReloadEnd);
+	}
+
 protected:
 	void ClearAllActions();
 

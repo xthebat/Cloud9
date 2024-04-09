@@ -1,0 +1,155 @@
+		"weapon_nova_prefab"
+		{
+			"prefab"		"shotgun"
+			"item_class"		"weapon_nova"
+			"item_name"		"#SFUI_WPNHUD_Nova"
+			"item_description"		"#CSGO_Item_Desc_Nova"
+			"image_inventory"		"econ/weapons/base_weapons/weapon_nova"
+			"model_player"		"models/weapons/v_shot_nova.mdl"
+			"model_world"		"models/weapons/w_shot_nova.mdl"
+			"model_dropped"		"models/weapons/w_shot_nova_dropped.mdl"
+			"icon_default_image"		"materials/icons/inventory_icon_weapon_nova.vtf"
+			"stickers"
+			{
+				"0"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/shot_nova/shot_nova_decal_a.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/shot_nova_decal_a.mdl"
+					"worldmodel_decal_pos"		"-0.834116 1.96027 -2.80232"
+					"worldmodel_decal_end"		"-0.834116 -3.23734 2.3953"
+				}
+				"1"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/shot_nova/shot_nova_decal_b.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/shot_nova_decal_b.mdl"
+					"worldmodel_decal_pos"		"2.84688 -0.472176 0.0710886"
+				}
+				"2"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/shot_nova/shot_nova_decal_c.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/shot_nova_decal_c.mdl"
+					"worldmodel_decal_pos"		"2.84688 -0.174112 3.68293"
+				}
+				"3"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/shot_nova/shot_nova_decal_d.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/shot_nova_decal_d.mdl"
+					"worldmodel_decal_pos"		"2.84688 -0.0459781 7.01211"
+				}
+			}
+			"used_by_classes"
+			{
+				"terrorists"		"1"
+				"counter-terrorists"		"1"
+			}
+			"attributes"
+			{
+				"primary reserve ammo max"		"32"
+				"is full auto"		"0"
+				"inaccuracy jump initial"		"109.699997"
+				"inaccuracy jump"		"126.309998"
+				"heat per shot"		"1.500000"
+				"addon scale"		"0.900000"
+				"tracer frequency"		"1"
+				"max player speed"		"220"
+				"in game price"		"1050"
+				"kill award"		"900"
+				"armor ratio"		"1.000000"
+				"crosshair min distance"		"8"
+				"crosshair delta distance"		"6"
+				"penetration"		"1"
+				"damage"		"26"
+				"range"		"3000"
+				"range modifier"		"0.700000"
+				"bullets"		"9"
+				"cycletime"		"0.880000"
+				"flinch velocity modifier large"		"0.400000"
+				"flinch velocity modifier small"		"0.450000"
+				"spread"		"40.000000"
+				"inaccuracy crouch"		"5.250000"
+				"inaccuracy stand"		"7.000000"
+				"inaccuracy land"		"0.236000"
+				"inaccuracy ladder"		"78.750000"
+				"inaccuracy fire"		"9.720000"
+				"inaccuracy move"		"36.750000"
+				"recovery time crouch"		"0.328941"
+				"recovery time stand"		"0.460517"
+				"recoil angle"		"0"
+				"recoil angle variance"		"20"
+				"recoil magnitude"		"143"
+				"recoil magnitude variance"		"22"
+				"recoil seed"		"7763"
+				"spread seed"		"17514"
+				"primary clip size"		"8"
+				"weapon weight"		"20"
+				"rumble effect"		"5"
+				"inaccuracy crouch alt"		"5.250000"
+				"inaccuracy fire alt"		"9.720000"
+				"inaccuracy jump alt"		"126.309998"
+				"inaccuracy ladder alt"		"78.750000"
+				"inaccuracy land alt"		"0.236000"
+				"inaccuracy move alt"		"36.750000"
+				"inaccuracy stand alt"		"7.000000"
+				"max player speed alt"		"220"
+				"recoil angle alt"		"0"
+				"recoil angle variance alt"		"20"
+				"recoil magnitude alt"		"143"
+				"recoil magnitude variance alt"		"22"
+				"recovery time crouch final"		"0.328941"
+				"recovery time stand final"		"0.460517"
+				"spread alt"		"40.000000"
+			}
+			"inventory_image_data"
+			{
+				"camera_angles"		"-5.0 -137.0 0.0"
+				"camera_offset"		"15.0 5.7 -2.5"
+				"camera_fov"		"45"
+				"spot_light_key"
+				{
+					"position"		"-190 120 80"
+					"color"		"3 3.15 3.45"
+					"lookat"		"0.0 0.0 0.0"
+					"inner_cone"		"0.500000"
+					"outer_cone"		"1.000000"
+				}
+				"spot_light_rim"
+				{
+					"position"		"0 -80 -110"
+					"color"		"3 5 5"
+					"lookat"		"0.0 0.0 0.0"
+					"inner_cone"		"0.040000"
+					"outer_cone"		"0.500000"
+				}
+				"point_light_accent"
+				{
+					"position"		"90 0 0"
+					"color"		"6 6 6"
+				}
+			}
+			"paint_data"
+			{
+				"PaintableMaterial0"
+				{
+					"Name"		"shot_nova"
+					"ViewmodelDim"		"2048"
+					"WorldDim"		"512"
+					"BaseTextureOverride"		"0"
+					"WeaponLength"		"39.695000"
+					"UVScale"		"0.744000"
+				}
+			}
+			"visuals"
+			{
+				"muzzle_flash_effect_1st_person"		"weapon_muzzle_flash_autoshotgun"
+				"muzzle_flash_effect_3rd_person"		"weapon_muzzle_flash_autoshotgun"
+				"heat_effect"		"weapon_muzzle_smoke"
+				"addon_location"		"primary_shotgun"
+				"eject_brass_effect"		"weapon_shell_casing_shotgun"
+				"tracer_effect"		"weapon_tracers_shot"
+				"weapon_type"		"Shotgun"
+				"player_animation_extension"		"nova"
+				"primary_ammo"		"BULLET_PLAYER_BUCKSHOT"
+				"sound_single_shot"		"Weapon_Nova.Single"
+				"sound_nearlyempty"		"Default.nearlyempty"
+			}
+		}

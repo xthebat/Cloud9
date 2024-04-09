@@ -1,0 +1,26 @@
+		"primary"
+		{
+			"prefab"		"weapon_base"
+			"item_gear_slot"		"primary"
+			"item_gear_slot_position"		"0"
+			"capabilities"
+			{
+				"nameable"		"1"
+				"paintable"		"1"
+				"can_sticker"		"1"
+				"can_stattrack_swap"		"1"
+			}
+			"attributes"
+			{
+				"stattrak model"		"models/weapons/stattrack.mdl"
+				"recovery transition start bullet"		"2"
+				"recovery transition end bullet"		"5"
+				"inaccuracy jump initial"		"250.000000"
+				"inaccuracy jump"		"500.000000"
+				"inaccuracy jump alt"		"500.000000"
+			}
+			"taxonomy"
+			{
+				"primary"		"1"
+			}
+		}

@@ -1,0 +1,23 @@
+		"shotgun"
+		{
+			"prefab"		"primary"
+			"item_type_name"		"#CSGO_Type_Shotgun"
+			"item_slot"		"heavy"
+			"inv_group_equipment"		"heavy"
+			"mouse_pressed_sound"		"weapons/sawedoff/sawedoff_draw.wav"
+			"drop_sound"		"weapons/sawedoff/sawedoff_pump.wav"
+			"visuals"
+			{
+				"weapon_type"		"Shotgun"
+			}
+			"attributes"
+			{
+				"flinch velocity modifier large"		"0.350000"
+				"flinch velocity modifier small"		"0.100000"
+			}
+			"taxonomy"
+			{
+				"reloads_per_shell"		"1"
+				"shotgun"		"1"
+			}
+		}

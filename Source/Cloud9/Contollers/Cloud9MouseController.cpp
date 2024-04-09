@@ -122,7 +122,7 @@ void UCloud9MouseController::ProcessCharacterView()
 		if (let Controller = GetCloud9Controller(); IsValid(Controller))
 		{
 			static var Settings = UCloud9DeveloperSettings::Get();
-			let ActorsToIgnore = Settings->bIsSelfAimEnabled ? TArray<AActor*>{} : TArray<AActor*>{Pawn};
+			let ActorsToIgnore = Settings->IsSelfAimEnabled ? TArray<AActor*>{} : TArray<AActor*>{Pawn};
 			let CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
 				TRACE_CHANNEL,
 				true,

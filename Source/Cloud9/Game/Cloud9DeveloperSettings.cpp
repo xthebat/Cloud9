@@ -38,29 +38,37 @@ FString UCloud9DeveloperSettings::InfiniteAmmoName = "r.InfiniteAmmo";
 FString UCloud9DeveloperSettings::CheatsName = "r.Cheats";
 FString UCloud9DeveloperSettings::SelfAimEnabledName = "r.SelfAimEnabled";
 FString UCloud9DeveloperSettings::CameraVerticalSpeedLagName = "r.CameraVerticalSpeedLag";
+FString UCloud9DeveloperSettings::NoInaccuracyName = "r.NoInaccuracy";
+FString UCloud9DeveloperSettings::JumpImpulseName = "r.JumpImpulse";
+FString UCloud9DeveloperSettings::WeaponAirSpreadScaleName = "r.WeaponAirSpreadScale";
+FString UCloud9DeveloperSettings::WeaponDebugMaxInaccuracyName = "r.WeaponDebugMaxInaccuracy";
+FString UCloud9DeveloperSettings::WeaponDebugInaccuracyOnlyUpName = "r.WeaponDebugInaccuracyOnlyUp";
+FString UCloud9DeveloperSettings::WeaponRecoilDecayCoefficientName = "r.WeaponRecoilDecayCoefficient";
 FString UCloud9DeveloperSettings::VolumeName = "r.Volume";
 
 // ReSharper disable once CppPossiblyUninitializedMember
 UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	bIsDrawHitCursorLine = 0;
-	bIsDrawDeprojectedCursorLine = 0;
-	bIsShowMouseCursor = 0;
-	bIsDrawExplosionSpheres = 0;
-	bIsDrawHitScan = 0;
-	bIsPrintHitScanInfo = 0;
+	IsDrawHitCursorLine = 0;
+	IsDrawDeprojectedCursorLine = 0;
+	IsShowMouseCursor = 0;
+	IsDrawExplosionSpheres = 0;
+	IsDrawHitScan = 0;
+	IsPrintHitScanInfo = 0;
 	CameraVerticalSpeedLag = 0.0;
 	NetGraph = 0;
-	bIsAutoSelectWeapon = 0;
-	bIsInfiniteAmmo = 0;
-	bIsCheatsEnabled = 0;
-	bIsSelfAimEnabled = 0;
+	IsAutoSelectWeapon = 0;
+	IsInfiniteAmmo = 0;
+	IsCheatsEnabled = 0;
+	IsSelfAimEnabled = 0;
 	Volume = 0.1;
 	WeaponAirSpreadScale = 1.0f;
 	JumpImpulse = 301.993377;
+	IsNoInaccuracy = 0;
 	WeaponDebugMaxInaccuracy = 0;
 	WeaponDebugInaccuracyOnlyUp = 0;
+	WeaponRecoilDecayCoefficient = 2.0f;
 }
 
 UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
@@ -107,37 +115,37 @@ void UCloud9DeveloperSettings::InitializeCVars()
 		bIsConsoleInitialized = true;
 
 		RegisterConsoleVariable(
-			bIsShowMouseCursor,
+			IsShowMouseCursor,
 			*ShowMouseCursorName,
 			TEXT("Whether to draw line from character to GetHitResultUnderCursor point")
 		);
 
 		RegisterConsoleVariable(
-			bIsDrawDeprojectedCursorLine,
+			IsDrawDeprojectedCursorLine,
 			*DrawDeprojectedCursorLineName,
 			TEXT("Whether to draw line from character to deprojected mouse cursor")
 		);
 
 		RegisterConsoleVariable(
-			bIsDrawHitCursorLine,
+			IsDrawHitCursorLine,
 			*DrawHitCursorLineName,
 			TEXT("Whether to show mouse cursor on screen or not in game")
 		);
 
 		RegisterConsoleVariable(
-			bIsDrawExplosionSpheres,
+			IsDrawExplosionSpheres,
 			*DrawExplosionSphereName,
 			TEXT("Whether to draw debug explosions spheres")
 		);
 
 		RegisterConsoleVariable(
-			bIsDrawHitScan,
+			IsDrawHitScan,
 			*DrawHitScanName,
 			TEXT("Whether to draw debug hit scan lines")
 		);
 
 		RegisterConsoleVariable(
-			bIsPrintHitScanInfo,
+			IsPrintHitScanInfo,
 			*PrintHitScanInfoName,
 			TEXT("Whether to print hit scan info")
 		);
@@ -149,25 +157,25 @@ void UCloud9DeveloperSettings::InitializeCVars()
 		);
 
 		RegisterConsoleVariable(
-			bIsAutoSelectWeapon,
+			IsAutoSelectWeapon,
 			*AutoSelectWeaponName,
 			TEXT("Select weapon after picking it up")
 		);
 
 		RegisterConsoleVariable(
-			bIsInfiniteAmmo,
+			IsInfiniteAmmo,
 			*InfiniteAmmoName,
 			TEXT("Infinite Weapon Ammo")
 		);
 
 		RegisterConsoleVariable(
-			bIsCheatsEnabled,
+			IsCheatsEnabled,
 			*CheatsName,
 			TEXT("Enable cheats")
 		);
 
 		RegisterConsoleVariable(
-			bIsSelfAimEnabled,
+			IsSelfAimEnabled,
 			*SelfAimEnabledName,
 			TEXT("Enable self aim")
 		);
@@ -182,6 +190,42 @@ void UCloud9DeveloperSettings::InitializeCVars()
 			Volume,
 			*VolumeName,
 			TEXT("Basic game volume")
+		);
+
+		RegisterConsoleVariable(
+			IsNoInaccuracy,
+			*NoInaccuracyName,
+			TEXT("Remove inaccuracy spread while shooting")
+		);
+
+		RegisterConsoleVariable(
+			JumpImpulse,
+			*JumpImpulseName,
+			TEXT("sv_jump_impulse")
+		);
+
+		RegisterConsoleVariable(
+			WeaponAirSpreadScale,
+			*WeaponAirSpreadScaleName,
+			TEXT("weapon_air_spread_scale")
+		);
+
+		RegisterConsoleVariable(
+			WeaponDebugMaxInaccuracy,
+			*WeaponDebugMaxInaccuracyName,
+			TEXT("weapon_debug_max_inaccuracy")
+		);
+
+		RegisterConsoleVariable(
+			WeaponDebugInaccuracyOnlyUp,
+			*WeaponDebugInaccuracyOnlyUpName,
+			TEXT("weapon_debug_inaccuracy_only_up")
+		);
+
+		RegisterConsoleVariable(
+			WeaponRecoilDecayCoefficient,
+			*WeaponRecoilDecayCoefficientName,
+			TEXT("weapon_recoil_decay_coefficient")
 		);
 
 		log(Display, "%s", this | EUObject::Stringify{} | EFString::ToCStr{});

@@ -32,7 +32,7 @@ bool AWeaponSpawner::ActivateSpawner(ACloud9Character* Character)
 	if (let Inventory = Character->GetInventoryComponent(); IsValid(Inventory))
 	{
 		static let Settings = UCloud9DeveloperSettings::Get();
-		return Inventory->AddWeapon(WeaponConfig, static_cast<bool>(Settings->bIsAutoSelectWeapon), true);
+		return Inventory->AddWeapon(WeaponConfig, static_cast<bool>(Settings->IsAutoSelectWeapon), true);
 	}
 
 	return false;

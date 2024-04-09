@@ -118,41 +118,43 @@ public:
 	template <typename InputType, typename OutputType>
 	static constexpr InputType Select(InputType Value, OutputType A, OutputType B)
 	{
-		return Value < 0.0f ? A : B;
+		return Value < 0 ? A : B;
 	}
 
-	template <typename ValueType>
+	template <typename ValueType, typename InRangeType, typename OutRangeType>
 	static constexpr ValueType RemapValue(
 		ValueType Value,
-		ValueType InRangeMin,
-		ValueType InRangeMax,
-		ValueType OutRangeMin,
-		ValueType OutRangeMax)
+		InRangeType InRangeMin,
+		InRangeType InRangeMax,
+		OutRangeType OutRangeMin,
+		OutRangeType OutRangeMax)
 	{
 		if (InRangeMin == InRangeMax)
 		{
 			return Select(Value - InRangeMax, OutRangeMax, OutRangeMin);
 		}
 
-		return OutRangeMin + (OutRangeMax - OutRangeMin) * (Value - InRangeMin) / (InRangeMax - InRangeMin);
+		let InRange = static_cast<OutRangeType>(InRangeMax - InRangeMin);
+		let OutRange = OutRangeMax - OutRangeMin;
+		return OutRangeMin + OutRange * (Value - InRangeMin) / InRange;
 	}
 
-	template <typename ValueType>
+	template <typename ValueType, typename InRangeType, typename OutRangeType>
 	static constexpr ValueType RemapValueClamped(
 		ValueType Value,
-		ValueType InRangeMin,
-		ValueType InRangeMax,
-		ValueType OutRangeMin,
-		ValueType OutRangeMax)
+		InRangeType InRangeMin,
+		InRangeType InRangeMax,
+		OutRangeType OutRangeMin,
+		OutRangeType OutRangeMax)
 	{
 		if (InRangeMin == InRangeMax)
 		{
 			return Select(Value - InRangeMax, OutRangeMax, OutRangeMin);
 		}
 
-		float Temp = (Value - InRangeMin) / (InRangeMax - InRangeMin);
-		Temp = FMath::Clamp(Temp, 0.0f, 1.0f);
-
-		return OutRangeMin + (OutRangeMax - OutRangeMin) * Temp;
+		let InRange = static_cast<OutRangeType>(InRangeMax - InRangeMin);
+		let Temp = FMath::Clamp((Value - InRangeMin) / InRange, 0.0f, 1.0f);
+		let OutRange = OutRangeMax - OutRangeMin;
+		return OutRangeMin + OutRange * Temp;
 	}
 };

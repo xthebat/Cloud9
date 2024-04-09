@@ -118,7 +118,9 @@ protected:
 	bool UpdateReloadAmmo(bool IsShotgun);
 
 	float GetInaccuracy() const;
-	TArray<FVector> CalcShootInaccuracy(const FCursorHitScanInfo& HitScanInfo, float Seed = 0) const;
+	TArray<FVector> RecalculateByShotInaccuracy(const FCursorHitScanInfo& HitScanInfo, float Seed = 0) const;
+	void UpdateAccuracyPenalty(float DeltaSeconds);
+	float GetRecoveryTime() const;
 
 	bool UpdateMagazineAttachment(bool IsReload);
 	void DropMagazine() const;
@@ -153,7 +155,7 @@ protected: // properties
 	float AccuracyPenalty;
 
 	UPROPERTY()
-	int RecoilIndex;
+	float RecoilPattern; // m_flRecoilIndex
 };
 
 template <>

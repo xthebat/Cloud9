@@ -23,6 +23,7 @@
 
 #include "Cloud9WeaponFirearm.h"
 
+#include "DrawDebugHelpers.h"
 #include "Engine/StaticMeshActor.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Cloud9/Cloud9Consts.h"
@@ -84,7 +85,7 @@ TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
 	Result.ActorsToIgnore.Add(Character);
 	Result.StartLocation = Firearm->GetShootLocationActor()->GetComponentLocation();
 
-	if (not Settings->bIsSelfAimEnabled)
+	if (not Settings->IsSelfAimEnabled)
 	{
 		TOptional<FHitResult> CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
 			TRACE_CHANNEL,
@@ -182,7 +183,7 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponConfig& WeaponConfig)
 		AmmoInReserve = WeaponConfig.GetAmmoInReserve(MaxAmmoInReserve);
 
 		AccuracyPenalty = 0.0f;
-		RecoilIndex = 0;
+		RecoilPattern = 0;
 
 		OnAmmoInMagazineChanged.Broadcast(CurrentAmmo);
 		OnAmmoInReserveChanged.Broadcast(AmmoInReserve);
@@ -331,6 +332,8 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	{
 		// TODO: Implement secondary action for firearm	
 	}
+
+	UpdateAccuracyPenalty(DeltaSeconds);
 }
 
 const FFirearmWeaponInfo* ACloud9WeaponFirearm::GetWeaponInfo() const
@@ -378,7 +381,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::PrimaryAttack(
 	if (var [Error, HitScanInfo] = FCursorHitScanInfo::Create(this, WeaponInfo, FirearmCommonData);
 		Error == EFirearmFireStatus::Success)
 	{
-		let EndLocations = CalcShootInaccuracy(*HitScanInfo);
+		let EndLocations = RecalculateByShotInaccuracy(*HitScanInfo);
 
 		AccuracyPenalty += WeaponInfo->GetInaccuracyFire();
 
@@ -398,7 +401,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::PrimaryAttack(
 		}
 	}
 
-	if (not Settings->bIsCheatsEnabled or not Settings->bIsInfiniteAmmo)
+	if (not Settings->IsCheatsEnabled or not Settings->IsInfiniteAmmo)
 	{
 		CurrentAmmo -= 1;
 		OnAmmoInMagazineChanged.Broadcast(CurrentAmmo);
@@ -432,7 +435,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 
 	CollisionParams.bReturnPhysicalMaterial = true;
 
-	if (Settings->bIsDrawHitScan)
+	if (Settings->IsDrawHitScan)
 	{
 		const FName TraceTag("HitScanTraceTag");
 		GetWorld()->DebugDrawTraceTag = TraceTag;
@@ -449,7 +452,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 		TRACE_CHANNEL,
 		CollisionParams);
 
-	if (Settings->bIsPrintHitScanInfo)
+	if (Settings->IsPrintHitScanInfo)
 	{
 		FString TargetName = IsHit ? *LineHit.Component->GetName() : TEXT("???");
 		FString OwnerName = IsHit and LineHit.Component->GetOwner() != nullptr
@@ -637,20 +640,20 @@ bool ACloud9WeaponFirearm::UpdateReloadAmmo(bool IsShotgun)
 	return true;
 }
 
+// ======================================== begin cstrike15_src ====================================================
+
 float ACloud9WeaponFirearm::GetInaccuracy() const
 {
-	// ======================================== begin cstrike15_src ====================================================
-
 	static let Settings = UCloud9DeveloperSettings::Get();
 
-	let Character = GetOwner<ACloud9Character>();
-
-	if (not IsValid(Character))
+	if (Settings->IsNoInaccuracy)
 	{
 		return 0.0f;
 	}
 
-	if (Settings->bIsNoSpread)
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
 	{
 		return 0.0f;
 	}
@@ -689,7 +692,7 @@ float ACloud9WeaponFirearm::GetInaccuracy() const
 	{
 		let VerticalSpeed = FMath::Abs(Velocity.Z);
 
-		let InaccuracyJumpInitial = WeaponInfo->GetInaccuracyJump() * Settings->WeaponAirSpreadScale;
+		let InaccuracyJumpInitial = WeaponInfo->GetInaccuracyJumpInitial() * Settings->WeaponAirSpreadScale;
 
 		// Use sqrt here to make the curve more "sudden" around the accurate point at the apex of the jump
 		let SqrtMaxJumpSpeed = FMath::Sqrt(Settings->JumpImpulse);
@@ -722,14 +725,12 @@ float ACloud9WeaponFirearm::GetInaccuracy() const
 	}
 
 	return FMath::Min(Inaccuracy, 1.0f);
-
-	// ======================================== end cstrike15_src ======================================================
 }
 
-TArray<FVector> ACloud9WeaponFirearm::CalcShootInaccuracy(const FCursorHitScanInfo& HitScanInfo, float Seed) const
+TArray<FVector> ACloud9WeaponFirearm::RecalculateByShotInaccuracy(
+	const FCursorHitScanInfo& HitScanInfo,
+	float Seed) const
 {
-	// ======================================== begin cstrike15_src ====================================================
-
 	static let Settings = UCloud9DeveloperSettings::Get();
 
 	let WeaponInfo = GetWeaponInfo();
@@ -748,9 +749,9 @@ TArray<FVector> ACloud9WeaponFirearm::CalcShootInaccuracy(const FCursorHitScanIn
 	}
 
 	// Negev currently not implemented but left this check if will be added
-	if (GetWeaponId<EFirearm>() == EFirearm::Negev and RecoilIndex < 3) /* NEGEV WILD BEAST */
+	if (GetWeaponId<EFirearm>() == EFirearm::Negev and RecoilPattern < 3) /* NEGEV WILD BEAST */
 	{
-		for (int j = 3; j > RecoilIndex; --j)
+		for (int j = 3; j > RecoilPattern; --j)
 		{
 			RadiusCurveDensity *= RadiusCurveDensity;
 		}
@@ -775,6 +776,9 @@ TArray<FVector> ACloud9WeaponFirearm::CalcShootInaccuracy(const FCursorHitScanIn
 	let OffsetX0 = Radius0 * FMath::Cos(Theta0);
 	let OffsetY0 = Radius0 * FMath::Sin(Theta0);
 
+	log(Error, "RadiusCurveDensity=%f Inaccuracy=%f Theta0=%f Radius0=%f OffsetX0=%f OffsetY0=%f",
+	    RadiusCurveDensity, Inaccuracy, Theta0, Radius0, OffsetX0, OffsetY0);
+
 	assert(
 		WeaponInfo->BulletsPerShot >= 1 and
 		WeaponInfo->BulletsPerShot <= Cloud9WeaponConsts::MaxBullets
@@ -783,6 +787,35 @@ TArray<FVector> ACloud9WeaponFirearm::CalcShootInaccuracy(const FCursorHitScanIn
 	FVector Forward, Right, Up;
 	let RotMatrix = FRotationMatrix(Direction.Rotation());
 	RotMatrix.GetScaledAxes(Forward, Right, Up);
+
+	// DrawDebugLine(
+	// 	GetWorld(),
+	// 	HitScanInfo.StartLocation,
+	// 	HitScanInfo.StartLocation + Forward * 10.0f,
+	// 	FColor::Red,
+	// 	false,
+	// 	5.0
+	// );
+	//
+	// DrawDebugLine(
+	// 	GetWorld(),
+	// 	HitScanInfo.StartLocation,
+	// 	HitScanInfo.StartLocation + Right * 10.0f,
+	// 	FColor::Green,
+	// 	false,
+	// 	5.0
+	// );
+	//
+	// DrawDebugLine(
+	// 	GetWorld(),
+	// 	HitScanInfo.StartLocation,
+	// 	HitScanInfo.StartLocation + Up * 10.0f,
+	// 	FColor::Blue,
+	// 	false,
+	// 	5.0
+	// );
+
+	let DirectionLength = Direction.Size();
 
 	// the RNG can be desynchronized by FireBullet(), so pre-generate all spread offsets
 	return ETArray::ArrayOf(
@@ -798,9 +831,9 @@ TArray<FVector> ACloud9WeaponFirearm::CalcShootInaccuracy(const FCursorHitScanIn
 				SpreadCurveDensity = 1.0f - SpreadCurveDensity * SpreadCurveDensity;
 			}
 
-			if (GetWeaponId<EFirearm>() == EFirearm::Negev and RecoilIndex < 3) /*NEGEV WILD BEAST*/
+			if (GetWeaponId<EFirearm>() == EFirearm::Negev and RecoilPattern < 3) /*NEGEV WILD BEAST*/
 			{
-				for (int j = 3; j > RecoilIndex; --j)
+				for (int j = 3; j > RecoilPattern; --j)
 				{
 					SpreadCurveDensity *= SpreadCurveDensity;
 				}
@@ -820,17 +853,147 @@ TArray<FVector> ACloud9WeaponFirearm::CalcShootInaccuracy(const FCursorHitScanIn
 				Theta1 = PI * 0.5f;
 			}
 
-			let Radius1 = SpreadCurveDensity * WeaponInfo->Spread;
+			let Radius1 = SpreadCurveDensity * WeaponInfo->GetSpread();
 			let OffsetX1 = OffsetX0 + Radius1 * FMath::Cos(Theta1);
 			let OffsetY1 = OffsetY0 + Radius1 * FMath::Sin(Theta1);
 
+			log(Error, "SpreadCurveDensity=%f Theta1=%f Radius1=%f OffsetX1=%f OffsetY1=%f",
+			    SpreadCurveDensity, Theta1, Radius1, OffsetX1, OffsetY1);
+
 			let InaccuracyDirection = Forward + Up * OffsetX1 + Right * OffsetY1 | EFVector::Normalize{};
-			return InaccuracyDirection * Direction.Size();
+			return InaccuracyDirection * DirectionLength + HitScanInfo.StartLocation;
 		}
 	);
-
-	// ======================================== end cstrike15_src ======================================================
 }
+
+void ACloud9WeaponFirearm::UpdateAccuracyPenalty(float DeltaSeconds)
+{
+	const float ExponentBase = FMath::Loge(10.0f);
+
+	static let Settings = UCloud9DeveloperSettings::Get();
+
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
+	{
+		log(Error, "[Weapon='%s'] Weapon owner is invalid", *GetName());
+		return;
+	}
+
+	let WeaponInfo = GetWeaponInfo();
+
+	float NewPenalty = 0.0f;
+
+	if (Character->GetCloud9CharacterMovement()->IsOnLadder())
+	{
+		NewPenalty += 2.0f * WeaponInfo->GetInaccuracyLadder();
+	}
+	else if (Character->GetMovementComponent()->IsFlying())
+	{
+		NewPenalty += WeaponInfo->GetInaccuracyStand();
+		NewPenalty += WeaponInfo->GetInaccuracyJump() * Settings->WeaponAirSpreadScale;
+	}
+	else if (Character->GetMovementComponent()->IsCrouching())
+	{
+		NewPenalty += WeaponInfo->GetInaccuracyCrouch();
+	}
+	else
+	{
+		NewPenalty += WeaponInfo->GetInaccuracyStand();
+	}
+
+	if (WeaponState.IsReloading())
+	{
+		NewPenalty += WeaponInfo->GetInaccuracyReload();
+	}
+
+	if (NewPenalty > AccuracyPenalty)
+	{
+		AccuracyPenalty = NewPenalty;
+	}
+	else
+	{
+		let DecayFactor = ExponentBase / GetRecoveryTime();
+		AccuracyPenalty = FMath::Lerp(FMath::Exp(DeltaSeconds * -DecayFactor), NewPenalty, AccuracyPenalty);
+	}
+
+	// *** Original condition with tickrate ***
+	// Decay the recoil index if a little more than cycle time has elapsed since the last shot. In other words,
+	// don't decay if we're firing full-auto.
+	// if (gpGlobals->curtime > m_fLastShotTime + TICK_INTERVAL * Cloud9WeaponConsts::WeaponRecoilDecayThreshold)
+	// *** Check only by elapsed time in frame and weapon cycle time *** 
+	if (DeltaSeconds > WeaponInfo->CycleTime * Cloud9WeaponConsts::WeaponRecoilDecayThreshold)
+	{
+		let DecayFactor = ExponentBase * Settings->WeaponRecoilDecayCoefficient;
+		RecoilPattern = FMath::Lerp(FMath::Exp(DeltaSeconds * -DecayFactor), 0.0f, RecoilPattern);
+	}
+}
+
+float ACloud9WeaponFirearm::GetRecoveryTime() const
+{
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
+	{
+		log(Error, "[Weapon='%s'] Weapon owner is invalid", *GetName());
+		return -1.0f;
+	}
+
+	let WeaponInfo = GetWeaponInfo();
+
+	if (Character->GetCloud9CharacterMovement()->IsOnLadder())
+	{
+		return WeaponInfo->GetRecoveryTimeStand();
+	}
+
+	if (Character->GetMovementComponent()->IsFlying()) // in air
+	{
+		// enforce a large recovery speed penalty (400%) for players in the air; this helps to provide
+		// comparable in-air accuracy to the old weapon model
+		return WeaponInfo->GetRecoveryTimeCrouch() * 4.0f;
+	}
+
+	if (Character->GetMovementComponent()->IsCrouching())
+	{
+		float RecoveryTime = WeaponInfo->GetRecoveryTimeCrouch();
+		float RecoveryTimeFinal = WeaponInfo->GetRecoveryTimeCrouchFinal();
+
+		// uninitialized final recovery values are set to -1.0 from the weapon_base prefab in schema
+		if (RecoveryTimeFinal != -1.0f)
+		{
+			const int RecoilIndex = RecoilPattern;
+
+			RecoveryTime = UCloud9ToolsLibrary::RemapValueClamped(
+				RecoilIndex,
+				WeaponInfo->GetRecoveryTransitionStartBullet(),
+				WeaponInfo->GetRecoveryTransitionEndBullet(),
+				RecoveryTime,
+				RecoveryTimeFinal);
+		}
+
+		return RecoveryTime;
+	}
+
+	float RecoveryTime = WeaponInfo->GetRecoveryTimeStand();
+	float RecoveryTimeFinal = WeaponInfo->GetRecoveryTimeStandFinal();
+
+	// uninitialized final recovery values are set to -1.0 from the weapon_base prefab in schema
+	if (RecoveryTimeFinal != -1.0f)
+	{
+		const int RecoilIndex = RecoilPattern;
+
+		RecoveryTime = UCloud9ToolsLibrary::RemapValueClamped(
+			RecoilIndex,
+			WeaponInfo->GetRecoveryTransitionStartBullet(),
+			WeaponInfo->GetRecoveryTransitionEndBullet(),
+			RecoveryTime,
+			RecoveryTimeFinal);
+	}
+
+	return RecoveryTime;
+}
+
+// ======================================== end cstrike15_src ======================================================
 
 
 bool ACloud9WeaponFirearm::UpdateMagazineAttachment(bool IsReload)
