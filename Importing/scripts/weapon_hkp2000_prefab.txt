@@ -1,0 +1,147 @@
+		"weapon_hkp2000_prefab"
+		{
+			"prefab"		"secondary"
+			"item_class"		"weapon_hkp2000"
+			"item_name"		"#SFUI_WPNHUD_HKP2000"
+			"item_description"		"#CSGO_Item_Desc_HKP2000"
+			"item_rarity"		"uncommon"
+			"image_inventory"		"econ/weapons/base_weapons/weapon_hkp2000"
+			"model_player"		"models/weapons/v_pist_hkp2000.mdl"
+			"model_world"		"models/weapons/w_pist_hkp2000.mdl"
+			"model_dropped"		"models/weapons/w_pist_hkp2000_dropped.mdl"
+			"icon_default_image"		"materials/icons/inventory_icon_weapon_hkp2000.vtf"
+			"stickers"
+			{
+				"0"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/pist_hkp2000/pist_hkp2000_decal_a.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/pist_hkp2000_decal_a.mdl"
+					"worldmodel_decal_pos"		"2.80535 -1.33829 -1.86912"
+				}
+				"1"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/pist_hkp2000/pist_hkp2000_decal_b.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/pist_hkp2000_decal_b.mdl"
+					"worldmodel_decal_pos"		"2.80535 -1.07812 0.305017"
+				}
+				"2"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/pist_hkp2000/pist_hkp2000_decal_c.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/pist_hkp2000_decal_c.mdl"
+					"worldmodel_decal_pos"		"2.80535 -1.01071 2.49434"
+				}
+				"3"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/pist_hkp2000/pist_hkp2000_decal_d.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/pist_hkp2000_decal_d.mdl"
+					"worldmodel_decal_pos"		"2.80535 -3.52435 -2.21698"
+				}
+			}
+			"used_by_classes"
+			{
+				"counter-terrorists"		"1"
+			}
+			"attributes"
+			{
+				"magazine model"		"models/weapons/w_pist_hkp2000_mag.mdl"
+				"uid model"		"models/weapons/uid_small.mdl"
+				"primary reserve ammo max"		"52"
+				"inaccuracy jump initial"		"96.599998"
+				"inaccuracy jump"		"94.480003"
+				"inaccuracy jump alt"		"94.480003"
+				"heat per shot"		"0.300000"
+				"tracer frequency"		"1"
+				"max player speed"		"240"
+				"in game price"		"200"
+				"armor ratio"		"1.010000"
+				"crosshair min distance"		"8"
+				"penetration"		"1"
+				"damage"		"35"
+				"range"		"4096"
+				"range modifier"		"0.910000"
+				"cycletime"		"0.170000"
+				"flinch velocity modifier large"		"0.500000"
+				"flinch velocity modifier small"		"0.650000"
+				"spread"		"2.000000"
+				"inaccuracy crouch"		"3.680000"
+				"inaccuracy stand"		"4.900000"
+				"inaccuracy land"		"0.191000"
+				"inaccuracy ladder"		"138.320007"
+				"inaccuracy fire"		"50.000000"
+				"inaccuracy move"		"13.000000"
+				"spread alt"		"1.500000"
+				"inaccuracy crouch alt"		"3.680000"
+				"inaccuracy stand alt"		"4.900000"
+				"inaccuracy land alt"		"0.198000"
+				"inaccuracy ladder alt"		"119.900002"
+				"inaccuracy fire alt"		"13.150000"
+				"inaccuracy move alt"		"13.870000"
+				"recovery time crouch"		"0.291277"
+				"recovery time stand"		"0.349532"
+				"recoil angle"		"0"
+				"recoil angle variance"		"0"
+				"recoil magnitude"		"26"
+				"recoil magnitude variance"		"0"
+				"recoil seed"		"5426"
+				"primary clip size"		"13"
+				"weapon weight"		"5"
+				"rumble effect"		"1"
+				"max player speed alt"		"240"
+				"recoil angle alt"		"0"
+				"recoil angle variance alt"		"0"
+				"recoil magnitude alt"		"26"
+				"recoil magnitude variance alt"		"0"
+				"recovery time crouch final"		"0.291277"
+				"recovery time stand final"		"0.349532"
+			}
+			"inventory_image_data"
+			{
+				"camera_offset"		"1.4 1.0 -1.0"
+				"spot_light_key"
+				{
+					"position"		"-100 120 90"
+					"color"		"1.5 1.55 1.6"
+					"lookat"		"-30.0 0.0 0.0"
+					"inner_cone"		"0.500000"
+					"outer_cone"		"1.000000"
+				}
+				"spot_light_rim"
+				{
+					"position"		"0 -80 -120"
+					"color"		"3 5 5"
+					"lookat"		"0.0 0.0 0.0"
+					"inner_cone"		"0.040000"
+					"outer_cone"		"0.500000"
+				}
+				"point_light_accent"
+				{
+					"position"		"-15 20 -15"
+					"color"		"0.3 0.3 0.3"
+				}
+			}
+			"paint_data"
+			{
+				"PaintableMaterial0"
+				{
+					"Name"		"pist_hkp2000"
+					"ViewmodelDim"		"2048"
+					"WorldDim"		"512"
+					"BaseTextureOverride"		"0"
+					"WeaponLength"		"7.553070"
+					"UVScale"		"0.288000"
+				}
+			}
+			"visuals"
+			{
+				"muzzle_flash_effect_1st_person"		"weapon_muzzle_flash_pistol"
+				"muzzle_flash_effect_3rd_person"		"weapon_muzzle_flash_pistol"
+				"heat_effect"		"weapon_muzzle_smoke"
+				"eject_brass_effect"		"weapon_shell_casing_9mm"
+				"tracer_effect"		"weapon_tracers_pistol"
+				"weapon_type"		"Pistol"
+				"player_animation_extension"		"pistol"
+				"primary_ammo"		"BULLET_PLAYER_357SIG"
+				"sound_single_shot"		"Weapon_hkp2000.Single"
+				"sound_nearlyempty"		"Default.nearlyempty"
+			}
+		}

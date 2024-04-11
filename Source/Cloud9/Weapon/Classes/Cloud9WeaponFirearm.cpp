@@ -183,7 +183,8 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponConfig& WeaponConfig)
 		AmmoInReserve = WeaponConfig.GetAmmoInReserve(MaxAmmoInReserve);
 
 		AccuracyPenalty = 0.0f;
-		RecoilPattern = 0;
+		LastShotDelta = 0.0f;
+		RecoilPattern = 0.0f;
 
 		OnAmmoInMagazineChanged.Broadcast(CurrentAmmo);
 		OnAmmoInReserveChanged.Broadcast(AmmoInReserve);
@@ -219,6 +220,9 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 	WEAPON_IS_DEFINED_GUARD();
 	WEAPON_IS_DISARMED_GUARD();
+
+	UpdateAccuracyPenalty(DeltaSeconds);
+
 	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 
 	let Character = GetOwner<ACloud9Character>(); // suppose weapon has owner cus we pass bond guard
@@ -332,8 +336,6 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	{
 		// TODO: Implement secondary action for firearm	
 	}
-
-	UpdateAccuracyPenalty(DeltaSeconds);
 }
 
 const FFirearmWeaponInfo* ACloud9WeaponFirearm::GetWeaponInfo() const
@@ -383,8 +385,6 @@ EFirearmFireStatus ACloud9WeaponFirearm::PrimaryAttack(
 	{
 		let EndLocations = RecalculateByShotInaccuracy(*HitScanInfo);
 
-		AccuracyPenalty += WeaponInfo->GetInaccuracyFire();
-
 		let IsOk = EndLocations | ETContainer::AllByPredicate{
 			[&](let EndLocation)
 			{
@@ -400,6 +400,9 @@ EFirearmFireStatus ACloud9WeaponFirearm::PrimaryAttack(
 			return EFirearmFireStatus::Error;
 		}
 	}
+
+	AccuracyPenalty += WeaponInfo->GetInaccuracyFire();
+	RecoilPattern += 1.0f;
 
 	if (not Settings->IsCheatsEnabled or not Settings->IsInfiniteAmmo)
 	{
@@ -776,9 +779,6 @@ TArray<FVector> ACloud9WeaponFirearm::RecalculateByShotInaccuracy(
 	let OffsetX0 = Radius0 * FMath::Cos(Theta0);
 	let OffsetY0 = Radius0 * FMath::Sin(Theta0);
 
-	log(Error, "RadiusCurveDensity=%f Inaccuracy=%f Theta0=%f Radius0=%f OffsetX0=%f OffsetY0=%f",
-	    RadiusCurveDensity, Inaccuracy, Theta0, Radius0, OffsetX0, OffsetY0);
-
 	assert(
 		WeaponInfo->BulletsPerShot >= 1 and
 		WeaponInfo->BulletsPerShot <= Cloud9WeaponConsts::MaxBullets
@@ -788,32 +788,35 @@ TArray<FVector> ACloud9WeaponFirearm::RecalculateByShotInaccuracy(
 	let RotMatrix = FRotationMatrix(Direction.Rotation());
 	RotMatrix.GetScaledAxes(Forward, Right, Up);
 
-	// DrawDebugLine(
-	// 	GetWorld(),
-	// 	HitScanInfo.StartLocation,
-	// 	HitScanInfo.StartLocation + Forward * 10.0f,
-	// 	FColor::Red,
-	// 	false,
-	// 	5.0
-	// );
-	//
-	// DrawDebugLine(
-	// 	GetWorld(),
-	// 	HitScanInfo.StartLocation,
-	// 	HitScanInfo.StartLocation + Right * 10.0f,
-	// 	FColor::Green,
-	// 	false,
-	// 	5.0
-	// );
-	//
-	// DrawDebugLine(
-	// 	GetWorld(),
-	// 	HitScanInfo.StartLocation,
-	// 	HitScanInfo.StartLocation + Up * 10.0f,
-	// 	FColor::Blue,
-	// 	false,
-	// 	5.0
-	// );
+	if (Settings->DrawShotDirectionAxis)
+	{
+		DrawDebugLine(
+			GetWorld(),
+			HitScanInfo.StartLocation,
+			HitScanInfo.StartLocation + Forward * 10.0f,
+			FColor::Red,
+			false,
+			5.0
+		);
+
+		DrawDebugLine(
+			GetWorld(),
+			HitScanInfo.StartLocation,
+			HitScanInfo.StartLocation + Right * 10.0f,
+			FColor::Green,
+			false,
+			5.0
+		);
+
+		DrawDebugLine(
+			GetWorld(),
+			HitScanInfo.StartLocation,
+			HitScanInfo.StartLocation + Up * 10.0f,
+			FColor::Blue,
+			false,
+			5.0
+		);
+	}
 
 	let DirectionLength = Direction.Size();
 
@@ -856,9 +859,6 @@ TArray<FVector> ACloud9WeaponFirearm::RecalculateByShotInaccuracy(
 			let Radius1 = SpreadCurveDensity * WeaponInfo->GetSpread();
 			let OffsetX1 = OffsetX0 + Radius1 * FMath::Cos(Theta1);
 			let OffsetY1 = OffsetY0 + Radius1 * FMath::Sin(Theta1);
-
-			log(Error, "SpreadCurveDensity=%f Theta1=%f Radius1=%f OffsetX1=%f OffsetY1=%f",
-			    SpreadCurveDensity, Theta1, Radius1, OffsetX1, OffsetY1);
 
 			let InaccuracyDirection = Forward + Up * OffsetX1 + Right * OffsetY1 | EFVector::Normalize{};
 			return InaccuracyDirection * DirectionLength + HitScanInfo.StartLocation;
@@ -913,19 +913,25 @@ void ACloud9WeaponFirearm::UpdateAccuracyPenalty(float DeltaSeconds)
 	}
 	else
 	{
-		let DecayFactor = ExponentBase / GetRecoveryTime();
-		AccuracyPenalty = FMath::Lerp(FMath::Exp(DeltaSeconds * -DecayFactor), NewPenalty, AccuracyPenalty);
+		let RecoveryTime = GetRecoveryTime();
+		let DecayFactor = ExponentBase / RecoveryTime;
+		let PenaltyAlpha = FMath::Exp(DeltaSeconds * -DecayFactor);
+		AccuracyPenalty = FMath::Lerp(NewPenalty, AccuracyPenalty, PenaltyAlpha);
 	}
+
+	LastShotDelta += DeltaSeconds;
 
 	// *** Original condition with tickrate ***
 	// Decay the recoil index if a little more than cycle time has elapsed since the last shot. In other words,
 	// don't decay if we're firing full-auto.
 	// if (gpGlobals->curtime > m_fLastShotTime + TICK_INTERVAL * Cloud9WeaponConsts::WeaponRecoilDecayThreshold)
 	// *** Check only by elapsed time in frame and weapon cycle time *** 
-	if (DeltaSeconds > WeaponInfo->CycleTime * Cloud9WeaponConsts::WeaponRecoilDecayThreshold)
+	if (LastShotDelta > WeaponInfo->CycleTime * Cloud9WeaponConsts::WeaponRecoilDecayThreshold)
 	{
+		LastShotDelta = 0.0f;
 		let DecayFactor = ExponentBase * Settings->WeaponRecoilDecayCoefficient;
-		RecoilPattern = FMath::Lerp(FMath::Exp(DeltaSeconds * -DecayFactor), 0.0f, RecoilPattern);
+		let RecoilAlpha = FMath::Exp(DeltaSeconds * -DecayFactor);
+		RecoilPattern = FMath::Lerp(0.0f, RecoilPattern, RecoilAlpha);
 	}
 }
 
@@ -943,6 +949,7 @@ float ACloud9WeaponFirearm::GetRecoveryTime() const
 
 	if (Character->GetCloud9CharacterMovement()->IsOnLadder())
 	{
+		// *** IDK why RecoveryTime with movement type == LADDER is RecoveryTimeStand ***
 		return WeaponInfo->GetRecoveryTimeStand();
 	}
 

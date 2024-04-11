@@ -122,7 +122,7 @@ public:
 	}
 
 	template <typename ValueType, typename InRangeType, typename OutRangeType>
-	static constexpr ValueType RemapValue(
+	static constexpr OutRangeType RemapValue(
 		ValueType Value,
 		InRangeType InRangeMin,
 		InRangeType InRangeMax,
@@ -136,11 +136,11 @@ public:
 
 		let InRange = static_cast<OutRangeType>(InRangeMax - InRangeMin);
 		let OutRange = OutRangeMax - OutRangeMin;
-		return OutRangeMin + OutRange * (Value - InRangeMin) / InRange;
+		return OutRangeMin + OutRange * static_cast<OutRangeType>(Value - InRangeMin) / InRange;
 	}
 
 	template <typename ValueType, typename InRangeType, typename OutRangeType>
-	static constexpr ValueType RemapValueClamped(
+	static constexpr OutRangeType RemapValueClamped(
 		ValueType Value,
 		InRangeType InRangeMin,
 		InRangeType InRangeMax,
@@ -153,7 +153,7 @@ public:
 		}
 
 		let InRange = static_cast<OutRangeType>(InRangeMax - InRangeMin);
-		let Temp = FMath::Clamp((Value - InRangeMin) / InRange, 0.0f, 1.0f);
+		let Temp = FMath::Clamp(static_cast<OutRangeType>(Value - InRangeMin) / InRange, 0.0f, 1.0f);
 		let OutRange = OutRangeMax - OutRangeMin;
 		return OutRangeMin + OutRange * Temp;
 	}

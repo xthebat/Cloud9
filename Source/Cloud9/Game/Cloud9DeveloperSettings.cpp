@@ -44,6 +44,7 @@ FString UCloud9DeveloperSettings::WeaponAirSpreadScaleName = "r.WeaponAirSpreadS
 FString UCloud9DeveloperSettings::WeaponDebugMaxInaccuracyName = "r.WeaponDebugMaxInaccuracy";
 FString UCloud9DeveloperSettings::WeaponDebugInaccuracyOnlyUpName = "r.WeaponDebugInaccuracyOnlyUp";
 FString UCloud9DeveloperSettings::WeaponRecoilDecayCoefficientName = "r.WeaponRecoilDecayCoefficient";
+FString UCloud9DeveloperSettings::DrawShotDirectionAxisName = "r.DrawShotDirectionAxis";
 FString UCloud9DeveloperSettings::VolumeName = "r.Volume";
 
 // ReSharper disable once CppPossiblyUninitializedMember
@@ -69,6 +70,7 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	WeaponDebugMaxInaccuracy = 0;
 	WeaponDebugInaccuracyOnlyUp = 0;
 	WeaponRecoilDecayCoefficient = 2.0f;
+	DrawShotDirectionAxis = 0;
 }
 
 UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
@@ -226,6 +228,12 @@ void UCloud9DeveloperSettings::InitializeCVars()
 			WeaponRecoilDecayCoefficient,
 			*WeaponRecoilDecayCoefficientName,
 			TEXT("weapon_recoil_decay_coefficient")
+		);
+
+		RegisterConsoleVariable(
+			DrawShotDirectionAxis,
+			*DrawShotDirectionAxisName,
+			TEXT("Draw debug orthonormal axis of shot direction")
 		);
 
 		log(Display, "%s", this | EUObject::Stringify{} | EFString::ToCStr{});

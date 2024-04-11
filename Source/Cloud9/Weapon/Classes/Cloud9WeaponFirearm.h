@@ -156,6 +156,9 @@ protected: // properties
 
 	UPROPERTY()
 	float RecoilPattern; // m_flRecoilIndex
+
+	UPROPERTY()
+	float LastShotDelta;
 };
 
 template <>

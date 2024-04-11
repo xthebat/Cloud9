@@ -1,0 +1,142 @@
+		"weapon_mp9_prefab"
+		{
+			"prefab"		"smg"
+			"item_class"		"weapon_mp9"
+			"item_name"		"#SFUI_WPNHUD_MP9"
+			"item_description"		"#CSGO_Item_Desc_MP9"
+			"image_inventory"		"econ/weapons/base_weapons/weapon_mp9"
+			"model_player"		"models/weapons/v_smg_mp9.mdl"
+			"model_world"		"models/weapons/w_smg_mp9.mdl"
+			"model_dropped"		"models/weapons/w_smg_mp9_dropped.mdl"
+			"icon_default_image"		"materials/icons/inventory_icon_weapon_mp9.vtf"
+			"stickers"
+			{
+				"0"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/smg_mp9/smg_mp9_decal_a.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/smg_mp9_decal_a.mdl"
+					"worldmodel_decal_pos"		"2.72058 -1.42886 -4.87973"
+				}
+				"1"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/smg_mp9/smg_mp9_decal_b.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/smg_mp9_decal_b.mdl"
+					"worldmodel_decal_pos"		"2.72058 -2.22002 -1.71083"
+				}
+				"2"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/smg_mp9/smg_mp9_decal_c.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/smg_mp9_decal_c.mdl"
+					"worldmodel_decal_pos"		"2.72058 -1.62016 2.65378"
+				}
+				"3"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/smg_mp9/smg_mp9_decal_d.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/smg_mp9_decal_d.mdl"
+					"worldmodel_decal_pos"		"2.72058 -5.68715 -2.01963"
+				}
+			}
+			"used_by_classes"
+			{
+				"counter-terrorists"		"1"
+			}
+			"attributes"
+			{
+				"magazine model"		"models/weapons/w_smg_mp9_mag.mdl"
+				"primary reserve ammo max"		"120"
+				"inaccuracy jump initial"		"37.279999"
+				"inaccuracy jump"		"18.430000"
+				"heat per shot"		"0.300000"
+				"tracer frequency"		"3"
+				"max player speed"		"240"
+				"is full auto"		"1"
+				"in game price"		"1250"
+				"kill award"		"600"
+				"armor ratio"		"1.200000"
+				"crosshair min distance"		"7"
+				"penetration"		"1"
+				"damage"		"26"
+				"range"		"3600"
+				"range modifier"		"0.870000"
+				"cycletime"		"0.070000"
+				"time to idle"		"2"
+				"flinch velocity modifier large"		"0.000000"
+				"flinch velocity modifier small"		"0.000000"
+				"spread"		"0.600000"
+				"inaccuracy crouch"		"5.500000"
+				"inaccuracy stand"		"9.000000"
+				"inaccuracy land"		"0.056000"
+				"inaccuracy ladder"		"148.912506"
+				"inaccuracy fire"		"3.700000"
+				"inaccuracy move"		"29.040001"
+				"recovery time crouch"		"0.184207"
+				"recovery time stand"		"0.257890"
+				"recoil angle"		"0"
+				"recoil angle variance"		"70"
+				"recoil magnitude"		"19"
+				"recoil magnitude variance"		"1"
+				"recoil seed"		"50729"
+				"primary clip size"		"30"
+				"rumble effect"		"3"
+				"weapon weight"		"25"
+				"inaccuracy crouch alt"		"5.500000"
+				"inaccuracy fire alt"		"3.700000"
+				"inaccuracy jump alt"		"18.430000"
+				"inaccuracy ladder alt"		"148.912506"
+				"inaccuracy land alt"		"0.056000"
+				"inaccuracy move alt"		"29.040001"
+				"inaccuracy stand alt"		"9.000000"
+				"max player speed alt"		"240"
+				"recoil angle alt"		"0"
+				"recoil angle variance alt"		"70"
+				"recoil magnitude alt"		"19"
+				"recoil magnitude variance alt"		"1"
+				"recovery time crouch final"		"0.184207"
+				"recovery time stand final"		"0.257890"
+				"spread alt"		"0.600000"
+			}
+			"inventory_image_data"
+			{
+				"camera_offset"		"10.0 3.0 -1.7"
+				"camera_fov"		"45"
+				"spot_light_key"
+				{
+					"position"		"-120 120 120"
+					"color"		"2 2.1 2.3"
+					"lookat"		"0.0 0.0 0.0"
+					"inner_cone"		"0.500000"
+					"outer_cone"		"1.000000"
+				}
+				"point_light_accent"
+				{
+					"position"		"30 30 20"
+					"color"		"0.25 0.25 0.25"
+				}
+			}
+			"paint_data"
+			{
+				"PaintableMaterial0"
+				{
+					"Name"		"smg_mp9"
+					"ViewmodelDim"		"2048"
+					"WorldDim"		"512"
+					"BaseTextureOverride"		"0"
+					"WeaponLength"		"22.126101"
+					"UVScale"		"0.485000"
+				}
+			}
+			"visuals"
+			{
+				"muzzle_flash_effect_1st_person"		"weapon_muzzle_flash_smg"
+				"muzzle_flash_effect_3rd_person"		"weapon_muzzle_flash_smg"
+				"heat_effect"		"weapon_muzzle_smoke"
+				"addon_location"		"primary_smg"
+				"eject_brass_effect"		"weapon_shell_casing_9mm"
+				"tracer_effect"		"weapon_tracers_smg"
+				"weapon_type"		"SubMachinegun"
+				"player_animation_extension"		"mp9"
+				"primary_ammo"		"BULLET_PLAYER_9MM"
+				"sound_single_shot"		"Weapon_MP9.Single"
+				"sound_nearlyempty"		"Default.nearlyempty"
+			}
+		}
