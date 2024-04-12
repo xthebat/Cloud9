@@ -40,8 +40,7 @@ struct FWeaponSkin
 	/**
 	 * Unique name of skin
 	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Base,
-		meta=(GetOptions="UWeaponSkinTools.GetAvailableSkins"))
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Base)
 	FName Name = Default;
 
 	/**

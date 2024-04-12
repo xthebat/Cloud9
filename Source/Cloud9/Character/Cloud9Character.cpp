@@ -359,8 +359,8 @@ float ACloud9Character::InternalTakePointDamage(
 
 		log(Verbose, "[Actor='%s'] Distance=%f RangeCoefficient=%f",
 		    *GetName(),
-		    FMath::Sqrt (Distance),
-		    RangeCoefficient)
+		    FMath::Sqrt(Distance),
+		    RangeCoefficient);
 
 		Damage *= RangeCoefficient;
 	}
