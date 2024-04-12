@@ -69,26 +69,33 @@ public:
 	static FString CheatsName;
 	static FString SelfAimEnabledName;
 	static FString CameraVerticalSpeedLagName;
+	static FString NoInaccuracyName;
+	static FString JumpImpulseName;
+	static FString WeaponAirSpreadScaleName;
+	static FString WeaponDebugMaxInaccuracyName;
+	static FString WeaponDebugInaccuracyOnlyUpName;
+	static FString WeaponRecoilDecayCoefficientName;
+	static FString DrawShotDirectionAxisName;
 	static FString VolumeName;
-	
+
 public: // properties
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	int32 bIsDrawHitCursorLine;
+	int32 IsDrawHitCursorLine;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	int32 bIsDrawDeprojectedCursorLine;
+	int32 IsDrawDeprojectedCursorLine;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	int32 bIsShowMouseCursor;
+	int32 IsShowMouseCursor;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	int32 bIsDrawExplosionSpheres;
+	int32 IsDrawExplosionSpheres;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	int32 bIsDrawHitScan;
+	int32 IsDrawHitScan;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	int32 bIsPrintHitScanInfo;
+	int32 IsPrintHitScanInfo;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	float CameraVerticalSpeedLag;
@@ -97,19 +104,40 @@ public: // properties
 	int32 NetGraph;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	int32 bIsAutoSelectWeapon;
+	int32 IsAutoSelectWeapon;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	int32 bIsInfiniteAmmo;
+	int32 IsInfiniteAmmo;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	int32 bIsCheatsEnabled;
+	int32 IsCheatsEnabled;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	int32 bIsSelfAimEnabled;
+	int32 IsSelfAimEnabled;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Sound)
 	float Volume;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category=Sound)
+	int32 IsNoInaccuracy;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	float WeaponAirSpreadScale;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	float JumpImpulse;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	int32 WeaponDebugMaxInaccuracy;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	int32 WeaponDebugInaccuracyOnlyUp;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	float WeaponRecoilDecayCoefficient;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	int32 DrawShotDirectionAxis;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	EUnUsedEnum UnUsedEnum;

@@ -186,7 +186,7 @@ void ACloud9Character::SetViewDirection(const TOptional<FHitResult>& HitResult)
 
 		let StartLocation = GetMesh()->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
 
-		if (Settings->bIsDrawHitCursorLine)
+		if (Settings->IsDrawHitCursorLine)
 		{
 			DrawDebugLine(
 				GetWorld(),
@@ -197,7 +197,7 @@ void ACloud9Character::SetViewDirection(const TOptional<FHitResult>& HitResult)
 				0.0);
 		}
 
-		if (Settings->bIsDrawDeprojectedCursorLine)
+		if (Settings->IsDrawDeprojectedCursorLine)
 		{
 			FVector WorldLocation;
 			FVector WorldDirection;
@@ -359,8 +359,8 @@ float ACloud9Character::InternalTakePointDamage(
 
 		log(Verbose, "[Actor='%s'] Distance=%f RangeCoefficient=%f",
 		    *GetName(),
-		    FMath::Sqrt (Distance),
-		    RangeCoefficient)
+		    FMath::Sqrt(Distance),
+		    RangeCoefficient);
 
 		Damage *= RangeCoefficient;
 	}

@@ -26,6 +26,7 @@
 #include "NiagaraComponent.h"
 
 #include "WeaponTableBase.h"
+#include "Cloud9/Game/Cloud9DeveloperSettings.h"
 
 #include "WeaponTableFirearm.generated.h"
 
@@ -84,47 +85,72 @@ struct FFirearmInaccuracy
 {
 	GENERATED_BODY()
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="1000.0", ClampMin="0", ClampMax="1000.0"))
+	float OnJumpInitial;
+
+	/**
+	 * Additional inaccuracy whilst jump
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="1000.0", ClampMin="0", ClampMax="1000.0"))
+	float OnJump;
+
+	/**
+	 * Only in deagle and not implemented
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="1000.0", ClampMin="0", ClampMax="1000.0"))
+	float OnJumpApex;
+
 	/**
 	 * Additional inaccuracy when crouch
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
-		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
+		meta=(UIMin="0", UIMax="1000.0", ClampMin="0", ClampMax="1000.0"))
 	float OnCrouch;
 
 	/**
 	 * Additional inaccuracy when stand still
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
-		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
+		meta=(UIMin="0", UIMax="1000.0", ClampMin="0", ClampMax="1000.0"))
 	float OnStand;
+
+	/**
+	 * Additional inaccuracy when land
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="1000.0", ClampMin="0", ClampMax="1000.0"))
+	float OnLand;
+
+	/**
+	 * Additional inaccuracy whilst character on ladder
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+		meta=(UIMin="0", UIMax="1000.0", ClampMin="0", ClampMax="1000.0"))
+	float OnLadder;
 
 	/**
 	 * Additional inaccuracy after firing
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
-		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
+		meta=(UIMin="0", UIMax="1000.0", ClampMin="0", ClampMax="1000.0"))
 	float OnFire;
 
 	/**
 	 * Additional inaccuracy whilst moving at MaxPlayerSpeed
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
-		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
+		meta=(UIMin="0", UIMax="1000.0", ClampMin="0", ClampMax="1000.0"))
 	float OnMove;
 
 	/**
-	 * Additional inaccuracy whilst jump
+	 * Additional inaccuracy whilst reload (looks like always 0.0f)
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
-		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
-	float OnJump;
-
-	/**
-	 * Additional inaccuracy whilst character on ladder
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
-		meta=(UIMin="0", UIMax="100.0", ClampMin="0", ClampMax="100.0"))
-	float OnLadder;
+		meta=(UIMin="0", UIMax="1000.0", ClampMin="0", ClampMax="1000.0"))
+	float OnReload;
 };
 
 USTRUCT(BlueprintType)
@@ -132,24 +158,37 @@ struct FRecoveryTime
 {
 	GENERATED_BODY()
 
-	/**
-	 * When crouching it is the decay rate for InaccuracyFire, InaccuracyJump, InaccuracyLadder
-	 * the difference between InaccuracyStand and InaccuracyCrouch and
-	 * the difference between InaccuracyCrouch and InaccuracyCrouchAlt
-	 * using the following formula: 'Inaccuracy * (0.1 ^ (time/RecoveryTime))'
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=RecoveryTime,
 		meta=(UIMin="0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
 	float OnCrouch;
 
-	/**
-	 * When standing it is the decay rate for InaccuracyFire, InaccuracyJump, InaccuracyLadder, and
-	 * the difference between InaccuracyStand and InaccuracyStandAlt using
-	 * the following formula: 'Inaccuracy * (0.1 ^ (time/RecoveryTime))'
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Accuracy,
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=RecoveryTime,
 		meta=(UIMin="0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
 	float OnStand;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=RecoveryTime,
+		meta=(UIMin="-1.0", UIMax="1.0", ClampMin="-1.0", ClampMax="1.0"))
+	float OnCrouchFinal = -1.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=RecoveryTime,
+		meta=(UIMin="-1.0", UIMax="1.0", ClampMin="-1.0", ClampMax="1.0"))
+	float OnStandFinal = -1.0f;
+
+	/**
+	 * Primary weapon default = 2
+	 * Secondary weapon default = 3 
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=RecoveryTime,
+		meta=(UIMin="0", UIMax="20", ClampMin="0", ClampMax="20"))
+	int TransitionStartBullet;
+
+	/**
+	 * Primary weapon default = 5
+	 * Secondary weapon default = 10
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=RecoveryTime,
+		meta=(UIMin="0", UIMax="20", ClampMin="0", ClampMax="20"))
+	int TransitionEndBullet;
 };
 
 /**
@@ -422,10 +461,6 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)
 	TArray<FWeaponSkin> Skins;
 
-	// TODO: Implement spread
-	// float fDecayFactor = logf( 10.0f ) / GetRecoveryTime( );
-	// m_fAccuracyPenalty = Lerp( expf( TICK_INTERVAL * -fDecayFactor ), fNewPenalty, ( float ) m_fAccuracyPenalty );
-
 	/**
 	 * Basic weapon bullet shooting spread (inaccuracy)
 	 */
@@ -458,4 +493,39 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Flinch, AdvancedDisplay,
 		meta=(UIMin="0.0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
 	float FlinchVelocityModifierNext = 1.0f;
+
+	float GetMaxSpeed(float Scale = 1.0f) const { return MaxPlayerSpeed * Scale; }
+
+	float GetSpread(float Scale = 0.001f) const { return Spread * Scale; }
+
+	float GetInaccuracyMove(float Scale = 0.001f) const { return Inaccuracy.OnMove * Scale; }
+
+	float GetInaccuracyStand(float Scale = 0.001f) const { return Inaccuracy.OnStand * Scale; }
+
+	float GetInaccuracyCrouch(float Scale = 0.001f) const { return Inaccuracy.OnCrouch * Scale; }
+
+	float GetInaccuracyJump(float Scale = 0.001f) const { return Inaccuracy.OnJump * Scale; }
+
+	float GetInaccuracyJumpInitial(float Scale = 0.001f) const { return Inaccuracy.OnJumpInitial * Scale; }
+
+	float GetInaccuracyFire(float Scale = 0.001f) const { return Inaccuracy.OnFire * Scale; }
+
+	float GetInaccuracyReload(float Scale = 0.001f) const { return Inaccuracy.OnReload * Scale; }
+
+	float GetInaccuracyLadder(float Scale = 0.001f) const { return Inaccuracy.OnLadder * Scale; }
+
+	float GetRecoveryTimeStand(float Scale = 1.0f) const { return RecoveryTime.OnStand * Scale; }
+
+	float GetRecoveryTimeStandFinal(float Scale = 1.0f) const { return RecoveryTime.OnStandFinal * Scale; }
+
+	float GetRecoveryTimeCrouch(float Scale = 1.0f) const { return RecoveryTime.OnCrouch * Scale; }
+
+	float GetRecoveryTimeCrouchFinal(float Scale = 1.0f) const { return RecoveryTime.OnCrouchFinal * Scale; }
+
+	int GetRecoveryTransitionStartBullet() const { return RecoveryTime.TransitionStartBullet; }
+
+	int GetRecoveryTransitionEndBullet() const { return RecoveryTime.TransitionEndBullet; }
+
+	// This is never ever happen
+	bool IsRevolver() const { return false; }
 };

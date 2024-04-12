@@ -22,6 +22,7 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Cloud9/Tests/Unit/Fake/UWhenOrNoneTestClassA.h"
+#include "Cloud9/Tools/Extensions/TArray.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 
 BEGIN_DEFINE_SPEC(
@@ -120,6 +121,24 @@ void FRangeSpec::Define()
 					| ETContainer::Transform{[&](let It) { return It; }}
 					| ETContainer::ToArray{};
 				TestEqual("Result == {1, 2, 3, 4, 5}", Result, {1, 2, 3, 4, 5});
+			}
+		});
+
+		It("Indexes", [=]
+		{
+			{
+				let Result = Container
+					| ETContainer::Indexes{}
+					| ETContainer::ToArray{};
+				TestEqual("Result == {0, 1, 2, 3, 4}", Result, {0, 1, 2, 3, 4});
+			}
+		});
+
+		It("ArrayOf", [=]
+		{
+			{
+				let Result = ETArray::ArrayOf(5, [&](let Index) { return Index * Index; });
+				TestEqual("Result == {0, 1, 4, 9, 16}", Result, {0, 1, 4, 9, 16});
 			}
 		});
 

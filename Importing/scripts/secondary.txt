@@ -1,0 +1,41 @@
+		"secondary"
+		{
+			"prefab"		"weapon_base"
+			"capabilities"
+			{
+				"nameable"		"1"
+				"paintable"		"1"
+				"can_sticker"		"1"
+				"can_stattrack_swap"		"1"
+			}
+			"item_type_name"		"#CSGO_Type_Pistol"
+			"item_slot"		"secondary"
+			"inv_group_equipment"		"secondary"
+			"mouse_pressed_sound"		"weapons/DEagle/de_clipout.wav"
+			"drop_sound"		"weapons/DEagle/de_clipin.wav"
+			"item_gear_slot"		"secondary"
+			"item_gear_slot_position"		"0"
+			"attributes"
+			{
+				"stattrak model"		"models/weapons/stattrack.mdl"
+			}
+			"visuals"
+			{
+				"weapon_type"		"Pistol"
+			}
+			"attributes"
+			{
+				"flinch velocity modifier large"		"0.560000"
+				"flinch velocity modifier small"		"0.050000"
+				"recovery transition start bullet"		"3"
+				"recovery transition end bullet"		"10"
+				"inaccuracy jump initial"		"250.000000"
+				"inaccuracy jump"		"500.000000"
+				"inaccuracy jump alt"		"500.000000"
+			}
+			"taxonomy"
+			{
+				"secondary"		"1"
+				"pistol"		"1"
+			}
+		}

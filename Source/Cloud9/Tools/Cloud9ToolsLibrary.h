@@ -112,4 +112,49 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static TArray<FString> GetObjectEditorProperties(UClass* Class);
+
+	// see mathlib.h from cstrike15_src
+
+	template <typename InputType, typename OutputType>
+	static constexpr InputType Select(InputType Value, OutputType A, OutputType B)
+	{
+		return Value < 0 ? A : B;
+	}
+
+	template <typename ValueType, typename InRangeType, typename OutRangeType>
+	static constexpr OutRangeType RemapValue(
+		ValueType Value,
+		InRangeType InRangeMin,
+		InRangeType InRangeMax,
+		OutRangeType OutRangeMin,
+		OutRangeType OutRangeMax)
+	{
+		if (InRangeMin == InRangeMax)
+		{
+			return Select(Value - InRangeMax, OutRangeMax, OutRangeMin);
+		}
+
+		let InRange = static_cast<OutRangeType>(InRangeMax - InRangeMin);
+		let OutRange = OutRangeMax - OutRangeMin;
+		return OutRangeMin + OutRange * static_cast<OutRangeType>(Value - InRangeMin) / InRange;
+	}
+
+	template <typename ValueType, typename InRangeType, typename OutRangeType>
+	static constexpr OutRangeType RemapValueClamped(
+		ValueType Value,
+		InRangeType InRangeMin,
+		InRangeType InRangeMax,
+		OutRangeType OutRangeMin,
+		OutRangeType OutRangeMax)
+	{
+		if (InRangeMin == InRangeMax)
+		{
+			return Select(Value - InRangeMax, OutRangeMax, OutRangeMin);
+		}
+
+		let InRange = static_cast<OutRangeType>(InRangeMax - InRangeMin);
+		let Temp = FMath::Clamp(static_cast<OutRangeType>(Value - InRangeMin) / InRange, 0.0f, 1.0f);
+		let OutRange = OutRangeMax - OutRangeMin;
+		return OutRangeMin + OutRange * Temp;
+	}
 };

@@ -1,0 +1,136 @@
+		"weapon_m4a1_prefab"
+		{
+			"prefab"		"rifle"
+			"item_class"		"weapon_m4a1"
+			"item_name"		"#SFUI_WPNHUD_M4A1"
+			"item_description"		"#CSGO_Item_Desc_M4A4"
+			"item_rarity"		"uncommon"
+			"image_inventory"		"econ/weapons/base_weapons/weapon_m4a1"
+			"model_player"		"models/weapons/v_rif_m4a1.mdl"
+			"model_world"		"models/weapons/w_rif_m4a1.mdl"
+			"model_dropped"		"models/weapons/w_rif_m4a1_dropped.mdl"
+			"icon_default_image"		"materials/icons/inventory_icon_weapon_m4a1.vtf"
+			"stickers"
+			{
+				"0"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/rif_m4a1/rif_m4a1_decal_a.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/rif_m4a1_decal_a.mdl"
+					"worldmodel_decal_pos"		"4.68044 -1.48398 -1.69485"
+				}
+				"1"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/rif_m4a1/rif_m4a1_decal_b.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/rif_m4a1_decal_b.mdl"
+					"worldmodel_decal_pos"		"4.68044 -0.142594 1.60586"
+				}
+				"2"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/rif_m4a1/rif_m4a1_decal_c.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/rif_m4a1_decal_c.mdl"
+					"worldmodel_decal_pos"		"4.68044 -2.99986 3.05251"
+				}
+				"3"
+				{
+					"viewmodel_material"		"materials/models/weapons/customization/rif_m4a1/rif_m4a1_decal_d.vmt"
+					"viewmodel_geometry"		"models/weapons/stickers/v_models/rif_m4a1_decal_d.mdl"
+					"worldmodel_decal_pos"		"4.68044 -0.615597 -10.4655"
+				}
+			}
+			"used_by_classes"
+			{
+				"counter-terrorists"		"1"
+			}
+			"attributes"
+			{
+				"magazine model"		"models/weapons/w_rif_m4a1_mag.mdl"
+				"primary reserve ammo max"		"90"
+				"recovery time crouch"		"0.242100"
+				"recovery time crouch final"		"0.332888"
+				"recovery time stand"		"0.338941"
+				"recovery time stand final"		"0.466044"
+				"inaccuracy crouch"		"4.100000"
+				"inaccuracy jump initial"		"94.410004"
+				"inaccuracy jump"		"97.269997"
+				"inaccuracy jump alt"		"97.269997"
+				"heat per shot"		"0.350000"
+				"addon scale"		"1.000000"
+				"tracer frequency"		"3"
+				"max player speed"		"225"
+				"is full auto"		"1"
+				"in game price"		"3100"
+				"armor ratio"		"1.400000"
+				"penetration"		"2"
+				"damage"		"33"
+				"range"		"8192"
+				"range modifier"		"0.970000"
+				"cycletime"		"0.090000"
+				"time to idle"		"1.500000"
+				"idle interval"		"60"
+				"flinch velocity modifier large"		"0.400000"
+				"flinch velocity modifier small"		"0.550000"
+				"spread"		"0.600000"
+				"inaccuracy stand"		"4.900000"
+				"inaccuracy land"		"0.192000"
+				"inaccuracy ladder"		"110.994003"
+				"inaccuracy fire"		"7.000000"
+				"inaccuracy move"		"137.880005"
+				"spread alt"		"0.450000"
+				"inaccuracy crouch alt"		"3.680000"
+				"inaccuracy stand alt"		"4.900000"
+				"inaccuracy land alt"		"0.197000"
+				"inaccuracy ladder alt"		"113.671997"
+				"inaccuracy fire alt"		"6.340000"
+				"inaccuracy move alt"		"122.000000"
+				"recoil seed"		"38965"
+				"recoil angle"		"0"
+				"recoil angle variance"		"70"
+				"recoil magnitude"		"23"
+				"recoil magnitude variance"		"0"
+				"primary clip size"		"30"
+				"weapon weight"		"25"
+				"rumble effect"		"4"
+				"max player speed alt"		"225"
+				"recoil angle alt"		"0"
+				"recoil angle variance alt"		"70"
+				"recoil magnitude alt"		"23"
+				"recoil magnitude variance alt"		"0"
+			}
+			"inventory_image_data"
+			{
+				"camera_angles"		"-2.0 -135.0 0.0"
+				"camera_offset"		"22.0 3.9 -3.0"
+				"point_light_accent"
+				{
+					"position"		"20 3 7"
+					"color"		"0.25 0.25 0.25"
+				}
+			}
+			"paint_data"
+			{
+				"PaintableMaterial0"
+				{
+					"Name"		"rif_m4a1"
+					"ViewmodelDim"		"2048"
+					"WorldDim"		"512"
+					"BaseTextureOverride"		"0"
+					"WeaponLength"		"35.322601"
+					"UVScale"		"0.425000"
+				}
+			}
+			"visuals"
+			{
+				"muzzle_flash_effect_1st_person"		"weapon_muzzle_flash_assaultrifle"
+				"muzzle_flash_effect_3rd_person"		"weapon_muzzle_flash_assaultrifle"
+				"heat_effect"		"weapon_muzzle_smoke"
+				"addon_location"		"primary_rifle"
+				"eject_brass_effect"		"weapon_shell_casing_rifle"
+				"tracer_effect"		"weapon_tracers_assrifle"
+				"weapon_type"		"Rifle"
+				"player_animation_extension"		"m4"
+				"primary_ammo"		"BULLET_PLAYER_556MM"
+				"sound_single_shot"		"Weapon_M4A1.Single"
+				"sound_special1"		"Weapon_M4A1.Silenced"
+				"sound_nearlyempty"		"Default.nearlyempty"
+			}
+		}

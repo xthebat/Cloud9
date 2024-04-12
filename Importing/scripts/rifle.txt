@@ -1,0 +1,22 @@
+		"rifle"
+		{
+			"prefab"		"primary"
+			"item_type_name"		"#CSGO_Type_Rifle"
+			"item_slot"		"rifle"
+			"inv_group_equipment"		"rifle"
+			"mouse_pressed_sound"		"weapons/m4a1/m4a1_clipout.wav"
+			"drop_sound"		"weapons/m4a1/m4a1_clipin.wav"
+			"visuals"
+			{
+				"weapon_type"		"Rifle"
+			}
+			"attributes"
+			{
+				"flinch velocity modifier large"		"0.440000"
+				"flinch velocity modifier small"		"0.100000"
+			}
+			"taxonomy"
+			{
+				"rifle"		"1"
+			}
+		}

@@ -77,6 +77,12 @@ void UCloud9CharacterMovement::Rotate(FRotator Rotator, bool Instant)
 	}
 }
 
+bool UCloud9CharacterMovement::IsOnLadder() const
+{
+	// TODO: Implement Ladder
+	return false;
+}
+
 float UCloud9CharacterMovement::GetMaxSpeed() const
 {
 	let MaxSpeed = Super::GetMaxSpeed();
