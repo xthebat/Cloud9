@@ -1,56 +1,54 @@
-// Copyright (c) 2023 Alexei Gladkikh
-//
-// Permission is hereby granted, free of charge, to any person
-// obtaining a copy of this software and associated documentation
-// files (the "Software"), to deal in the Software without
-// restriction, including without limitation the rights to use,
-// copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following
-// conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-// OTHER DEALINGS IN THE SOFTWARE.
+// Copyright (c) 2024 Alexei Gladkikh
 
 #pragma once
 
-/**
- * std abstraction because UE4 has self APIs to avoid mixin std and UE4 APIs
- */
-namespace Concepts
+namespace Math
 {
-	template <typename SelfType>
-	concept incrementable = requires(SelfType Self)
-	{
-		++Self;
-	};
+	template <class T, class U>
+	T InverseLerp(const T& A, const T& B, const U& X) { return static_cast<T>((X - A) / (B - A)); }
 
-	template <typename SelfType, typename OtherType>
-	concept plusassingable =
-		incrementable<SelfType>
-		&& requires(SelfType Self, OtherType Other)
+	// see mathlib.h from cstrike15_src
+
+	template <typename InputType, typename OutputType>
+	constexpr InputType Select(InputType Value, OutputType A, OutputType B)
+	{
+		return Value < 0 ? A : B;
+	}
+
+	template <typename ValueType, typename InRangeType, typename OutRangeType>
+	constexpr OutRangeType RemapValue(
+		ValueType Value,
+		InRangeType InRangeMin,
+		InRangeType InRangeMax,
+		OutRangeType OutRangeMin,
+		OutRangeType OutRangeMax)
+	{
+		if (InRangeMin == InRangeMax)
 		{
-			Self += Other;
-		};
+			return Select(Value - InRangeMax, OutRangeMax, OutRangeMin);
+		}
 
-	template <typename SelfType, typename BoundType>
-	concept dereferencable = requires(SelfType Self)
-	{
-		{ *Self } -> std::convertible_to<BoundType>;
-	};
+		let InRange = static_cast<OutRangeType>(InRangeMax - InRangeMin);
+		let OutRange = OutRangeMax - OutRangeMin;
+		return OutRangeMin + OutRange * static_cast<OutRangeType>(Value - InRangeMin) / InRange;
+	}
 
-	template <typename SelfType, typename BoundType>
-	concept convertiable = requires(SelfType Self)
+	template <typename ValueType, typename InRangeType, typename OutRangeType>
+	constexpr OutRangeType RemapValueClamped(
+		ValueType Value,
+		InRangeType InRangeMin,
+		InRangeType InRangeMax,
+		OutRangeType OutRangeMin,
+		OutRangeType OutRangeMax)
 	{
-		{ Self } -> std::convertible_to<BoundType>;
-	};
+		if (InRangeMin == InRangeMax)
+		{
+			return Select(Value - InRangeMax, OutRangeMax, OutRangeMin);
+		}
+
+		let InRange = static_cast<OutRangeType>(InRangeMax - InRangeMin);
+		let Temp = FMath::Clamp(static_cast<OutRangeType>(Value - InRangeMin) / InRange, 0.0f, 1.0f);
+		let OutRange = OutRangeMax - OutRangeMin;
+		return OutRangeMin + OutRange * Temp;
+	}
 }

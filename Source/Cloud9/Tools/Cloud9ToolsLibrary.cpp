@@ -104,44 +104,6 @@ void UCloud9ToolsLibrary::GetWidthHeightDepth(const FBox& Box, float& Width, flo
 	Depth = Size.Z;
 }
 
-FRotator UCloud9ToolsLibrary::RadiansToDegrees(const FRotator Rotator)
-{
-	return {
-		FMath::RadiansToDegrees(Rotator.Pitch),
-		FMath::RadiansToDegrees(Rotator.Yaw),
-		FMath::RadiansToDegrees(Rotator.Roll)
-	};
-}
-
-FVector UCloud9ToolsLibrary::VInterpTo(
-	const FVector Current,
-	const FVector Target,
-	float DeltaTime,
-	const FVector InterpSpeed)
-{
-	let ClampLerp = [](auto Current, auto Dist, auto Alpha, auto Target)
-	{
-		return Alpha <= 0.0f ? Target : Current + Dist * FMath::Clamp(Alpha, 0.0f, 1.0f);
-	};
-
-	// Distance to reach
-	let Dist = Target - Current;
-
-	// If distance is too small, just set the desired location
-	if (Dist.SizeSquared() < KINDA_SMALL_NUMBER)
-	{
-		return Target;
-	}
-
-	let Alpha = DeltaTime * InterpSpeed;
-
-	return {
-		ClampLerp(Current.X, Dist.X, Alpha.X, Target.X),
-		ClampLerp(Current.Y, Dist.Y, Alpha.Y, Target.Y),
-		ClampLerp(Current.Z, Dist.Z, Alpha.Z, Target.Z),
-	};
-}
-
 TArray<FString> UCloud9ToolsLibrary::GetObjectEditorProperties(UClass* Class)
 {
 	if (IsValid(Class))

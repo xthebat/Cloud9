@@ -43,6 +43,7 @@
 #include "Cloud9/Character/Damages/FirearmDamageType.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Physicals/Cloud9PhysicalMaterial.h"
+#include "Cloud9/Tools/Math.h"
 #include "Cloud9/Tools/Structures.h"
 #include "Cloud9/Tools/Extensions/TArray.h"
 #include "Cloud9/Tools/Extensions/USoundBase.h"
@@ -669,7 +670,7 @@ float ACloud9WeaponFirearm::GetInaccuracy() const
 
 	let MaxSpeed = WeaponInfo->GetMaxSpeed();
 
-	var MovementInaccuracyScale = UCloud9ToolsLibrary::RemapValueClamped(
+	var MovementInaccuracyScale = Math::RemapValueClamped(
 		Velocity.Size2D(),
 		MaxSpeed * Cloud9Player::SpeedDuckModifier,
 		MaxSpeed * 0.95f, // max out at 95% of run speed to avoid jitter near max speed
@@ -701,7 +702,7 @@ float ACloud9WeaponFirearm::GetInaccuracy() const
 		let SqrtMaxJumpSpeed = FMath::Sqrt(Settings->JumpImpulse);
 		let SqrtVerticalSpeed = FMath::Sqrt(VerticalSpeed);
 
-		var AirSpeedInaccuracy = UCloud9ToolsLibrary::RemapValue(
+		var AirSpeedInaccuracy = Math::RemapValue(
 			SqrtVerticalSpeed,
 
 			SqrtMaxJumpSpeed * 0.25f,
@@ -970,7 +971,7 @@ float ACloud9WeaponFirearm::GetRecoveryTime() const
 		{
 			const int RecoilIndex = RecoilPattern;
 
-			RecoveryTime = UCloud9ToolsLibrary::RemapValueClamped(
+			RecoveryTime = Math::RemapValueClamped(
 				RecoilIndex,
 				WeaponInfo->GetRecoveryTransitionStartBullet(),
 				WeaponInfo->GetRecoveryTransitionEndBullet(),
@@ -989,7 +990,7 @@ float ACloud9WeaponFirearm::GetRecoveryTime() const
 	{
 		const int RecoilIndex = RecoilPattern;
 
-		RecoveryTime = UCloud9ToolsLibrary::RemapValueClamped(
+		RecoveryTime = Math::RemapValueClamped(
 			RecoilIndex,
 			WeaponInfo->GetRecoveryTransitionStartBullet(),
 			WeaponInfo->GetRecoveryTransitionEndBullet(),
