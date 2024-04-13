@@ -33,4 +33,8 @@ namespace Cloud9WeaponConsts
 	constexpr int PenetrationCount = 4;
 
 	constexpr float WeaponRecoilDecayThreshold = 1.10;
+
+	constexpr float RangeExponentCoefficient = 1e-6f;
+	constexpr float ArmorCoefficient = 0.5f;
+	constexpr float ArmorBonus = 0.5f;
 };

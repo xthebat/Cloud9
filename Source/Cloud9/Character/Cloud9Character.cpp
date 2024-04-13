@@ -27,6 +27,7 @@
 #include "DrawDebugHelpers.h"
 #include "Materials/Material.h"
 #include "Camera/CameraComponent.h"
+#include "Cloud9/Cloud9Consts.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -311,9 +312,6 @@ void ACloud9Character::OnCharacterDie(AActor* Actor)
 	this | EAActor::DestroyAfter{DestroyAfterTime};
 }
 
-constexpr let RangeExponentCoefficient = 1e-6f;
-constexpr let ArmorCoefficient = 0.5f;
-
 float ACloud9Character::InternalTakePointDamage(
 	float Damage,
 	const FPointDamageEvent& PointDamageEvent,
@@ -348,24 +346,33 @@ float ACloud9Character::InternalTakePointDamage(
 			Damage *= WeaponInfo->LegMultiplier;
 		}
 
-		if (HitInArmor)
-		{
-			Damage *= WeaponInfo->ArmorPenetration * ArmorCoefficient;
-			HealthComponent->TakeArmorDamage(Damage / 2);
-		}
-
 		let Distance = FVector::DistSquared(DamageCauser->GetActorLocation(), GetActorLocation());
-		let RangeCoefficient = FMath::Pow(WeaponInfo->RangeModifier, Distance * RangeExponentCoefficient);
-
-		log(Verbose, "[Actor='%s'] Distance=%f RangeCoefficient=%f",
-		    *GetName(),
-		    FMath::Sqrt(Distance),
-		    RangeCoefficient);
+		let RangeCoefficient = FMath::Pow(
+			WeaponInfo->RangeModifier,
+			Distance * Cloud9WeaponConsts::RangeExponentCoefficient);
 
 		Damage *= RangeCoefficient;
+		var DamageToArmor = 0.0f;
+
+		if (HitInArmor)
+		{
+			let ArmorRatio = WeaponInfo->ArmorPenetration * Cloud9WeaponConsts::ArmorCoefficient;
+			DamageToArmor = Damage * (1.0f - ArmorRatio) * Cloud9WeaponConsts::ArmorBonus;
+
+			if (let ArmorValue = HealthComponent->GetArmor(); DamageToArmor > ArmorValue)
+			{
+				Damage = Damage - ArmorValue / Cloud9WeaponConsts::ArmorBonus;
+				DamageToArmor = ArmorValue;
+			}
+
+			HealthComponent->TakeArmorDamage(DamageToArmor < 0 ? 1.0f : DamageToArmor);
+		}
+
+		log(Verbose,
+		    "[Actor='%s'] Distance=%f RangeCoefficient=%f BoneName=%s DamageToHealth=%f DamageToArmor=%f",
+		    *GetName(), FMath::Sqrt(Distance), RangeCoefficient, *BoneName.ToString(), Damage, DamageToArmor);
 	}
 
-	log(Verbose, "[Actor='%s'] BoneName=%s ApplyDamage=%f", *GetName(), *BoneName.ToString(), Damage);
 	return Damage;
 }
 
