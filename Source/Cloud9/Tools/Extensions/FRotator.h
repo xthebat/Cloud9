@@ -27,34 +27,20 @@
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Concepts.h"
 
-namespace EFVector
+namespace EFRotator
 {
-	struct Normalize
+	struct ToDegrees
 	{
-		template <typename SelfType> requires Concepts::convertiable<SelfType, FVector>
-		FORCEINLINE FVector operator()(SelfType&& Self) const
+		template <typename SelfType> requires Concepts::convertiable<SelfType, FRotator>
+		FORCEINLINE FRotator operator()(SelfType&& Self) const
 		{
-			FVector Normalized = Self;
-			Normalized.Normalize();
-			return Normalized;
+			return {
+				FMath::RadiansToDegrees(Self.Pitch),
+				FMath::RadiansToDegrees(Self.Yaw),
+				FMath::RadiansToDegrees(Self.Roll)
+			};
 		}
 
-		OPERATOR_BODY(Normalize)
+		OPERATOR_BODY(ToDegrees)
 	};
-
-	FVector VInterpTo(
-		const FVector Current,
-		const FVector Target,
-		float DeltaTime,
-		const FVector InterpSpeed);
-
-	inline FVector Random(FVector Min, FVector Max, FVector Grid)
-	{
-		let Vector = FMath::RandPointInBox({Min, Max});
-		return {
-			FMath::GridSnap(Vector.X, Grid.X),
-			FMath::GridSnap(Vector.Y, Grid.Y),
-			FMath::GridSnap(Vector.Z, Grid.Z),
-		};
-	}
 }

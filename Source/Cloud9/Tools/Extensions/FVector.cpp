@@ -23,25 +23,10 @@
 
 #pragma once
 
-#include "Cloud9/Tools/Macro/Operator.h"
-#include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Concepts.h"
+#include "FVector.h"
 
 namespace EFVector
 {
-	struct Normalize
-	{
-		template <typename SelfType> requires Concepts::convertiable<SelfType, FVector>
-		FORCEINLINE FVector operator()(SelfType&& Self) const
-		{
-			FVector Normalized = Self;
-			Normalized.Normalize();
-			return Normalized;
-		}
-
-		OPERATOR_BODY(Normalize)
-	};
-
 	FVector VInterpTo(
 		const FVector Current,
 		const FVector Target,
@@ -68,16 +53,6 @@ namespace EFVector
 			ClampLerp(Current.X, Dist.X, Alpha.X, Target.X),
 			ClampLerp(Current.Y, Dist.Y, Alpha.Y, Target.Y),
 			ClampLerp(Current.Z, Dist.Z, Alpha.Z, Target.Z),
-		};
-	}
-
-	inline FVector Random(FVector Min, FVector Max, FVector Grid)
-	{
-		let Vector = FMath::RandPointInBox({Min, Max});
-		return {
-			FMath::GridSnap(Vector.X, Grid.X),
-			FMath::GridSnap(Vector.Y, Grid.Y),
-			FMath::GridSnap(Vector.Z, Grid.Z),
 		};
 	}
 }

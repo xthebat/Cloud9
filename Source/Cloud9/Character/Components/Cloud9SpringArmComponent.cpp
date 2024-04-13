@@ -24,7 +24,7 @@
 #include "Cloud9SpringArmComponent.h"
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "Cloud9/Tools/Cloud9ToolsLibrary.h"
+#include "Cloud9/Tools/Extensions/FVector.h"
 
 UCloud9SpringArmComponent::UCloud9SpringArmComponent()
 {
@@ -112,13 +112,13 @@ void UCloud9SpringArmComponent::UpdateDesiredArmLocation(
 				LerpTarget += ArmMovementStep * LerpAmount;
 				RemainingTime -= LerpAmount;
 
-				DesiredLoc = UCloud9ToolsLibrary::VInterpTo(PreviousDesiredLoc, LerpTarget, LerpAmount, LocationLag);
+				DesiredLoc = EFVector::VInterpTo(PreviousDesiredLoc, LerpTarget, LerpAmount, LocationLag);
 				PreviousDesiredLoc = DesiredLoc;
 			}
 		}
 		else
 		{
-			DesiredLoc = UCloud9ToolsLibrary::VInterpTo(PreviousDesiredLoc, DesiredLoc, DeltaTime, LocationLag);
+			DesiredLoc = EFVector::VInterpTo(PreviousDesiredLoc, DesiredLoc, DeltaTime, LocationLag);
 		}
 
 		if (let FromOrigin = DesiredLoc - ArmOrigin;

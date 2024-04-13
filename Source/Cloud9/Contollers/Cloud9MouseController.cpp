@@ -25,6 +25,7 @@
 
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
 #include "Cloud9/Tools/Extensions/APlayerController.h"
+#include "Cloud9/Tools/Math.h"
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 
@@ -74,11 +75,11 @@ float UCloud9MouseController::GetCameraZoomHeightLevel() const
 {
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
-		let ZoomHeightLevel = UCloud9ToolsLibrary::InverseLerp(
+		let ZoomHeightLevel = Math::InverseLerp(
 			MinCameraZoomHeight,
 			MaxCameraZoomHeight,
 			Pawn->GetCameraZoomHeight());
-		let ZoomAngleLevel = UCloud9ToolsLibrary::InverseLerp(
+		let ZoomAngleLevel = Math::InverseLerp(
 			MinCameraZoomAngle,
 			MaxCameraZoomAngle,
 			Pawn->GetCameraRotationRoll());

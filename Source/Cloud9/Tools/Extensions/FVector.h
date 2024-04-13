@@ -42,18 +42,15 @@ namespace EFVector
 		OPERATOR_BODY(Normalize)
 	};
 
-	inline FVector Random(FVector Min, FVector Max)
-	{
-		return {
-			FMath::RandRange(Min.X, Max.X),
-			FMath::RandRange(Min.Y, Max.Y),
-			FMath::RandRange(Min.Z, Max.Z),
-		};
-	}
+	FVector VInterpTo(
+		const FVector Current,
+		const FVector Target,
+		float DeltaTime,
+		const FVector InterpSpeed);
 
 	inline FVector Random(FVector Min, FVector Max, FVector Grid)
 	{
-		let Vector = Random(Min, Max);
+		let Vector = FMath::RandPointInBox({Min, Max});
 		return {
 			FMath::GridSnap(Vector.X, Grid.X),
 			FMath::GridSnap(Vector.Y, Grid.Y),
