@@ -76,6 +76,7 @@ public:
 	static FString WeaponDebugInaccuracyOnlyUpName;
 	static FString WeaponRecoilDecayCoefficientName;
 	static FString DrawShotDirectionAxisName;
+	static FString WeaponDebugDamageInfoName;
 	static FString VolumeName;
 
 public: // properties
@@ -138,6 +139,9 @@ public: // properties
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 DrawShotDirectionAxis;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	int32 WeaponDebugDamageInfo;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	EUnUsedEnum UnUsedEnum;
