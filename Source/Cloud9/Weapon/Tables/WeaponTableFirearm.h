@@ -219,6 +219,8 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 
 	/**
 	 * Damage against armored opponents is multiplied by ArmorPenetration * 0.5
+	 *
+	 * See flArmorRatio in cstrike15
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Damage,
 		meta=(UIMin="0", UIMax="2.0", ClampMin="0", ClampMax="2.0"))
