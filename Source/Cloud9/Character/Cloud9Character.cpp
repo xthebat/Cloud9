@@ -183,7 +183,7 @@ void ACloud9Character::SetViewDirection(const TOptional<FHitResult>& HitResult)
 			}
 		}
 
-		let Settings = UCloud9DeveloperSettings::Get();
+		static let Settings = UCloud9DeveloperSettings::Get();
 
 		let StartLocation = GetMesh()->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
 
@@ -318,11 +318,13 @@ float ACloud9Character::InternalTakePointDamage(
 	AController* EventInstigator,
 	AActor* DamageCauser)
 {
-	let BoneName = PointDamageEvent.HitInfo.BoneName;
+	static let Settings = UCloud9DeveloperSettings::Get();
+
 	Damage = Super::InternalTakePointDamage(Damage, PointDamageEvent, EventInstigator, DamageCauser);
 
 	if (let Weapon = Cast<ACloud9WeaponFirearm>(DamageCauser))
 	{
+		let BoneName = PointDamageEvent.HitInfo.BoneName;
 		let WeaponInfo = Weapon->GetWeaponInfo();
 
 		bool HitInArmor = false;
@@ -351,26 +353,37 @@ float ACloud9Character::InternalTakePointDamage(
 			WeaponInfo->RangeModifier,
 			Distance * Cloud9WeaponConsts::RangeExponentCoefficient);
 
-		Damage *= RangeCoefficient;
+		var DamageToHealth = Damage * RangeCoefficient;
 		var DamageToArmor = 0.0f;
 
 		if (HitInArmor)
 		{
-			let ArmorRatio = WeaponInfo->ArmorPenetration * Cloud9WeaponConsts::ArmorCoefficient;
-			DamageToArmor = Damage * (1.0f - ArmorRatio) * Cloud9WeaponConsts::ArmorBonus;
+			DamageToHealth = Damage * WeaponInfo->ArmorPenetration * Cloud9WeaponConsts::ArmorCoefficient;
+			DamageToArmor = (Damage - DamageToHealth) * Cloud9WeaponConsts::ArmorBonus;
 
+			// Does this use more armor than we have?
 			if (let ArmorValue = HealthComponent->GetArmor(); DamageToArmor > ArmorValue)
 			{
-				Damage = Damage - ArmorValue / Cloud9WeaponConsts::ArmorBonus;
+				DamageToHealth = Damage - ArmorValue / Cloud9WeaponConsts::ArmorBonus;
 				DamageToArmor = ArmorValue;
 			}
 
 			HealthComponent->TakeArmorDamage(DamageToArmor < 0 ? 1.0f : DamageToArmor);
+			Damage = DamageToHealth;
 		}
 
-		log(Verbose,
-		    "[Actor='%s'] Distance=%f RangeCoefficient=%f BoneName=%s DamageToHealth=%f DamageToArmor=%f",
-		    *GetName(), FMath::Sqrt(Distance), RangeCoefficient, *BoneName.ToString(), Damage, DamageToArmor);
+		if (Settings->WeaponDebugDamageInfo)
+		{
+			log(Display,
+			    "[Actor='%s'] Distance=%f RangeCoefficient=%f BoneName=%s Armored=%d DamageToHealth=%f DamageToArmor=%f",
+			    *GetName(),
+			    FMath::Sqrt(Distance),
+			    RangeCoefficient,
+			    *BoneName.ToString(),
+			    HitInArmor,
+			    DamageToHealth,
+			    DamageToArmor);
+		}
 	}
 
 	return Damage;
