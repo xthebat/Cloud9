@@ -26,7 +26,6 @@
 #include "DrawDebugHelpers.h"
 #include "Engine/StaticMeshActor.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Cloud9/Cloud9Consts.h"
 #include "Components/WidgetInteractionComponent.h"
 
 #include "Cloud9/Tools/Macro/Common.h"
@@ -668,11 +667,11 @@ float ACloud9WeaponFirearm::GetInaccuracy() const
 
 	let Velocity = Character->GetVelocity();
 
-	let MaxSpeed = WeaponInfo->GetMaxSpeed();
+	let MaxSpeed = WeaponInfo->MaxPlayerSpeed;
 
 	var MovementInaccuracyScale = Math::RemapValueClamped(
 		Velocity.Size2D(),
-		MaxSpeed * Cloud9Player::SpeedDuckModifier,
+		MaxSpeed * Character->GetCloud9CharacterMovement()->SpeedDuckModifier,
 		MaxSpeed * 0.95f, // max out at 95% of run speed to avoid jitter near max speed
 		0.0f,
 		1.0f);
@@ -684,7 +683,7 @@ float ACloud9WeaponFirearm::GetInaccuracy() const
 		{
 			MovementInaccuracyScale = FMath::Pow(
 				MovementInaccuracyScale,
-				Cloud9WeaponConsts::MovementCurve01Exponent
+				MovementCurve01Exponent
 			);
 		}
 
@@ -718,9 +717,9 @@ float ACloud9WeaponFirearm::GetInaccuracy() const
 		{
 			AirSpeedInaccuracy = 0.0f;
 		}
-		else if (AirSpeedInaccuracy > Cloud9WeaponConsts::MaxFallingPenalty * InaccuracyJumpInitial)
+		else if (AirSpeedInaccuracy > MaxFallingPenalty * InaccuracyJumpInitial)
 		{
-			AirSpeedInaccuracy = Cloud9WeaponConsts::MaxFallingPenalty * InaccuracyJumpInitial;
+			AirSpeedInaccuracy = MaxFallingPenalty * InaccuracyJumpInitial;
 		}
 
 		// Apply air velocity inaccuracy penalty
@@ -782,7 +781,7 @@ TArray<FVector> ACloud9WeaponFirearm::RecalculateByShotInaccuracy(
 
 	assert(
 		WeaponInfo->BulletsPerShot >= 1 and
-		WeaponInfo->BulletsPerShot <= Cloud9WeaponConsts::MaxBullets
+		WeaponInfo->BulletsPerShot <= MaxBullets
 	);
 
 	FVector Forward, Right, Up;
@@ -927,7 +926,7 @@ void ACloud9WeaponFirearm::UpdateAccuracyPenalty(float DeltaSeconds)
 	// don't decay if we're firing full-auto.
 	// if (gpGlobals->curtime > m_fLastShotTime + TICK_INTERVAL * Cloud9WeaponConsts::WeaponRecoilDecayThreshold)
 	// *** Check only by elapsed time in frame and weapon cycle time *** 
-	if (LastShotDelta > WeaponInfo->CycleTime * Cloud9WeaponConsts::WeaponRecoilDecayThreshold)
+	if (LastShotDelta > WeaponInfo->CycleTime * WeaponRecoilDecayThreshold)
 	{
 		LastShotDelta = 0.0f;
 		let DecayFactor = ExponentBase * Settings->WeaponRecoilDecayCoefficient;

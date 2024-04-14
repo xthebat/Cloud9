@@ -25,8 +25,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-
 #include "Components/Cloud9CharacterMovement.h"
+
+#include "Cloud9/Tools/Macro/Common.h"
 
 #include "Cloud9Character.generated.h"
 
@@ -53,6 +54,20 @@ public:
 	static const FName AnimationComponentName;
 	static const FName WidgetInteractionComponentName;
 
+	static constexpr let HeavyArmorFlinchModifier = 0.5f;
+
+	static constexpr let DuckSpeedIdeal = 8.0f;
+
+	static constexpr let DefaultDestroyAfterTime = 10.0f;
+	static constexpr let CapsuleHeight = 144.0f;
+	static constexpr let CapsuleRadius = 32.0f;
+	static constexpr let MeshRotationYaw = -90.0f;
+	static constexpr let CameraBoomYaw = -60.0f;
+	static constexpr let JumpZVelocity = 320.0f;
+	static constexpr let CrosshairRotationPitch = -90.0f;
+	static constexpr let CanStepUpOn = ECB_Yes;
+
+public:
 	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
 	virtual void OnConstruction(const FTransform& Transform) override;

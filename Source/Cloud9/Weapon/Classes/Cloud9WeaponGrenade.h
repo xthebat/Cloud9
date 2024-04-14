@@ -44,6 +44,10 @@ public:
 	static const FName DetonationEffectComponentName;
 	static const FName ActiveEffectComponentName;
 
+	static constexpr let DebugSphereSegments = 32;
+	static constexpr let DebugSphereLifeTime = 4.0f;
+	static constexpr let DebugSphereThickness = 1.0f;
+
 public:
 	ACloud9WeaponGrenade();
 

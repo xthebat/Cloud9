@@ -88,6 +88,21 @@ public:
 	static const FName TracerProbabilityParameterName;
 	static const FName TracerDirectionParameterName;
 
+	/**
+	 * See cs_shareddefs.cpp in cstrike15_src
+	 */
+	static constexpr let MaxBullets = 16;
+
+	static constexpr let MaxFallingPenalty = 2.0f; // Accuracy is never worse than 2x starting penalty
+	static constexpr let MovementCurve01Exponent = 0.25f;
+	static constexpr let PenetrationCount = 4;
+
+	static constexpr let WeaponRecoilDecayThreshold = 1.10;
+
+	static constexpr let RangeExponentCoefficient = 1e-6f;
+	static constexpr let ArmorCoefficient = 0.5f;
+	static constexpr let ArmorBonus = 0.5f;
+
 public:
 	virtual FWeaponId GetWeaponId() const override;
 

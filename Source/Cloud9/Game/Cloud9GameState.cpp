@@ -50,9 +50,9 @@ void ACloud9GameState::Tick(float DeltaSeconds)
 		let Location = Character->GetActorLocation();
 		let Velocity = Character->GetVelocity();
 		let Text = FString::Printf(
-			TEXT("Location = %s Velocity = %.0f fps = %.1f"),
+			TEXT("Location = %s Scaled Velocity = %.2f fps = %.1f"),
 			*Location.ToString(),
-			Velocity.Size(),
+			Velocity.Size() / UCloud9CharacterMovement::SpeedScaleCoefficient,
 			Fps
 		);
 
