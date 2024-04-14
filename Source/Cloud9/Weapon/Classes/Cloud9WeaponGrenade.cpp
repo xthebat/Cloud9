@@ -293,44 +293,40 @@ bool ACloud9WeaponGrenade::OnGrenadeActionLoop()
 
 	if (Settings->IsDrawExplosionSpheres)
 	{
-		constexpr int SphereSegments = 32;
-		constexpr int SphereLifeTime = 4.0f;
-		constexpr int SphereThickness = 1.0f;
-
 		DrawDebugSphere(
 			GetWorld(),
 			GetActorLocation(),
 			Explosion->Radius * 0.5f,
-			SphereSegments,
+			DebugSphereSegments,
 			FColor::Red,
 			false,
-			SphereLifeTime,
+			DebugSphereLifeTime,
 			0,
-			SphereThickness
+			DebugSphereThickness
 		);
 
 		DrawDebugSphere(
 			GetWorld(),
 			GetActorLocation(),
 			Explosion->Radius * 0.75f,
-			SphereSegments,
+			DebugSphereSegments,
 			FColor::Yellow,
 			false,
-			SphereLifeTime,
+			DebugSphereLifeTime,
 			0,
-			SphereThickness
+			DebugSphereThickness
 		);
 
 		DrawDebugSphere(
 			GetWorld(),
 			GetActorLocation(),
 			Explosion->Radius * 1.0f,
-			SphereSegments,
+			DebugSphereSegments,
 			FColor::Green,
 			false,
-			SphereLifeTime,
+			DebugSphereLifeTime,
 			0,
-			SphereThickness
+			DebugSphereThickness
 		);
 	}
 

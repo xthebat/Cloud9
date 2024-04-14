@@ -26,6 +26,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+#include "Cloud9/Tools/Macro/Common.h"
+
 #include "Cloud9CharacterMovement.generated.h"
 
 class ACloud9Character;
@@ -34,6 +36,18 @@ UCLASS(Blueprintable)
 class CLOUD9_API UCloud9CharacterMovement : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
+
+public:
+	static constexpr let RotationLagScale = 360.0f;
+
+	/**
+	 * Coefficient to correct import scale of all models and assets from CS:GO
+	 */
+	static constexpr let SpeedScaleCoefficient = 2.0f;
+
+	static constexpr let AccelerationWalkScaleCoefficient = 6.0f;
+
+	static constexpr let AccelerationDuckScaleCoefficient = 4.0f;
 
 public:
 	UCloud9CharacterMovement();
@@ -47,10 +61,72 @@ public:
 	void Rotate(FRotator Rotator, bool Instant = false);
 	bool IsOnLadder() const;
 
-	UPROPERTY(Category="Character Movement: Sneaking", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="0"))
-	float MaxSneakSpeed;
+	// cstrike15
 
-	virtual float GetMaxSpeed() const override;
+	/**
+	 * Maximum speed of character (WARN! This variable OVERRIDE behaviour of MaxWalkSpeed)
+	 */
+	UPROPERTY(Category="Character Movement: Base", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="500"))
+	float SpeedRun;
+
+	/**
+	 * Maximum speed of character if being VIP (Not Implemented)
+	 */
+	UPROPERTY(Category="Character Movement: Base", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="500"))
+	float SpeedVip;
+
+	/**
+	 * Maximum speed of character when carrying shield (Not Implemented)
+	 */
+	UPROPERTY(Category="Character Movement: Base", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="500"))
+	float SpeedShield;
+
+	/**
+	 * Maximum speed of character when carrying hostage (Not Implemented)
+	 */
+	UPROPERTY(Category="Character Movement: Base", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="500"))
+	float SpeedHasHostage;
+
+	UPROPERTY(Category="Character Movement: Base", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="500"))
+	float SpeedStopped;
+
+	/**
+	 * Maximum speed of character if being observer in free mode
+	 */
+	UPROPERTY(Category="Character Movement: Base", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="500"))
+	float SpeedObserver;
+
+	/**
+	 * Character movement modifier for crouch/duck
+	 */
+	UPROPERTY(Category="Character Movement: Modifier", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="1"))
+	float SpeedDuckModifier;
+
+	/**
+	 * Character movement modifier for sneaking
+	 */
+	UPROPERTY(Category="Character Movement: Modifier", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="1"))
+	float SpeedWalkModifier;
+
+	/**
+	 * Character movement modifier for climbing(?) (Not Implemented)
+	 */
+	UPROPERTY(Category="Character Movement: Modifier", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="1"))
+	float SpeedClimbModifier;
+
+public:
+	virtual float GetMaxSpeed() const override
+	{
+		return GetMovementValue(SpeedScaleCoefficient, SpeedScaleCoefficient);
+	}
+
+	virtual float GetMaxAcceleration() const override
+	{
+		return GetMovementValue(
+			AccelerationWalkScaleCoefficient,
+			AccelerationDuckScaleCoefficient
+		);
+	}
 
 	virtual void TickComponent(
 		float DeltaTime,
@@ -59,13 +135,14 @@ public:
 	) override;
 
 protected:
+	float GetMovementValue(float WalkScale, float DuckScale) const;
+
+protected:
 	/** Target rotator of character*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State)
 	FRotator TargetRotator;
 
 private:
-	static constexpr float RotationLagScale = 360.0f;
-
 	/** Character rotation lag*/
 	UPROPERTY(EditDefaultsOnly, Category=Config)
 	float RotationLag;

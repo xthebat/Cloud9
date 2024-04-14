@@ -197,15 +197,6 @@ struct FGrenadeWeaponInfo : public FBaseWeaponInfo
 	bool bIsDestroyedOnDetonation = true;
 
 	/**
-	 * Maximum running speed with the weapon equipped (aka Mobility)
-	 *
-	 * NOTE: All grenades made MaxPlayerSpeed to 245.0f units
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mobility,
-		meta=(UIMin="0", UIMax="250", ClampMin="0", ClampMax="250"))
-	float MaxPlayerSpeed = 245.0f;
-
-	/**
 	 * Maximum grenades of this type in inventory 
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Ammo,
@@ -242,13 +233,6 @@ struct FGrenadeWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
 		meta=(UIMin="0", UIMax="20000", ClampMin="0", ClampMax="20000"))
 	int Price;
-
-	/**
-	 * Money award for kill enemy with this gun
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
-		meta=(UIMin="0", UIMax="20000", ClampMin="0", ClampMax="20000"))
-	int KillAward;
 
 	/**
 	 * The factor a target is slowed to (the lower the more effective)

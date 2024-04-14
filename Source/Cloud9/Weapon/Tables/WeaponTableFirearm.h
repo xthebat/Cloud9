@@ -321,13 +321,6 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	float ZoomTime = 0.1f;
 
 	/**
-	 * Maximum running speed with the weapon equipped (aka Mobility)
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mobility,
-		meta=(UIMin="0", UIMax="250", ClampMin="0", ClampMax="250"))
-	float MaxPlayerSpeed = 250.0f;
-
-	/**
 	 * Number of rounds (or shots) per weapon magazine
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Ammo,
@@ -354,13 +347,6 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
 		meta=(UIMin="0", UIMax="20000", ClampMin="0", ClampMax="20000"))
 	int Price;
-
-	/**
-	 * Money award for kill enemy with this gun
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
-		meta=(UIMin="0", UIMax="20000", ClampMin="0", ClampMax="20000"))
-	int KillAward;
 
 	/**
 	 * Weapon fires automatically whilst primary action is toggled
@@ -495,8 +481,6 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Flinch, AdvancedDisplay,
 		meta=(UIMin="0.0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
 	float FlinchVelocityModifierNext = 1.0f;
-
-	float GetMaxSpeed(float Scale = 1.0f) const { return MaxPlayerSpeed * Scale; }
 
 	float GetSpread(float Scale = 0.001f) const { return Spread * Scale; }
 

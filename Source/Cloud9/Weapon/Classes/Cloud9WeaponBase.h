@@ -116,6 +116,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UStaticMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
 
+	template <typename WeaponInfoType = FBaseWeaponInfo>
+	const FBaseWeaponInfo* GetWeaponInfo() const { return WeaponDefinition.GetWeaponInfo<WeaponInfoType>(); }
+
 	/**
 	 * Outer method to initialize weapon as concrete weapon type by it WeaponId and WeaponSkin.
 	 * Called from FWeaponConfig to initialize method.

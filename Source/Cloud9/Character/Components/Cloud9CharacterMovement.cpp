@@ -22,7 +22,10 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Cloud9CharacterMovement.h"
+
+#include "Cloud9InventoryComponent.h"
 #include "Cloud9/Tools/Macro/Common.h"
+#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Character/Cloud9Character.h"
 
 UCloud9CharacterMovement::UCloud9CharacterMovement()
@@ -30,9 +33,19 @@ UCloud9CharacterMovement::UCloud9CharacterMovement()
 	RotationLag = 30.0f;
 	TargetRotator = FRotator::ZeroRotator;
 
-	MaxWalkSpeed = 500.0f;
-	MaxSneakSpeed = 270.0f;
-	MaxWalkSpeedCrouched = 170.0f;
+	SpeedRun = 260.0f;
+	SpeedVip = 227.0f;
+	SpeedShield = 160.0f;
+	SpeedHasHostage = 200.0f;
+	SpeedStopped = 1.0f;
+	SpeedObserver = 900.0f;
+
+	SpeedDuckModifier = 0.34f;
+	SpeedWalkModifier = 0.52f;
+	SpeedClimbModifier = 0.34f;
+
+	MaxWalkSpeed = SpeedRun;
+	MaxWalkSpeedCrouched = MaxWalkSpeed * SpeedDuckModifier;
 
 	var& NavAgentProperties = GetNavAgentPropertiesRef();
 	NavAgentProperties.bCanCrouch = true;
@@ -83,10 +96,39 @@ bool UCloud9CharacterMovement::IsOnLadder() const
 	return false;
 }
 
-float UCloud9CharacterMovement::GetMaxSpeed() const
+float UCloud9CharacterMovement::GetMovementValue(float WalkScale, float DuckScale) const
 {
-	let MaxSpeed = Super::GetMaxSpeed();
-	return IsSneaking() ? FMath::Min(MaxSneakSpeed, MaxSpeed) : MaxSpeed;
+	let Character = GetOwner<ACloud9Character>();
+
+	if (not IsValid(Character))
+	{
+		log(Error, "[Component='%s'] Character is invalid", *GetName());
+		return 0.0f;
+	}
+
+	var MaxSpeed = SpeedRun;
+
+	if (let Inventory = Character->GetInventoryComponent(); IsValid(Inventory))
+	{
+		if (let SelectedWeapon = Inventory->GetSelectedWeapon(); IsValid(SelectedWeapon))
+		{
+			MaxSpeed = SelectedWeapon->GetWeaponInfo()->MaxPlayerSpeed;
+		}
+	}
+
+	if (IsCrouching())
+	{
+		return MaxSpeed * SpeedDuckModifier * DuckScale;
+	}
+
+	if (IsOnLadder())
+	{
+		MaxSpeed *= SpeedClimbModifier;
+	}
+
+	MaxSpeed *= WalkScale;
+
+	return IsSneaking() ? MaxSpeed * SpeedWalkModifier : MaxSpeed;
 }
 
 void UCloud9CharacterMovement::TickComponent(

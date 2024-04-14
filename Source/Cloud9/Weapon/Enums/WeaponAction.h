@@ -41,4 +41,4 @@ enum class EWeaponAction : uint8
 };
 
 // HotReload won't work if try to use StaticEnum in constructor
-static constexpr int WeaponActionCount = 9;
+static constexpr let WeaponActionCount = 9;

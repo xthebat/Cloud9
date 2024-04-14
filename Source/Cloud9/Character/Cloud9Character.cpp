@@ -27,7 +27,6 @@
 #include "DrawDebugHelpers.h"
 #include "Materials/Material.h"
 #include "Camera/CameraComponent.h"
-#include "Cloud9/Cloud9Consts.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -58,35 +57,27 @@ const FName ACloud9Character::WidgetInteractionComponentName = TEXT("WidgetInter
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
 {
-	constexpr float CharacterHeight = 144.0f;
-	constexpr float CharacterRadius = 32.0f;
-	constexpr float CharacterRotationYaw = -90.0f;
-	constexpr float CharacterCameraBoomYaw = -60.0f;
-	constexpr float CharacterJumpZVelocity = 320.0f;
-	constexpr float CharacterCrosshairRotationPitch = -90.0f;
-	constexpr ECanBeCharacterBase CanStepUpOn = ECB_Yes;
-
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	DestroyAfterTime = 10.0f;
+	DestroyAfterTime = DefaultDestroyAfterTime;
 
 	let MyCapsuleComponent = GetCapsuleComponent();
-	MyCapsuleComponent->InitCapsuleSize(CharacterRadius, CharacterHeight / 2.0f);
+	MyCapsuleComponent->InitCapsuleSize(CapsuleRadius, CapsuleHeight / 2.0f);
 	MyCapsuleComponent->CanCharacterStepUpOn = CanStepUpOn;
 
 	let Movement = GetCharacterMovement();
 	Movement->bOrientRotationToMovement = false;
 	Movement->bConstrainToPlane = true;
 	Movement->bSnapToPlaneAtStart = true;
-	Movement->JumpZVelocity = CharacterJumpZVelocity;
+	Movement->JumpZVelocity = JumpZVelocity;
 
 	CameraBoom = CreateDefaultSubobject<UCloud9SpringArmComponent>(SpringArmComponentName);
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
 	CameraBoom->bDoCollisionTest = true; // Don't want to pull camera in when it collides with level
-	CameraBoom->SetWorldRotation({CharacterCameraBoomYaw, 0.0f, 0.0f});
+	CameraBoom->SetWorldRotation({CameraBoomYaw, 0.0f, 0.0f});
 
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(CameraComponentName);
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
@@ -94,7 +85,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 
 	USkeletalMeshComponent* MyMesh = GetMesh();
 	MyMesh->SetRelativeLocation({0.0f, 0.0f, -MyCapsuleComponent->GetScaledCapsuleHalfHeight()});
-	MyMesh->SetRelativeRotation({0.0f, CharacterRotationYaw, 0.0f});
+	MyMesh->SetRelativeRotation({0.0f, MeshRotationYaw, 0.0f});
 
 	// Create a decal in the world to show the cursor's location
 	CursorToWorld = CreateDefaultSubobject<UDecalComponent>(DecalComponentName);
@@ -106,7 +97,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 			-MyCapsuleComponent->GetScaledCapsuleHalfHeight()
 		}
 	);
-	CursorToWorld->SetRelativeRotation({CharacterCrosshairRotationPitch, 0.0, 0.0f});
+	CursorToWorld->SetRelativeRotation({CrosshairRotationPitch, 0.0, 0.0f});
 
 	InventoryComponent = CreateDefaultSubobject<UCloud9InventoryComponent>(InventoryComponentName);
 	HealthComponent = CreateDefaultSubobject<UCloud9HealthComponent>(HealthComponentName);
@@ -351,20 +342,20 @@ float ACloud9Character::InternalTakePointDamage(
 		let Distance = FVector::DistSquared(DamageCauser->GetActorLocation(), GetActorLocation());
 		let RangeCoefficient = FMath::Pow(
 			WeaponInfo->RangeModifier,
-			Distance * Cloud9WeaponConsts::RangeExponentCoefficient);
+			Distance * ACloud9WeaponFirearm::RangeExponentCoefficient);
 
 		var DamageToHealth = Damage * RangeCoefficient;
 		var DamageToArmor = 0.0f;
 
 		if (HitInArmor)
 		{
-			DamageToHealth = Damage * WeaponInfo->ArmorPenetration * Cloud9WeaponConsts::ArmorCoefficient;
-			DamageToArmor = (Damage - DamageToHealth) * Cloud9WeaponConsts::ArmorBonus;
+			DamageToHealth = Damage * WeaponInfo->ArmorPenetration * ACloud9WeaponFirearm::ArmorCoefficient;
+			DamageToArmor = (Damage - DamageToHealth) * ACloud9WeaponFirearm::ArmorBonus;
 
 			// Does this use more armor than we have?
 			if (let ArmorValue = HealthComponent->GetArmor(); DamageToArmor > ArmorValue)
 			{
-				DamageToHealth = Damage - ArmorValue / Cloud9WeaponConsts::ArmorBonus;
+				DamageToHealth = Damage - ArmorValue / ACloud9WeaponFirearm::ArmorBonus;
 				DamageToArmor = ArmorValue;
 			}
 

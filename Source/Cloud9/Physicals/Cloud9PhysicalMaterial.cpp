@@ -2,9 +2,6 @@
 
 #include "Cloud9PhysicalMaterial.h"
 
-constexpr float DecalRotationPitchOrRoll = -90.0f;
-constexpr float DecalRotationYaw = 90.0f;
-
 UCloud9PhysicalMaterial::UCloud9PhysicalMaterial()
 {
 	FirearmDecalSize = {8.0f, 8.0, 8.0f};
@@ -31,10 +28,10 @@ bool IsVertical(FVector Normal)
 
 FRotator GetNormalSurfaceRotation(FVector Normal, float Roll)
 {
-	constexpr float DecalVPitch = 90.0f;
-	constexpr float DecalVRoll = -180.0f;
-	constexpr float DecalHYaw = 90.0f;
-	constexpr float DecalHRoll = -90.0;
+	constexpr let DecalVPitch = 90.0f;
+	constexpr let DecalVRoll = -180.0f;
+	constexpr let DecalHYaw = 90.0f;
+	constexpr let DecalHRoll = -90.0;
 
 	let Corrective = IsVertical(Normal)
 		                 ? FRotator{DecalVPitch, Roll, DecalVRoll}

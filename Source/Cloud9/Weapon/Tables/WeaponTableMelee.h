@@ -155,13 +155,6 @@ struct FMeleeWeaponInfo : public FBaseWeaponInfo
 	float DeployTime;
 
 	/**
-	 * Maximum running speed with the weapon equipped (aka Mobility)
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Mobility,
-		meta=(UIMin="0", UIMax="250", ClampMin="0", ClampMax="250"))
-	float MaxPlayerSpeed = 250.0f;
-
-	/**
 	 * Weapon sound on different actions
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)
@@ -178,11 +171,4 @@ struct FMeleeWeaponInfo : public FBaseWeaponInfo
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=VFX)
 	TArray<FWeaponSkin> Skins;
-
-	/**
-	 * Money award for kill enemy with this gun
-	 */
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
-		meta=(UIMin="0", UIMax="20000", ClampMin="0", ClampMax="20000"))
-	int KillAward;
 };

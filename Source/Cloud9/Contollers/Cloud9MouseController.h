@@ -44,6 +44,12 @@ class CLOUD9_API UCloud9MouseController
 	GENERATED_BODY()
 
 public:
+	static constexpr let InvalidCameraZoomLevel = -1.0f;
+	static constexpr let InvalidCameraZoomAngle = -1.0f;
+	static constexpr let MinCameraZoomLevel = 0.0f;
+	static constexpr let MaxCameraZoomLevel = 1.0f;
+
+public:
 	UCloud9MouseController();
 
 	void OnCameraZoom(float Value);
@@ -72,11 +78,6 @@ protected:
 	void ProcessCameraZoom(float DeltaTime);
 
 private:
-	static constexpr float InvalidCameraZoomLevel = -1.0f;
-	static constexpr float InvalidCameraZoomAngle = -1.0f;
-	static constexpr float MinCameraZoomLevel = 0.0f;
-	static constexpr float MaxCameraZoomLevel = 1.0f;
-
 	UPROPERTY(EditDefaultsOnly, Category = Sensitivity, meta=(AllowPrivateAccess))
 	float CameraRotateSensitivity;
 
