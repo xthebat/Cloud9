@@ -22,4 +22,7 @@ class CLOUD9_API ICloud9CharacterEffect
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	bool Apply(ACloud9Character* Character);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	bool Remove(ACloud9Character* Character);
 };
