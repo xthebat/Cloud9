@@ -25,4 +25,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	bool Remove(ACloud9Character* Character);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	bool Elapsed(ACloud9Character* Character, float DeltaSeconds);
 };

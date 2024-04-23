@@ -134,6 +134,26 @@ void FRangeSpec::Define()
 			}
 		});
 
+		It("WithIndex", [=]
+		{
+			{
+				using FItem = TPair<int, int>;
+
+				let Expected = TArray{
+					FItem{0, 1},
+					FItem{1, 2},
+					FItem{2, 3},
+					FItem{3, 4},
+					FItem{4, 5}
+				};
+
+				let Result = Container
+					| ETContainer::WithIndex{}
+					| ETContainer::ToArray{};
+				TestEqual("Result == {{0, 1}, {1, 2}, ...}", Result, Expected);
+			}
+		});
+
 		It("ArrayOf", [=]
 		{
 			{

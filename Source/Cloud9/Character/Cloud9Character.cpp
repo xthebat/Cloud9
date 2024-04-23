@@ -111,7 +111,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 
 	Score = 0;
 
-	// Activate ticking in order to update the cursor every frame.
+	// Activate ticking to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 }
@@ -410,6 +410,17 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 		MyMesh->bAffectDynamicIndirectLighting = true;
 		MyMesh->SetCollisionProfileName(COLLISION_PROFILE_HITBOX);
 
+		MyMesh->GetMaterials()
+			| ETContainer::WithIndex{}
+			| ETContainer::Filter{[](let It) { return not Cast<UMaterialInstanceDynamic>(It.Value); }}
+			| ETContainer::ForEach{
+				[&MyMesh](let It)
+				{
+					let Dynamic = UMaterialInstanceDynamic::Create(It.Value, MyMesh);
+					MyMesh->SetMaterial(It.Key, Dynamic);
+				}
+			};
+
 #ifdef USE_PHYSICAL_ASSET_HITBOX
 		// TODO: Make same hit boxes for all character's type - currently disabled
 		let PhysicsAsset = MyMesh->GetPhysicsAsset();
@@ -461,4 +472,8 @@ void ACloud9Character::Tick(float DeltaSeconds)
 	{
 		InventoryComponent->SelectOtherAvailableWeapon(false);
 	}
+
+	Effects
+		| ETContainer::Filter{[&](let It) { return It->Elapsed(this, DeltaSeconds); }}
+		| ETContainer::ForEach{[&](let It) { It->Remove(this); }};
 }

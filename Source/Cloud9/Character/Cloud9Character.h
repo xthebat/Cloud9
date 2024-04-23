@@ -31,6 +31,7 @@
 
 #include "Cloud9Character.generated.h"
 
+class UCloud9CharacterEffect;
 class UWidgetInteractionComponent;
 class ACloud9PlayerController;
 class UCloud9InventoryComponent;
@@ -200,6 +201,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Utility, meta=(AllowPrivateAccess))
 	UWidgetInteractionComponent* WidgetInteractionComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Effects, meta=(AllowPrivateAccess))
+	TArray<UCloud9CharacterEffect*> Effects;
+	
 	/** Current number of frags made by character */
 	UPROPERTY(BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
 	int Score;
