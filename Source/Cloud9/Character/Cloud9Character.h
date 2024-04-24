@@ -31,7 +31,8 @@
 
 #include "Cloud9Character.generated.h"
 
-class UCloud9CharacterEffect;
+class UCloud9EffectsComponent;
+class UCloud9CharacterEffectInterface;
 class UWidgetInteractionComponent;
 class ACloud9PlayerController;
 class UCloud9InventoryComponent;
@@ -68,7 +69,6 @@ public:
 	static constexpr let CrosshairRotationPitch = -90.0f;
 	static constexpr let CanStepUpOn = ECB_Yes;
 
-public:
 	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
 	virtual void OnConstruction(const FTransform& Transform) override;
@@ -116,11 +116,14 @@ public:
 
 	UCloud9AnimationComponent* GetAnimationComponent() const;
 
+	bool AddCharacterEffect(TSubclassOf<UCloud9CharacterEffectInterface> EffectClass);
+
+	bool RemoveCharacterEffect(UCloud9EffectsComponent* Effect);
+
 	void AddScore();
 
 	void UseObject();
 
-public:
 	/** Event called when character score changed. */
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnScoreChanged OnScoreChanged;
@@ -189,7 +192,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Inventory, meta=(AllowPrivateAccess))
 	UCloud9InventoryComponent* InventoryComponent;
 
-	/** A state of the character health and armor. */
+	/** A health and armor state of character. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
 	UCloud9HealthComponent* HealthComponent;
 
@@ -202,8 +205,8 @@ private:
 	UWidgetInteractionComponent* WidgetInteractionComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Effects, meta=(AllowPrivateAccess))
-	TArray<UCloud9CharacterEffect*> Effects;
-	
+	UCloud9EffectsComponent* EffectsComponent;
+
 	/** Current number of frags made by character */
 	UPROPERTY(BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
 	int Score;

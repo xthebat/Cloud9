@@ -32,19 +32,21 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/WidgetInteractionComponent.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 
+#include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
+#include "Effects/Cloud9CharacterEffectInterface.h"
 #include "Components/Cloud9InventoryComponent.h"
-#include "Cloud9/Character/Components/Cloud9CharacterMovement.h"
-#include "Cloud9/Character/Components/Cloud9SpringArmComponent.h"
-#include "Cloud9/Tools/Extensions/AActor.h"
+#include "Components/Cloud9CharacterMovement.h"
+#include "Components/Cloud9SpringArmComponent.h"
 #include "Components/Cloud9HealthComponent.h"
 #include "Components/Cloud9AnimationComponent.h"
-#include "Components/WidgetInteractionComponent.h"
+#include "Components/Cloud9EffectsComponent.h"
 
 const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
 const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");
@@ -274,6 +276,16 @@ UCloud9HealthComponent* ACloud9Character::GetHealthComponent() const { return He
 
 UCloud9AnimationComponent* ACloud9Character::GetAnimationComponent() const { return AnimationComponent; }
 
+bool ACloud9Character::AddCharacterEffect(TSubclassOf<UCloud9CharacterEffectInterface> EffectClass)
+{
+	return EffectsComponent->AddEffect(EffectClass);
+}
+
+bool ACloud9Character::RemoveCharacterEffect(UCloud9EffectsComponent* Effect)
+{
+	return EffectsComponent->RemoveEffect(Effect);
+}
+
 void ACloud9Character::AddScore()
 {
 	Score += 1;
@@ -472,8 +484,4 @@ void ACloud9Character::Tick(float DeltaSeconds)
 	{
 		InventoryComponent->SelectOtherAvailableWeapon(false);
 	}
-
-	Effects
-		| ETContainer::Filter{[&](let It) { return It->Elapsed(this, DeltaSeconds); }}
-		| ETContainer::ForEach{[&](let It) { It->Remove(this); }};
 }

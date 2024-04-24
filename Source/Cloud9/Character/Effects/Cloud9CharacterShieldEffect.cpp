@@ -4,22 +4,21 @@
 #include "Cloud9CharacterShieldEffect.h"
 
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Components/Cloud9EffectsComponent.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 
 const FName UCloud9CharacterShieldEffect::ShieldEnableName = TEXT("Shield Enabled");
 
-UCloud9CharacterShieldEffect::UCloud9CharacterShieldEffect()
+bool UCloud9CharacterShieldEffect::ToggleEffect(const UCloud9EffectsComponent* Container, bool IsEnabled) const
 {
-	EffectTime = -1.0f;
-}
+	let Character = Container->GetOwner<ACloud9Character>();
 
-void UCloud9CharacterShieldEffect::BeginPlay()
-{
-	Super::BeginPlay();
-}
+	if (not IsValid(Character))
+	{
+		log(Error, "[Effect='%s'] Owner is invalid", *GetName());
+		return false;
+	}
 
-bool UCloud9CharacterShieldEffect::ToggleEffect(const ACloud9Character* Character, bool IsEnabled) const
-{
 	if (let Mesh = Character->GetMesh(); IsValid(Mesh))
 	{
 		Mesh->GetMaterials()
@@ -33,17 +32,41 @@ bool UCloud9CharacterShieldEffect::ToggleEffect(const ACloud9Character* Characte
 	return true;
 }
 
-bool UCloud9CharacterShieldEffect::Apply_Implementation(ACloud9Character* Character)
+UCloud9CharacterShieldEffect::UCloud9CharacterShieldEffect()
 {
-	return ToggleEffect(Character, true);
+	EffectTime = 0.0f;
+	ElapsedTime = 0.0f;
 }
 
-bool UCloud9CharacterShieldEffect::Remove_Implementation(ACloud9Character* Character)
+bool UCloud9CharacterShieldEffect::IsExtinguished_Implementation() const
 {
-	return ToggleEffect(Character, false);
+	return ElapsedTime >= EffectTime;
 }
 
-bool UCloud9CharacterShieldEffect::Elapsed_Implementation(ACloud9Character* Character, float DeltaSeconds)
+bool UCloud9CharacterShieldEffect::OnApply_Implementation(UCloud9EffectsComponent* Container)
 {
-	return false;
+	return ToggleEffect(Container, true);
 }
+
+bool UCloud9CharacterShieldEffect::OnRemove_Implementation(UCloud9EffectsComponent* Container)
+{
+	return ToggleEffect(Container, false);
+}
+
+bool UCloud9CharacterShieldEffect::CanApply_Implementation(const UCloud9EffectsComponent* Container)
+{
+	return true;
+}
+
+bool UCloud9CharacterShieldEffect::CanTick_Implementation() { return true; }
+
+bool UCloud9CharacterShieldEffect::CanDamaged_Implementation() { return false; }
+
+void UCloud9CharacterShieldEffect::OnTick_Implementation(const UCloud9EffectsComponent* Container, float DeltaSeconds)
+{
+	ElapsedTime += DeltaSeconds;
+}
+
+void UCloud9CharacterShieldEffect::OnApplyDamage_Implementation(
+	const UCloud9EffectsComponent* Container,
+	float Damage) {}
