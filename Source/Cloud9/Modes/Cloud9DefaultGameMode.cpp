@@ -82,6 +82,10 @@ bool ACloud9DefaultGameMode::OnWorldStart(FSavedInfo& SavedInfo)
 
 					Inventory->Initialize(PlayerConfig.WeaponConfigs, PlayerConfig.WeaponSlot);
 					Health->Initialize(PlayerConfig.HealthConfig);
+
+					PlayerConfig.Effects | ETContainer::ForEach{
+						[Character](let EffectClass) { Character->AddCharacterEffect(EffectClass); }
+					};
 				}
 			};
 	}

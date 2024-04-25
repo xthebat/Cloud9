@@ -10,21 +10,33 @@
 #include "Cloud9CharacterShieldEffect.generated.h"
 
 
-UCLASS(Blueprintable, meta=(BlueprintSpawnableComponent))
+UCLASS(BlueprintType, Blueprintable, meta=(BlueprintSpawnableComponent))
 class CLOUD9_API UCloud9CharacterShieldEffect : public UCloud9CharacterEffectTrait
 {
 	GENERATED_BODY()
 
 public:
 	static const FName ShieldEnableName;
+	static const FName ShieldReflectName;
+	static const FName ShieldPowerName;
+	static const FName ShieldColorName;
 
 	UCloud9CharacterShieldEffect();
 
 protected:
-	UPROPERTY()
-	float EffectTime;
+	UPROPERTY(EditDefaultsOnly, Category=Config)
+	float Duration;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, Category=Config)
+	FLinearColor Color;
+
+	UPROPERTY(EditDefaultsOnly, Category=Config)
+	float Reflect;
+
+	UPROPERTY(EditDefaultsOnly, Category=Config)
+	float Power;
+
+	UPROPERTY(BlueprintReadOnly, Category=Implementation)
 	float ElapsedTime;
 
 	virtual bool IsExtinguished_Implementation() const override;

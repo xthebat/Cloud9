@@ -52,6 +52,7 @@ const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
 const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");
 const FName ACloud9Character::DecalComponentName = TEXT("CursorToWorld");
 const FName ACloud9Character::InventoryComponentName = TEXT("InventoryComponent");
+const FName ACloud9Character::EffectsComponentName = TEXT("EffectsComponent");
 const FName ACloud9Character::HealthComponentName = TEXT("HealthComponent");
 const FName ACloud9Character::AnimationComponentName = TEXT("AnimationComponent");
 const FName ACloud9Character::WidgetInteractionComponentName = TEXT("WidgetInteractionComponent");
@@ -101,6 +102,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	);
 	CursorToWorld->SetRelativeRotation({CrosshairRotationPitch, 0.0, 0.0f});
 
+	EffectsComponent = CreateDefaultSubobject<UCloud9EffectsComponent>(EffectsComponentName);
 	InventoryComponent = CreateDefaultSubobject<UCloud9InventoryComponent>(InventoryComponentName);
 	HealthComponent = CreateDefaultSubobject<UCloud9HealthComponent>(HealthComponentName);
 	AnimationComponent = CreateDefaultSubobject<UCloud9AnimationComponent>(AnimationComponentName);

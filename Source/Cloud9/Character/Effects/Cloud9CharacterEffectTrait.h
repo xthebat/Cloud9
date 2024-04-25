@@ -9,7 +9,7 @@
 
 class UCloud9EffectsComponent;
 
-UCLASS()
+UCLASS(Abstract, BlueprintType, Blueprintable, meta=(BlueprintSpawnableComponent))
 class CLOUD9_API UCloud9CharacterEffectTrait : public UObject
 {
 	GENERATED_BODY()

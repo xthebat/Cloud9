@@ -18,7 +18,7 @@ UCloud9EffectsComponent::UCloud9EffectsComponent()
 UCloud9CharacterEffectTrait* UCloud9EffectsComponent::AddEffect(
 	TSubclassOf<UCloud9CharacterEffectTrait> EffectClass)
 {
-	if (let Effect = NewObject<UCloud9CharacterEffectTrait>(this, EffectClass->StaticClass()); Effect->CanApply())
+	if (let Effect = NewObject<UCloud9CharacterEffectTrait>(this, EffectClass); Effect->CanApply())
 	{
 		Effect->OnApply();
 

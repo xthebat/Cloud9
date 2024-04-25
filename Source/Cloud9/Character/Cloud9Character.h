@@ -52,6 +52,7 @@ public:
 	static const FName CameraComponentName;
 	static const FName DecalComponentName;
 	static const FName InventoryComponentName;
+	static const FName EffectsComponentName;
 	static const FName HealthComponentName;
 	static const FName AnimationComponentName;
 	static const FName WidgetInteractionComponentName;

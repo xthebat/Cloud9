@@ -8,6 +8,9 @@
 #include "Cloud9/Tools/Extensions/TContainer.h"
 
 const FName UCloud9CharacterShieldEffect::ShieldEnableName = TEXT("Shield Enabled");
+const FName UCloud9CharacterShieldEffect::ShieldReflectName = TEXT("Shield Reflect");
+const FName UCloud9CharacterShieldEffect::ShieldPowerName = TEXT("Shield Power");
+const FName UCloud9CharacterShieldEffect::ShieldColorName = TEXT("Shield Color");
 
 void UCloud9CharacterShieldEffect::ToggleEffect(bool IsEnabled) const
 {
@@ -23,17 +26,32 @@ void UCloud9CharacterShieldEffect::ToggleEffect(bool IsEnabled) const
 		Mesh->GetMaterials()
 			| ETContainer::Transform{[](let It) { return Cast<UMaterialInstanceDynamic>(It); }}
 			| ETContainer::Filter{[](let It) { return IsValid(It); }}
-			| ETContainer::ForEach{[IsEnabled](let It) { It->SetScalarParameterValue(ShieldEnableName, IsEnabled); }};
+			| ETContainer::ForEach{
+				[this, IsEnabled](let It)
+				{
+					if (IsEnabled)
+					{
+						It->SetScalarParameterValue(ShieldReflectName, Reflect);
+						It->SetScalarParameterValue(ShieldPowerName, Power);
+						It->SetVectorParameterValue(ShieldColorName, Color);
+					}
+
+					It->SetScalarParameterValue(ShieldEnableName, IsEnabled);
+				}
+			};
 	}
 }
 
 UCloud9CharacterShieldEffect::UCloud9CharacterShieldEffect()
 {
-	EffectTime = 0.0f;
+	Duration = 5.0f;
+	Color = FLinearColor::Red;
+	Power = 10.0f;
+	Reflect = 0.004f;
 	ElapsedTime = 0.0f;
 }
 
-bool UCloud9CharacterShieldEffect::IsExtinguished_Implementation() const { return ElapsedTime >= EffectTime; }
+bool UCloud9CharacterShieldEffect::IsExtinguished_Implementation() const { return ElapsedTime >= Duration; }
 
 void UCloud9CharacterShieldEffect::OnApply_Implementation() { ToggleEffect(true); }
 
