@@ -5,10 +5,9 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
-#include "Cloud9/Character/Effects/Cloud9CharacterEffectInterface.h"
-
 #include "Cloud9EffectsComponent.generated.h"
 
+class UCloud9CharacterEffectTrait;
 
 UCLASS(Blueprintable, meta=(BlueprintSpawnableComponent))
 class CLOUD9_API UCloud9EffectsComponent : public UActorComponent
@@ -18,25 +17,25 @@ class CLOUD9_API UCloud9EffectsComponent : public UActorComponent
 public:
 	UCloud9EffectsComponent();
 
-	bool AddEffect(TSubclassOf<UCloud9CharacterEffectInterface> EffectClass);
+	UCloud9CharacterEffectTrait* AddEffect(TSubclassOf<UCloud9CharacterEffectTrait> EffectClass);
 
-	bool RemoveEffect(UObject* Effect);
+	bool RemoveEffect(UCloud9CharacterEffectTrait* Effect);
 
 private:
-	UPROPERTY(meta=(MustImplement=ICloud9CharacterEffectInterface))
-	TSet<UObject*> Effects;
+	UPROPERTY()
+	TSet<UCloud9CharacterEffectTrait*> Effects;
 
 	/**
 	 * Subset of Effects that may tick
 	 */
-	UPROPERTY(meta=(MustImplement=ICloud9CharacterEffectInterface))
-	TSet<UObject*> CanTickEffects;
+	UPROPERTY()
+	TSet<UCloud9CharacterEffectTrait*> CanTickEffects;
 
 	/**
 	 * Subset of Effects that can be damaged
 	 */
-	UPROPERTY(meta=(MustImplement=ICloud9CharacterEffectInterface))
-	TSet<UObject*> CanDamagedEffects;
+	UPROPERTY()
+	TSet<UCloud9CharacterEffectTrait*> CanDamagedEffects;
 
 	UFUNCTION()
 	void OnDamageApplied(float Damage);

@@ -40,7 +40,7 @@
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
-#include "Effects/Cloud9CharacterEffectInterface.h"
+#include "Cloud9/Character/Effects/Cloud9CharacterEffectTrait.h"
 #include "Components/Cloud9InventoryComponent.h"
 #include "Components/Cloud9CharacterMovement.h"
 #include "Components/Cloud9SpringArmComponent.h"
@@ -276,12 +276,14 @@ UCloud9HealthComponent* ACloud9Character::GetHealthComponent() const { return He
 
 UCloud9AnimationComponent* ACloud9Character::GetAnimationComponent() const { return AnimationComponent; }
 
-bool ACloud9Character::AddCharacterEffect(TSubclassOf<UCloud9CharacterEffectInterface> EffectClass)
+// ReSharper disable once CppMemberFunctionMayBeConst
+UCloud9CharacterEffectTrait* ACloud9Character::AddCharacterEffect(TSubclassOf<UCloud9CharacterEffectTrait> EffectClass)
 {
 	return EffectsComponent->AddEffect(EffectClass);
 }
 
-bool ACloud9Character::RemoveCharacterEffect(UCloud9EffectsComponent* Effect)
+// ReSharper disable once CppMemberFunctionMayBeConst
+bool ACloud9Character::RemoveCharacterEffect(UCloud9CharacterEffectTrait* Effect)
 {
 	return EffectsComponent->RemoveEffect(Effect);
 }

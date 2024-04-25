@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
-#include "Cloud9CharacterEffectInterface.h"
+#include "Cloud9CharacterEffectTrait.h"
 
 #include "Cloud9CharacterShieldEffect.generated.h"
 
 
 UCLASS(Blueprintable, meta=(BlueprintSpawnableComponent))
-class CLOUD9_API UCloud9CharacterShieldEffect : public UObject, public ICloud9CharacterEffectInterface
+class CLOUD9_API UCloud9CharacterShieldEffect : public UCloud9CharacterEffectTrait
 {
 	GENERATED_BODY()
 
@@ -29,20 +29,16 @@ protected:
 
 	virtual bool IsExtinguished_Implementation() const override;
 
-	virtual bool OnApply_Implementation(UCloud9EffectsComponent* Container) override;
+	virtual void OnApply_Implementation() override;
 
-	virtual bool OnRemove_Implementation(UCloud9EffectsComponent* Container) override;
+	virtual void OnRemove_Implementation() override;
 
-	virtual bool CanApply_Implementation(const UCloud9EffectsComponent* Container) override;
+	virtual bool CanApply_Implementation() const override;
 
-	virtual bool CanTick_Implementation() override;
+	virtual bool CanTick_Implementation() const override;
 
-	virtual bool CanDamaged_Implementation() override;
-
-	virtual void OnTick_Implementation(const UCloud9EffectsComponent* Container, float DeltaSeconds) override;
-
-	virtual void OnApplyDamage_Implementation(const UCloud9EffectsComponent* Container, float Damage) override;
+	virtual void OnTick_Implementation(float DeltaSeconds) override;
 
 private:
-	bool ToggleEffect(const UCloud9EffectsComponent* Container, bool IsEnabled) const;
+	void ToggleEffect(bool IsEnabled) const;
 };

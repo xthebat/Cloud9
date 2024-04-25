@@ -31,8 +31,8 @@
 
 #include "Cloud9Character.generated.h"
 
+class UCloud9CharacterEffectTrait;
 class UCloud9EffectsComponent;
-class UCloud9CharacterEffectInterface;
 class UWidgetInteractionComponent;
 class ACloud9PlayerController;
 class UCloud9InventoryComponent;
@@ -116,9 +116,9 @@ public:
 
 	UCloud9AnimationComponent* GetAnimationComponent() const;
 
-	bool AddCharacterEffect(TSubclassOf<UCloud9CharacterEffectInterface> EffectClass);
+	UCloud9CharacterEffectTrait* AddCharacterEffect(TSubclassOf<UCloud9CharacterEffectTrait> EffectClass);
 
-	bool RemoveCharacterEffect(UCloud9EffectsComponent* Effect);
+	bool RemoveCharacterEffect(UCloud9CharacterEffectTrait* Effect);
 
 	void AddScore();
 

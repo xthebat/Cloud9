@@ -7,6 +7,7 @@
 
 #include "Cloud9/Character/Components/Cloud9HealthComponent.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Effects/Cloud9CharacterEffectTrait.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 
 UCloud9EffectsComponent::UCloud9EffectsComponent()
@@ -14,32 +15,32 @@ UCloud9EffectsComponent::UCloud9EffectsComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-bool UCloud9EffectsComponent::AddEffect(TSubclassOf<UCloud9CharacterEffectInterface> EffectClass)
+UCloud9CharacterEffectTrait* UCloud9EffectsComponent::AddEffect(
+	TSubclassOf<UCloud9CharacterEffectTrait> EffectClass)
 {
-	if (let Effect = NewObject<UObject>(this, EffectClass->StaticClass());
-		ICloud9CharacterEffectInterface::Execute_CanApply(Effect, this))
+	if (let Effect = NewObject<UCloud9CharacterEffectTrait>(this, EffectClass->StaticClass()); Effect->CanApply())
 	{
-		ICloud9CharacterEffectInterface::Execute_OnApply(Effect, this);
+		Effect->OnApply();
 
 		Effects.Add(Effect);
 
-		if (ICloud9CharacterEffectInterface::Execute_CanTick(Effect))
+		if (Effect->CanTick())
 		{
 			CanTickEffects.Add(Effect);
 			SetComponentTickEnabled(true);
 		}
-		else if (ICloud9CharacterEffectInterface::Execute_CanDamaged(Effect))
+		else if (Effect->CanDamaged())
 		{
 			CanDamagedEffects.Add(Effect);
 		}
 
-		return true;
+		return Effect;
 	}
 
-	return false;
+	return nullptr;
 }
 
-bool UCloud9EffectsComponent::RemoveEffect(UObject* Effect)
+bool UCloud9EffectsComponent::RemoveEffect(UCloud9CharacterEffectTrait* Effect)
 {
 	if (Effects.Remove(Effect) == 0)
 	{
@@ -52,7 +53,7 @@ bool UCloud9EffectsComponent::RemoveEffect(UObject* Effect)
 
 	SetComponentTickEnabled(CanTickEffects.Num() != 0);
 
-	ICloud9CharacterEffectInterface::Execute_OnRemove(Effect, this);
+	Effect->OnRemove();
 	return true;
 }
 
@@ -81,14 +82,14 @@ void UCloud9EffectsComponent::OnDamageApplied(float Damage)
 {
 	let Extinguished = CanDamagedEffects
 		| ETContainer::Filter{
-			[this, Damage](let It)
+			[Damage](let It)
 			{
-				ICloud9CharacterEffectInterface::Execute_OnApplyDamage(It, this, Damage);
-				return ICloud9CharacterEffectInterface::Execute_IsExtinguished(It);
+				It->OnApplyDamage(Damage);
+				return It->IsExtinguished();
 			}
 		} | ETContainer::ToArray{};
 
-	// Cache effects to remove
+	// Cache effects to remove preventing modification during iteration
 	Extinguished | ETContainer::ForEach{[this](let It) { RemoveEffect(It); }};
 }
 
@@ -99,13 +100,13 @@ void UCloud9EffectsComponent::TickComponent(
 {
 	let Extinguished = CanTickEffects
 		| ETContainer::Filter{
-			[this, DeltaTime](let It)
+			[DeltaTime](let It)
 			{
-				ICloud9CharacterEffectInterface::Execute_OnTick(It, this, DeltaTime);
-				return ICloud9CharacterEffectInterface::Execute_IsExtinguished(It);
+				It->OnTick(DeltaTime);
+				return It->IsExtinguished();
 			}
 		} | ETContainer::ToArray{};
 
-	// Cache effects to remove
+	// Cache effects to remove preventing modification during iteration
 	Extinguished | ETContainer::ForEach{[this](let It) { RemoveEffect(It); }};
 }

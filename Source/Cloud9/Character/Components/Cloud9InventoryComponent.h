@@ -55,11 +55,11 @@ public:
 	bool Initialize(const TArray<FWeaponConfig>& WeaponConfigs, EWeaponSlot WeaponSlot);
 
 	/**
-	 * Function selects weapon in new slot.
+	 * Function selects a weapon in new slot.
 	 * 
 	 * @param Slot New slot weapon slot.
 	 * @param Instant If set then no animation will be shown and switching will be instant.
-	 * @param Force If set then other weapon will be selected even if animation playing
+	 * @param Force If set, then another weapon will be selected even if animation playing
 	 */
 	UFUNCTION(BlueprintCallable)
 	bool SelectWeapon(EWeaponSlot Slot, bool Instant = false, bool Force = false);
