@@ -65,7 +65,9 @@ namespace Private_ETContainer
 	template <typename ContainerType>
 	auto IteratorOf(ContainerType&& Container)
 	{
-		return static_cast<typename TDecay<ContainerType>::Type>(Container).CreateIterator();
+		using FNakedContainerType = typename TDecay<ContainerType>::Type;
+		using FMutableContainerType = typename TRemoveConst<FNakedContainerType>::Type;
+		return const_cast<FMutableContainerType&>(Container).CreateIterator();
 	}
 
 	template <typename InElementType, typename ContainerType>
@@ -94,14 +96,14 @@ namespace ETContainer
 {
 	struct FromIterator
 	{
-		template <typename ContainerType>
-		constexpr auto operator()(ContainerType&& Self) const
+		template <typename InElementType, template<typename> typename ContainerType>
+		constexpr auto operator()(ContainerType<InElementType>&& Self) const
 		{
-			using FDereferenceFunctionType = decltype(&ContainerType::operator*);
-			using FDereferenceResultType = typename TInvokeResult<FDereferenceFunctionType, ContainerType>::Type;
-			using FElementType = typename TRemovePointer<FDereferenceResultType>::Type;
-			var Iterator = Private_ETContainer::TFromIteratorIterator<FElementType, ContainerType>(Self);
-			return TSequence<FElementType, decltype(Iterator)>(MoveTemp(Iterator));
+			var Iterator = Private_ETContainer::TFromIteratorIterator<
+				InElementType,
+				ContainerType<InElementType>
+			>(Self);
+			return TSequence<InElementType, decltype(Iterator)>(MoveTemp(Iterator));
 		}
 
 		OPERATOR_BODY(FromIterator)
