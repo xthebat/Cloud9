@@ -12,11 +12,9 @@ class CLOUD9_API ACloud9DefaultGameMode : public ACloud9GameMode
 	GENERATED_BODY()
 
 public:
-	static FName GodSidePlayer;
-	static FName TSidePlayer;
-	static FName CtSidePlayer;
+	static FName PlayerConfigName;
+	static FName BotConfigName;
 
-public:
 	ACloud9DefaultGameMode();
 
 protected:

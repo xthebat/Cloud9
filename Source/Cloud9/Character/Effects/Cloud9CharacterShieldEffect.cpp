@@ -4,8 +4,9 @@
 #include "Cloud9CharacterShieldEffect.h"
 
 #include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Character/Components/Cloud9EffectsComponent.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
+#include "Cloud9/Character/Components/Cloud9EffectsComponent.h"
+#include "Cloud9/Character/Components/Cloud9HealthComponent.h"
 
 const FName UCloud9CharacterShieldEffect::ShieldEnableName = TEXT("Shield Enabled");
 const FName UCloud9CharacterShieldEffect::ShieldReflectName = TEXT("Shield Reflect");
@@ -19,7 +20,17 @@ void UCloud9CharacterShieldEffect::ToggleEffect(bool IsEnabled) const
 	if (not IsValid(Character))
 	{
 		log(Error, "[Effect='%s'] Owner is invalid", *GetName());
+		return;
 	}
+
+	let HealthComponent = Character->GetHealthComponent();
+	if (not IsValid(HealthComponent))
+	{
+		log(Error, "[Effect='%s'] Character HealthComponent is invalid", *GetName());
+		return;
+	}
+
+	HealthComponent->SetIsInvulnerable(IsEnabled);
 
 	if (let Mesh = Character->GetMesh(); IsValid(Mesh))
 	{

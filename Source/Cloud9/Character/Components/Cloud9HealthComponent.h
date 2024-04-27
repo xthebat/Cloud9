@@ -55,7 +55,6 @@ public:
 	bool IncreaseHealth(float Change);
 	bool IncreaseArmor(float Change);
 
-	// Helmet is permanent(?)
 	bool ChangeHasHelmet(bool NewState);
 
 	UFUNCTION()
@@ -87,7 +86,10 @@ public:
 	bool HasHelmet() const { return bHasHelmet; }
 	bool IsAlive() const { return bIsAlive; }
 
-public:
+	bool GetIsInvulnerable() const;
+
+	void SetIsInvulnerable(bool NewValue);
+
 	UPROPERTY(BlueprintAssignable, Category=Events)
 	FOnHealthChange OnHealthChange;
 
@@ -108,7 +110,6 @@ protected:
 
 	void AddAttackerScore(const AController* InstigatedBy) const;
 
-protected:
 	/** Current percentage health of character */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
 	float Health;
@@ -124,4 +125,8 @@ protected:
 	/** Whether current character dead or alive */
 	UPROPERTY(BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
 	bool bIsAlive;
+
+	/** Whether current character can't take damage */
+	UPROPERTY(BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	bool bIsInvulnerable;
 };

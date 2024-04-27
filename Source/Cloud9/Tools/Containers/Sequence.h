@@ -43,7 +43,7 @@ public:
 	 * Function returns next element of sequence.
 	 * 
 	 * NOTE: Sequence is itself iterator so function increments
-	 * internal iterator and then return next self value.
+	 * internal iterator and then returns the next self-value.
 	 */
 	TSequence& operator++()
 	{
@@ -54,7 +54,7 @@ public:
 	/**
 	 * Function returns current underlying Iterator value.
 	 */
-	const ElementType& operator*() { return *Iterator; }
+	ElementType& operator*() { return *Iterator; }
 
 	/**
 	 * Function returns false if sequence is empty.
@@ -72,6 +72,12 @@ public:
 	using TIterator = TSequence;
 	using TConstIterator = TSequence<const ElementType, IteratorType>;
 
+	constexpr TIterator& CreateIterator()
+	{
+		Initialize();
+		return *reinterpret_cast<TIterator*>(this);
+	}
+
 	constexpr TConstIterator& CreateConstIterator()
 	{
 		Initialize();
@@ -81,7 +87,7 @@ public:
 	// Compatability with stl-like for-based loop
 
 	/**
-	 * Tag class required to check if sequence has been finished.
+	 * Tag class required to check if the sequence has been finished.
 	 */
 	struct FEndTag {};
 
@@ -89,16 +95,12 @@ public:
 	 * Functions returns begin iterator value to support for-based loop.
 	 * @see note for `TSequence& operator++()`.
 	 */
-	constexpr TSequence& begin()
-	{
-		Initialize();
-		return *this;
-	}
+	constexpr TSequence& begin() { return CreateIterator(); }
 
 	/**
-	 * Functions return end iterator value to support for-based loop.
-	 * NOTE: In fact special tag-object returned only to check if
-	 * underlying Iterator finished or not.
+	 * Function returns end iterator value to support for-based loop.
+	 * NOTE: In fact, special tag-object returned only to check if
+	 * the underlying Iterator finished or not.
 	 */
 	constexpr FEndTag end() const { return TSequence::FEndTag(); }
 

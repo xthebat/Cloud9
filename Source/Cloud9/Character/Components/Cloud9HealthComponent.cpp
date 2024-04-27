@@ -12,6 +12,7 @@ UCloud9HealthComponent::UCloud9HealthComponent()
 	Armor = 0.0f;
 	bHasHelmet = false;
 	bIsAlive = true;
+	bIsInvulnerable = false;
 }
 
 void UCloud9HealthComponent::Initialize(FHealthConfig Config)
@@ -64,6 +65,10 @@ bool UCloud9HealthComponent::IncreaseArmor(float Change)
 	log(Warning, "Can't decimante armor using this method Change=%f", Change);
 	return false;
 }
+
+bool UCloud9HealthComponent::GetIsInvulnerable() const { return bIsInvulnerable; }
+
+void UCloud9HealthComponent::SetIsInvulnerable(bool NewValue) { bIsInvulnerable = NewValue; }
 
 bool UCloud9HealthComponent::ChangeHealth(float NewHealth)
 {
@@ -166,7 +171,7 @@ void UCloud9HealthComponent::OnTakePointDamage(
 	const UDamageType* DamageType,
 	AActor* DamageCauser)
 {
-	TakeHealthDamage(Damage);
+	TakeHealthDamage(not bIsInvulnerable ? Damage : 0.0f);
 	AddAttackerScore(InstigatedBy);
 }
 
@@ -179,6 +184,6 @@ void UCloud9HealthComponent::OnTakeRadialDamage(
 	AController* InstigatedBy,
 	AActor* DamageCauser)
 {
-	TakeHealthDamage(Damage);
+	TakeHealthDamage(not bIsInvulnerable ? Damage : 0.0f);
 	AddAttackerScore(InstigatedBy);
 }
