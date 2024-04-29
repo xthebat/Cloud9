@@ -57,25 +57,29 @@ bool UCloud9EffectsComponent::RemoveEffect(UCloud9CharacterEffectTrait* Effect)
 	return true;
 }
 
-void UCloud9EffectsComponent::OnRegister()
+UCloud9HealthComponent* UCloud9EffectsComponent::GetHealthComponent() const
 {
-	Super::OnRegister();
-
 	let Character = GetOwner<ACloud9Character>();
 	if (not IsValid(Character))
 	{
 		log(Error, "[Component='%s'] Owner is invalid", *GetName());
-		return;
+		return nullptr;
 	}
 
 	let HealthComponent = Character->GetHealthComponent();
 	if (not IsValid(HealthComponent))
 	{
 		log(Error, "[Component='%s'] Owner HealthComponent is invalid", *GetName());
-		return;
+		return nullptr;
 	}
 
-	HealthComponent->OnHealthChange.AddDynamic(this, &UCloud9EffectsComponent::OnDamageApplied);
+	return HealthComponent;
+}
+
+void UCloud9EffectsComponent::OnComponentCreated()
+{
+	Super::OnComponentCreated();
+	GetHealthComponent()->OnHealthChange.AddDynamic(this, &UCloud9EffectsComponent::OnDamageApplied);
 }
 
 void UCloud9EffectsComponent::OnDamageApplied(float Damage)

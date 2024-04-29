@@ -63,7 +63,7 @@ namespace ETIterator
 namespace Private_ETContainer
 {
 	template <typename ContainerType>
-	auto IteratorOf(ContainerType&& Container)
+	auto MutableIteratorOf(ContainerType&& Container)
 	{
 		using FNakedContainerType = typename TDecay<ContainerType>::Type;
 		using FMutableContainerType = typename TRemoveConst<FNakedContainerType>::Type;
@@ -100,9 +100,7 @@ namespace ETContainer
 		constexpr auto operator()(ContainerType<InElementType>&& Self) const
 		{
 			var Iterator = Private_ETContainer::TFromIteratorIterator<
-				InElementType,
-				ContainerType<InElementType>
-			>(Self);
+				InElementType, ContainerType<InElementType>>(Self);
 			return TSequence<InElementType, decltype(Iterator)>(MoveTemp(Iterator));
 		}
 
@@ -116,7 +114,7 @@ namespace ETContainer
 		{
 			if (Self.Num() != 0)
 			{
-				return Private_ETContainer::IteratorOf(Self)
+				return Private_ETContainer::MutableIteratorOf(Self)
 					| ETIterator::Advance(FMath::RandRange(0, Self.Num() - 1))
 					| ETIterator::GetValue();
 			}
@@ -371,7 +369,7 @@ namespace Private_ETContainer
 
 		constexpr TIndexesIterator(ContainerType&& Container, OperatorType&& Operator)
 			: Container(Container)
-			, Iterator(IteratorOf(Container))
+			, Iterator(MutableIteratorOf(Container))
 			, Operator(Operator) {}
 
 		// ReSharper disable once CppMemberFunctionMayBeStatic
@@ -405,7 +403,7 @@ namespace Private_ETContainer
 
 		constexpr TWithIndexIterator(ContainerType&& Container, OperatorType&& Operator)
 			: Container(Container)
-			, Iterator(IteratorOf(Container))
+			, Iterator(MutableIteratorOf(Container))
 			, Operator(Operator) {}
 
 		// ReSharper disable once CppMemberFunctionMayBeStatic
@@ -448,7 +446,7 @@ namespace Private_ETContainer
 
 		constexpr TTransformIterator(ContainerType&& Container, OperatorType&& Operator)
 			: Container(Container)
-			, Iterator(IteratorOf(Container))
+			, Iterator(MutableIteratorOf(Container))
 			, Operator(Operator) {}
 
 		// ReSharper disable once CppMemberFunctionMayBeStatic
@@ -485,7 +483,7 @@ namespace Private_ETContainer
 
 		constexpr TFilterIterator(ContainerType&& Container, OperatorType&& Operator)
 			: Container(Container)
-			, Iterator(IteratorOf(Container))
+			, Iterator(MutableIteratorOf(Container))
 			, Operator(Operator)
 			, bIsFound(false) {}
 
@@ -536,7 +534,7 @@ namespace Private_ETContainer
 
 		constexpr TDropIterator(ContainerType&& Container, OperatorType&& Operator)
 			: Container(Container)
-			, Iterator(IteratorOf(Container))
+			, Iterator(MutableIteratorOf(Container))
 			, Operator(Operator) {}
 
 		constexpr void Initialize()
@@ -574,7 +572,7 @@ namespace Private_ETContainer
 
 		constexpr TTakeIterator(ContainerType&& Container, OperatorType&& Operator)
 			: Container(Container)
-			, Iterator(IteratorOf(Container))
+			, Iterator(MutableIteratorOf(Container))
 			, Operator(Operator) {}
 
 		constexpr void Initialize() {}

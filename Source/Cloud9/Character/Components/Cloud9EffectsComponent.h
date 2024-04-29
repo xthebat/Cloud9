@@ -7,6 +7,7 @@
 
 #include "Cloud9EffectsComponent.generated.h"
 
+class UCloud9HealthComponent;
 class UCloud9CharacterEffectTrait;
 
 UCLASS(Blueprintable, meta=(BlueprintSpawnableComponent))
@@ -40,7 +41,9 @@ private:
 	UFUNCTION()
 	void OnDamageApplied(float Damage);
 
-	virtual void OnRegister() override;
+	UCloud9HealthComponent* GetHealthComponent() const;
+
+	virtual void OnComponentCreated() override;
 
 	virtual void TickComponent(
 		float DeltaTime,

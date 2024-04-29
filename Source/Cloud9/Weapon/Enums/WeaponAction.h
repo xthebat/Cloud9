@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "Cloud9/Tools/Macro/Common.h"
+
 UENUM(BlueprintType)
 enum class EWeaponAction : uint8
 {

@@ -2,6 +2,8 @@
 
 #include "Cloud9DefaultGameMode.h"
 
+#include "EngineUtils.h"
+
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
@@ -10,7 +12,6 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 // ReSharper disable once CppUnusedIncludeDirective
-#include "EngineUtils.h"
 #include "Cloud9/Character/Components/Cloud9HealthComponent.h"
 
 FName ACloud9DefaultGameMode::PlayerConfigName = TEXT("God");
@@ -84,7 +85,9 @@ bool ACloud9DefaultGameMode::OnWorldStart(FSavedInfo& SavedInfo)
 			| ETContainer::ForEach{
 				[PlayerConfig, BotConfig](var& Character)
 				{
-					if (let Config = Character.IsBotControlled() ? BotConfig : PlayerConfig; Config == nullptr)
+					let Config = Character.IsPlayerControlled() ? PlayerConfig : BotConfig;
+
+					if (Config == nullptr)
 					{
 						log(Warning, "[Character='%s'] Initialization skipped cus config wasn't specified",
 						    *Character.GetName());
@@ -94,10 +97,10 @@ bool ACloud9DefaultGameMode::OnWorldStart(FSavedInfo& SavedInfo)
 					let Inventory = Character.GetInventoryComponent();
 					let Health = Character.GetHealthComponent();
 
-					Inventory->Initialize(PlayerConfig->WeaponConfigs, PlayerConfig->WeaponSlot);
-					Health->Initialize(PlayerConfig->HealthConfig);
+					Inventory->Initialize(Config->WeaponConfigs, Config->WeaponSlot);
+					Health->Initialize(Config->HealthConfig);
 
-					PlayerConfig->Effects | ETContainer::ForEach{
+					Config->Effects | ETContainer::ForEach{
 						[&Character](let EffectClass) { Character.AddCharacterEffect(EffectClass); }
 					};
 				}
