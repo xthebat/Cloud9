@@ -43,14 +43,14 @@ public:
 	/**
 	 * Function gets game mode for specified World
 	 * 
-	 * WARNING: Can only be used during game (avoid it in OnConstruction and etc)
+	 * WARNING: Can only be used during game (avoid it in OnConstruction, etc.)
 	 */
 	static ACloud9GameMode* GetGameMode(const UWorld* World);
 
 	/**
-	 * Function gets specialized type of game mode for specified World
+	 * Function gets a specialized type of game mode for specified World
 	 * 
-	 * WARNING: Can only be used during game (avoid it in OnConstruction and etc)
+	 * WARNING: Can only be used during game (avoid it in OnConstruction, etc.)
 	 */
 	template <typename GameModeType = ACloud9GameMode>
 	static GameModeType* GetGameMode(const UWorld* World) { return Cast<GameModeType>(GetGameMode(World)); }
@@ -58,14 +58,14 @@ public:
 	/**
 	 * Function gets current game mode
 	 * 
-	 * WARNING: Can only be used during game (avoid it in OnConstruction and etc)
+	 * WARNING: Can only be used during game (avoid it in OnConstruction, etc.)
 	 */
 	ACloud9GameMode* GetGameMode() const { return GetGameMode(GetWorld()); }
 
 	/**
-	 * Function gets specialized type of current game mode
+	 * Function gets a specialized type of current game mode
 	 * 
-	 * WARNING: Can only be used during game (avoid it in OnConstruction and etc)
+	 * WARNING: Can only be used during game (avoid it in OnConstruction, etc.)
 	 */
 	template <typename GameModeType = ACloud9GameMode>
 	GameModeType* GetGameMode() const { return Cast<GameModeType>(GetGameMode()); }

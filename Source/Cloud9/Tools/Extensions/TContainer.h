@@ -62,11 +62,22 @@ namespace ETIterator
 
 namespace Private_ETContainer
 {
-	template <typename OperatorType, typename ContainerType>
+	template <typename ContainerType>
+	auto MutableIteratorOf(ContainerType&& Container)
+	{
+		using FNakedContainerType = typename TDecay<ContainerType>::Type;
+		using FMutableContainerType = typename TRemoveConst<FNakedContainerType>::Type;
+		return const_cast<FMutableContainerType&>(Container).CreateIterator();
+	}
+
+	template <typename InElementType, typename ContainerType>
 	struct TFromIteratorIterator;
 
 	template <typename OperatorType, typename ContainerType>
 	struct TIndexesIterator;
+
+	template <typename OperatorType, typename ContainerType>
+	struct TWithIndexIterator;
 
 	template <typename OperatorType, typename ContainerType>
 	struct TTransformIterator;
@@ -85,12 +96,12 @@ namespace ETContainer
 {
 	struct FromIterator
 	{
-		template <typename ElementType>
-		constexpr auto operator()(TFieldIterator<ElementType>&& Self) const
+		template <typename InElementType, template<typename> typename ContainerType>
+		constexpr auto operator()(ContainerType<InElementType>&& Self) const
 		{
-			using FIteratorType = TFieldIterator<ElementType>;
-			var Iterator = Private_ETContainer::TFromIteratorIterator<ElementType, FIteratorType>(Self);
-			return TSequence<ElementType, decltype(Iterator)>(MoveTemp(Iterator));
+			var Iterator = Private_ETContainer::TFromIteratorIterator<
+				InElementType, ContainerType<InElementType>>(Self);
+			return TSequence<InElementType, decltype(Iterator)>(MoveTemp(Iterator));
 		}
 
 		OPERATOR_BODY(FromIterator)
@@ -103,7 +114,7 @@ namespace ETContainer
 		{
 			if (Self.Num() != 0)
 			{
-				return Self.CreateConstIterator()
+				return Private_ETContainer::MutableIteratorOf(Self)
 					| ETIterator::Advance(FMath::RandRange(0, Self.Num() - 1))
 					| ETIterator::GetValue();
 			}
@@ -122,7 +133,7 @@ namespace ETContainer
 		template <typename ContainerType>
 		constexpr void operator()(ContainerType&& Self) const
 		{
-			for (let& It : Self)
+			for (var& It : Self)
 			{
 				Block(It);
 			}
@@ -140,7 +151,7 @@ namespace ETContainer
 		constexpr void operator()(ContainerType&& Self) const
 		{
 			int Index = 0;
-			for (let& It : Self)
+			for (var& It : Self)
 			{
 				Block(Index++, It);
 			}
@@ -162,7 +173,7 @@ namespace ETContainer
 			using FValueType = typename TInvokeResult<ValueBlockType, typename ContainerType::ElementType>::Type;
 
 			TMap<FKeyType, FValueType> Output;
-			for (let& It : Self)
+			for (var& It : Self)
 			{
 				Output.Emplace(KeyBlock(It), ValueBlock(It));
 			}
@@ -175,6 +186,11 @@ namespace ETContainer
 	struct Indexes
 	{
 		SEQUENCE_OPERATOR_BODY(Indexes, Private_ETContainer::TIndexesIterator)
+	};
+
+	struct WithIndex
+	{
+		SEQUENCE_OPERATOR_BODY(WithIndex, Private_ETContainer::TWithIndexIterator)
 	};
 
 	template <typename InOperationType>
@@ -205,7 +221,7 @@ namespace ETContainer
 		{
 			using ElementType = typename TDecay<ContainerType>::Type::ElementType;
 
-			for (let& It : Self)
+			for (var& It : Self)
 			{
 				if (Predicate(It))
 				{
@@ -241,8 +257,8 @@ namespace ETContainer
 		template <typename ContainerType>
 		constexpr bool operator()(ContainerType&& Self) const
 		{
-			// true if all elements are true (empty collection is correspond this condition)  
-			for (let& It : Self)
+			// true if all elements are true (an empty collection is corresponding this condition)  
+			for (var& It : Self)
 			{
 				if (not Predicate(It))
 				{
@@ -261,8 +277,8 @@ namespace ETContainer
 		template <typename ContainerType>
 		constexpr bool operator()(ContainerType&& Self) const
 		{
-			// true if all elements are true (empty collection is correspond this condition)  
-			for (let& It : Self)
+			// true if all elements are true (an empty collection is corresponding this condition)  
+			for (var& It : Self)
 			{
 				if (not It)
 				{
@@ -308,12 +324,10 @@ namespace ETContainer
 		auto operator()(ContainerType&& Self) const
 		{
 			TArray<typename TDecay<ContainerType>::Type::ElementType> Result{};
-			for (let& It : Self
-			     | Drop{ToDrop}
-			     | Take{ToTake})
-			{
-				Result.Add(It);
-			}
+			Self
+				| Drop{ToDrop}
+				| Take{ToTake}
+				| ForEach{[&Result](let& It) { Result.Add(It); }};
 			return Result;
 		}
 
@@ -323,13 +337,13 @@ namespace ETContainer
 
 namespace Private_ETContainer
 {
-	template <typename InElementType, typename InIteratorType>
+	template <typename InElementType, typename ContainerType>
 	struct TFromIteratorIterator
 	{
-		using IteratorType = InIteratorType;
+		using IteratorType = ContainerType;
 		using ElementType = InElementType;
 
-		constexpr explicit TFromIteratorIterator(IteratorType Iterator): Iterator(Iterator) {}
+		explicit TFromIteratorIterator(IteratorType Iterator): Iterator(Iterator) {}
 
 		// ReSharper disable once CppMemberFunctionMayBeStatic
 		constexpr void Initialize() {}
@@ -340,14 +354,12 @@ namespace Private_ETContainer
 			return *this;
 		}
 
-		constexpr const ElementType& operator*() { return **Iterator; }
-
-		// constexpr ElementType operator*() { return **Iterator; }
+		constexpr ElementType& operator*() { return **Iterator; }
 
 		constexpr explicit operator bool() const { return not Iterator; }
 
 	private:
-		IteratorType Iterator;;
+		IteratorType Iterator;
 	};
 
 	template <typename OperatorType, typename ContainerType>
@@ -357,7 +369,7 @@ namespace Private_ETContainer
 
 		constexpr TIndexesIterator(ContainerType&& Container, OperatorType&& Operator)
 			: Container(Container)
-			, Iterator(Container.CreateConstIterator())
+			, Iterator(MutableIteratorOf(Container))
 			, Operator(Operator) {}
 
 		// ReSharper disable once CppMemberFunctionMayBeStatic
@@ -370,18 +382,58 @@ namespace Private_ETContainer
 			return *this;
 		}
 
-		constexpr const ElementType& operator*() const { return Index; }
+		constexpr ElementType& operator*() { return Index; }
 
 		constexpr explicit operator bool() const { return not Iterator; }
 
 	private:
-		using IteratorType = typename TDecay<ContainerType>::Type::TConstIterator;
+		using IteratorType = typename TDecay<ContainerType>::Type::TIterator;
 
 		ContainerType Container;
 		IteratorType Iterator;
 		OperatorType Operator;
 
 		ElementType Index = 0;
+	};
+
+	template <typename OperatorType, typename ContainerType>
+	struct TWithIndexIterator
+	{
+		using ElementType = TTuple<int, typename TDecay<ContainerType>::Type::ElementType>;
+
+		constexpr TWithIndexIterator(ContainerType&& Container, OperatorType&& Operator)
+			: Container(Container)
+			, Iterator(MutableIteratorOf(Container))
+			, Operator(Operator) {}
+
+		// ReSharper disable once CppMemberFunctionMayBeStatic
+		constexpr void Initialize() {}
+
+		constexpr TWithIndexIterator& operator++()
+		{
+			++Index;
+			++Iterator;
+			return *this;
+		}
+
+		constexpr ElementType& operator*()
+		{
+			Cache = ElementType{Index, *Iterator};
+			return *Cache;
+		}
+
+		constexpr explicit operator bool() const { return not Iterator; }
+
+	private:
+		using IteratorType = typename TDecay<ContainerType>::Type::TIterator;
+
+		ContainerType Container;
+		IteratorType Iterator;
+		OperatorType Operator;
+
+		int Index = 0;
+
+		TOptional<ElementType> Cache;
 	};
 
 	template <typename OperatorType, typename ContainerType>
@@ -394,7 +446,7 @@ namespace Private_ETContainer
 
 		constexpr TTransformIterator(ContainerType&& Container, OperatorType&& Operator)
 			: Container(Container)
-			, Iterator(Container.CreateConstIterator())
+			, Iterator(MutableIteratorOf(Container))
 			, Operator(Operator) {}
 
 		// ReSharper disable once CppMemberFunctionMayBeStatic
@@ -406,9 +458,7 @@ namespace Private_ETContainer
 			return *this;
 		}
 
-		// constexpr const ElementType& operator->() const { return Iterator; }
-
-		constexpr const ElementType& operator*()
+		constexpr ElementType& operator*()
 		{
 			Cache = Operator.Operation(*Iterator);
 			return *Cache;
@@ -417,7 +467,7 @@ namespace Private_ETContainer
 		constexpr explicit operator bool() const { return not Iterator; }
 
 	private:
-		using IteratorType = typename TDecay<ContainerType>::Type::TConstIterator;
+		using IteratorType = typename TDecay<ContainerType>::Type::TIterator;
 
 		ContainerType Container;
 		IteratorType Iterator;
@@ -433,7 +483,7 @@ namespace Private_ETContainer
 
 		constexpr TFilterIterator(ContainerType&& Container, OperatorType&& Operator)
 			: Container(Container)
-			, Iterator(Container.CreateConstIterator())
+			, Iterator(MutableIteratorOf(Container))
 			, Operator(Operator)
 			, bIsFound(false) {}
 
@@ -445,9 +495,7 @@ namespace Private_ETContainer
 			return *this;
 		}
 
-		constexpr const ElementType& operator->() const { return Iterator; }
-
-		constexpr const ElementType& operator*() { return *Iterator; }
+		constexpr ElementType& operator*() { return *Iterator; }
 
 		constexpr explicit operator bool() const { return not Iterator; }
 
@@ -470,7 +518,7 @@ namespace Private_ETContainer
 			}
 		}
 
-		using IteratorType = typename TDecay<ContainerType>::Type::TConstIterator;
+		using IteratorType = typename TDecay<ContainerType>::Type::TIterator;
 
 		ContainerType Container;
 		IteratorType Iterator;
@@ -486,7 +534,7 @@ namespace Private_ETContainer
 
 		constexpr TDropIterator(ContainerType&& Container, OperatorType&& Operator)
 			: Container(Container)
-			, Iterator(Container.CreateConstIterator())
+			, Iterator(MutableIteratorOf(Container))
 			, Operator(Operator) {}
 
 		constexpr void Initialize()
@@ -505,14 +553,12 @@ namespace Private_ETContainer
 			return *this;
 		}
 
-		constexpr const ElementType& operator->() const { return Iterator; }
-
-		constexpr const ElementType& operator*() { return *Iterator; }
+		constexpr ElementType& operator*() { return *Iterator; }
 
 		constexpr explicit operator bool() const { return not Iterator; }
 
 	private:
-		using IteratorType = typename TDecay<ContainerType>::Type::TConstIterator;
+		using IteratorType = typename TDecay<ContainerType>::Type::TIterator;
 
 		ContainerType Container;
 		IteratorType Iterator;
@@ -526,7 +572,7 @@ namespace Private_ETContainer
 
 		constexpr TTakeIterator(ContainerType&& Container, OperatorType&& Operator)
 			: Container(Container)
-			, Iterator(Container.CreateConstIterator())
+			, Iterator(MutableIteratorOf(Container))
 			, Operator(Operator) {}
 
 		constexpr void Initialize() {}
@@ -538,9 +584,7 @@ namespace Private_ETContainer
 			return *this;
 		}
 
-		constexpr const ElementType& operator->() const { return Iterator; }
-
-		constexpr const ElementType& operator*() { return *Iterator; }
+		constexpr ElementType& operator*() { return *Iterator; }
 
 		constexpr explicit operator bool() const
 		{
@@ -548,7 +592,7 @@ namespace Private_ETContainer
 		}
 
 	private:
-		using IteratorType = typename TDecay<ContainerType>::Type::TConstIterator;
+		using IteratorType = typename TDecay<ContainerType>::Type::TIterator;
 
 		ContainerType Container;
 		IteratorType Iterator;

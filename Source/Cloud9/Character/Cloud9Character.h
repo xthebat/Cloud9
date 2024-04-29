@@ -31,6 +31,8 @@
 
 #include "Cloud9Character.generated.h"
 
+class UCloud9CharacterEffectTrait;
+class UCloud9EffectsComponent;
 class UWidgetInteractionComponent;
 class ACloud9PlayerController;
 class UCloud9InventoryComponent;
@@ -50,6 +52,7 @@ public:
 	static const FName CameraComponentName;
 	static const FName DecalComponentName;
 	static const FName InventoryComponentName;
+	static const FName EffectsComponentName;
 	static const FName HealthComponentName;
 	static const FName AnimationComponentName;
 	static const FName WidgetInteractionComponentName;
@@ -67,11 +70,11 @@ public:
 	static constexpr let CrosshairRotationPitch = -90.0f;
 	static constexpr let CanStepUpOn = ECB_Yes;
 
-public:
 	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaSeconds) override;
 
 	/** Returns TopDownCameraComponent subobject **/
@@ -109,17 +112,22 @@ public:
 	float GetCameraZoomHeight() const;
 	void SetCameraZoomHeight(float Value) const;
 
+	bool GetNeedInitialize() const;
+
 	UCloud9InventoryComponent* GetInventoryComponent() const;
 
 	UCloud9HealthComponent* GetHealthComponent() const;
 
 	UCloud9AnimationComponent* GetAnimationComponent() const;
 
+	UCloud9CharacterEffectTrait* AddCharacterEffect(TSubclassOf<UCloud9CharacterEffectTrait> EffectClass);
+
+	bool RemoveCharacterEffect(UCloud9CharacterEffectTrait* Effect);
+
 	void AddScore();
 
 	void UseObject();
 
-public:
 	/** Event called when character score changed. */
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnScoreChanged OnScoreChanged;
@@ -140,9 +148,11 @@ protected:
 		AActor* DamageCauser) override;
 
 private:
-	/**
-	 * Time after which character will be destroyed after death
-	 */
+	/** "Temporary" hack field to control whether initialize character using game mode */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Config, meta=(AllowPrivateAccess))
+	bool bNeedInitialize;
+
+	/** Time after which character will be destroyed after death */
 	UPROPERTY(EditAnywhere, Category=Config)
 	float DestroyAfterTime;
 
@@ -188,7 +198,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Inventory, meta=(AllowPrivateAccess))
 	UCloud9InventoryComponent* InventoryComponent;
 
-	/** A state of the character health and armor. */
+	/** A health and armor state of character. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
 	UCloud9HealthComponent* HealthComponent;
 
@@ -199,6 +209,16 @@ private:
 	/** Helper to play animation montages for character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Utility, meta=(AllowPrivateAccess))
 	UWidgetInteractionComponent* WidgetInteractionComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Effects, meta=(AllowPrivateAccess))
+	UCloud9EffectsComponent* EffectsComponent;
+
+	/**
+	 * Cache variable is this Character a player or a bot
+	 * TODO: Looks like on EndPlay method IsPlayerControlled() returns wrong value
+	 */
+	UPROPERTY()
+	bool bIsPlayer;
 
 	/** Current number of frags made by character */
 	UPROPERTY(BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))

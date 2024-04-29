@@ -1,0 +1,754 @@
+[
+	{
+		"Name": "Deagle",
+		"Class": "Class'/Script/Cloud9.Cloud9WeaponFirearm'",
+		"bCanZoom": false,
+		"Damage": 53,
+		"ArmorPenetration": 1.8639999628067017,
+		"PenetrationPower": 2,
+		"RangeModifier": 0.85000002384185791,
+		"HeadshotMultiplier": 3.9000000953674316,
+		"UpperBodyMultiplier": 1,
+		"LowerBodyMultiplier": 1.25,
+		"LegMultiplier": 0.75,
+		"MaxBulletRange": 4096,
+		"CycleTime": 0.22499999403953552,
+		"DeployTime": 1,
+		"ReloadTime": 2.2000000476837158,
+		"ReloadLoopTime": 0,
+		"ReloadEndTime": 1,
+		"ZoomTime": 0,
+		"MagazineSize": 7,
+		"MaxAmmoInReserve": 35,
+		"LowAmmoCount": 1,
+		"Price": 700,
+		"bIsFullAuto": false,
+		"bIsManualBoltCycle": false,
+		"TracerProbability": 1,
+		"BulletsPerShot": 1,
+		"ZoomFieldOfView1": 0,
+		"ZoomFieldOfView2": 0,
+		"Effects":
+		{
+			"MuzzleFlash": "NiagaraSystem'/Game/Vefects/VFX/MuzzleFlash/FX_MuzzleFlash_Base.FX_MuzzleFlash_Base'",
+			"MuzzleSmoke": "None"
+		},
+		"Sounds":
+		{
+			"FireSounds": [
+				"SoundWave'/Game/Weapons/Pistols/deagle/Sounds/deagle_fire_01.deagle_fire_01'",
+				"SoundWave'/Game/Weapons/Pistols/deagle/Sounds/deagle_fire_02.deagle_fire_02'"
+			],
+			"ReloadSounds":
+			{
+				"clipin": "SoundWave'/Game/Weapons/Pistols/deagle/Sounds/deagle_clipin.deagle_clipin'",
+				"clipout": "SoundWave'/Game/Weapons/Pistols/deagle/Sounds/deagle_clipout.deagle_clipout'",
+				"slideback": "SoundWave'/Game/Weapons/Pistols/deagle/Sounds/deagle_slideback.deagle_slideback'",
+				"slideforward": "SoundWave'/Game/Weapons/Pistols/deagle/Sounds/deagle_slideforward.deagle_slideforward'"
+			},
+			"DeploySound": "SoundWave'/Game/Weapons/Pistols/deagle/Sounds/deagle_draw.deagle_draw'",
+			"ZoomSounds":
+			{
+			}
+		},
+		"WeaponModel": "StaticMesh'/Game/Weapons/Pistols/deagle/Mesh/w_pistol_deagle_weapon.w_pistol_deagle_weapon'",
+		"MagazineModel": "StaticMesh'/Game/Weapons/Pistols/deagle/Mesh/w_pistol_deagle_magazine.w_pistol_deagle_magazine'",
+		"SilencerModel": "None",
+		"CaseModel": "StaticMesh'/Game/Weapons/Common/Meshes/weapon_shell_9mm.weapon_shell_9mm'",
+		"bIsMagazinePainted": true,
+		"Skins": [
+			{
+				"Name": "default",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"F03EEAAA444A408EDEC6E38377D91D58\", \"Default\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Pistols/deagle/Materials/w_pistol_deagle_default.w_pistol_deagle_default'"
+			},
+			{
+				"Name": "ocean_drive",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"FB62D7B34FDD15BB3668B886F516A00C\", \"Ocean Drive\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Pistols/deagle/Materials/w_pistol_deagle_ocean_drive.w_pistol_deagle_ocean_drive'"
+			},
+			{
+				"Name": "printstream",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"85CB09AA47AB5A1A8ACE3386439F6B9B\", \"Printstream\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Pistols/deagle/Materials/w_pistol_deagle_printstream.w_pistol_deagle_printstream'"
+			}
+		],
+		"Spread": 2,
+		"Inaccuracy":
+		{
+			"OnJumpInitial": 548.82000732421875,
+			"OnJump": 40.549999237060547,
+			"OnJumpApex": 331.54998779296875,
+			"OnCrouch": 2.1800000667572021,
+			"OnStand": 4.1999998092651367,
+			"OnLand": 0.043000001460313797,
+			"OnLadder": 152,
+			"OnFire": 72.230003356933594,
+			"OnMove": 48.099998474121094,
+			"OnReload": 0
+		},
+		"RecoveryTime":
+		{
+			"OnCrouch": 0.44992700219154358,
+			"OnStand": 0.81120002269744873,
+			"OnCrouchFinal": 0.44992700219154358,
+			"OnStandFinal": 0.81120002269744873,
+			"TransitionStartBullet": 3,
+			"TransitionEndBullet": 10
+		},
+		"FlinchVelocityModifierFirst": 0.40000000596046448,
+		"FlinchVelocityModifierNext": 0.55000001192092896,
+		"Type": "Pistol",
+		"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"5D772C9E4D462482F18BC9B3CA4E347D\", \"Desert Eagle\")",
+		"Description": "",
+		"Icon": "Texture2D'/Game/Panorama/Icons/Equipment/deagle.deagle'",
+		"MaxPlayerSpeed": 230,
+		"KillAward": 300
+	},
+	{
+		"Name": "Ak47",
+		"Class": "Class'/Script/Cloud9.Cloud9WeaponFirearm'",
+		"bCanZoom": false,
+		"Damage": 36,
+		"ArmorPenetration": 1.5499999523162842,
+		"PenetrationPower": 2,
+		"RangeModifier": 0.98000001907348633,
+		"HeadshotMultiplier": 4,
+		"UpperBodyMultiplier": 1,
+		"LowerBodyMultiplier": 1.25,
+		"LegMultiplier": 0.75,
+		"MaxBulletRange": 8192,
+		"CycleTime": 0.10000000149011612,
+		"DeployTime": 1,
+		"ReloadTime": 2.4300000667572021,
+		"ReloadLoopTime": 0,
+		"ReloadEndTime": 1,
+		"ZoomTime": 0,
+		"MagazineSize": 30,
+		"MaxAmmoInReserve": 90,
+		"LowAmmoCount": 10,
+		"Price": 2700,
+		"bIsFullAuto": true,
+		"bIsManualBoltCycle": false,
+		"TracerProbability": 0.30000001192092896,
+		"BulletsPerShot": 1,
+		"ZoomFieldOfView1": 0,
+		"ZoomFieldOfView2": 0,
+		"Effects":
+		{
+			"MuzzleFlash": "NiagaraSystem'/Game/Vefects/VFX/MuzzleFlash/FX_MuzzleFlash_Base.FX_MuzzleFlash_Base'",
+			"MuzzleSmoke": "None"
+		},
+		"Sounds":
+		{
+			"FireSounds": [
+				"SoundWave'/Game/Weapons/Rifle/ak47/Sounds/ak47_fire_01.ak47_fire_01'"
+			],
+			"ReloadSounds":
+			{
+				"clipin": "SoundWave'/Game/Weapons/Rifle/ak47/Sounds/ak47_clipin.ak47_clipin'",
+				"clipout": "SoundWave'/Game/Weapons/Rifle/ak47/Sounds/ak47_clipout.ak47_clipout'",
+				"bolt": "SoundWave'/Game/Weapons/Rifle/ak47/Sounds/ak47_boltpull.ak47_boltpull'"
+			},
+			"DeploySound": "SoundWave'/Game/Weapons/Rifle/ak47/Sounds/ak47_draw.ak47_draw'",
+			"ZoomSounds":
+			{
+			}
+		},
+		"WeaponModel": "StaticMesh'/Game/Weapons/Rifle/ak47/Mesh/w_rifle_ak47_weapon.w_rifle_ak47_weapon'",
+		"MagazineModel": "StaticMesh'/Game/Weapons/Rifle/ak47/Mesh/w_rifle_ak47_magazine.w_rifle_ak47_magazine'",
+		"SilencerModel": "None",
+		"CaseModel": "StaticMesh'/Game/Weapons/Common/Meshes/weapon_shell_762nato.weapon_shell_762nato'",
+		"bIsMagazinePainted": true,
+		"Skins": [
+			{
+				"Name": "default",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"7BC4E63048763EC038CE768E8990E571\", \"Default\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Rifle/ak47/Materials/w_rifle_ak47_default.w_rifle_ak47_default'"
+			},
+			{
+				"Name": "asiimov",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"EDA3CB5A4C1907B4F03A338428614EBE\", \"Asiimov\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Rifle/ak47/Materials/w_rifle_ak47_asiimov.w_rifle_ak47_asiimov'"
+			},
+			{
+				"Name": "bloodsport",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"AD2644B546CA3885EE5668918073E7BA\", \"Bloodsport\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Rifle/ak47/Materials/w_rifle_ak47_bloodsport.w_rifle_ak47_bloodsport'"
+			},
+			{
+				"Name": "vulkan",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"D807F11F416D5C8406EBE4A71E49C0E9\", \"Vulkan\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Rifle/ak47/Materials/w_rifle_ak47_vulkan.w_rifle_ak47_vulkan'"
+			},
+			{
+				"Name": "wild_lotus",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"8118041B4D196C4D4F7AF0A428CB698C\", \"Wild Lotus\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Rifle/ak47/Materials/w_rifle_ak47_wild_lotus.w_rifle_ak47_wild_lotus'"
+			},
+			{
+				"Name": "slate",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"42D59EE247F5A658C18535A0F23FC686\", \"Slate\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Rifle/ak47/Materials/w_rifle_ak47_slate.w_rifle_ak47_slate'"
+			}
+		],
+		"Spread": 0.60000002384185791,
+		"Inaccuracy":
+		{
+			"OnJumpInitial": 100.94000244140625,
+			"OnJump": 140.75999450683594,
+			"OnJumpApex": 0,
+			"OnCrouch": 4.809999942779541,
+			"OnStand": 6.4099998474121094,
+			"OnLand": 0.24199999868869781,
+			"OnLadder": 140,
+			"OnFire": 7.8000001907348633,
+			"OnMove": 175.05999755859375,
+			"OnReload": 0
+		},
+		"RecoveryTime":
+		{
+			"OnCrouch": 0.30525699257850647,
+			"OnStand": 0.36800000071525574,
+			"OnCrouchFinal": 0.41972801089286804,
+			"OnStandFinal": 0.50599998235702515,
+			"TransitionStartBullet": 2,
+			"TransitionEndBullet": 5
+		},
+		"FlinchVelocityModifierFirst": 1,
+		"FlinchVelocityModifierNext": 1,
+		"Type": "Rifle",
+		"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"A55DB4414CD8E685154D789D1744E31D\", \"AK47\")",
+		"Description": "",
+		"Icon": "Texture2D'/Game/Panorama/Icons/Equipment/ak47.ak47'",
+		"MaxPlayerSpeed": 215,
+		"KillAward": 300
+	},
+	{
+		"Name": "Awp",
+		"Class": "Class'/Script/Cloud9.Cloud9WeaponFirearm'",
+		"bCanZoom": false,
+		"Damage": 115,
+		"ArmorPenetration": 1.9500000476837158,
+		"PenetrationPower": 2.5,
+		"RangeModifier": 0.99000000953674316,
+		"HeadshotMultiplier": 4,
+		"UpperBodyMultiplier": 1,
+		"LowerBodyMultiplier": 1.25,
+		"LegMultiplier": 0.75,
+		"MaxBulletRange": 8192,
+		"CycleTime": 1.4550000429153442,
+		"DeployTime": 1.25,
+		"ReloadTime": 3.6700000762939453,
+		"ReloadLoopTime": 0,
+		"ReloadEndTime": 1,
+		"ZoomTime": 0.20000000298023224,
+		"MagazineSize": 5,
+		"MaxAmmoInReserve": 30,
+		"LowAmmoCount": 1,
+		"Price": 4750,
+		"bIsFullAuto": false,
+		"bIsManualBoltCycle": false,
+		"TracerProbability": 1,
+		"BulletsPerShot": 1,
+		"ZoomFieldOfView1": 40,
+		"ZoomFieldOfView2": 10,
+		"Effects":
+		{
+			"MuzzleFlash": "NiagaraSystem'/Game/Vefects/VFX/MuzzleFlash/FX_MuzzleFlash_Rifle.FX_MuzzleFlash_Rifle'",
+			"MuzzleSmoke": "None"
+		},
+		"Sounds":
+		{
+			"FireSounds": [
+				"SoundWave'/Game/Weapons/Sniper/awp/Sounds/awp_01.awp_01'"
+			],
+			"ReloadSounds":
+			{
+				"clipin": "SoundWave'/Game/Weapons/Sniper/awp/Sounds/awp_clipin.awp_clipin'",
+				"clipout": "SoundWave'/Game/Weapons/Sniper/awp/Sounds/awp_clipout.awp_clipout'",
+				"boltback": "SoundWave'/Game/Weapons/Sniper/awp/Sounds/awp_boltback.awp_boltback'",
+				"boltforward": "SoundWave'/Game/Weapons/Sniper/awp/Sounds/awp_boltforward.awp_boltforward'",
+				"cliphit": "SoundWave'/Game/Weapons/Sniper/awp/Sounds/awp_cliphit.awp_cliphit'"
+			},
+			"DeploySound": "SoundWave'/Game/Weapons/Sniper/awp/Sounds/awp_draw.awp_draw'",
+			"ZoomSounds":
+			{
+			}
+		},
+		"WeaponModel": "StaticMesh'/Game/Weapons/Sniper/awp/Mesh/w_sniper_awp_weapon.w_sniper_awp_weapon'",
+		"MagazineModel": "StaticMesh'/Game/Weapons/Sniper/awp/Mesh/w_sniper_awp_magazine.w_sniper_awp_magazine'",
+		"SilencerModel": "None",
+		"CaseModel": "StaticMesh'/Game/Weapons/Common/Meshes/weapon_shell_338mag.weapon_shell_338mag'",
+		"bIsMagazinePainted": true,
+		"Skins": [
+			{
+				"Name": "default",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"6A3FE134409F16FA11181A8554C864D3\", \"Default\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Sniper/awp/Materials/w_sniper_awp_default.w_sniper_awp_default'"
+			},
+			{
+				"Name": "asiimov",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"AC4762F743753FFF143FE3B751CAC3A6\", \"Asiimov\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Sniper/awp/Materials/w_sniper_awp_asiimov.w_sniper_awp_asiimov'"
+			},
+			{
+				"Name": "pawpaw",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"DA76B7444AA00A11B641E88164BD8490\", \"Paw Paw\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Sniper/awp/Materials/w_sniper_awp_pawpaw.w_sniper_awp_pawpaw'"
+			}
+		],
+		"Spread": 0.20000000298023224,
+		"Inaccuracy":
+		{
+			"OnJumpInitial": 172.86000061035156,
+			"OnJump": 133.83000183105469,
+			"OnJumpApex": 0,
+			"OnCrouch": 1.5,
+			"OnStand": 2,
+			"OnLand": 0.10000000149011612,
+			"OnLadder": 136.5,
+			"OnFire": 53.849998474121094,
+			"OnMove": 176.47999572753906,
+			"OnReload": 0
+		},
+		"RecoveryTime":
+		{
+			"OnCrouch": 0.24671000242233276,
+			"OnStand": 0.34538999199867249,
+			"OnCrouchFinal": 0.24671000242233276,
+			"OnStandFinal": 0.34538999199867249,
+			"TransitionStartBullet": 2,
+			"TransitionEndBullet": 5
+		},
+		"FlinchVelocityModifierFirst": 1,
+		"FlinchVelocityModifierNext": 1,
+		"Type": "Sniper",
+		"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"547DEACB4D81DF0AC2E67686B5CF7F39\", \"AWP\")",
+		"Description": "",
+		"Icon": "Texture2D'/Game/Panorama/Icons/Equipment/awp.awp'",
+		"MaxPlayerSpeed": 200,
+		"KillAward": 100
+	},
+	{
+		"Name": "Nova",
+		"Class": "Class'/Script/Cloud9.Cloud9WeaponFirearm'",
+		"bCanZoom": false,
+		"Damage": 26,
+		"ArmorPenetration": 1,
+		"PenetrationPower": 1,
+		"RangeModifier": 0.69999998807907104,
+		"HeadshotMultiplier": 4,
+		"UpperBodyMultiplier": 1,
+		"LowerBodyMultiplier": 1.25,
+		"LegMultiplier": 0.75,
+		"MaxBulletRange": 3000,
+		"CycleTime": 0.87999999523162842,
+		"DeployTime": 1,
+		"ReloadTime": 0.57999998331069946,
+		"ReloadLoopTime": 0.54000002145767212,
+		"ReloadEndTime": 1,
+		"ZoomTime": 0,
+		"MagazineSize": 8,
+		"MaxAmmoInReserve": 32,
+		"LowAmmoCount": 0,
+		"Price": 1050,
+		"bIsFullAuto": false,
+		"bIsManualBoltCycle": false,
+		"TracerProbability": 0,
+		"BulletsPerShot": 9,
+		"ZoomFieldOfView1": 0,
+		"ZoomFieldOfView2": 0,
+		"Effects":
+		{
+			"MuzzleFlash": "NiagaraSystem'/Game/Vefects/VFX/MuzzleFlash/FX_MuzzleFlash_Shotgun.FX_MuzzleFlash_Shotgun'",
+			"MuzzleSmoke": "None"
+		},
+		"Sounds":
+		{
+			"FireSounds": [
+				"SoundWave'/Game/Weapons/Shotguns/nova/Sounds/nova_fire_01.nova_fire_01'"
+			],
+			"ReloadSounds":
+			{
+				"insertshell": "SoundWave'/Game/Weapons/Shotguns/nova/Sounds/nova_insertshell.nova_insertshell'",
+				"pump": "SoundWave'/Game/Weapons/Shotguns/nova/Sounds/nova_pump.nova_pump'"
+			},
+			"DeploySound": "SoundWave'/Game/Weapons/Shotguns/nova/Sounds/nova_draw.nova_draw'",
+			"ZoomSounds":
+			{
+			}
+		},
+		"WeaponModel": "StaticMesh'/Game/Weapons/Shotguns/nova/Mesh/w_shotgun_nova_weapon.w_shotgun_nova_weapon'",
+		"MagazineModel": "StaticMesh'/Game/Weapons/Shotguns/nova/Mesh/w_shotgun_nova_shell.w_shotgun_nova_shell'",
+		"SilencerModel": "None",
+		"CaseModel": "StaticMesh'/Game/Weapons/Common/Meshes/weapon_shell_12gauge.weapon_shell_12gauge'",
+		"bIsMagazinePainted": false,
+		"Skins": [
+			{
+				"Name": "default",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"8BF44A4F43DA9F5661184EA329A72382\", \"Default\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Shotguns/nova/Materials/w_shotgun_nova_default.w_shotgun_nova_default'"
+			},
+			{
+				"Name": "koi",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"ACCA89E843C3EC61B3172EACEF6E0193\", \"Koi\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Shotguns/nova/Materials/w_shotgun_nova_koi.w_shotgun_nova_koi'"
+			}
+		],
+		"Spread": 40,
+		"Inaccuracy":
+		{
+			"OnJumpInitial": 109.69999694824219,
+			"OnJump": 126.30999755859375,
+			"OnJumpApex": 0,
+			"OnCrouch": 5.25,
+			"OnStand": 7,
+			"OnLand": 0.23600000143051147,
+			"OnLadder": 78.75,
+			"OnFire": 9.7200002670288086,
+			"OnMove": 36.75,
+			"OnReload": 0
+		},
+		"RecoveryTime":
+		{
+			"OnCrouch": 0.3289409875869751,
+			"OnStand": 0.46051698923110962,
+			"OnCrouchFinal": 0.3289409875869751,
+			"OnStandFinal": 0.46051698923110962,
+			"TransitionStartBullet": 2,
+			"TransitionEndBullet": 5
+		},
+		"FlinchVelocityModifierFirst": 1,
+		"FlinchVelocityModifierNext": 1,
+		"Type": "Shotgun",
+		"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"C17E2A8042F45BACD042FA857CF70864\", \"Nova\")",
+		"Description": "",
+		"Icon": "Texture2D'/Game/Panorama/Icons/Equipment/nova.nova'",
+		"MaxPlayerSpeed": 220,
+		"KillAward": 900
+	},
+	{
+		"Name": "P2000",
+		"Class": "Class'/Script/Cloud9.Cloud9WeaponFirearm'",
+		"bCanZoom": false,
+		"Damage": 35,
+		"ArmorPenetration": 1.0099999904632568,
+		"PenetrationPower": 1,
+		"RangeModifier": 0.9100000262260437,
+		"HeadshotMultiplier": 4,
+		"UpperBodyMultiplier": 1,
+		"LowerBodyMultiplier": 1.25,
+		"LegMultiplier": 0.75,
+		"MaxBulletRange": 4096,
+		"CycleTime": 0.17000000178813934,
+		"DeployTime": 1,
+		"ReloadTime": 2.2699999809265137,
+		"ReloadLoopTime": 0,
+		"ReloadEndTime": 1,
+		"ZoomTime": 0,
+		"MagazineSize": 13,
+		"MaxAmmoInReserve": 52,
+		"LowAmmoCount": 4,
+		"Price": 200,
+		"bIsFullAuto": false,
+		"bIsManualBoltCycle": false,
+		"TracerProbability": 1,
+		"BulletsPerShot": 1,
+		"ZoomFieldOfView1": 0,
+		"ZoomFieldOfView2": 0,
+		"Effects":
+		{
+			"MuzzleFlash": "NiagaraSystem'/Game/Vefects/VFX/MuzzleFlash/FX_MuzzleFlash_Handgun.FX_MuzzleFlash_Handgun'",
+			"MuzzleSmoke": "None"
+		},
+		"Sounds":
+		{
+			"FireSounds": [
+				"SoundWave'/Game/Weapons/Pistols/hkp2000/Sounds/hkp2000_fire_01.hkp2000_fire_01'",
+				"SoundWave'/Game/Weapons/Pistols/hkp2000/Sounds/hkp2000_fire_02.hkp2000_fire_02'"
+			],
+			"ReloadSounds":
+			{
+				"clipin": "SoundWave'/Game/Weapons/Pistols/hkp2000/Sounds/hkp2000_clipin.hkp2000_clipin'",
+				"clipout": "SoundWave'/Game/Weapons/Pistols/hkp2000/Sounds/hkp2000_clipout.hkp2000_clipout'",
+				"slideback": "SoundWave'/Game/Weapons/Pistols/hkp2000/Sounds/hkp2000_slideback.hkp2000_slideback'",
+				"slideforward": "SoundWave'/Game/Weapons/Pistols/hkp2000/Sounds/hkp2000_sliderelease.hkp2000_sliderelease'"
+			},
+			"DeploySound": "SoundWave'/Game/Weapons/Pistols/hkp2000/Sounds/hkp2000_draw.hkp2000_draw'",
+			"ZoomSounds":
+			{
+			}
+		},
+		"WeaponModel": "StaticMesh'/Game/Weapons/Pistols/hkp2000/Mesh/w_pistol_hkp2000_weapon.w_pistol_hkp2000_weapon'",
+		"MagazineModel": "StaticMesh'/Game/Weapons/Pistols/hkp2000/Mesh/w_pistol_hkp2000_magazine.w_pistol_hkp2000_magazine'",
+		"SilencerModel": "None",
+		"CaseModel": "StaticMesh'/Game/Weapons/Common/Meshes/weapon_shell_9mm.weapon_shell_9mm'",
+		"bIsMagazinePainted": true,
+		"Skins": [
+			{
+				"Name": "default",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"1BBBC1094AF63143BA1F32A734A38B1E\", \"Default\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Pistols/hkp2000/Materials/w_pistol_hkp2000_default.w_pistol_hkp2000_default'"
+			},
+			{
+				"Name": "decline",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"269003F048E860FBF3B17ABA79417F13\", \"Decline\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Pistols/hkp2000/Materials/w_pistol_hkp2000_decline.w_pistol_hkp2000_decline'"
+			}
+		],
+		"Spread": 2,
+		"Inaccuracy":
+		{
+			"OnJumpInitial": 96.599998474121094,
+			"OnJump": 94.480003356933594,
+			"OnJumpApex": 0,
+			"OnCrouch": 3.6800000667572021,
+			"OnStand": 4.9000000953674316,
+			"OnLand": 0.19099999964237213,
+			"OnLadder": 138.32000732421875,
+			"OnFire": 50,
+			"OnMove": 13,
+			"OnReload": 0
+		},
+		"RecoveryTime":
+		{
+			"OnCrouch": 0.29127699136734009,
+			"OnStand": 0.34953200817108154,
+			"OnCrouchFinal": 0.29127699136734009,
+			"OnStandFinal": 0.34953200817108154,
+			"TransitionStartBullet": 3,
+			"TransitionEndBullet": 10
+		},
+		"FlinchVelocityModifierFirst": 1,
+		"FlinchVelocityModifierNext": 1,
+		"Type": "Pistol",
+		"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"9AFEC921479C9B683B874287CCB3F716\", \"P2000\")",
+		"Description": "",
+		"Icon": "Texture2D'/Game/Panorama/Icons/Equipment/hkp2000.hkp2000'",
+		"MaxPlayerSpeed": 240,
+		"KillAward": 300
+	},
+	{
+		"Name": "M4A1S",
+		"Class": "Class'/Script/Cloud9.Cloud9WeaponFirearm'",
+		"bCanZoom": false,
+		"Damage": 38,
+		"ArmorPenetration": 1.3999999761581421,
+		"PenetrationPower": 2,
+		"RangeModifier": 0.93999999761581421,
+		"HeadshotMultiplier": 3.4749999046325684,
+		"UpperBodyMultiplier": 1,
+		"LowerBodyMultiplier": 1.25,
+		"LegMultiplier": 0.75,
+		"MaxBulletRange": 8192,
+		"CycleTime": 0.10000000149011612,
+		"DeployTime": 1.1299999952316284,
+		"ReloadTime": 3.0699999332427979,
+		"ReloadLoopTime": 0,
+		"ReloadEndTime": 1,
+		"ZoomTime": 0,
+		"MagazineSize": 20,
+		"MaxAmmoInReserve": 80,
+		"LowAmmoCount": 10,
+		"Price": 2900,
+		"bIsFullAuto": true,
+		"bIsManualBoltCycle": false,
+		"TracerProbability": 0,
+		"BulletsPerShot": 1,
+		"ZoomFieldOfView1": 0,
+		"ZoomFieldOfView2": 0,
+		"Effects":
+		{
+			"MuzzleFlash": "NiagaraSystem'/Game/Vefects/VFX/MuzzleFlash/FX_MuzzleFlash_Handgun_Silenced.FX_MuzzleFlash_Handgun_Silenced'",
+			"MuzzleSmoke": "None"
+		},
+		"Sounds":
+		{
+			"FireSounds": [
+				"SoundWave'/Game/Weapons/Rifle/m4a1s/Sounds/m4a1_silencer_01.m4a1_silencer_01'"
+			],
+			"ReloadSounds":
+			{
+				"clipin": "SoundWave'/Game/Weapons/Rifle/m4a1s/Sounds/m4a1_clipin.m4a1_clipin'",
+				"clipout": "SoundWave'/Game/Weapons/Rifle/m4a1s/Sounds/m4a1_clipout.m4a1_clipout'",
+				"bolt": "SoundWave'/Game/Weapons/Rifle/m4a1s/Sounds/m4a1_cliphit.m4a1_cliphit'"
+			},
+			"DeploySound": "SoundWave'/Game/Weapons/Rifle/m4a1s/Sounds/m4a1_draw.m4a1_draw'",
+			"ZoomSounds":
+			{
+			}
+		},
+		"WeaponModel": "StaticMesh'/Game/Weapons/Rifle/m4a1s/Mesh/w_rifle_m4a1s_weapon.w_rifle_m4a1s_weapon'",
+		"MagazineModel": "StaticMesh'/Game/Weapons/Rifle/m4a1s/Mesh/w_rifle_m4a1s_magazine.w_rifle_m4a1s_magazine'",
+		"SilencerModel": "StaticMesh'/Game/Weapons/Rifle/m4a1s/Mesh/w_rifle_m4a1s_silencer.w_rifle_m4a1s_silencer'",
+		"CaseModel": "StaticMesh'/Game/Weapons/Common/Meshes/weapon_shell_556.weapon_shell_556'",
+		"bIsMagazinePainted": true,
+		"Skins": [
+			{
+				"Name": "default",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"7E09E2EC44539BB62B899EAFB6D705FE\", \"Default\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Rifle/m4a1s/Materials/w_rifle_m4a1s_default.w_rifle_m4a1s_default'"
+			},
+			{
+				"Name": "printstream",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"D8CA08044B0047B97480F49E6C8597AC\", \"Printstream\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Rifle/m4a1s/Materials/w_rifle_m4a1s_printstream.w_rifle_m4a1s_printstream'"
+			}
+		],
+		"Spread": 0.60000002384185791,
+		"Inaccuracy":
+		{
+			"OnJumpInitial": 94.410003662109375,
+			"OnJump": 97.269996643066406,
+			"OnJumpApex": 0,
+			"OnCrouch": 4.0999999046325684,
+			"OnStand": 4.9000000953674316,
+			"OnLand": 0.19200000166893005,
+			"OnLadder": 110.99400329589844,
+			"OnFire": 7,
+			"OnMove": 137.8800048828125,
+			"OnReload": 0
+		},
+		"RecoveryTime":
+		{
+			"OnCrouch": 0.24210000038146973,
+			"OnStand": 0.33894100785255432,
+			"OnCrouchFinal": 0.33288800716400146,
+			"OnStandFinal": 0.46604400873184204,
+			"TransitionStartBullet": 2,
+			"TransitionEndBullet": 5
+		},
+		"FlinchVelocityModifierFirst": 1,
+		"FlinchVelocityModifierNext": 1,
+		"Type": "Rifle",
+		"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"CF342934497316D34CAD41BAD1C63C3C\", \"M4A1-S\")",
+		"Description": "",
+		"Icon": "Texture2D'/Game/Panorama/Icons/Equipment/m4a1_silencer.m4a1_silencer'",
+		"MaxPlayerSpeed": 225,
+		"KillAward": 300
+	},
+	{
+		"Name": "MP9",
+		"Class": "Class'/Script/Cloud9.Cloud9WeaponFirearm'",
+		"bCanZoom": false,
+		"Damage": 26,
+		"ArmorPenetration": 1.2000000476837158,
+		"PenetrationPower": 1,
+		"RangeModifier": 0.87000000476837158,
+		"HeadshotMultiplier": 4,
+		"UpperBodyMultiplier": 1,
+		"LowerBodyMultiplier": 1.25,
+		"LegMultiplier": 0.75,
+		"MaxBulletRange": 3600,
+		"CycleTime": 0.070000000298023224,
+		"DeployTime": 1.2000000476837158,
+		"ReloadTime": 2.130000114440918,
+		"ReloadLoopTime": 0,
+		"ReloadEndTime": 1,
+		"ZoomTime": 0,
+		"MagazineSize": 30,
+		"MaxAmmoInReserve": 120,
+		"LowAmmoCount": 10,
+		"Price": 1250,
+		"bIsFullAuto": true,
+		"bIsManualBoltCycle": false,
+		"TracerProbability": 0.30000001192092896,
+		"BulletsPerShot": 1,
+		"ZoomFieldOfView1": 0,
+		"ZoomFieldOfView2": 0,
+		"Effects":
+		{
+			"MuzzleFlash": "NiagaraSystem'/Game/Vefects/VFX/MuzzleFlash/FX_MuzzleFlash_SMG.FX_MuzzleFlash_SMG'",
+			"MuzzleSmoke": "None"
+		},
+		"Sounds":
+		{
+			"FireSounds": [
+				"SoundWave'/Game/Weapons/Smg/mp9/Sounds/mp9_01.mp9_01'",
+				"SoundWave'/Game/Weapons/Smg/mp9/Sounds/mp9_02.mp9_02'",
+				"SoundWave'/Game/Weapons/Smg/mp9/Sounds/mp9_03.mp9_03'",
+				"SoundWave'/Game/Weapons/Smg/mp9/Sounds/mp9_04.mp9_04'"
+			],
+			"ReloadSounds":
+			{
+				"clipin": "SoundWave'/Game/Weapons/Smg/mp9/Sounds/mp9_clipout.mp9_clipout'",
+				"clipout": "SoundWave'/Game/Weapons/Smg/mp9/Sounds/mp9_clipout.mp9_clipout'",
+				"boltback": "SoundWave'/Game/Weapons/Smg/mp9/Sounds/mp9_boltback.mp9_boltback'",
+				"boltforward": "SoundWave'/Game/Weapons/Smg/mp9/Sounds/mp9_boltforward.mp9_boltforward'"
+			},
+			"DeploySound": "SoundWave'/Game/Weapons/Smg/mp9/Sounds/mp9_draw.mp9_draw'",
+			"ZoomSounds":
+			{
+			}
+		},
+		"WeaponModel": "StaticMesh'/Game/Weapons/Smg/mp9/Mesh/w_smg_mp9_weapon.w_smg_mp9_weapon'",
+		"MagazineModel": "StaticMesh'/Game/Weapons/Smg/mp9/Mesh/w_smg_mp9_magazine.w_smg_mp9_magazine'",
+		"SilencerModel": "None",
+		"CaseModel": "StaticMesh'/Game/Weapons/Common/Meshes/weapon_shell_9mm.weapon_shell_9mm'",
+		"bIsMagazinePainted": true,
+		"Skins": [
+			{
+				"Name": "default",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"A1D5DD4B42D766C63AF8D7AF2D66FD65\", \"Default\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Smg/mp9/Materials/w_smg_mp9_default.w_smg_mp9_default'"
+			},
+			{
+				"Name": "food_chain",
+				"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"2F8EA26744481CFC6FBCEF9C7B9273D8\", \"Food Chain\")",
+				"Description": "",
+				"Material": "MaterialInstanceConstant'/Game/Weapons/Smg/mp9/Materials/w_smg_mp9_food_chain.w_smg_mp9_food_chain'"
+			}
+		],
+		"Spread": 0.60000002384185791,
+		"Inaccuracy":
+		{
+			"OnJumpInitial": 37.279998779296875,
+			"OnJump": 18.430000305175781,
+			"OnJumpApex": 0,
+			"OnCrouch": 5.5,
+			"OnStand": 9,
+			"OnLand": 0.056000001728534698,
+			"OnLadder": 148.91250610351562,
+			"OnFire": 3.7000000476837158,
+			"OnMove": 29.040000915527344,
+			"OnReload": 0
+		},
+		"RecoveryTime":
+		{
+			"OnCrouch": 0.1842070072889328,
+			"OnStand": 0.25788998603820801,
+			"OnCrouchFinal": 0.1842070072889328,
+			"OnStandFinal": 0.25788998603820801,
+			"TransitionStartBullet": 2,
+			"TransitionEndBullet": 5
+		},
+		"FlinchVelocityModifierFirst": 1,
+		"FlinchVelocityModifierNext": 1,
+		"Type": "Smg",
+		"Label": "NSLOCTEXT(\"[4E50C24943DA7179E6FED8A8FC5D16A8]\", \"5D3F472B48E18BB98ABFD2948E2A022F\", \"MP9\")",
+		"Description": "",
+		"Icon": "Texture2D'/Game/Panorama/Icons/Equipment/mp9.mp9'",
+		"MaxPlayerSpeed": 240,
+		"KillAward": 600
+	}
+]

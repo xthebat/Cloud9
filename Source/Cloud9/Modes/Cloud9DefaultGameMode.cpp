@@ -2,16 +2,20 @@
 
 #include "Cloud9DefaultGameMode.h"
 
+#include "EngineUtils.h"
+
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Character/Cloud9Character.h"
+
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "Cloud9/Character/Components/Cloud9HealthComponent.h"
 
-FName ACloud9DefaultGameMode::CtSidePlayer = TEXT("CT");
-FName ACloud9DefaultGameMode::TSidePlayer = TEXT("T");
-FName ACloud9DefaultGameMode::GodSidePlayer = TEXT("God");
+FName ACloud9DefaultGameMode::PlayerConfigName = TEXT("God");
+FName ACloud9DefaultGameMode::BotConfigName = TEXT("Bot");
 
 ACloud9DefaultGameMode::ACloud9DefaultGameMode() {}
 
@@ -64,24 +68,42 @@ bool ACloud9DefaultGameMode::OnWorldStart(FSavedInfo& SavedInfo)
 	}
 	else
 	{
-		if (not InitialPlayerConfig.Contains(GodSidePlayer))
+		// TODO: Rework initialization process
+
+		let PlayerConfig = InitialPlayerConfig.Find(PlayerConfigName);
+		let BotConfig = InitialPlayerConfig.Find(BotConfigName);
+
+		let MyWorld = GameInstance->GetWorld();
+		if (not IsValid(MyWorld))
 		{
-			log(Error, "Can't initialize player for now...")
+			log(Error, "World isn't exist now -> can't initialize players and bots")
 			return false;
 		}
 
-		let& PlayerConfig = InitialPlayerConfig[GodSidePlayer];
-
-		GameInstance->GetLocalPlayers()
+		TActorIterator<ACloud9Character>(MyWorld)
+			| ETContainer::FromIterator{}
+			| ETContainer::Filter{[](var& Character) { return Character.GetNeedInitialize(); }}
 			| ETContainer::ForEach{
-				[&PlayerConfig](let LocalPlayer)
+				[PlayerConfig, BotConfig](var& Character)
 				{
-					let Character = GetPlayerCharacter(LocalPlayer);
-					let Inventory = Character->GetInventoryComponent();
-					let Health = Character->GetHealthComponent();
+					let Config = Character.IsPlayerControlled() ? PlayerConfig : BotConfig;
 
-					Inventory->Initialize(PlayerConfig.WeaponConfigs, PlayerConfig.WeaponSlot);
-					Health->Initialize(PlayerConfig.HealthConfig);
+					if (Config == nullptr)
+					{
+						log(Warning, "[Character='%s'] Initialization skipped cus config wasn't specified",
+						    *Character.GetName());
+						return;
+					}
+
+					let Inventory = Character.GetInventoryComponent();
+					let Health = Character.GetHealthComponent();
+
+					Inventory->Initialize(Config->WeaponConfigs, Config->WeaponSlot);
+					Health->Initialize(Config->HealthConfig);
+
+					Config->Effects | ETContainer::ForEach{
+						[&Character](let EffectClass) { Character.AddCharacterEffect(EffectClass); }
+					};
 				}
 			};
 	}

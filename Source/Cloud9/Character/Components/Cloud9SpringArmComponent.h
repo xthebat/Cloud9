@@ -28,7 +28,7 @@
 
 #include "Cloud9SpringArmComponent.generated.h"
 
-UCLASS(ClassGroup=(Camera), meta=(BlueprintSpawnableComponent))
+UCLASS(Blueprintable, meta=(BlueprintSpawnableComponent))
 class CLOUD9_API UCloud9SpringArmComponent : public USpringArmComponent
 {
 	GENERATED_BODY()

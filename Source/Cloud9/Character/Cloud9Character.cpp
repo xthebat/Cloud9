@@ -32,34 +32,42 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/WidgetInteractionComponent.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 
+#include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
+#include "Cloud9/Character/Effects/Cloud9CharacterEffectTrait.h"
 #include "Components/Cloud9InventoryComponent.h"
-#include "Cloud9/Character/Components/Cloud9CharacterMovement.h"
-#include "Cloud9/Character/Components/Cloud9SpringArmComponent.h"
-#include "Cloud9/Tools/Extensions/AActor.h"
+#include "Components/Cloud9CharacterMovement.h"
+#include "Components/Cloud9SpringArmComponent.h"
 #include "Components/Cloud9HealthComponent.h"
 #include "Components/Cloud9AnimationComponent.h"
-#include "Components/WidgetInteractionComponent.h"
+#include "Components/Cloud9EffectsComponent.h"
+#include "Components/Cloud9SkeletalMeshComponent.h"
 
 const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
 const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");
 const FName ACloud9Character::DecalComponentName = TEXT("CursorToWorld");
 const FName ACloud9Character::InventoryComponentName = TEXT("InventoryComponent");
+const FName ACloud9Character::EffectsComponentName = TEXT("EffectsComponent");
 const FName ACloud9Character::HealthComponentName = TEXT("HealthComponent");
 const FName ACloud9Character::AnimationComponentName = TEXT("AnimationComponent");
 const FName ACloud9Character::WidgetInteractionComponentName = TEXT("WidgetInteractionComponent");
 
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
-	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
+	ObjectInitializer
+	.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName)
+	.SetDefaultSubobjectClass<UCloud9SkeletalMeshComponent>(MeshComponentName))
 {
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
+
+	bNeedInitialize = true;
 
 	DestroyAfterTime = DefaultDestroyAfterTime;
 
@@ -101,6 +109,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 
 	InventoryComponent = CreateDefaultSubobject<UCloud9InventoryComponent>(InventoryComponentName);
 	HealthComponent = CreateDefaultSubobject<UCloud9HealthComponent>(HealthComponentName);
+	EffectsComponent = CreateDefaultSubobject<UCloud9EffectsComponent>(EffectsComponentName);
 	AnimationComponent = CreateDefaultSubobject<UCloud9AnimationComponent>(AnimationComponentName);
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(WidgetInteractionComponentName);
 	WidgetInteractionComponent->SetupAttachment(RootComponent);
@@ -110,8 +119,9 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	HealthComponent->OnCharacterDie.AddDynamic(this, &ACloud9Character::OnCharacterDie);
 
 	Score = 0;
+	bIsPlayer = false;
 
-	// Activate ticking in order to update the cursor every frame.
+	// Activate ticking to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 }
@@ -268,11 +278,28 @@ void ACloud9Character::SetCameraZoomHeight(float Value) const
 	CameraBoom->TargetArmLength = Value;
 }
 
+bool ACloud9Character::GetNeedInitialize() const
+{
+	return bNeedInitialize;
+}
+
 UCloud9InventoryComponent* ACloud9Character::GetInventoryComponent() const { return InventoryComponent; }
 
 UCloud9HealthComponent* ACloud9Character::GetHealthComponent() const { return HealthComponent; }
 
 UCloud9AnimationComponent* ACloud9Character::GetAnimationComponent() const { return AnimationComponent; }
+
+// ReSharper disable once CppMemberFunctionMayBeConst
+UCloud9CharacterEffectTrait* ACloud9Character::AddCharacterEffect(TSubclassOf<UCloud9CharacterEffectTrait> EffectClass)
+{
+	return IsValid(EffectClass) ? EffectsComponent->AddEffect(EffectClass) : nullptr;
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
+bool ACloud9Character::RemoveCharacterEffect(UCloud9CharacterEffectTrait* Effect)
+{
+	return EffectsComponent->RemoveEffect(Effect);
+}
 
 void ACloud9Character::AddScore()
 {
@@ -446,10 +473,21 @@ void ACloud9Character::BeginPlay()
 
 	if (not IsPlayerControlled())
 	{
+		bIsPlayer = false;
 		CursorToWorld->Deactivate();
 		TopDownCameraComponent->Deactivate();
 		CameraBoom->Deactivate();
 	}
+	else
+	{
+		bIsPlayer = true;
+	}
+}
+
+void ACloud9Character::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	log(Error, "[Character='%s'] EndPlay IsPlayer=%d", *GetName(), bIsPlayer);
 }
 
 void ACloud9Character::Tick(float DeltaSeconds)
