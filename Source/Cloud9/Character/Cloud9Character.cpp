@@ -47,6 +47,7 @@
 #include "Components/Cloud9HealthComponent.h"
 #include "Components/Cloud9AnimationComponent.h"
 #include "Components/Cloud9EffectsComponent.h"
+#include "Components/Cloud9SkeletalMeshComponent.h"
 
 const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
 const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");
@@ -58,7 +59,9 @@ const FName ACloud9Character::AnimationComponentName = TEXT("AnimationComponent"
 const FName ACloud9Character::WidgetInteractionComponentName = TEXT("WidgetInteractionComponent");
 
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
-	ObjectInitializer.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName))
+	ObjectInitializer
+	.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName)
+	.SetDefaultSubobjectClass<UCloud9SkeletalMeshComponent>(MeshComponentName))
 {
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -102,9 +105,9 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	);
 	CursorToWorld->SetRelativeRotation({CrosshairRotationPitch, 0.0, 0.0f});
 
-	EffectsComponent = CreateDefaultSubobject<UCloud9EffectsComponent>(EffectsComponentName);
 	InventoryComponent = CreateDefaultSubobject<UCloud9InventoryComponent>(InventoryComponentName);
 	HealthComponent = CreateDefaultSubobject<UCloud9HealthComponent>(HealthComponentName);
+	EffectsComponent = CreateDefaultSubobject<UCloud9EffectsComponent>(EffectsComponentName);
 	AnimationComponent = CreateDefaultSubobject<UCloud9AnimationComponent>(AnimationComponentName);
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(WidgetInteractionComponentName);
 	WidgetInteractionComponent->SetupAttachment(RootComponent);
@@ -114,6 +117,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	HealthComponent->OnCharacterDie.AddDynamic(this, &ACloud9Character::OnCharacterDie);
 
 	Score = 0;
+	bIsPlayer = false;
 
 	// Activate ticking to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
@@ -281,7 +285,7 @@ UCloud9AnimationComponent* ACloud9Character::GetAnimationComponent() const { ret
 // ReSharper disable once CppMemberFunctionMayBeConst
 UCloud9CharacterEffectTrait* ACloud9Character::AddCharacterEffect(TSubclassOf<UCloud9CharacterEffectTrait> EffectClass)
 {
-	return EffectsComponent->AddEffect(EffectClass);
+	return IsValid(EffectClass) ? EffectsComponent->AddEffect(EffectClass) : nullptr;
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
@@ -426,17 +430,6 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 		MyMesh->bAffectDynamicIndirectLighting = true;
 		MyMesh->SetCollisionProfileName(COLLISION_PROFILE_HITBOX);
 
-		MyMesh->GetMaterials()
-			| ETContainer::WithIndex{}
-			| ETContainer::Filter{[](let It) { return not Cast<UMaterialInstanceDynamic>(It.Value); }}
-			| ETContainer::ForEach{
-				[&MyMesh](let It)
-				{
-					let Dynamic = UMaterialInstanceDynamic::Create(It.Value, MyMesh);
-					MyMesh->SetMaterial(It.Key, Dynamic);
-				}
-			};
-
 #ifdef USE_PHYSICAL_ASSET_HITBOX
 		// TODO: Make same hit boxes for all character's type - currently disabled
 		let PhysicsAsset = MyMesh->GetPhysicsAsset();
@@ -473,10 +466,21 @@ void ACloud9Character::BeginPlay()
 
 	if (not IsPlayerControlled())
 	{
+		bIsPlayer = false;
 		CursorToWorld->Deactivate();
 		TopDownCameraComponent->Deactivate();
 		CameraBoom->Deactivate();
 	}
+	else
+	{
+		bIsPlayer = true;
+	}
+}
+
+void ACloud9Character::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	log(Error, "[Character='%s'] EndPlay IsPlayer=%d", *GetName(), bIsPlayer);
 }
 
 void ACloud9Character::Tick(float DeltaSeconds)
