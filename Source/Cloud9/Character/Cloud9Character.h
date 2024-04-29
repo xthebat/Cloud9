@@ -112,6 +112,8 @@ public:
 	float GetCameraZoomHeight() const;
 	void SetCameraZoomHeight(float Value) const;
 
+	bool GetNeedInitialize() const;
+
 	UCloud9InventoryComponent* GetInventoryComponent() const;
 
 	UCloud9HealthComponent* GetHealthComponent() const;
@@ -146,9 +148,11 @@ protected:
 		AActor* DamageCauser) override;
 
 private:
-	/**
-	 * Time after which character will be destroyed after death
-	 */
+	/** "Temporary" hack field to control whether initialize character using game mode */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Config, meta=(AllowPrivateAccess))
+	bool bNeedInitialize;
+
+	/** Time after which character will be destroyed after death */
 	UPROPERTY(EditAnywhere, Category=Config)
 	float DestroyAfterTime;
 

@@ -67,6 +67,8 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
+	bNeedInitialize = true;
+
 	DestroyAfterTime = DefaultDestroyAfterTime;
 
 	let MyCapsuleComponent = GetCapsuleComponent();
@@ -274,6 +276,11 @@ float ACloud9Character::GetCameraZoomHeight() const
 void ACloud9Character::SetCameraZoomHeight(float Value) const
 {
 	CameraBoom->TargetArmLength = Value;
+}
+
+bool ACloud9Character::GetNeedInitialize() const
+{
+	return bNeedInitialize;
 }
 
 UCloud9InventoryComponent* ACloud9Character::GetInventoryComponent() const { return InventoryComponent; }

@@ -82,6 +82,7 @@ bool ACloud9DefaultGameMode::OnWorldStart(FSavedInfo& SavedInfo)
 
 		TActorIterator<ACloud9Character>(MyWorld)
 			| ETContainer::FromIterator{}
+			| ETContainer::Filter{[](var& Character) { return Character.GetNeedInitialize(); }}
 			| ETContainer::ForEach{
 				[PlayerConfig, BotConfig](var& Character)
 				{
