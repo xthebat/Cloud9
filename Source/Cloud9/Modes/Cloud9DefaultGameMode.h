@@ -18,10 +18,13 @@ public:
 	ACloud9DefaultGameMode();
 
 protected:
-	virtual bool OnWorldStart(FSavedInfo& SavedInfo) override;
+	virtual void LoadCharacter(ACloud9Character* Character) override;
 
-	virtual bool OnWorldTearDown(FSavedInfo& SavedInfo) override;
+	virtual void SaveCharacter(ACloud9Character* Character) override;
 
 	UPROPERTY(Category=Config, EditDefaultsOnly)
 	TMap<FName, FPlayerSavedInfo> InitialPlayerConfig;
+
+private:
+	void InitializeCharacter(ACloud9Character* Character);
 };

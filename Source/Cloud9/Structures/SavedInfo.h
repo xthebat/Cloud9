@@ -11,9 +11,6 @@ struct FSavedInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(Category=Base, BlueprintReadOnly)
-	bool bIsLoadRequired;
-
 	UPROPERTY(Category=Weapon, BlueprintReadOnly)
 	TMap<int32, FPlayerSavedInfo> Players;
 

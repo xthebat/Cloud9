@@ -23,11 +23,14 @@
 
 #pragma once
 
+#include "Engine/DecalActor.h"
+#include "Components/DecalComponent.h"
+#include "GameFramework/GameModeBase.h"
+#include "Kismet/GameplayStatics.h"
+
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Tools/Macro/Operator.h"
-#include "Components/DecalComponent.h"
-#include "Engine/DecalActor.h"
 
 namespace Private_EUWorld
 {
@@ -168,5 +171,35 @@ namespace EUWorld
 		}
 
 		OPERATOR_BODY(ClearAllTimers)
+	};
+
+	/**
+	 * Operator gets current game mode
+	 * 
+	 * WARNING: Can only be used during game (avoid it in OnConstruction, etc.)
+	 */
+	template <typename GameModeType>
+	struct GetGameMode
+	{
+		FORCEINLINE GameModeType* operator()(const UWorld* Self) const
+		{
+			if (not IsValid(Self))
+			{
+				log(Error, "World isn't valid to get GameMode")
+				return nullptr;
+			}
+
+			let GameMode = UGameplayStatics::GetGameMode(Self);
+
+			if (not IsValid(GameMode))
+			{
+				log(Error, "Current GameMode isn't valid")
+				return nullptr;
+			}
+
+			return Cast<GameModeType>(GameMode);
+		}
+
+		OPERATOR_BODY(GetGameMode)
 	};
 }

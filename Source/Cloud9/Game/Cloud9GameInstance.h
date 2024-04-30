@@ -27,7 +27,6 @@
 #include "Engine/GameInstance.h"
 
 #include "Cloud9/Structures/SavedInfo.h"
-#include "Cloud9/Weapon/Enums/WeaponSlot.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
 
 #include "Cloud9GameInstance.generated.h"
@@ -40,47 +39,13 @@ class CLOUD9_API UCloud9GameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	/**
-	 * Function gets game mode for specified World
-	 * 
-	 * WARNING: Can only be used during game (avoid it in OnConstruction, etc.)
-	 */
-	static ACloud9GameMode* GetGameMode(const UWorld* World);
+	void SaveCharacterInfo(ACloud9Character* Character);
 
-	/**
-	 * Function gets a specialized type of game mode for specified World
-	 * 
-	 * WARNING: Can only be used during game (avoid it in OnConstruction, etc.)
-	 */
-	template <typename GameModeType = ACloud9GameMode>
-	static GameModeType* GetGameMode(const UWorld* World) { return Cast<GameModeType>(GetGameMode(World)); }
+	void LoadCharacterInfo(ACloud9Character* Character);
 
-	/**
-	 * Function gets current game mode
-	 * 
-	 * WARNING: Can only be used during game (avoid it in OnConstruction, etc.)
-	 */
-	ACloud9GameMode* GetGameMode() const { return GetGameMode(GetWorld()); }
-
-	/**
-	 * Function gets a specialized type of current game mode
-	 * 
-	 * WARNING: Can only be used during game (avoid it in OnConstruction, etc.)
-	 */
-	template <typename GameModeType = ACloud9GameMode>
-	GameModeType* GetGameMode() const { return Cast<GameModeType>(GetGameMode()); }
-
-	friend class ACloud9GameMode;
+	bool HasCharacterInfo(const ACloud9Character* Character) const;
 
 protected:
 	UPROPERTY()
 	FSavedInfo SavedInfo;
-
-	// TODO: Remove DefaultWeaponsConfig and InitialWeaponSlot from GameInstance
-
-	UPROPERTY(Category=Weapon, EditDefaultsOnly)
-	TArray<FWeaponConfig> DefaultWeaponsConfig;
-
-	UPROPERTY(Category=Weapon, EditDefaultsOnly)
-	EWeaponSlot InitialWeaponSlot;
 };

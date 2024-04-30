@@ -53,18 +53,6 @@ float UCloud9ToolsLibrary::CalculateCollisionVolumeScale(UStaticMesh* StaticMesh
 
 UWorld* UCloud9ToolsLibrary::GetGameWorld() { return GEngine->GameViewport->GetWorld(); }
 
-ACloud9GameMode* UCloud9ToolsLibrary::GetGameMode()
-{
-	if (let MyWorld = GetGameWorld(); MyWorld != nullptr)
-	{
-		return Cast<ACloud9GameMode>(UGameplayStatics::GetGameMode(MyWorld));
-	}
-
-	log(Error, "Can't get game world now");
-
-	return nullptr;
-}
-
 /**
  * https://dev.epicgames.com/community/snippets/13w/skeletal-mesh-get-accurate-reference-pose-bounds
  */

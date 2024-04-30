@@ -19,9 +19,9 @@ class ACloud9GameMode : public AGameModeBase
 public:
 	ACloud9GameMode();
 
-	virtual bool OnWorldStart(FSavedInfo& SavedInfo);
+	virtual void SaveCharacter(ACloud9Character* Character);
 
-	virtual bool OnWorldTearDown(FSavedInfo& SavedInfo);
+	virtual void LoadCharacter(ACloud9Character* Character);
 
 protected:
 	virtual void StartPlay() override final;

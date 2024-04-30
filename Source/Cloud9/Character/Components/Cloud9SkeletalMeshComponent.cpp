@@ -21,13 +21,26 @@ void UCloud9SkeletalMeshComponent::SetSkeletalMesh(USkeletalMesh* NewMesh, bool 
 
 void UCloud9SkeletalMeshComponent::MakeDynamicMaterials(const TArray<UMaterialInterface*>& Materials)
 {
+	// Material to copy dynamic properties from
+	var FoundMaterialToCopy = GetMaterials() | ETContainer::Find{
+		[](let It) { return Cast<UMaterialInstanceDynamic>(It); }
+	};
+
+	var MaterialToCopy = FoundMaterialToCopy ? Cast<UMaterialInstanceDynamic>(*FoundMaterialToCopy) : nullptr;
+
 	Materials
 		| ETContainer::WithIndex{}
 		| ETContainer::Filter{[](let It) { return not Cast<UMaterialInstanceDynamic>(It.Value); }}
 		| ETContainer::ForEach{
-			[this](let It)
+			[this, MaterialToCopy](let It)
 			{
-				let DynamicMaterial = UMaterialInstanceDynamic::Create(It.Value, this);
+				var DynamicMaterial = UMaterialInstanceDynamic::Create(It.Value, this);
+
+				if (MaterialToCopy)
+				{
+					DynamicMaterial->CopyParameterOverrides(MaterialToCopy);
+				}
+
 				SetMaterial(It.Key, DynamicMaterial);
 			}
 		};

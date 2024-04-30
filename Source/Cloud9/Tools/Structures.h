@@ -13,4 +13,6 @@ struct TErrorValue
 	TErrorValue(ValueType&& Value) : TErrorValue({}, MoveTemp(Value)) {}
 
 	TErrorValue(ErrorType Error) : TErrorValue(Error, {}) {}
+
+	FORCEINLINE explicit operator bool() const { return Value.IsSet(); }
 };

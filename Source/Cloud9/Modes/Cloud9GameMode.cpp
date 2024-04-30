@@ -35,20 +35,13 @@ ACloud9GameMode::ACloud9GameMode()
 	GameStateClass = ACloud9GameState::StaticClass();
 }
 
-bool ACloud9GameMode::OnWorldStart(FSavedInfo& SavedInfo)
-{
-	return true;
-}
+void ACloud9GameMode::SaveCharacter(ACloud9Character* Character) {}
 
-bool ACloud9GameMode::OnWorldTearDown(FSavedInfo& SavedInfo)
-{
-	return true;
-}
+void ACloud9GameMode::LoadCharacter(ACloud9Character* Character) {}
 
 void ACloud9GameMode::StartPlay()
 {
 	Super::StartPlay();
-	OnWorldStart(GetCloud9GameInstance()->SavedInfo);
 }
 
 void ACloud9GameMode::StartToLeaveMap()
@@ -60,8 +53,6 @@ void ACloud9GameMode::StartToLeaveMap()
 		log(Verbose, "Cleanup world timers = %p", this);
 		MyWorld | EUWorld::ClearAllTimers{};
 	}
-
-	OnWorldTearDown(GetCloud9GameInstance()->SavedInfo);
 }
 
 UCloud9GameInstance* ACloud9GameMode::GetCloud9GameInstance() const

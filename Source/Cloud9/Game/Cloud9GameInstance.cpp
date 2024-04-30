@@ -23,25 +23,54 @@
 
 #include "Cloud9GameInstance.h"
 
-#include "Cloud9/Modes/Cloud9GameMode.h"
-#include "GameFramework/GameModeBase.h"
-#include "Kismet/GameplayStatics.h"
+#include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
+#include "Cloud9/Tools/Extensions/ACharacter.h"
 
-ACloud9GameMode* UCloud9GameInstance::GetGameMode(const UWorld* World)
+void UCloud9GameInstance::SaveCharacterInfo(ACloud9Character* Character)
 {
-	if (not IsValid(World))
+	using namespace EACharacter;
+
+	if (let PlayerId = Character | GetPlayerId{}; IsPlayerIdValid(PlayerId))
 	{
-		log(Error, "World isn't valid to get GameMode")
-		return nullptr;
+		var PlayerSavedInfo = FPlayerSavedInfo();
+
+		let Inventory = Character->GetInventoryComponent();
+
+		PlayerSavedInfo.WeaponConfigs = Inventory->GetWeapons()
+			| ETContainer::Filter{[](let Weapon) { return IsValid(Weapon); }}
+			| ETContainer::Transform{[](let Weapon) { return FWeaponConfig::FromWeapon(Weapon); }}
+			| ETContainer::ToArray{};
+
+		if (let SelectedWeapon = Inventory->GetSelectedWeapon(); IsValid(SelectedWeapon))
+		{
+			PlayerSavedInfo.WeaponSlot = SelectedWeapon->GetWeaponSlot();
+		}
+
+		SavedInfo.Players[PlayerId] = PlayerSavedInfo;
+	}
+}
+
+void UCloud9GameInstance::LoadCharacterInfo(ACloud9Character* Character)
+{
+	using namespace EACharacter;
+
+	if (let PlayerId = Character | GetPlayerId{}; IsPlayerIdValid(PlayerId))
+	{
+		let Inventory = Character->GetInventoryComponent();
+		let& PlayerSavedInfo = SavedInfo.Players[PlayerId];
+		Inventory->Initialize(PlayerSavedInfo.WeaponConfigs, PlayerSavedInfo.WeaponSlot);
+	}
+}
+
+bool UCloud9GameInstance::HasCharacterInfo(const ACloud9Character* Character) const
+{
+	using namespace EACharacter;
+
+	if (let PlayerId = Character | GetPlayerId{}; IsPlayerIdValid(PlayerId))
+	{
+		return SavedInfo.Players.Contains(PlayerId);
 	}
 
-	let MyGameMode = UGameplayStatics::GetGameMode(World);
-
-	if (not IsValid(MyGameMode))
-	{
-		log(Error, "Current GameMode isn't valid")
-		return nullptr;
-	}
-
-	return Cast<ACloud9GameMode>(MyGameMode);
+	return false;
 }

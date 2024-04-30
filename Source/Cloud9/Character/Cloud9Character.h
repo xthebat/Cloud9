@@ -124,7 +124,7 @@ public:
 
 	bool RemoveCharacterEffect(UCloud9CharacterEffectTrait* Effect);
 
-	void AddScore();
+	void AddScore() const;
 
 	void UseObject();
 
@@ -212,15 +212,4 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Effects, meta=(AllowPrivateAccess))
 	UCloud9EffectsComponent* EffectsComponent;
-
-	/**
-	 * Cache variable is this Character a player or a bot
-	 * TODO: Looks like on EndPlay method IsPlayerControlled() returns wrong value
-	 */
-	UPROPERTY()
-	bool bIsPlayer;
-
-	/** Current number of frags made by character */
-	UPROPERTY(BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
-	int Score;
 };
