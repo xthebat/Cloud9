@@ -19,7 +19,7 @@ class ACloud9GameMode : public AGameModeBase
 public:
 	ACloud9GameMode();
 
-	virtual void SaveCharacter(ACloud9Character* Character);
+	virtual void SaveCharacter(const ACloud9Character* Character);
 
 	virtual void LoadCharacter(ACloud9Character* Character);
 

@@ -18,9 +18,9 @@ public:
 	ACloud9DefaultGameMode();
 
 protected:
-	virtual void LoadCharacter(ACloud9Character* Character) override;
+	virtual void SaveCharacter(const ACloud9Character* Character) override;
 
-	virtual void SaveCharacter(ACloud9Character* Character) override;
+	virtual void LoadCharacter(ACloud9Character* Character) override;
 
 	UPROPERTY(Category=Config, EditDefaultsOnly)
 	TMap<FName, FPlayerSavedInfo> InitialPlayerConfig;

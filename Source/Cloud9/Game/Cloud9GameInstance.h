@@ -39,7 +39,7 @@ class CLOUD9_API UCloud9GameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	void SaveCharacterInfo(ACloud9Character* Character);
+	void SaveCharacterInfo(const ACloud9Character* Character);
 
 	void LoadCharacterInfo(ACloud9Character* Character);
 

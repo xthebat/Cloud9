@@ -12,7 +12,7 @@ struct FSavedInfo
 	GENERATED_BODY()
 
 	UPROPERTY(Category=Weapon, BlueprintReadOnly)
-	TMap<int32, FPlayerSavedInfo> Players;
+	TMap<FName, FPlayerSavedInfo> Players;
 
 	void Reset();
 };

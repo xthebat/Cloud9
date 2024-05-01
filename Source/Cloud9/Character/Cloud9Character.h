@@ -73,9 +73,16 @@ public:
 	ACloud9Character(const FObjectInitializer& ObjectInitializer);
 
 	virtual void OnConstruction(const FTransform& Transform) override;
+
 	virtual void BeginPlay() override;
+
+	// Don't touch f...k EndPlay cus we got half-dead object in this callback
+	// Override left just for the comment above
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void OnLevelChanged() const;
 
 	/** Returns TopDownCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }

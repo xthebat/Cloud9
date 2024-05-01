@@ -27,50 +27,42 @@
 #include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Tools/Extensions/ACharacter.h"
 
-void UCloud9GameInstance::SaveCharacterInfo(ACloud9Character* Character)
+void UCloud9GameInstance::SaveCharacterInfo(const ACloud9Character* Character)
 {
 	using namespace EACharacter;
 
-	if (let PlayerId = Character | GetPlayerId{}; IsPlayerIdValid(PlayerId))
+	log(Error,
+	    "[Character='%s'] IsPlayer=%d PlayerState=%p PlayerId=%d",
+	    *Character->GetName(),
+	    Character->IsPlayerControlled(),
+	    Character->GetPlayerState(),
+	    Character | EACharacter::GetPlayerId{});
+
+	var PlayerSavedInfo = FPlayerSavedInfo();
+
+	let Inventory = Character->GetInventoryComponent();
+
+	PlayerSavedInfo.WeaponConfigs = Inventory->GetWeapons()
+		| ETContainer::Filter{[](let Weapon) { return IsValid(Weapon); }}
+		| ETContainer::Transform{[](let Weapon) { return FWeaponConfig::FromWeapon(Weapon); }}
+		| ETContainer::ToArray{};
+
+	if (let SelectedWeapon = Inventory->GetSelectedWeapon(); IsValid(SelectedWeapon))
 	{
-		var PlayerSavedInfo = FPlayerSavedInfo();
-
-		let Inventory = Character->GetInventoryComponent();
-
-		PlayerSavedInfo.WeaponConfigs = Inventory->GetWeapons()
-			| ETContainer::Filter{[](let Weapon) { return IsValid(Weapon); }}
-			| ETContainer::Transform{[](let Weapon) { return FWeaponConfig::FromWeapon(Weapon); }}
-			| ETContainer::ToArray{};
-
-		if (let SelectedWeapon = Inventory->GetSelectedWeapon(); IsValid(SelectedWeapon))
-		{
-			PlayerSavedInfo.WeaponSlot = SelectedWeapon->GetWeaponSlot();
-		}
-
-		SavedInfo.Players[PlayerId] = PlayerSavedInfo;
+		PlayerSavedInfo.WeaponSlot = SelectedWeapon->GetWeaponSlot();
 	}
+
+	SavedInfo.Players.Add(Character->GetFName(), PlayerSavedInfo);
 }
 
 void UCloud9GameInstance::LoadCharacterInfo(ACloud9Character* Character)
 {
-	using namespace EACharacter;
-
-	if (let PlayerId = Character | GetPlayerId{}; IsPlayerIdValid(PlayerId))
-	{
-		let Inventory = Character->GetInventoryComponent();
-		let& PlayerSavedInfo = SavedInfo.Players[PlayerId];
-		Inventory->Initialize(PlayerSavedInfo.WeaponConfigs, PlayerSavedInfo.WeaponSlot);
-	}
+	let Inventory = Character->GetInventoryComponent();
+	let& PlayerSavedInfo = SavedInfo.Players[Character->GetFName()];
+	Inventory->Initialize(PlayerSavedInfo.WeaponConfigs, PlayerSavedInfo.WeaponSlot);
 }
 
 bool UCloud9GameInstance::HasCharacterInfo(const ACloud9Character* Character) const
 {
-	using namespace EACharacter;
-
-	if (let PlayerId = Character | GetPlayerId{}; IsPlayerIdValid(PlayerId))
-	{
-		return SavedInfo.Players.Contains(PlayerId);
-	}
-
-	return false;
+	return SavedInfo.Players.Contains(Character->GetFName());
 }

@@ -44,6 +44,7 @@
 #include "Cloud9/Character/Effects/Cloud9CharacterEffectTrait.h"
 #include "Cloud9/Modes/Cloud9GameMode.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
+#include "Cloud9/Tools/Extensions/ACharacter.h"
 #include "Components/Cloud9InventoryComponent.h"
 #include "Components/Cloud9CharacterMovement.h"
 #include "Components/Cloud9SpringArmComponent.h"
@@ -489,8 +490,9 @@ void ACloud9Character::BeginPlay()
 		CameraBoom->Deactivate();
 	}
 
-	log(Error, "[Character='%s'] BeginPlay IsPlayer=%d", *GetName(), IsPlayerControlled());
+	log(Display, "[Character='%s'] IsPlayer=%d", *GetName(), IsPlayerControlled());
 
+	// Load all characters (even it's a bot) because LoadCharacter also handle GameMode initialization
 	if (let GameMode = GetWorld() | EUWorld::GetGameMode<ACloud9GameMode>{})
 	{
 		GameMode->LoadCharacter(this);
@@ -499,16 +501,6 @@ void ACloud9Character::BeginPlay()
 
 void ACloud9Character::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	log(Error, "[Character='%s'] EndPlay IsPlayer=%d", *GetName(), IsPlayerControlled());
-
-	if (EndPlayReason == EEndPlayReason::LevelTransition)
-	{
-		if (let GameMode = GetWorld() | EUWorld::GetGameMode<ACloud9GameMode>{})
-		{
-			GameMode->SaveCharacter(this);
-		}
-	}
-
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -520,5 +512,14 @@ void ACloud9Character::Tick(float DeltaSeconds)
 	if (not InventoryComponent->GetSelectedWeapon() and not InventoryComponent->IsEmpty())
 	{
 		InventoryComponent->SelectOtherAvailableWeapon(false);
+	}
+}
+
+void ACloud9Character::OnLevelChanged() const
+{
+	if (let GameMode = GetWorld() | EUWorld::GetGameMode<ACloud9GameMode>{};
+		IsValid(GameMode) and IsPlayerControlled())
+	{
+		GameMode->SaveCharacter(this);
 	}
 }

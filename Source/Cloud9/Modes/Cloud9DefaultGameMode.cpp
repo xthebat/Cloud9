@@ -11,13 +11,14 @@
 #include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Cloud9/Character/Components/Cloud9HealthComponent.h"
+#include "Cloud9/Tools/Extensions/ACharacter.h"
 
 FName ACloud9DefaultGameMode::PlayerConfigName = TEXT("God");
 FName ACloud9DefaultGameMode::BotConfigName = TEXT("Bot");
 
 ACloud9DefaultGameMode::ACloud9DefaultGameMode() {}
 
-void ACloud9DefaultGameMode::SaveCharacter(ACloud9Character* Character)
+void ACloud9DefaultGameMode::SaveCharacter(const ACloud9Character* Character)
 {
 	GetCloud9GameInstance()->SaveCharacterInfo(Character);
 }
@@ -46,12 +47,9 @@ void ACloud9DefaultGameMode::InitializeCharacter(ACloud9Character* Character)
 
 	let Config = Character->IsPlayerControlled() ? PlayerConfig : BotConfig;
 
-	log(Error, "[Character='%s'] InitializeCharacter AsPlayer=%d", *GetName(), Character->IsPlayerControlled());
-
 	if (Config == nullptr)
 	{
-		log(Warning, "[Character='%s'] Initialization skipped cus config wasn't specified",
-		    *Character->GetName());
+		log(Warning, "[Character='%s'] Initialization skipped cus config wasn't specified", *Character->GetName());
 		return;
 	}
 

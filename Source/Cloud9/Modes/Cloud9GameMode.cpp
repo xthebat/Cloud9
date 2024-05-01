@@ -23,6 +23,7 @@
 
 #include "Cloud9GameMode.h"
 
+#include "EngineUtils.h"
 #include "Cloud9/Game/Cloud9GameState.h"
 #include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
@@ -35,7 +36,7 @@ ACloud9GameMode::ACloud9GameMode()
 	GameStateClass = ACloud9GameState::StaticClass();
 }
 
-void ACloud9GameMode::SaveCharacter(ACloud9Character* Character) {}
+void ACloud9GameMode::SaveCharacter(const ACloud9Character* Character) {}
 
 void ACloud9GameMode::LoadCharacter(ACloud9Character* Character) {}
 
@@ -46,13 +47,20 @@ void ACloud9GameMode::StartPlay()
 
 void ACloud9GameMode::StartToLeaveMap()
 {
-	Super::StartToLeaveMap();
+	// TODO: Maybe move to a delegate pattern
+	TActorIterator<ACloud9Character>(GetWorld())
+		| ETContainer::FromIterator{}
+		| ETContainer::ForEach{
+			[](let& It) { It.OnLevelChanged(); }
+		};
 
 	if (let MyWorld = GetWorld(); MyWorld != nullptr)
 	{
 		log(Verbose, "Cleanup world timers = %p", this);
 		MyWorld | EUWorld::ClearAllTimers{};
 	}
+
+	Super::StartToLeaveMap();
 }
 
 UCloud9GameInstance* ACloud9GameMode::GetCloud9GameInstance() const
