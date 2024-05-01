@@ -6,6 +6,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Cloud9SkeletalMeshComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkeletalMeshChanged, bool, bReinitPose);
+
 UCLASS()
 class CLOUD9_API UCloud9SkeletalMeshComponent : public USkeletalMeshComponent
 {
@@ -15,6 +17,9 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void SetSkeletalMesh(USkeletalMesh* NewMesh, bool bReinitPose) override;
+
+	UPROPERTY(BlueprintAssignable, Category=Events)
+	FOnSkeletalMeshChanged OnSkeletalMeshChanged;
 
 protected:
 	void MakeDynamicMaterials(const TArray<UMaterialInterface*>& Materials);

@@ -26,3 +26,12 @@
 // Simplification of const auto/auto
 #define let const auto
 #define var auto
+
+#define CheckIsValid(What, Severity, Message, ...) \
+	do { \
+		if (not IsValid(What)) \
+		{ \
+			log(Severity, Message); \
+			return __VA_ARGS__; \
+		} \
+	} while(false);

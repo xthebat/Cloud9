@@ -39,6 +39,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category=Implementation)
 	float ElapsedTime;
 
+	UPROPERTY(BlueprintReadOnly, Category=Implementation)
+	bool IsEnabled;
+
 	virtual bool IsExtinguished_Implementation() const override;
 
 	virtual void OnApply_Implementation() override;
@@ -51,6 +54,10 @@ protected:
 
 	virtual void OnTick_Implementation(float DeltaSeconds) override;
 
+	virtual void OnSkeletalMeshChanged_Implementation(bool bReinitPose) override;
+
 private:
-	void ToggleEffect(bool IsEnabled) const;
+	void ToggleEffect(bool NewState);
+
+	void ToggleVisual(bool NewState);
 };

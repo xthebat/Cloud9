@@ -3,9 +3,8 @@
 
 #include "Cloud9CharacterShieldEffect.h"
 
-#include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
-#include "Cloud9/Character/Components/Cloud9EffectsComponent.h"
+#include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Character/Components/Cloud9HealthComponent.h"
 
 const FName UCloud9CharacterShieldEffect::ShieldEnableName = TEXT("Shield Enabled");
@@ -13,44 +12,37 @@ const FName UCloud9CharacterShieldEffect::ShieldReflectName = TEXT("Shield Refle
 const FName UCloud9CharacterShieldEffect::ShieldPowerName = TEXT("Shield Power");
 const FName UCloud9CharacterShieldEffect::ShieldColorName = TEXT("Shield Color");
 
-void UCloud9CharacterShieldEffect::ToggleEffect(bool IsEnabled) const
+void UCloud9CharacterShieldEffect::ToggleEffect(bool NewState)
 {
-	let Character = GetContainer()->GetOwner<ACloud9Character>();
-
-	if (not IsValid(Character))
-	{
-		log(Error, "[Effect='%s'] Owner is invalid", *GetName());
-		return;
-	}
-
+	IsEnabled = NewState;
+	let Character = GetCharacter();
 	let HealthComponent = Character->GetHealthComponent();
-	if (not IsValid(HealthComponent))
-	{
-		log(Error, "[Effect='%s'] Character HealthComponent is invalid", *GetName());
-		return;
-	}
+	CheckIsValid(HealthComponent, Error, "HealthComponent is invalid");
+	HealthComponent->SetIsInvulnerable(NewState);
+	ToggleVisual(NewState);
+}
 
-	HealthComponent->SetIsInvulnerable(IsEnabled);
-
-	if (let Mesh = Character->GetMesh(); IsValid(Mesh))
-	{
-		Mesh->GetMaterials()
-			| ETContainer::Transform{[](let It) { return Cast<UMaterialInstanceDynamic>(It); }}
-			| ETContainer::Filter{[](let It) { return IsValid(It); }}
-			| ETContainer::ForEach{
-				[this, IsEnabled](let It)
+void UCloud9CharacterShieldEffect::ToggleVisual(bool NewState)
+{
+	let Character = GetCharacter();
+	let MeshComponent = Character->GetMesh();
+	CheckIsValid(MeshComponent, Error, "MeshComponent is invalid");
+	MeshComponent->GetMaterials()
+		| ETContainer::Transform{[](let It) { return Cast<UMaterialInstanceDynamic>(It); }}
+		| ETContainer::Filter{[](let It) { return IsValid(It); }}
+		| ETContainer::ForEach{
+			[this, NewState](let It)
+			{
+				if (NewState)
 				{
-					if (IsEnabled)
-					{
-						It->SetScalarParameterValue(ShieldReflectName, Reflect);
-						It->SetScalarParameterValue(ShieldPowerName, Power);
-						It->SetVectorParameterValue(ShieldColorName, Color);
-					}
-
-					It->SetScalarParameterValue(ShieldEnableName, IsEnabled);
+					It->SetScalarParameterValue(ShieldReflectName, Reflect);
+					It->SetScalarParameterValue(ShieldPowerName, Power);
+					It->SetVectorParameterValue(ShieldColorName, Color);
 				}
-			};
-	}
+
+				It->SetScalarParameterValue(ShieldEnableName, NewState);
+			}
+		};
 }
 
 UCloud9CharacterShieldEffect::UCloud9CharacterShieldEffect()
@@ -60,13 +52,22 @@ UCloud9CharacterShieldEffect::UCloud9CharacterShieldEffect()
 	Power = 10.0f;
 	Reflect = 0.004f;
 	ElapsedTime = 0.0f;
+	IsEnabled = false;
 }
 
 bool UCloud9CharacterShieldEffect::IsExtinguished_Implementation() const { return ElapsedTime >= Duration; }
 
-void UCloud9CharacterShieldEffect::OnApply_Implementation() { ToggleEffect(true); }
+void UCloud9CharacterShieldEffect::OnApply_Implementation()
+{
+	Super::OnApply_Implementation();
+	ToggleEffect(true);
+}
 
-void UCloud9CharacterShieldEffect::OnRemove_Implementation() { ToggleEffect(false); }
+void UCloud9CharacterShieldEffect::OnRemove_Implementation()
+{
+	Super::OnRemove_Implementation();
+	ToggleEffect(false);
+}
 
 bool UCloud9CharacterShieldEffect::CanApply_Implementation() const
 {
@@ -77,3 +78,8 @@ bool UCloud9CharacterShieldEffect::CanApply_Implementation() const
 bool UCloud9CharacterShieldEffect::CanTick_Implementation() const { return true; }
 
 void UCloud9CharacterShieldEffect::OnTick_Implementation(float DeltaSeconds) { ElapsedTime += DeltaSeconds; }
+
+void UCloud9CharacterShieldEffect::OnSkeletalMeshChanged_Implementation(bool bReinitPose)
+{
+	ToggleVisual(IsEnabled);
+}
