@@ -2,8 +2,6 @@
 
 #include "Cloud9DefaultGameMode.h"
 
-#include "EngineUtils.h"
-
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
@@ -13,132 +11,55 @@
 #include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 // ReSharper disable once CppUnusedIncludeDirective
 #include "Cloud9/Character/Components/Cloud9HealthComponent.h"
+#include "Cloud9/Tools/Extensions/ACharacter.h"
 
 FName ACloud9DefaultGameMode::PlayerConfigName = TEXT("God");
 FName ACloud9DefaultGameMode::BotConfigName = TEXT("Bot");
 
 ACloud9DefaultGameMode::ACloud9DefaultGameMode() {}
 
-ACloud9Character* GetPlayerCharacter(const ULocalPlayer* LocalPlayer)
+void ACloud9DefaultGameMode::SaveCharacter(const ACloud9Character* Character)
 {
-	let World = LocalPlayer->GetWorld();
-
-	let PlayerController = LocalPlayer->GetPlayerController(World);
-
-	if (not IsValid(PlayerController))
-	{
-		log(Fatal, "PlayerController isn't valid for LocalPlayer=%s", *LocalPlayer->GetName());
-		return nullptr;
-	}
-
-	let Character = PlayerController->GetPawn<ACloud9Character>();
-	if (not IsValid(Character))
-	{
-		log(Fatal, "Character isn't valid for LocalPlayer=%s", *LocalPlayer->GetName());
-		return nullptr;
-	}
-
-	return Character;
+	GetCloud9GameInstance()->SaveCharacterInfo(Character);
 }
 
-bool ACloud9DefaultGameMode::OnWorldStart(FSavedInfo& SavedInfo)
+void ACloud9DefaultGameMode::LoadCharacter(ACloud9Character* Character)
 {
-	let GameInstance = GetCloud9GameInstance();
-
-	if (SavedInfo.bIsLoadRequired)
+	if (Character->GetNeedInitialize())
 	{
-		GameInstance->GetLocalPlayers()
-			| ETContainer::Filter{
-				[&SavedInfo](let LocalPlayer)
-				{
-					return SavedInfo.Players.Contains(LocalPlayer->GetControllerId());
-				}
-			}
-			| ETContainer::ForEach{
-				[this, &SavedInfo](let LocalPlayer)
-				{
-					let Character = GetPlayerCharacter(LocalPlayer);
-					let Inventory = Character->GetInventoryComponent();
-					let& PlayerSavedInfo = SavedInfo.Players[LocalPlayer->GetControllerId()];
-					Inventory->Initialize(PlayerSavedInfo.WeaponConfigs, PlayerSavedInfo.WeaponSlot);
-				}
-			};
+		let GameInstance = GetCloud9GameInstance();
 
-		SavedInfo.Reset();
-	}
-	else
-	{
-		// TODO: Rework initialization process
-
-		let PlayerConfig = InitialPlayerConfig.Find(PlayerConfigName);
-		let BotConfig = InitialPlayerConfig.Find(BotConfigName);
-
-		let MyWorld = GameInstance->GetWorld();
-		if (not IsValid(MyWorld))
+		if (GameInstance->HasCharacterInfo(Character) and Character->IsPlayerControlled())
 		{
-			log(Error, "World isn't exist now -> can't initialize players and bots")
-			return false;
+			GameInstance->LoadCharacterInfo(Character);
 		}
-
-		TActorIterator<ACloud9Character>(MyWorld)
-			| ETContainer::FromIterator{}
-			| ETContainer::Filter{[](var& Character) { return Character.GetNeedInitialize(); }}
-			| ETContainer::ForEach{
-				[PlayerConfig, BotConfig](var& Character)
-				{
-					let Config = Character.IsPlayerControlled() ? PlayerConfig : BotConfig;
-
-					if (Config == nullptr)
-					{
-						log(Warning, "[Character='%s'] Initialization skipped cus config wasn't specified",
-						    *Character.GetName());
-						return;
-					}
-
-					let Inventory = Character.GetInventoryComponent();
-					let Health = Character.GetHealthComponent();
-
-					Inventory->Initialize(Config->WeaponConfigs, Config->WeaponSlot);
-					Health->Initialize(Config->HealthConfig);
-
-					Config->Effects | ETContainer::ForEach{
-						[&Character](let EffectClass) { Character.AddCharacterEffect(EffectClass); }
-					};
-				}
-			};
+		else
+		{
+			InitializeCharacter(Character);
+		}
 	}
-
-	return true;
 }
 
-bool ACloud9DefaultGameMode::OnWorldTearDown(FSavedInfo& SavedInfo)
+void ACloud9DefaultGameMode::InitializeCharacter(ACloud9Character* Character)
 {
-	let GameInstance = GetCloud9GameInstance();
+	let PlayerConfig = InitialPlayerConfig.Find(PlayerConfigName);
+	let BotConfig = InitialPlayerConfig.Find(BotConfigName);
 
-	SavedInfo.Players = GameInstance->GetLocalPlayers()
-		| ETContainer::Associate{
-			[](let LocalPlayer) { return LocalPlayer->GetControllerId(); },
-			[](let LocalPlayer)
-			{
-				var PlayerSavedInfo = FPlayerSavedInfo();
-				let Character = GetPlayerCharacter(LocalPlayer);
-				let Inventory = Character->GetInventoryComponent();
+	let Config = Character->IsPlayerControlled() ? PlayerConfig : BotConfig;
 
-				PlayerSavedInfo.WeaponConfigs = Inventory->GetWeapons()
-					| ETContainer::Filter{[](let Weapon) { return IsValid(Weapon); }}
-					| ETContainer::Transform{[](let Weapon) { return FWeaponConfig::FromWeapon(Weapon); }}
-					| ETContainer::ToArray{};
+	if (Config == nullptr)
+	{
+		log(Warning, "[Character='%s'] Initialization skipped cus config wasn't specified", *Character->GetName());
+		return;
+	}
 
-				if (let SelectedWeapon = Inventory->GetSelectedWeapon(); IsValid(SelectedWeapon))
-				{
-					PlayerSavedInfo.WeaponSlot = SelectedWeapon->GetWeaponSlot();
-				}
+	let Inventory = Character->GetInventoryComponent();
+	let Health = Character->GetHealthComponent();
 
-				return PlayerSavedInfo;
-			}
-		};
+	Inventory->Initialize(Config->WeaponConfigs, Config->WeaponSlot);
+	Health->Initialize(Config->HealthConfig);
 
-	SavedInfo.bIsLoadRequired = true;
-
-	return true;
+	Config->Effects | ETContainer::ForEach{
+		[&Character](let EffectClass) { Character->AddCharacterEffect(EffectClass); }
+	};
 }

@@ -23,6 +23,7 @@
 
 #include "Cloud9GameMode.h"
 
+#include "EngineUtils.h"
 #include "Cloud9/Game/Cloud9GameState.h"
 #include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
@@ -35,25 +36,23 @@ ACloud9GameMode::ACloud9GameMode()
 	GameStateClass = ACloud9GameState::StaticClass();
 }
 
-bool ACloud9GameMode::OnWorldStart(FSavedInfo& SavedInfo)
-{
-	return true;
-}
+void ACloud9GameMode::SaveCharacter(const ACloud9Character* Character) {}
 
-bool ACloud9GameMode::OnWorldTearDown(FSavedInfo& SavedInfo)
-{
-	return true;
-}
+void ACloud9GameMode::LoadCharacter(ACloud9Character* Character) {}
 
 void ACloud9GameMode::StartPlay()
 {
 	Super::StartPlay();
-	OnWorldStart(GetCloud9GameInstance()->SavedInfo);
 }
 
 void ACloud9GameMode::StartToLeaveMap()
 {
-	Super::StartToLeaveMap();
+	// TODO: Maybe move to a delegate pattern
+	TActorIterator<ACloud9Character>(GetWorld())
+		| ETContainer::FromIterator{}
+		| ETContainer::ForEach{
+			[](let& It) { It.OnLevelChanged(); }
+		};
 
 	if (let MyWorld = GetWorld(); MyWorld != nullptr)
 	{
@@ -61,7 +60,7 @@ void ACloud9GameMode::StartToLeaveMap()
 		MyWorld | EUWorld::ClearAllTimers{};
 	}
 
-	OnWorldTearDown(GetCloud9GameInstance()->SavedInfo);
+	Super::StartToLeaveMap();
 }
 
 UCloud9GameInstance* ACloud9GameMode::GetCloud9GameInstance() const

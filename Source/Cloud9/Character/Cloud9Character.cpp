@@ -23,6 +23,7 @@
 
 #include "Cloud9Character.h"
 
+#include "Cloud9AIController.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
 #include "Materials/Material.h"
@@ -41,6 +42,9 @@
 #include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Character/Effects/Cloud9CharacterEffectTrait.h"
+#include "Cloud9/Modes/Cloud9GameMode.h"
+#include "Cloud9/Game/Cloud9GameInstance.h"
+#include "Cloud9/Tools/Extensions/ACharacter.h"
 #include "Components/Cloud9InventoryComponent.h"
 #include "Components/Cloud9CharacterMovement.h"
 #include "Components/Cloud9SpringArmComponent.h"
@@ -48,6 +52,7 @@
 #include "Components/Cloud9AnimationComponent.h"
 #include "Components/Cloud9EffectsComponent.h"
 #include "Components/Cloud9SkeletalMeshComponent.h"
+#include "GameFramework/PlayerState.h"
 
 const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
 const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");
@@ -63,6 +68,8 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName)
 	.SetDefaultSubobjectClass<UCloud9SkeletalMeshComponent>(MeshComponentName))
 {
+	AIControllerClass = ACloud9AIController::StaticClass();
+
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -117,9 +124,6 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	WidgetInteractionComponent->bShowDebug = false;
 
 	HealthComponent->OnCharacterDie.AddDynamic(this, &ACloud9Character::OnCharacterDie);
-
-	Score = 0;
-	bIsPlayer = false;
 
 	// Activate ticking to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
@@ -301,10 +305,18 @@ bool ACloud9Character::RemoveCharacterEffect(UCloud9CharacterEffectTrait* Effect
 	return EffectsComponent->RemoveEffect(Effect);
 }
 
-void ACloud9Character::AddScore()
+void ACloud9Character::AddScore() const
 {
-	Score += 1;
-	OnScoreChanged.Broadcast(Score);
+	if (let MyPlayerState = GetPlayerState())
+	{
+		let NewScore = MyPlayerState->GetScore() + 1;
+		MyPlayerState->SetScore(NewScore);
+		OnScoreChanged.Broadcast(NewScore);
+	}
+	else
+	{
+		log(Error, "[Character='%s'] Can't add score cus no valid player state")
+	}
 }
 
 void ACloud9Character::UseObject()
@@ -473,21 +485,23 @@ void ACloud9Character::BeginPlay()
 
 	if (not IsPlayerControlled())
 	{
-		bIsPlayer = false;
 		CursorToWorld->Deactivate();
 		TopDownCameraComponent->Deactivate();
 		CameraBoom->Deactivate();
 	}
-	else
+
+	log(Display, "[Character='%s'] IsPlayer=%d", *GetName(), IsPlayerControlled());
+
+	// Load all characters (even it's a bot) because LoadCharacter also handle GameMode initialization
+	if (let GameMode = GetWorld() | EUWorld::GetGameMode<ACloud9GameMode>{})
 	{
-		bIsPlayer = true;
+		GameMode->LoadCharacter(this);
 	}
 }
 
 void ACloud9Character::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-	log(Error, "[Character='%s'] EndPlay IsPlayer=%d", *GetName(), bIsPlayer);
 }
 
 void ACloud9Character::Tick(float DeltaSeconds)
@@ -498,5 +512,14 @@ void ACloud9Character::Tick(float DeltaSeconds)
 	if (not InventoryComponent->GetSelectedWeapon() and not InventoryComponent->IsEmpty())
 	{
 		InventoryComponent->SelectOtherAvailableWeapon(false);
+	}
+}
+
+void ACloud9Character::OnLevelChanged() const
+{
+	if (let GameMode = GetWorld() | EUWorld::GetGameMode<ACloud9GameMode>{};
+		IsValid(GameMode) and IsPlayerControlled())
+	{
+		GameMode->SaveCharacter(this);
 	}
 }

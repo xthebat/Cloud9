@@ -7,6 +7,7 @@
 
 #include "Cloud9CharacterEffectTrait.generated.h"
 
+class ACloud9Character;
 class UCloud9EffectsComponent;
 
 UCLASS(Abstract, BlueprintType, Blueprintable, meta=(BlueprintSpawnableComponent))
@@ -39,6 +40,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnApplyDamage(float Damage);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnSkeletalMeshChanged(bool bReinitPose);
+
 	virtual bool IsExtinguished_Implementation() const;
 
 	virtual void OnApply_Implementation();
@@ -55,6 +59,8 @@ public:
 
 	virtual void OnApplyDamage_Implementation(float Damage);
 
+	virtual void OnSkeletalMeshChanged_Implementation(bool bReinitPose);
+
 protected:
-	const UCloud9EffectsComponent* GetContainer() const;
+	ACloud9Character* GetCharacter() const;
 };

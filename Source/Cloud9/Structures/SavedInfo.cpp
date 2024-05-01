@@ -4,6 +4,5 @@
 
 void FSavedInfo::Reset()
 {
-	bIsLoadRequired = false;
 	Players.Reset();
 }

@@ -23,25 +23,46 @@
 
 #include "Cloud9GameInstance.h"
 
-#include "Cloud9/Modes/Cloud9GameMode.h"
-#include "GameFramework/GameModeBase.h"
-#include "Kismet/GameplayStatics.h"
+#include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
+#include "Cloud9/Tools/Extensions/ACharacter.h"
 
-ACloud9GameMode* UCloud9GameInstance::GetGameMode(const UWorld* World)
+void UCloud9GameInstance::SaveCharacterInfo(const ACloud9Character* Character)
 {
-	if (not IsValid(World))
+	using namespace EACharacter;
+
+	log(Error,
+	    "[Character='%s'] IsPlayer=%d PlayerState=%p PlayerId=%d",
+	    *Character->GetName(),
+	    Character->IsPlayerControlled(),
+	    Character->GetPlayerState(),
+	    Character | EACharacter::GetPlayerId{});
+
+	var PlayerSavedInfo = FPlayerSavedInfo();
+
+	let Inventory = Character->GetInventoryComponent();
+
+	PlayerSavedInfo.WeaponConfigs = Inventory->GetWeapons()
+		| ETContainer::Filter{[](let Weapon) { return IsValid(Weapon); }}
+		| ETContainer::Transform{[](let Weapon) { return FWeaponConfig::FromWeapon(Weapon); }}
+		| ETContainer::ToArray{};
+
+	if (let SelectedWeapon = Inventory->GetSelectedWeapon(); IsValid(SelectedWeapon))
 	{
-		log(Error, "World isn't valid to get GameMode")
-		return nullptr;
+		PlayerSavedInfo.WeaponSlot = SelectedWeapon->GetWeaponSlot();
 	}
 
-	let MyGameMode = UGameplayStatics::GetGameMode(World);
+	SavedInfo.Players.Add(Character->GetFName(), PlayerSavedInfo);
+}
 
-	if (not IsValid(MyGameMode))
-	{
-		log(Error, "Current GameMode isn't valid")
-		return nullptr;
-	}
+void UCloud9GameInstance::LoadCharacterInfo(ACloud9Character* Character)
+{
+	let Inventory = Character->GetInventoryComponent();
+	let& PlayerSavedInfo = SavedInfo.Players[Character->GetFName()];
+	Inventory->Initialize(PlayerSavedInfo.WeaponConfigs, PlayerSavedInfo.WeaponSlot);
+}
 
-	return Cast<ACloud9GameMode>(MyGameMode);
+bool UCloud9GameInstance::HasCharacterInfo(const ACloud9Character* Character) const
+{
+	return SavedInfo.Players.Contains(Character->GetFName());
 }

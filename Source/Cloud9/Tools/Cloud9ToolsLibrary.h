@@ -32,8 +32,6 @@
 
 #include "Cloud9ToolsLibrary.generated.h"
 
-class ACloud9GameMode;
-
 /**
  * Class provides different tools/helpers functions to minimize boilerplate code.
  */
@@ -51,11 +49,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void SetCollisionComplexity(UStaticMesh* StaticMesh, uint8 CollisionTraceFlag);
 
-	/**
-	 * 
-	 * @param StaticMesh 
-	 * @param CollisionProfile 
-	 */
 	UFUNCTION(BlueprintCallable)
 	static bool SetCollisionProfile(const UStaticMesh* StaticMesh, FName CollisionProfile);
 
@@ -67,32 +60,11 @@ public:
 	static float CalculateCollisionVolumeScale(UStaticMesh* StaticMesh);
 
 	/**
-	 * Function try to get current game world or return nullptr if failed.
-	 * NOTE: Only available when world has been created.
+	 * Function try to get a current game world or return nullptr if failed.
+	 * NOTE: Only available when a world has been created.
 	 */
 	UFUNCTION(BlueprintCallable)
 	static UWorld* GetGameWorld();
-
-	/**
-	 * Function try to get current game mode or return nullptr if failed.
-	 * NOTE: Only available when world has been created.
-	 */
-	UFUNCTION(BlueprintCallable)
-	static ACloud9GameMode* GetGameMode();
-
-	template <class Cls>
-	static Cls* GetActorOfClass()
-	{
-		return Cast<Cls>(UGameplayStatics::GetActorOfClass(GetGameWorld(), Cls::StaticClass()));
-	}
-
-	template <class Cls>
-	static TArray<Cls*> GetAllActorsOfClass()
-	{
-		TArray<AActor*> Actors = {};
-		UGameplayStatics::GetAllActorsOfClass(GetGameWorld(), Cls::StaticClass(), Actors);
-		return reinterpret_cast<TArray<Cls*>&>(Actors);
-	}
 
 	static FBox GetAccurateReferencePoseBounds(const USkeletalMesh* Mesh);
 

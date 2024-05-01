@@ -17,6 +17,7 @@ void UCloud9SkeletalMeshComponent::SetSkeletalMesh(USkeletalMesh* NewMesh, bool 
 		| ETContainer::Transform{[](let It) { return It.MaterialInterface; }}
 		| ETContainer::ToArray{};
 	MakeDynamicMaterials(Materials);
+	OnSkeletalMeshChanged.Broadcast(bReinitPose);
 }
 
 void UCloud9SkeletalMeshComponent::MakeDynamicMaterials(const TArray<UMaterialInterface*>& Materials)
