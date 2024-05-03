@@ -46,6 +46,7 @@ FString UCloud9DeveloperSettings::WeaponDebugInaccuracyOnlyUpName = "r.WeaponDeb
 FString UCloud9DeveloperSettings::WeaponRecoilDecayCoefficientName = "r.WeaponRecoilDecayCoefficient";
 FString UCloud9DeveloperSettings::DrawShotDirectionAxisName = "r.DrawShotDirectionAxis";
 FString UCloud9DeveloperSettings::WeaponDebugDamageInfoName = "r.WeaponDebugDamageInfo";
+FString UCloud9DeveloperSettings::TaggingScaleName = "r.TaggingScale";
 FString UCloud9DeveloperSettings::VolumeName = "r.Volume";
 
 // ReSharper disable once CppPossiblyUninitializedMember
@@ -73,6 +74,7 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	WeaponRecoilDecayCoefficient = 2.0f;
 	WeaponDebugDamageInfo = 0;
 	DrawShotDirectionAxis = 0;
+	TaggingScale = 1.0f;
 }
 
 UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
@@ -241,7 +243,13 @@ void UCloud9DeveloperSettings::InitializeCVars()
 		RegisterConsoleVariable(
 			WeaponDebugDamageInfo,
 			*WeaponDebugDamageInfoName,
-			TEXT("Pring debug info about damage to character on hit")
+			TEXT("Print debug info about damage to character on hit")
+		);
+
+		RegisterConsoleVariable(
+			TaggingScale,
+			*TaggingScaleName,
+			TEXT("Scalar for player tagging modifier when hit. Lower values for greater tagging")
 		);
 
 		log(Display, "%s", this | EUObject::Stringify{} | EFString::ToCStr{});

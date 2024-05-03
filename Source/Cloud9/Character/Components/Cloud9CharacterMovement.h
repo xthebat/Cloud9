@@ -49,7 +49,6 @@ public:
 
 	static constexpr let AccelerationDuckScaleCoefficient = 4.0f;
 
-public:
 	UCloud9CharacterMovement();
 
 	ACloud9Character* GetCloud9CharacterOwner() const;
@@ -114,10 +113,18 @@ public:
 	UPROPERTY(Category="Character Movement: Modifier", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="1"))
 	float SpeedClimbModifier;
 
-public:
+	void UpdateFlinchVelocityModifier(float FlinchModSmall, float FlinchModLarge);
+
 	virtual float GetMaxSpeed() const override
 	{
-		return GetMovementValue(SpeedScaleCoefficient, SpeedScaleCoefficient);
+		var MaxCharacterSpeed = GetMovementValue(SpeedScaleCoefficient, SpeedScaleCoefficient);
+
+		if (IsWalking())
+		{
+			MaxCharacterSpeed *= FlinchVelocityModifier;
+		}
+
+		return MaxCharacterSpeed;
 	}
 
 	virtual float GetMaxAcceleration() const override
@@ -137,13 +144,18 @@ public:
 protected:
 	float GetMovementValue(float WalkScale, float DuckScale) const;
 
-protected:
-	/** Target rotator of character*/
+	UPROPERTY(Category="Character Movement: Modifier", BlueprintReadOnly)
+	float FlinchVelocityModifier;
+
+	UPROPERTY(Category="Character Movement: Modifier", BlueprintReadOnly)
+	float FlinchVelocityStack;
+
+	/** Target rotator of character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State)
 	FRotator TargetRotator;
 
 private:
-	/** Character rotation lag*/
+	/** Character rotation lag */
 	UPROPERTY(EditDefaultsOnly, Category=Config)
 	float RotationLag;
 };

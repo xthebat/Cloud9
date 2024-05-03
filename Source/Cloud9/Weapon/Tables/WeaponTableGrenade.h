@@ -251,4 +251,8 @@ struct FGrenadeWeaponInfo : public FBaseWeaponInfo
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Flinch, AdvancedDisplay,
 		meta=(UIMin="0.0", UIMax="1.0", ClampMin="0", ClampMax="1.0"))
 	float FlinchVelocityModifierNext = 1.0f;
+
+	float GetFlinchVelocityModifierLarge() const { return FlinchVelocityModifierNext; }
+
+	float GetFlinchVelocityModifierSmall() const { return FlinchVelocityModifierFirst; }
 };

@@ -32,7 +32,6 @@ namespace EUObject
 {
 	struct Stringify
 	{
-	public:
 		const UStruct* Type = nullptr;
 
 		FORCEINLINE FString operator()(const UObject* Object) const
@@ -57,7 +56,7 @@ namespace EUObject
 
 		FORCEINLINE FTimerHandle operator()(const UObject* Self) const
 		{
-			let MyWorld = Self->GetWorld();
+			var MyWorld = Self->GetWorld();
 
 			if (not IsValid(MyWorld))
 			{

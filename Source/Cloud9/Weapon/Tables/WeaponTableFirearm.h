@@ -512,6 +512,10 @@ struct FFirearmWeaponInfo : public FBaseWeaponInfo
 
 	int GetRecoveryTransitionEndBullet() const { return RecoveryTime.TransitionEndBullet; }
 
-	// This is never ever happen
+	float GetFlinchVelocityModifierLarge() const { return FlinchVelocityModifierNext; }
+
+	float GetFlinchVelocityModifierSmall() const { return FlinchVelocityModifierFirst; }
+
+	// This never ever happens
 	bool IsRevolver() const { return false; }
 };
