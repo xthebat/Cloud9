@@ -518,7 +518,12 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 			UFirearmDamageType::StaticClass()
 		);
 
-		if (let Target = LineHit.Component; Target.IsValid())
+		// If an actor has the health component (then can be damaged) or we shot in some stuff
+		let IsNeedProcessPhysicalMaterial = Damage > 0.0f or not
+			DamagedActor->GetComponentByClass(UCloud9HealthComponent::StaticClass());
+
+		if (let Target = LineHit.Component;
+			Target.IsValid() and IsNeedProcessPhysicalMaterial)
 		{
 			if (Target->IsSimulatingPhysics() and Target->Mobility == EComponentMobility::Movable)
 			{

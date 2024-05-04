@@ -147,9 +147,6 @@ protected:
 	UPROPERTY(Category="Character Movement: Modifier", BlueprintReadOnly)
 	float FlinchVelocityModifier;
 
-	UPROPERTY(Category="Character Movement: Modifier", BlueprintReadOnly)
-	float FlinchVelocityStack;
-
 	/** Target rotator of character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State)
 	FRotator TargetRotator;

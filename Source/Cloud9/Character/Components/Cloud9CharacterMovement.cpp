@@ -46,7 +46,6 @@ UCloud9CharacterMovement::UCloud9CharacterMovement()
 	SpeedWalkModifier = 0.52f;
 	SpeedClimbModifier = 0.34f;
 
-	FlinchVelocityStack = 1.0f;
 	FlinchVelocityModifier = 1.0f;
 
 	MaxWalkSpeed = SpeedRun;
@@ -141,13 +140,14 @@ void UCloud9CharacterMovement::UpdateFlinchVelocityModifier(float FlinchModSmall
 {
 	static let Settings = UCloud9DeveloperSettings::Get();
 
+	// logic and coefficients from cstrike15
+
 	// apply the minimum large flinch amount on the first hit and on subsequent hits, 
 	// apply a portion of the small amount - less as we apply more
-	let NewFlinchModeLarge = FlinchModLarge - (1.0f - FlinchVelocityStack) * FlinchModSmall;
-	FlinchVelocityStack = FMath::Min(FlinchVelocityStack, FMath::Min(FlinchModLarge, NewFlinchModeLarge));
+	let NewFlinchModeLarge = FlinchModLarge - (1.0f - FlinchVelocityModifier) * FlinchModSmall;
+	FlinchVelocityModifier = FMath::Min(FlinchVelocityModifier, FMath::Min(FlinchModLarge, NewFlinchModeLarge));
 
-	// don't modify FlinchVelocityStack, keep it raw because it will decay in Think
-	var FlinchModifier = FlinchVelocityStack;
+	var FlinchModifier = FlinchVelocityModifier;
 
 	// scale this by a global convar value
 	FlinchModifier *= Settings->TaggingScale;
@@ -187,12 +187,13 @@ void UCloud9CharacterMovement::TickComponent(
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (FlinchVelocityStack < 1.0)
+	// lerp decay a flinch modifier too slowly, so use the original cstrike15 method
+	if (FlinchVelocityModifier < 1.0f)
 	{
-		FlinchVelocityStack = Math::Approach(1.0, FlinchVelocityStack, DeltaTime * 0.35);
+		FlinchVelocityModifier = Math::Approach(1.0, FlinchVelocityModifier, DeltaTime * 0.35);
 	}
 
-	FlinchVelocityModifier = FlinchVelocityStack = FMath::Clamp(FlinchVelocityStack, 0.1f, 1.0f);
+	FlinchVelocityModifier = FMath::Clamp(FlinchVelocityModifier, 0.1f, 1.0f);
 
 	if (let Owner = GetCloud9CharacterOwner(); IsValid(Owner))
 	{

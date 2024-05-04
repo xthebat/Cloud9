@@ -86,9 +86,9 @@ public:
 	bool HasHelmet() const { return bHasHelmet; }
 	bool IsAlive() const { return bIsAlive; }
 
-	bool GetIsInvulnerable() const;
+	bool IsInvulnerable() const;
 
-	void SetIsInvulnerable(bool NewValue);
+	void IsInvulnerable(bool NewValue);
 
 	UPROPERTY(BlueprintAssignable, Category=Events)
 	FOnHealthChange OnHealthChange;

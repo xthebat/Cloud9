@@ -346,11 +346,16 @@ float ACloud9Character::InternalTakePointDamage(
 	AController* EventInstigator,
 	AActor* DamageCauser)
 {
+	if (GetHealthComponent()->IsInvulnerable())
+	{
+		return 0.0f;
+	}
+
 	static let Settings = UCloud9DeveloperSettings::Get();
 
 	Damage = Super::InternalTakePointDamage(Damage, PointDamageEvent, EventInstigator, DamageCauser);
 
-	// TODO: Scale will be used when implement grenade
+	// TODO: Scale will be used when implement grenade damage
 	float Scale = 1.0f;
 	float FlinchModLarge = 0.0f;
 	float FlinchModSmall = 0.0f;

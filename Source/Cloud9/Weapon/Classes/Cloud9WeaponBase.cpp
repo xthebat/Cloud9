@@ -280,7 +280,7 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond 
 		return false;
 	}
 
-	log(Display,
+	log(Verbose,
 	    "[Weapon='%s' Slot='%s'] Update attachment to character '%s' into socket '%s'",
 	    *GetName(), SLOT_NAME, *Character->GetName(), *SocketName.ToString());
 

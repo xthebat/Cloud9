@@ -66,9 +66,9 @@ bool UCloud9HealthComponent::IncreaseArmor(float Change)
 	return false;
 }
 
-bool UCloud9HealthComponent::GetIsInvulnerable() const { return bIsInvulnerable; }
+bool UCloud9HealthComponent::IsInvulnerable() const { return bIsInvulnerable; }
 
-void UCloud9HealthComponent::SetIsInvulnerable(bool NewValue) { bIsInvulnerable = NewValue; }
+void UCloud9HealthComponent::IsInvulnerable(bool NewValue) { bIsInvulnerable = NewValue; }
 
 bool UCloud9HealthComponent::ChangeHealth(float NewHealth)
 {
@@ -171,7 +171,7 @@ void UCloud9HealthComponent::OnTakePointDamage(
 	const UDamageType* DamageType,
 	AActor* DamageCauser)
 {
-	TakeHealthDamage(not bIsInvulnerable ? Damage : 0.0f);
+	TakeHealthDamage(Damage);
 	AddAttackerScore(InstigatedBy);
 }
 
@@ -184,6 +184,6 @@ void UCloud9HealthComponent::OnTakeRadialDamage(
 	AController* InstigatedBy,
 	AActor* DamageCauser)
 {
-	TakeHealthDamage(not bIsInvulnerable ? Damage : 0.0f);
+	TakeHealthDamage(Damage);
 	AddAttackerScore(InstigatedBy);
 }
