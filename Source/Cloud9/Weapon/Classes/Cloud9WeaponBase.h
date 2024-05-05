@@ -69,10 +69,10 @@ public:
 	static const FName MuzzleFlashSocketName;
 	static const FName CaseEjectSocketName;
 
-public:
+	static constexpr let KnifeMaxPlayerSpeed = 250.0f;
+
 	static UWeaponDefinitionsAsset* GetWeaponDefinitionsAsset();
 
-public:
 	ACloud9WeaponBase();
 
 	UFUNCTION(BlueprintCallable)
@@ -195,7 +195,7 @@ public:
 protected:
 	static void ChangeMeshCollisionState(UStaticMeshComponent* Mesh, bool bIsEnabled);
 
-protected: // functions
+	// functions
 	virtual bool OnInitialize(const FWeaponConfig& WeaponConfig);
 	virtual void Deinitialize();
 
@@ -250,7 +250,7 @@ protected: // functions
 		return; \
 	}
 
-protected: // properties
+	// properties
 	/**
 	  * Current weapon skin name
 	  */

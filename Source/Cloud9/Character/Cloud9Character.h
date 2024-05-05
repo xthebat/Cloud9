@@ -131,6 +131,8 @@ public:
 
 	bool RemoveCharacterEffect(UCloud9CharacterEffectTrait* Effect);
 
+	void RemoveAllCharacterEffects() const;
+
 	void AddScore() const;
 
 	void UseObject();

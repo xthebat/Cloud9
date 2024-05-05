@@ -51,4 +51,24 @@ namespace Math
 		let OutRange = OutRangeMax - OutRangeMin;
 		return OutRangeMin + OutRange * Temp;
 	}
+
+	constexpr float Approach(float Target, float Value, float Speed)
+	{
+		let Delta = Target - Value;
+
+		if (Delta > Speed)
+		{
+			Value += Speed;
+		}
+		else if (Delta < -Speed)
+		{
+			Value -= Speed;
+		}
+		else
+		{
+			Value = Target;
+		}
+
+		return Value;
+	}
 }

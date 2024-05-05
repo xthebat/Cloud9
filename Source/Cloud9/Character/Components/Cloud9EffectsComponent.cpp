@@ -15,26 +15,38 @@ UCloud9EffectsComponent::UCloud9EffectsComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+void UCloud9EffectsComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	InitialEffects | ETContainer::ForEach{[this](let It) { AddEffect(It); }};
+}
+
 UCloud9CharacterEffectTrait* UCloud9EffectsComponent::AddEffect(
 	TSubclassOf<UCloud9CharacterEffectTrait> EffectClass)
 {
-	if (let Effect = NewObject<UCloud9CharacterEffectTrait>(this, EffectClass); Effect->CanApply())
+	if (IsValid(EffectClass))
 	{
-		Effect->OnApply();
-
-		Effects.Add(Effect);
-
-		if (Effect->CanTick())
+		if (let Effect = NewObject<UCloud9CharacterEffectTrait>(this, EffectClass); Effect->CanApply())
 		{
-			CanTickEffects.Add(Effect);
-			SetComponentTickEnabled(true);
-		}
-		else if (Effect->CanDamaged())
-		{
-			CanDamagedEffects.Add(Effect);
-		}
+			Effect->OnApply();
 
-		return Effect;
+			AppliedEffects.Add(Effect);
+
+			if (Effect->CanTick())
+			{
+				AppliedCanTickEffects.Add(Effect);
+				SetComponentTickEnabled(true);
+			}
+			else if (Effect->CanDamaged())
+			{
+				AppliedCanDamagedEffects.Add(Effect);
+			}
+
+			log(Verbose, "[Component='%s'] Apply effect class='%s' effect='%s' (%p) on owner='%s'",
+			    *GetName(), *EffectClass->GetName(), *Effect->GetName(), Effect, *GetOwnerName());
+
+			return Effect;
+		}
 	}
 
 	return nullptr;
@@ -42,36 +54,38 @@ UCloud9CharacterEffectTrait* UCloud9EffectsComponent::AddEffect(
 
 bool UCloud9EffectsComponent::RemoveEffect(UCloud9CharacterEffectTrait* Effect)
 {
-	if (Effects.Remove(Effect) == 0)
+	if (AppliedEffects.Remove(Effect) == 0)
 	{
-		log(Warning, "[Actor='%s'] Effect '%s' not found", *GetName(), *Effect->GetName());
+		log(Warning, "[Component='%s'] Effect '%s' not found", *GetName(), *Effect->GetName());
 		return false;
 	}
 
-	CanDamagedEffects.Remove(Effect);
-	CanTickEffects.Remove(Effect);
+	AppliedCanDamagedEffects.Remove(Effect);
+	AppliedCanTickEffects.Remove(Effect);
 
-	SetComponentTickEnabled(CanTickEffects.Num() != 0);
+	SetComponentTickEnabled(AppliedCanTickEffects.Num() != 0);
 
 	Effect->OnRemove();
+
+	log(Verbose, "[Component='%s'] Remove effect='%s' (%p) on owner='%s'",
+	    *GetName(), *Effect->GetName(), Effect, *GetOwnerName());
 	return true;
+}
+
+void UCloud9EffectsComponent::RemoveAllEffects()
+{
+	TSet Copy(AppliedEffects);
+	// Prevent modification during iteration
+	Copy | ETContainer::ForEach{[this](let It) { RemoveEffect(It); }};
 }
 
 UCloud9HealthComponent* UCloud9EffectsComponent::GetHealthComponent() const
 {
 	let Character = GetOwner<ACloud9Character>();
-	if (not IsValid(Character))
-	{
-		log(Error, "[Component='%s'] Owner is invalid", *GetName());
-		return nullptr;
-	}
+	CheckIsValid(Character, Error, "Owner is invalid", nullptr);
 
 	let HealthComponent = Character->GetHealthComponent();
-	if (not IsValid(HealthComponent))
-	{
-		log(Error, "[Component='%s'] Owner HealthComponent is invalid", *GetName());
-		return nullptr;
-	}
+	CheckIsValid(HealthComponent, Error, "Owner HealthComponent is invalid", nullptr);
 
 	return HealthComponent;
 }
@@ -84,7 +98,7 @@ void UCloud9EffectsComponent::OnComponentCreated()
 
 void UCloud9EffectsComponent::OnDamageApplied(float Damage)
 {
-	let Extinguished = CanDamagedEffects
+	let Extinguished = AppliedCanDamagedEffects
 		| ETContainer::Filter{
 			[Damage](let It)
 			{
@@ -97,12 +111,17 @@ void UCloud9EffectsComponent::OnDamageApplied(float Damage)
 	Extinguished | ETContainer::ForEach{[this](let It) { RemoveEffect(It); }};
 }
 
+FString UCloud9EffectsComponent::GetOwnerName() const
+{
+	return GetOwner() ? GetOwner()->GetName() : FString{};
+}
+
 void UCloud9EffectsComponent::TickComponent(
 	float DeltaTime,
 	ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
 {
-	let Extinguished = CanTickEffects
+	let Extinguished = AppliedCanTickEffects
 		| ETContainer::Filter{
 			[DeltaTime](let It)
 			{

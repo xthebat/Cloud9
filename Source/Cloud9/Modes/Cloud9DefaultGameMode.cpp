@@ -59,7 +59,9 @@ void ACloud9DefaultGameMode::InitializeCharacter(ACloud9Character* Character)
 	Inventory->Initialize(Config->WeaponConfigs, Config->WeaponSlot);
 	Health->Initialize(Config->HealthConfig);
 
+	Character->RemoveAllCharacterEffects();
+
 	Config->Effects | ETContainer::ForEach{
-		[&Character](let EffectClass) { Character->AddCharacterEffect(EffectClass); }
+		[Character](let EffectClass) { Character->AddCharacterEffect(EffectClass); }
 	};
 }

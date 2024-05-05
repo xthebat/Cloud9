@@ -18,7 +18,7 @@ void UCloud9CharacterShieldEffect::ToggleEffect(bool NewState)
 	let Character = GetCharacter();
 	let HealthComponent = Character->GetHealthComponent();
 	CheckIsValid(HealthComponent, Error, "HealthComponent is invalid");
-	HealthComponent->SetIsInvulnerable(NewState);
+	HealthComponent->IsInvulnerable(NewState);
 	ToggleVisual(NewState);
 }
 

@@ -106,8 +106,6 @@ namespace EUWorld
 		float InRate;
 		bool bInLoop = false;
 
-		FTimerHandle TimerHandle{};
-
 		FORCEINLINE FTimerHandle operator()(const UWorld* Self)
 		{
 			if (InRate == 0.0f)
@@ -118,10 +116,11 @@ namespace EUWorld
 
 			assertf(Self != nullptr, "World should not be nullptr to start timer");
 
-			let Delegate = FTimerDelegate::CreateStatic(&AsyncAfter::Execute, Block, TimerHandle);
-			Self->GetTimerManager().SetTimer(TimerHandle, Delegate, InRate, bInLoop);
-			Private_EUWorld::ActiveTimers.Add(TimerHandle);
-			return TimerHandle;
+			FTimerHandle Handle;
+			let Delegate = FTimerDelegate::CreateStatic(&AsyncAfter::Execute, Block, Handle);
+			Self->GetTimerManager().SetTimer(Handle, Delegate, InRate, bInLoop);
+			Private_EUWorld::ActiveTimers.Add(Handle);
+			return Handle;
 		}
 
 		static void Execute(BlockType Block, FTimerHandle Handle)

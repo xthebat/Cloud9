@@ -56,7 +56,6 @@ protected:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-protected:
 	/**
 	 * Weapon Identifier
 	 */

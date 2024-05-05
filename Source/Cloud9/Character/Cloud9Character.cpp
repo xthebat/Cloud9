@@ -45,6 +45,7 @@
 #include "Cloud9/Modes/Cloud9GameMode.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Tools/Extensions/ACharacter.h"
+#include "Cloud9/Weapon/Classes/Cloud9WeaponGrenade.h"
 #include "Components/Cloud9InventoryComponent.h"
 #include "Components/Cloud9CharacterMovement.h"
 #include "Components/Cloud9SpringArmComponent.h"
@@ -69,6 +70,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	.SetDefaultSubobjectClass<UCloud9SkeletalMeshComponent>(MeshComponentName))
 {
 	AIControllerClass = ACloud9AIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -305,6 +307,11 @@ bool ACloud9Character::RemoveCharacterEffect(UCloud9CharacterEffectTrait* Effect
 	return EffectsComponent->RemoveEffect(Effect);
 }
 
+void ACloud9Character::RemoveAllCharacterEffects() const
+{
+	EffectsComponent->RemoveAllEffects();
+}
+
 void ACloud9Character::AddScore() const
 {
 	if (let MyPlayerState = GetPlayerState())
@@ -312,10 +319,6 @@ void ACloud9Character::AddScore() const
 		let NewScore = MyPlayerState->GetScore() + 1;
 		MyPlayerState->SetScore(NewScore);
 		OnScoreChanged.Broadcast(NewScore);
-	}
-	else
-	{
-		log(Error, "[Character='%s'] Can't add score cus no valid player state")
 	}
 }
 
@@ -348,14 +351,24 @@ float ACloud9Character::InternalTakePointDamage(
 	AController* EventInstigator,
 	AActor* DamageCauser)
 {
+	if (GetHealthComponent()->IsInvulnerable())
+	{
+		return 0.0f;
+	}
+
 	static let Settings = UCloud9DeveloperSettings::Get();
 
 	Damage = Super::InternalTakePointDamage(Damage, PointDamageEvent, EventInstigator, DamageCauser);
 
-	if (let Weapon = Cast<ACloud9WeaponFirearm>(DamageCauser))
+	// TODO: Scale will be used when implement grenade damage
+	float Scale = 1.0f;
+	float FlinchModLarge = 0.0f;
+	float FlinchModSmall = 0.0f;
+
+	if (let WeaponFirearm = Cast<ACloud9WeaponFirearm>(DamageCauser))
 	{
 		let BoneName = PointDamageEvent.HitInfo.BoneName;
-		let WeaponInfo = Weapon->GetWeaponInfo();
+		let WeaponInfo = WeaponFirearm->GetWeaponInfo();
 
 		bool HitInArmor = false;
 
@@ -414,6 +427,24 @@ float ACloud9Character::InternalTakePointDamage(
 			    DamageToHealth,
 			    DamageToArmor);
 		}
+
+		FlinchModLarge = WeaponInfo->GetFlinchVelocityModifierLarge();
+		FlinchModSmall = WeaponInfo->GetFlinchVelocityModifierSmall();
+	}
+	else if (let WeaponGrenade = Cast<ACloud9WeaponGrenade>(DamageCauser))
+	{
+		let WeaponInfo = WeaponGrenade->GetWeaponInfo();
+		FlinchModLarge = WeaponInfo->GetFlinchVelocityModifierLarge();
+		FlinchModSmall = WeaponInfo->GetFlinchVelocityModifierSmall();
+
+		Scale = 1.0f - Damage / 40.0f;
+		FlinchModLarge += Scale * 1.05;
+		FlinchModLarge = FMath::Min(1.5f, FlinchModLarge);
+	}
+
+	if (Damage > 0.0f)
+	{
+		GetCloud9CharacterMovement()->UpdateFlinchVelocityModifier(FlinchModSmall, FlinchModLarge);
 	}
 
 	return Damage;
@@ -441,7 +472,7 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 		if (not CameraTargetBoneName.IsNone())
 		{
 			let HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
-			log(Display, "Setup CameraBoom = %s", *HeadBoneLocation.ToString());
+			log(Verbose, "Setup CameraBoom = %s", *HeadBoneLocation.ToString());
 			CameraBoom->SetWorldLocation(HeadBoneLocation);
 		}
 
@@ -489,8 +520,6 @@ void ACloud9Character::BeginPlay()
 		TopDownCameraComponent->Deactivate();
 		CameraBoom->Deactivate();
 	}
-
-	log(Display, "[Character='%s'] IsPlayer=%d", *GetName(), IsPlayerControlled());
 
 	// Load all characters (even it's a bot) because LoadCharacter also handle GameMode initialization
 	if (let GameMode = GetWorld() | EUWorld::GetGameMode<ACloud9GameMode>{})

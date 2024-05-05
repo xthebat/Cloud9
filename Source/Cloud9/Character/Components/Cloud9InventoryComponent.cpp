@@ -272,7 +272,7 @@ bool UCloud9InventoryComponent::AddWeapon(const FWeaponConfig& Config, bool Sele
 		}
 	}
 
-	log(Display, "[Inventory='%s'] Added configured weapon = '%s'", *GetName(), *Config.ToString());
+	log(Verbose, "[Inventory='%s'] Added configured weapon = '%s'", *GetName(), *Config.ToString());
 
 	WeaponsCount++;
 	OnWeaponAddDelegate.Broadcast(Weapon);

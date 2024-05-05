@@ -34,7 +34,6 @@ struct FUnUsedStruct
 {
 	GENERATED_BODY()
 
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int IntField0 = 0;
 
@@ -55,8 +54,6 @@ UCLASS(Config=Game, defaultconfig, meta = (DisplayName="Various Developer Settin
 class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 {
 	GENERATED_UCLASS_BODY()
-
-public:
 	static FString ShowMouseCursorName;
 	static FString DrawDeprojectedCursorLineName;
 	static FString DrawHitCursorLineName;
@@ -77,9 +74,10 @@ public:
 	static FString WeaponRecoilDecayCoefficientName;
 	static FString DrawShotDirectionAxisName;
 	static FString WeaponDebugDamageInfoName;
+	static FString TaggingScaleName;
 	static FString VolumeName;
 
-public: // properties
+	// properties
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 IsDrawHitCursorLine;
 
@@ -144,16 +142,19 @@ public: // properties
 	int32 WeaponDebugDamageInfo;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	float TaggingScale;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	EUnUsedEnum UnUsedEnum;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	FUnUsedStruct UnUsedStruct;
 
-public: // static functions
+	// static functions
 	UFUNCTION(BlueprintCallable, Category=Settings, DisplayName=GetCloud9DeveloperSettings)
 	static UCloud9DeveloperSettings* Get();
 
-public: // functions
+	// functions
 	UFUNCTION(BlueprintCallable)
 	void Save();
 

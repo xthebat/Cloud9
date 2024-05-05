@@ -124,7 +124,7 @@ struct FWeaponConfig
 			return false;
 		}
 
-		log(Display, "[Config='%s'] Initializing weapon...", *ToString());
+		log(Verbose, "[Config='%s'] Initializing weapon...", *ToString());
 		return Weapon->Initialize(*this);
 	}
 
@@ -181,7 +181,6 @@ protected:
 		}
 	}
 
-protected:
 	friend class AWeaponSpawner;
 
 	/**
