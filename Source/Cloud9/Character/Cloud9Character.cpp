@@ -307,6 +307,11 @@ bool ACloud9Character::RemoveCharacterEffect(UCloud9CharacterEffectTrait* Effect
 	return EffectsComponent->RemoveEffect(Effect);
 }
 
+void ACloud9Character::RemoveAllCharacterEffects() const
+{
+	EffectsComponent->RemoveAllEffects();
+}
+
 void ACloud9Character::AddScore() const
 {
 	if (let MyPlayerState = GetPlayerState())
@@ -467,7 +472,7 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 		if (not CameraTargetBoneName.IsNone())
 		{
 			let HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
-			log(Display, "Setup CameraBoom = %s", *HeadBoneLocation.ToString());
+			log(Verbose, "Setup CameraBoom = %s", *HeadBoneLocation.ToString());
 			CameraBoom->SetWorldLocation(HeadBoneLocation);
 		}
 
@@ -515,8 +520,6 @@ void ACloud9Character::BeginPlay()
 		TopDownCameraComponent->Deactivate();
 		CameraBoom->Deactivate();
 	}
-
-	log(Display, "[Character='%s'] IsPlayer=%d", *GetName(), IsPlayerControlled());
 
 	// Load all characters (even it's a bot) because LoadCharacter also handle GameMode initialization
 	if (let GameMode = GetWorld() | EUWorld::GetGameMode<ACloud9GameMode>{})

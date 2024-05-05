@@ -31,13 +31,6 @@ void UCloud9GameInstance::SaveCharacterInfo(const ACloud9Character* Character)
 {
 	using namespace EACharacter;
 
-	log(Error,
-	    "[Character='%s'] IsPlayer=%d PlayerState=%p PlayerId=%d",
-	    *Character->GetName(),
-	    Character->IsPlayerControlled(),
-	    Character->GetPlayerState(),
-	    Character | EACharacter::GetPlayerId{});
-
 	var PlayerSavedInfo = FPlayerSavedInfo();
 
 	let Inventory = Character->GetInventoryComponent();

@@ -16,8 +16,6 @@ class CLOUD9_API ACloud9AIController : public AAIController
 public:
 	ACloud9AIController();
 
-	virtual void BeginPlay() override;
-
 	UFUNCTION(BlueprintCallable)
 	void SetMovingOffset(FVector Value);
 
@@ -26,13 +24,20 @@ public:
 
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
+protected:
+	virtual void OnPossess(APawn* InPawn) override;
+
 	virtual void OnUnPossess() override;
 
-protected:
+	void SetMovingOffsetEx(FVector Value);
+
 	void Move(FVector Destination);
 
 	UPROPERTY()
 	FVector BaseLocation;
+
+	UPROPERTY()
+	FTimerHandle TimerHandle;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category=Testing)
 	FVector MovingOffset;

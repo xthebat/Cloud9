@@ -3,10 +3,9 @@
 
 #include "Cloud9AIController.h"
 
-#include "Cloud9/Tools/Extensions/UObject.h"
+#include "Cloud9/Tools/Extensions/UWorld.h"
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
-#include "GameFramework/Character.h"
 
 ACloud9AIController::ACloud9AIController()
 {
@@ -15,15 +14,13 @@ ACloud9AIController::ACloud9AIController()
 	ChangeDirectionDelay = 0.5f;
 }
 
-void ACloud9AIController::BeginPlay()
+void ACloud9AIController::SetMovingOffset(FVector Value)
 {
-	Super::BeginPlay();
-	let MyCharacter = GetCharacter();
-	CheckIsValid(MyCharacter, Error, "Character is invalid")
-	BaseLocation = MyCharacter->GetActorLocation();
+	GetWorld() | EUWorld::ClearTimer{TimerHandle};
+	SetMovingOffsetEx(Value);
 }
 
-void ACloud9AIController::SetMovingOffset(FVector Value)
+void ACloud9AIController::SetMovingOffsetEx(FVector Value)
 {
 	MovingOffset = Value;
 	Move(BaseLocation + MovingOffset);
@@ -39,11 +36,18 @@ void ACloud9AIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFol
 	Super::OnMoveCompleted(RequestID, Result);
 	if (not MovingOffset.IsZero())
 	{
-		this | EUObject::AsyncAfter{
-			[this] { SetMovingOffset(-MovingOffset); },
+		TimerHandle = GetWorld() | EUWorld::AsyncAfter{
+			[this] { SetMovingOffsetEx(-MovingOffset); },
 			ChangeDirectionDelay
 		};
 	}
+}
+
+void ACloud9AIController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	CheckIsValid(InPawn, Error, "Pawn is invalid")
+	BaseLocation = InPawn->GetActorLocation();
 }
 
 void ACloud9AIController::OnUnPossess()
