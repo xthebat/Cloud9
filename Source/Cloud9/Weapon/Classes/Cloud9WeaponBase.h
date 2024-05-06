@@ -47,6 +47,18 @@ struct FWeaponConfig;
 class ACloud9Character;
 class UCloud9InventoryComponent;
 
+// TODO: Make separate config class for this variables(?)
+namespace MaxPlayerSpeed
+{
+	static constexpr let Knife = 250.0f;
+	static constexpr let NoWeapon = 260.0f;
+	static constexpr let Vip = 227.0f;
+	static constexpr let Shield = 160.0f;
+	static constexpr let HasHostage = 200.0f;
+	static constexpr let Stopped = 1.0f;
+	static constexpr let Observer = 1.0f;
+}
+
 UCLASS()
 class CLOUD9_API ACloud9WeaponBase : public AActor
 {
@@ -68,8 +80,6 @@ public:
 	static const FName SilencerSocketName;
 	static const FName MuzzleFlashSocketName;
 	static const FName CaseEjectSocketName;
-
-	static constexpr let KnifeMaxPlayerSpeed = 250.0f;
 
 	static UWeaponDefinitionsAsset* GetWeaponDefinitionsAsset();
 

@@ -440,11 +440,13 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 
 	if (Settings->IsDrawHitScan)
 	{
+#ifndef UE_BUILD_SHIPPING
 		const FName TraceTag("HitScanTraceTag");
 		GetWorld()->DebugDrawTraceTag = TraceTag;
 		CollisionParams.TraceTag = TraceTag;
 		CollisionParams.bTraceComplex = true;
 		CollisionParams.AddIgnoredActors(HitScanInfo.ActorsToIgnore);
+#endif
 	}
 
 	FHitResult LineHit;

@@ -35,12 +35,12 @@ UCloud9CharacterMovement::UCloud9CharacterMovement()
 	RotationLag = 30.0f;
 	TargetRotator = FRotator::ZeroRotator;
 
-	SpeedRun = 260.0f;
-	SpeedVip = 227.0f;
-	SpeedShield = 160.0f;
-	SpeedHasHostage = 200.0f;
-	SpeedStopped = 1.0f;
-	SpeedObserver = 900.0f;
+	SpeedRun = MaxPlayerSpeed::NoWeapon;
+	SpeedVip = MaxPlayerSpeed::Vip;
+	SpeedShield = MaxPlayerSpeed::Shield;
+	SpeedHasHostage = MaxPlayerSpeed::HasHostage;
+	SpeedStopped = MaxPlayerSpeed::Stopped;
+	SpeedObserver = MaxPlayerSpeed::Observer;
 
 	SpeedDuckModifier = 0.34f;
 	SpeedWalkModifier = 0.52f;
@@ -103,21 +103,16 @@ bool UCloud9CharacterMovement::IsOnLadder() const
 
 float UCloud9CharacterMovement::GetMovementValue(float WalkScale, float DuckScale) const
 {
-	let Character = GetOwner<ACloud9Character>();
+	var MaxSpeed = MaxPlayerSpeed::NoWeapon;
 
-	if (not IsValid(Character))
+	if (let Character = GetOwner<ACloud9Character>(); IsValid(Character))
 	{
-		log(Error, "[Component='%s'] Character is invalid", *GetName());
-		return 0.0f;
-	}
-
-	var MaxSpeed = SpeedRun;
-
-	if (let Inventory = Character->GetInventoryComponent(); IsValid(Inventory))
-	{
-		if (let SelectedWeapon = Inventory->GetSelectedWeapon(); IsValid(SelectedWeapon))
+		if (let Inventory = Character->GetInventoryComponent(); IsValid(Inventory))
 		{
-			MaxSpeed = SelectedWeapon->GetWeaponInfo()->MaxPlayerSpeed;
+			if (let SelectedWeapon = Inventory->GetSelectedWeapon(); IsValid(SelectedWeapon))
+			{
+				MaxSpeed = SelectedWeapon->GetWeaponInfo()->MaxPlayerSpeed;
+			}
 		}
 	}
 
@@ -157,12 +152,12 @@ void UCloud9CharacterMovement::UpdateFlinchVelocityModifier(float FlinchModSmall
 	let SelectedWeapon = InventoryComponent->GetSelectedWeapon();
 	let WeaponMaxSpeed = IsValid(SelectedWeapon)
 		                     ? SelectedWeapon->GetWeaponInfo()->MaxPlayerSpeed
-		                     : ACloud9WeaponBase::KnifeMaxPlayerSpeed;
+		                     : MaxPlayerSpeed::Knife;
 
 	// this is the value we use to scale the above fFlinchModifier - 
 	// knives receive less; AKs receive a bit more, etc.
 	constexpr let WeaponScaleMin = 0.15f;
-	let WeaponScaleMax = (WeaponMaxSpeed - 120.0f) / (ACloud9WeaponBase::KnifeMaxPlayerSpeed - 120.0f);
+	let WeaponScaleMax = (WeaponMaxSpeed - 120.0f) / (MaxPlayerSpeed::Knife - 120.0f);
 	let LocalWeaponScale = FMath::Max(WeaponScaleMin, WeaponScaleMax) * 0.8f + 0.08f;
 	FlinchModifier = FlinchModifier * LocalWeaponScale;
 
@@ -170,7 +165,7 @@ void UCloud9CharacterMovement::UpdateFlinchVelocityModifier(float FlinchModSmall
 	// since it's accumulative; we want to be able to cap it, so we don't keep getting more
 	// tagged the more someone shoots us
 	constexpr let RatioMin = 1.0f;
-	let RatioMax = (WeaponMaxSpeed - 80.0f) / (ACloud9WeaponBase::KnifeMaxPlayerSpeed - 80.0f);
+	let RatioMax = (WeaponMaxSpeed - 80.0f) / (MaxPlayerSpeed::Knife - 80.0f);
 	let Ratio = FMath::Min(RatioMin, RatioMax) * 1.2f - 0.08f;
 	let ClampMin = FMath::Max(0.2f, Ratio / 4.0f);
 	let ClampMax = FlinchModLarge > 0.65f ? FlinchModLarge : 0.65f;
