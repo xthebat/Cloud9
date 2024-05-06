@@ -11,8 +11,16 @@ struct FSavedInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(Category=Weapon, BlueprintReadOnly)
-	TMap<FName, FPlayerSavedInfo> Players;
+	// TODO: Add multiplayer save-load game (!!!)
+
+	// UPROPERTY(Category=Weapon, BlueprintReadOnly)
+	// TMap<FName, FPlayerSavedInfo> Players;
+
+	UPROPERTY(Category=Player, BlueprintReadOnly)
+	FPlayerSavedInfo Player;
+
+	UPROPERTY(Category=Player, BlueprintReadOnly)
+	bool IsPlayerStored = false;
 
 	void Reset();
 };

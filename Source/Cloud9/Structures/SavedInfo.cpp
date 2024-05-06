@@ -4,5 +4,6 @@
 
 void FSavedInfo::Reset()
 {
-	Players.Reset();
+	Player.Reset();
+	IsPlayerStored = false;
 }
