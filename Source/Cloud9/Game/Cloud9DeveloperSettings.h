@@ -75,6 +75,8 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	static FString DrawShotDirectionAxisName;
 	static FString WeaponDebugDamageInfoName;
 	static FString TaggingScaleName;
+	static FString DecalLifeSpanName;
+	static FString DecalFadeScreenSizeName;
 	static FString VolumeName;
 
 	// properties
@@ -143,6 +145,12 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	float TaggingScale;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	float DecalLifeSpan;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
+	float DecalFadeScreenSize;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	EUnUsedEnum UnUsedEnum;

@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "Engine/DecalActor.h"
-#include "Components/DecalComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -62,42 +60,6 @@ namespace EUWorld
 
 		OPERATOR_BODY(SpawnActor)
 	};
-
-	struct SpawnDecal
-	{
-		UMaterialInterface* Material;
-		FVector DecalSize;
-		FVector Location;
-		FRotator Rotator;
-		float LifeSpan = 20.0f;
-		float FadeScreenSize = 0.001f;
-		AActor* Owner = nullptr;
-		APawn* Instigator = nullptr;
-
-		FORCEINLINE ADecalActor* operator()(UWorld* Self) const
-		{
-			FActorSpawnParameters Parameters;
-			Parameters.Owner = Owner;
-			Parameters.Instigator = Instigator;
-
-			if (let Actor = Self->SpawnActor<ADecalActor>(ADecalActor::StaticClass(), Location, Rotator, Parameters))
-			{
-				if (let Decal = Actor->GetDecal(); IsValid(Decal))
-				{
-					Decal->SetDecalMaterial(Material);
-					Decal->SetLifeSpan(LifeSpan);
-					Decal->SetFadeScreenSize(FadeScreenSize);
-					Decal->DecalSize = DecalSize;
-					return Actor;
-				}
-			}
-
-			return nullptr;
-		}
-
-		OPERATOR_BODY(SpawnDecal)
-	};
-
 
 	template <typename BlockType>
 	struct AsyncAfter
