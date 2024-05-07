@@ -3,18 +3,30 @@
 
 #include "Cloud9SoundPlayer.h"
 
+#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Extensions/USoundBase.h"
 
 bool UCloud9SoundPlayer::PlaySingleSound(USoundBase* Sound, FVector Location, float Volume)
 {
-	if (not IsValid(Sound))
+	CheckIsValid(Sound, Error, "Invalid Sound", false);
+
+	USoundAttenuation* AttenuationSettings = nullptr;
+
+	if (let GameWorld = UCloud9ToolsLibrary::GetGameWorld(); IsValid(GameWorld))
 	{
-		log(Error, "Invalid sound");
-		return false;
+		if (let GameInstance = GameWorld->GetGameInstance<UCloud9GameInstance>(); IsValid(GameInstance))
+		{
+			AttenuationSettings = GameInstance->GetAttenuationSettings();
+		}
 	}
 
-	Sound | EUSoundBase::PlaySoundAtLocation{Location, Volume};
+	Sound | EUSoundBase::PlaySoundAtLocation{
+		.Location = Location,
+		.VolumeMultiplier = Volume,
+		.AttenuationSettings = AttenuationSettings
+	};
+
 	return true;
 }
 

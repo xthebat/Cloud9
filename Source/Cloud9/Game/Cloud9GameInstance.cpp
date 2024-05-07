@@ -74,3 +74,8 @@ bool UCloud9GameInstance::HasCharacterInfo(const ACloud9Character* Character) co
 	let PlayerId = Character | GetPlayerId{};
 	return SavedInfo.IsPlayerStored and IsPlayerIdValid(PlayerId);
 }
+
+USoundAttenuation* UCloud9GameInstance::GetAttenuationSettings() const
+{
+	return AttenuationSettings;
+}
