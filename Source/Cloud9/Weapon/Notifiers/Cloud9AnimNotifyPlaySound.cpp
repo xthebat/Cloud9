@@ -99,8 +99,6 @@ bool UCloud9AnimNotifyPlaySound::PlayFirearmSound(USkeletalMeshComponent* MeshCo
 
 bool UCloud9AnimNotifyPlaySound::PlayGrenadeSound(USkeletalMeshComponent* MeshComp, float Volume) const
 {
-	// TODO: Implement PlayGrenadeSound
-
 	let SelectedWeapon = GetSelectedWeapon<ACloud9WeaponGrenade>(MeshComp);
 	if (not IsValid(SelectedWeapon) or not SelectedWeapon->IsWeaponDefined())
 	{

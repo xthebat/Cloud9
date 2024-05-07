@@ -584,10 +584,10 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 
 				if (let HitSound = PhysicalMaterial->GetRandomFirearmHitSound(); IsValid(HitSound))
 				{
-					HitSound | EUSoundBase::PlaySoundAtLocation{
-						.Location = LineHit.Location,
-						.VolumeMultiplier = Settings->Volume * PhysicalMaterial->GetFirearmHitSoundVolume()
-					};
+					UCloud9SoundPlayer::PlaySingleSound(
+						HitSound,
+						LineHit.Location,
+						Settings->Volume * PhysicalMaterial->GetFirearmHitSoundVolume());
 				}
 
 				if (let BackgroundDecal = PhysicalMaterial->GetRandomBackgroundDecal(); IsValid(BackgroundDecal))

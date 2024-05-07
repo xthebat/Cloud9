@@ -34,6 +34,8 @@ namespace EUSoundBase
 		float PitchMultiplier = 1.f;
 		float StartTime = 0.f;
 		const UObject* World = nullptr;
+		USoundAttenuation* AttenuationSettings = nullptr;
+		USoundConcurrency* ConcurrencySettings = nullptr;
 
 		FORCEINLINE void operator()(USoundBase* Self) const
 		{
@@ -44,7 +46,9 @@ namespace EUSoundBase
 				Location,
 				VolumeMultiplier,
 				PitchMultiplier,
-				StartTime);
+				StartTime,
+				AttenuationSettings,
+				ConcurrencySettings);
 		}
 
 		OPERATOR_BODY(PlaySoundAtLocation)

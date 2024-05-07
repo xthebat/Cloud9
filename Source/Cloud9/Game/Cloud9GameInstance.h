@@ -45,7 +45,12 @@ public:
 
 	bool HasCharacterInfo(const ACloud9Character* Character) const;
 
+	USoundAttenuation* GetAttenuationSettings() const;
+
 protected:
 	UPROPERTY()
 	FSavedInfo SavedInfo;
+
+	UPROPERTY(EditDefaultsOnly, Category=Sounds)
+	USoundAttenuation* AttenuationSettings;
 };

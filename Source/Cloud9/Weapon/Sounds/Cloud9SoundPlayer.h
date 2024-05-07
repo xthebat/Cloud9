@@ -6,9 +6,6 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Cloud9SoundPlayer.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class CLOUD9_API UCloud9SoundPlayer : public UBlueprintFunctionLibrary
 {
