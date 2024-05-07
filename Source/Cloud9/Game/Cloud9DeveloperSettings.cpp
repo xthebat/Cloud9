@@ -47,6 +47,8 @@ FString UCloud9DeveloperSettings::WeaponRecoilDecayCoefficientName = "r.WeaponRe
 FString UCloud9DeveloperSettings::DrawShotDirectionAxisName = "r.DrawShotDirectionAxis";
 FString UCloud9DeveloperSettings::WeaponDebugDamageInfoName = "r.WeaponDebugDamageInfo";
 FString UCloud9DeveloperSettings::TaggingScaleName = "r.TaggingScale";
+FString UCloud9DeveloperSettings::DecalLifeSpanName = "r.DecalLifeSpan";
+FString UCloud9DeveloperSettings::DecalFadeScreenSizeName = "r.DecalFadeScreenSizeName";
 FString UCloud9DeveloperSettings::VolumeName = "r.Volume";
 
 // ReSharper disable once CppPossiblyUninitializedMember
@@ -75,6 +77,8 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	WeaponDebugDamageInfo = 0;
 	DrawShotDirectionAxis = 0;
 	TaggingScale = 1.0f;
+	DecalLifeSpan = 20.0f;
+	DecalFadeScreenSize = 0.0f;
 }
 
 UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
@@ -250,6 +254,18 @@ void UCloud9DeveloperSettings::InitializeCVars()
 			TaggingScale,
 			*TaggingScaleName,
 			TEXT("Scalar for player tagging modifier when hit. Lower values for greater tagging")
+		);
+
+		RegisterConsoleVariable(
+			DecalLifeSpan,
+			*DecalLifeSpanName,
+			TEXT("Life span of the decals")
+		);
+
+		RegisterConsoleVariable(
+			DecalFadeScreenSize,
+			*DecalFadeScreenSizeName,
+			TEXT("Decal size to fade off screen")
 		);
 
 		log(Display, "%s", this | EUObject::Stringify{} | EFString::ToCStr{});

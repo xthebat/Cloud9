@@ -26,20 +26,6 @@ bool IsVertical(FVector Normal)
 	return FMath::IsNearlyEqual(Normal.Z, 1.0f, 0.1f);
 }
 
-FRotator GetNormalSurfaceRotation(FVector Normal, float Roll)
-{
-	constexpr let DecalVPitch = 90.0f;
-	constexpr let DecalVRoll = -180.0f;
-	constexpr let DecalHYaw = 90.0f;
-	constexpr let DecalHRoll = -90.0;
-
-	let Corrective = IsVertical(Normal)
-		                 ? FRotator{DecalVPitch, Roll, DecalVRoll}
-		                 : FRotator{Roll, DecalHYaw, DecalHRoll};
-
-	return Normal.Rotation() + Corrective;
-}
-
 UMaterialInterface* UCloud9PhysicalMaterial::GetRandomFirearmDecal() const { return GetRandomItem(FirearmDecals); }
 
 FVector UCloud9PhysicalMaterial::GetFirearmDecalSize() const { return FirearmDecalSize; }
@@ -47,7 +33,7 @@ FVector UCloud9PhysicalMaterial::GetFirearmDecalSize() const { return FirearmDec
 FRotator UCloud9PhysicalMaterial::GetFirearmDecalRotation(FVector Normal) const
 {
 	let RandomRotation = FMath::RandRange(FirearmDecalRotationMin, FirearmDecalRotationMax);
-	return GetNormalSurfaceRotation(Normal, RandomRotation);
+	return Normal.Rotation() + FRotator{0.0f, 0.0f, RandomRotation};
 }
 
 USoundBase* UCloud9PhysicalMaterial::GetRandomFirearmHitSound() const { return GetRandomItem(FirearmHitSounds); }
@@ -76,7 +62,7 @@ FVector UCloud9PhysicalMaterial::GetBackgroundDecalLocation(FVector Location, FV
 FRotator UCloud9PhysicalMaterial::GetBackgroundDecalRotation(FVector Normal) const
 {
 	let RandomRotation = FMath::RandRange(FirearmBackgroundDecalRotationMin, FirearmBackgroundDecalRotationMax);
-	return GetNormalSurfaceRotation(Normal, RandomRotation);
+	return Normal.Rotation() + FRotator{0.0f, 0.0f, RandomRotation};
 }
 
 

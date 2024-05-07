@@ -27,6 +27,7 @@
 #include "Engine/StaticMeshActor.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "Components/DecalComponent.h"
 
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
@@ -567,14 +568,18 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 
 				if (let HitDecal = PhysicalMaterial->GetRandomFirearmDecal(); IsValid(HitDecal))
 				{
-					GetWorld() | EUWorld::SpawnDecal{
-						.Material = HitDecal,
-						.DecalSize = PhysicalMaterial->GetFirearmDecalSize(),
-						.Location = LineHit.Location,
-						.Rotator = PhysicalMaterial->GetFirearmDecalRotation(LineHit.Normal),
-						.Owner = DamagedActor,
-						.Instigator = Character
-					};
+					var Decal = UGameplayStatics::SpawnDecalAttached(
+						HitDecal,
+						PhysicalMaterial->GetFirearmDecalSize(),
+						LineHit.GetComponent(),
+						NAME_None,
+						LineHit.Location,
+						PhysicalMaterial->GetFirearmDecalRotation(LineHit.ImpactNormal),
+						EAttachLocation::KeepWorldPosition,
+						Settings->DecalLifeSpan
+					);
+
+					Decal->SetFadeScreenSize(Settings->DecalFadeScreenSize);
 				}
 
 				if (let HitSound = PhysicalMaterial->GetRandomFirearmHitSound(); IsValid(HitSound))
@@ -608,15 +613,19 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 
 						if (IsBackgroundHit)
 						{
-							GetWorld() | EUWorld::SpawnDecal{
-								.Material = BackgroundDecal,
-								.DecalSize = PhysicalMaterial->GetBackgroundDecalSize(),
-								.Location = PhysicalMaterial->GetBackgroundDecalLocation(
+							var Decal = UGameplayStatics::SpawnDecalAttached(
+								BackgroundDecal,
+								PhysicalMaterial->GetBackgroundDecalSize(),
+								BackgroundHit.GetComponent(),
+								NAME_None,
+								PhysicalMaterial->GetBackgroundDecalLocation(
 									BackgroundHit.Location, BackgroundHit.Normal),
-								.Rotator = PhysicalMaterial->GetBackgroundDecalRotation(BackgroundHit.Normal),
-								.Owner = LineHit.Actor.Get(),
-								.Instigator = Character
-							};
+								PhysicalMaterial->GetBackgroundDecalRotation(BackgroundHit.ImpactNormal),
+								EAttachLocation::KeepWorldPosition,
+								Settings->DecalLifeSpan
+							);
+
+							Decal->SetFadeScreenSize(Settings->DecalFadeScreenSize);
 						}
 					}
 				}
