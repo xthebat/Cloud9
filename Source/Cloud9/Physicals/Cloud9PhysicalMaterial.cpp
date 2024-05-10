@@ -1,10 +1,12 @@
-﻿// Copyright (c) 2024 Alexei Gladkikh
+// Copyright (c) 2024 Alexei Gladkikh
 
 #include "Cloud9PhysicalMaterial.h"
 
 UCloud9PhysicalMaterial::UCloud9PhysicalMaterial()
 {
 	FirearmDecalSize = {8.0f, 8.0, 8.0f};
+	FirearmDecalScaleMin = 1.0f;
+	FirearmDecalScaleMax = 1.0f;
 	FirearmDecalRotationMin = 0.0f;
 	FirearmDecalRotationMax = 180.0f;
 
@@ -28,7 +30,11 @@ bool IsVertical(FVector Normal)
 
 UMaterialInterface* UCloud9PhysicalMaterial::GetRandomFirearmDecal() const { return GetRandomItem(FirearmDecals); }
 
-FVector UCloud9PhysicalMaterial::GetFirearmDecalSize() const { return FirearmDecalSize; }
+FVector UCloud9PhysicalMaterial::GetFirearmDecalSize() const
+{
+	let RandomScale = FMath::RandRange(FirearmDecalScaleMin, FirearmDecalScaleMax);
+	return FirearmDecalSize * RandomScale;
+}
 
 FRotator UCloud9PhysicalMaterial::GetFirearmDecalRotation(FVector Normal) const
 {
