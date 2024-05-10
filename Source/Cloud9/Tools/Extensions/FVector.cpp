@@ -41,7 +41,7 @@ namespace EFVector
 		// Distance to reach
 		let Dist = Target - Current;
 
-		// If distance is too small, just set the desired location
+		// If the distance is too small, just set the desired location
 		if (Dist.SizeSquared() < KINDA_SMALL_NUMBER)
 		{
 			return Target;

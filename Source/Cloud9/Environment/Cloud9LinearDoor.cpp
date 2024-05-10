@@ -97,7 +97,7 @@ void ACloud9LinearDoor::BeginPlay()
 
 	let ActualDistance = Distance - Extent;
 
-	log(Display, "Door '%s' distance = '%f'", *GetName(), ActualDistance);
+	log(Verbose, "Door '%s' distance = '%f'", *GetName(), ActualDistance);
 
 	let Sign = bIsOpen ? -1 : 1;
 	OriginPosition = Transform.GetLocation();

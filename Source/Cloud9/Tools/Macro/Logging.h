@@ -33,18 +33,14 @@
 		) \
 	)
 
-// UE LOG
-
 #define log(Severity, FormatString, ...) \
-	UE_LOG(\
-		LogCloud9, \
-		Severity, \
-		TEXT("%s: %s"), \
-		*TRACE_STR_CUR_CLASS_FUNC_LINE, \
-		*FString::Printf(TEXT(FormatString), ##__VA_ARGS__ ) \
-	)
-
-#define assert(Condition) check(Condition)
-
-#define assertf(Condition, FormatString, ...) \
-	checkf(Condition, TEXT(FormatString), ##__VA_ARGS__)
+	do { \
+		UE_LOG(\
+			LogCloud9, \
+			Severity, \
+			TEXT("%s: %s"), \
+			*TRACE_STR_CUR_CLASS_FUNC_LINE, \
+			*FString::Printf(TEXT(FormatString), ##__VA_ARGS__) \
+		) \
+	} \
+	while (false)

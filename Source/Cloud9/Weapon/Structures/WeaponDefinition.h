@@ -109,7 +109,7 @@ struct FWeaponDefinition
 			}
 		}
 
-		log(Error, "WeaponInfo class wasn't set")
+		log(Error, "WeaponInfo class wasn't set");
 		return nullptr;
 	}
 

@@ -46,7 +46,7 @@ void ACloud9AIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFol
 void ACloud9AIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-	CheckIsValid(InPawn, Error, "Pawn is invalid")
+	AssertOrVoid(InPawn, Error, "Pawn is invalid");
 	BaseLocation = InPawn->GetActorLocation();
 }
 

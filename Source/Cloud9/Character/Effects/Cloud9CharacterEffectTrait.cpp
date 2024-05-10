@@ -15,7 +15,7 @@ void UCloud9CharacterEffectTrait::OnApply_Implementation()
 {
 	let Character = GetCharacter();
 	let MeshComponent = Cast<UCloud9SkeletalMeshComponent>(Character->GetMesh());
-	CheckIsValid(MeshComponent, Error, "SkeletalMeshComponent is invalid");
+	AssertOrVoid(MeshComponent, Error, "SkeletalMeshComponent is invalid");
 	MeshComponent->OnSkeletalMeshChanged.AddDynamic(this, &UCloud9CharacterEffectTrait::OnSkeletalMeshChanged);
 }
 
@@ -23,7 +23,7 @@ void UCloud9CharacterEffectTrait::OnRemove_Implementation()
 {
 	let Character = GetCharacter();
 	let MeshComponent = Cast<UCloud9SkeletalMeshComponent>(Character->GetMesh());
-	CheckIsValid(MeshComponent, Error, "SkeletalMeshComponent is invalid");
+	AssertOrVoid(MeshComponent, Error, "SkeletalMeshComponent is invalid");
 	MeshComponent->OnSkeletalMeshChanged.RemoveDynamic(this, &UCloud9CharacterEffectTrait::OnSkeletalMeshChanged);
 }
 
@@ -42,13 +42,13 @@ void UCloud9CharacterEffectTrait::OnSkeletalMeshChanged_Implementation(bool bRei
 ACloud9Character* UCloud9CharacterEffectTrait::GetCharacter() const
 {
 	let MyOuter = GetOuter();
-	CheckIsValid(MyOuter, Fatal, "Effect outer parent object wasn't specified", nullptr);
+	AssertOrReturn(MyOuter, nullptr, Fatal, "Effect outer parent object wasn't specified");
 
 	let Container = Cast<UCloud9EffectsComponent>(MyOuter);
-	CheckIsValid(Container, Fatal, "Outer parent object is invalid", nullptr);
+	AssertOrReturn(Container, nullptr, Fatal, "Outer parent object is invalid");
 
 	let Character = Container->GetOwner<ACloud9Character>();
-	CheckIsValid(Character, Fatal, "Owner is invalid", nullptr);
+	AssertOrReturn(Character, nullptr, Fatal, "Owner is invalid");
 
 	return Character;
 }

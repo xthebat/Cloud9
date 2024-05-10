@@ -66,7 +66,7 @@ TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
 
 	if (not IsValid(Character))
 	{
-		log(Error, "Character is invalid")
+		log(Error, "Character is invalid");
 		return EFirearmFireStatus::Error;
 	}
 
@@ -74,7 +74,7 @@ TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
 
 	if (not IsValid(Controller))
 	{
-		log(Error, "Can't hit object because player controller isn't valid")
+		log(Error, "Can't hit object because player controller isn't valid");
 		return EFirearmFireStatus::Error;
 	}
 
@@ -94,7 +94,7 @@ TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
 
 		if (not CursorHit)
 		{
-			log(Error, "Cursor wasn't hit anything")
+			log(Error, "Cursor wasn't hit anything");
 			return EFirearmFireStatus::NoCursorHit;
 		}
 
@@ -110,7 +110,7 @@ TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
 
 		if (not CursorHit)
 		{
-			log(Error, "Cursor wasn't anything")
+			log(Error, "Cursor wasn't anything");
 			return EFirearmFireStatus::NoCursorHit;
 		}
 
@@ -440,7 +440,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 
 	if (not IsValid(Character))
 	{
-		log(Error, "Character is invalid")
+		log(Error, "Character is invalid");
 		return EFirearmFireStatus::Error;
 	}
 
@@ -517,10 +517,9 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 		}
 
 		let DamagedActor = Cast<AActor>(LineHit.Actor);
-		CheckIsValid(
-			DamagedActor,
-			Warning, "Line trace got hit but target actor is invalid",
-			EFirearmFireStatus::Success);
+		AssertOrReturn(
+			DamagedActor, EFirearmFireStatus::Success,
+			Warning, "Line trace got hit but target actor is invalid");
 
 		let Damage = UGameplayStatics::ApplyPointDamage(
 			DamagedActor,
@@ -546,7 +545,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 					Damage * FirearmCommonData.ImpulseMultiplier,
 					FirearmCommonData.MinAppliedImpulse,
 					FirearmCommonData.MaxAppliedImpulse);
-				log(Verbose, "[Weapon='%s'] Damage=%f Impulse=%f", *GetName(), Damage, Impulse);
+				log(Verbose, "[%s] Damage=%f Impulse=%f", *GetName(), Damage, Impulse);
 				Target->AddImpulseAtLocation(Direction * Impulse, LineHit.Location, LineHit.BoneName);
 			}
 
@@ -847,9 +846,10 @@ TArray<FVector> ACloud9WeaponFirearm::RecalculateByShotInaccuracy(
 	let OffsetX0 = Radius0 * FMath::Cos(Theta0);
 	let OffsetY0 = Radius0 * FMath::Sin(Theta0);
 
-	assert(
+	AssertOrCrash(
 		WeaponInfo->BulletsPerShot >= 1 and
-		WeaponInfo->BulletsPerShot <= MaxBullets
+		WeaponInfo->BulletsPerShot <= MaxBullets,
+		"Invalid bullets per shot"
 	);
 
 	FVector Forward, Right, Up;

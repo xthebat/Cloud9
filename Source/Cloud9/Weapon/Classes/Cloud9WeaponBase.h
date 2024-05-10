@@ -237,21 +237,21 @@ protected:
 #define WEAPON_IS_DEFINED_GUARD() \
 	if (not IsWeaponDefined()) \
 	{ \
-		log(Error, "[Weapon='%s'] Not defined", *GetName()); \
+		log(Error, "[%s] Not defined", *GetName()); \
 		return; \
 	}
 
 #define WEAPON_ANIM_COMPONENT_GUARD() \
 	if (not IsValid(AnimComponent)) \
 	{ \
-		log(Warning, "[Weapon='%s'] AnimComponent isn't valid", *GetName()); \
+		log(Warning, "[%s] AnimComponent isn't valid", *GetName()); \
 		return; \
 	}
 
 #define WEAPON_IS_ACTION_IN_PROGRESS_GUARD() \
 	if (IsActionInProgress()) \
 	{ \
-		log(Verbose, "[Weapon='%s'] Action already in progress during Tick", *GetName()); \
+		log(Verbose, "[%s] Action already in progress during Tick", *GetName()); \
 		return; \
 	}
 

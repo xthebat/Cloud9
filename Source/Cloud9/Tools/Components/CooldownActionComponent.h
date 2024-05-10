@@ -46,7 +46,6 @@ public:
 		bIsExecuting = false;
 	}
 
-public:
 	/**
 	 * Function executes new action with specified function if cooldown
 	 * finished; also setups timer to wait new cooldown and returns true. 
@@ -62,7 +61,7 @@ public:
 		{
 			if (not OnExecute())
 			{
-				log(Error, "[Action='%s'] Failed to execute function", *GetName());
+				log(Error, "[%s] Failed to execute function", *GetName());
 				OnComplete();
 				return false;
 			}
@@ -87,11 +86,7 @@ public:
 	{
 		if (not bIsExecuting)
 		{
-			if (not OnExecute())
-			{
-				log(Error, "[Action='%s'] Failed to execute function", *GetName());
-				return false;
-			}
+			AssertOrReturn(OnExecute(), false, Error, "Failed to execute action function");
 			bIsExecuting = true;
 			TimerHandle = GetWorld() | EUWorld::AsyncAfter{[this] { bIsExecuting = false; }, CooldownTime};
 		}
@@ -103,7 +98,7 @@ public:
 
 protected:
 	/**
-	 * Whether or not action currently in process
+	 * Whether action currently in process
 	 */
 	UPROPERTY(Category=Implementation, BlueprintReadOnly)
 	bool bIsExecuting;

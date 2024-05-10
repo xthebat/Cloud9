@@ -9,7 +9,7 @@
 
 bool UCloud9SoundPlayer::PlaySingleSound(USoundBase* Sound, FVector Location, float Volume)
 {
-	CheckIsValid(Sound, Error, "Invalid Sound", false);
+	StaticAssertOrReturn(Sound, false, Error, "Invalid Sound");
 
 	USoundAttenuation* AttenuationSettings = nullptr;
 

@@ -54,34 +54,22 @@ const FName ACloud9WeaponBase::CaseEjectSocketName = TEXT("CaseEjectSocket");
 
 ACloud9WeaponBase::ACloud9WeaponBase()
 {
-	// Required for weapon with automatic fire
+	// Required for a weapon with automatic fire
 	PrimaryActorTick.bCanEverTick = true;
 
 	WeaponSkin = NAME_None;
 
-	if (WeaponMesh = CreateMeshComponent(WeaponMeshComponentName); not IsValid(WeaponMesh))
-	{
-		log(Error, "Failed to create WeaponMeshComponent");
-		return;
-	}
+	WeaponMesh = CreateMeshComponent(WeaponMeshComponentName);
+	AssertOrVoid(IsValid(WeaponMesh), Error, "Failed to create WeaponMeshComponent");
 
-	if (MagazineMesh = CreateMeshComponent(MagazineMeshComponentName, MagazineSocketName); not IsValid(MagazineMesh))
-	{
-		log(Error, "Failed to create MagazineMeshComponent");
-		return;
-	}
+	MagazineMesh = CreateMeshComponent(MagazineMeshComponentName, MagazineSocketName);
+	AssertOrVoid(IsValid(WeaponMesh), Error, "Failed to create MagazineMeshComponent");
 
-	if (MuzzleFlash = CreateEffectComponent(MuzzleFlashComponentName, MuzzleFlashSocketName); not IsValid(MuzzleFlash))
-	{
-		log(Error, "Failed to create MuzzleFlashComponent");
-		return;
-	}
+	MuzzleFlash = CreateEffectComponent(MuzzleFlashComponentName, MuzzleFlashSocketName);
+	AssertOrVoid(IsValid(WeaponMesh), Error, "Failed to create MuzzleFlashComponent");
 
-	if (SilencerMesh = CreateMeshComponent(SilencerMeshComponentName, SilencerSocketName); not IsValid(SilencerMesh))
-	{
-		log(Error, "Failed to create SilencerMeshComponent");
-		return;
-	}
+	SilencerMesh = CreateMeshComponent(SilencerMeshComponentName, SilencerSocketName);
+	AssertOrVoid(IsValid(WeaponMesh), Error, "Failed to create SilencerMeshComponent");
 
 	let Actions = StaticEnum<EWeaponAction>();
 
@@ -109,13 +97,9 @@ UWeaponDefinitionsAsset* ACloud9WeaponBase::GetWeaponDefinitionsAsset()
 
 	let Asset = UCloud9AssetManager::GetOrLoadAssetSync<UWeaponDefinitionsAsset>();
 
-	if (not IsValid(Asset))
-	{
-		// Try reload later then ... this will haven in PIE
-		// if some object required this asset placed on level
-		log(Error, "WeaponDefinitionsAsset loading failure");
-		return nullptr;
-	}
+	// Try reload later then ... this will haven in PIE
+	// if some object required this asset placed on level
+	StaticAssertOrReturn(IsValid(Asset), nullptr, Error, "WeaponDefinitionsAsset loading failure");
 
 	WeaponDefinitionsAsset = Asset;
 
@@ -125,67 +109,49 @@ UWeaponDefinitionsAsset* ACloud9WeaponBase::GetWeaponDefinitionsAsset()
 UCooldownActionComponent* ACloud9WeaponBase::CreateCooldownAction(FName ComponentName)
 {
 	let Component = CreateDefaultSubobject<UCooldownActionComponent>(ComponentName);
-
-	if (not IsValid(Component))
-	{
-		log(Error, "Can't cooldown action '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
-		return nullptr;
-	}
-
+	AssertOrReturn(IsValid(Component), nullptr, Error, "Can't create cooldown action '%s'", *ComponentName.ToString());
 	return Component;
 }
 
 UStaticMeshComponent* ACloud9WeaponBase::CreateMeshComponent(FName ComponentName, FName SocketName)
 {
-	if (let Component = CreateDefaultSubobject<UStaticMeshComponent>(ComponentName); IsValid(Component))
+	let Component = CreateDefaultSubobject<UStaticMeshComponent>(ComponentName);
+	AssertOrReturn(IsValid(Component), nullptr, Error, "Can't create mesh '%s'", *ComponentName.ToString());
+
+	Component->bOwnerNoSee = false;
+	Component->AlwaysLoadOnClient = true;
+	Component->AlwaysLoadOnServer = true;
+	Component->bCastDynamicShadow = true;
+	Component->bAffectDynamicIndirectLighting = true;
+	Component->PrimaryComponentTick.TickGroup = TG_PrePhysics;
+	Component->SetCollisionProfileName(WeaponMeshCollisionProfile);
+
+	if (not SocketName.IsNone())
 	{
-		Component->bOwnerNoSee = false;
-		Component->AlwaysLoadOnClient = true;
-		Component->AlwaysLoadOnServer = true;
-		Component->bCastDynamicShadow = true;
-		Component->bAffectDynamicIndirectLighting = true;
-		Component->PrimaryComponentTick.TickGroup = TG_PrePhysics;
-		Component->SetCollisionProfileName(WeaponMeshCollisionProfile);
-
-		if (not SocketName.IsNone())
-		{
-			Component->SetupAttachment(RootComponent, SocketName);
-		}
-		else
-		{
-			RootComponent = Component;
-		}
-
-		return Component;
+		Component->SetupAttachment(RootComponent, SocketName);
+	}
+	else
+	{
+		RootComponent = Component;
 	}
 
-	log(Error, "Can't create mesh '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
-	return nullptr;
+	return Component;
 }
 
 URadialForceComponent* ACloud9WeaponBase::CreateDetonateComponent(FName ComponentName)
 {
-	if (let Component = CreateDefaultSubobject<URadialForceComponent>(ComponentName); IsValid(Component))
-	{
-		Component->SetupAttachment(RootComponent);
-		return Component;
-	}
-
-	log(Error, "Can't create VFX '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
-	return nullptr;
+	let Component = CreateDefaultSubobject<URadialForceComponent>(ComponentName);
+	AssertOrReturn(IsValid(Component), nullptr, Error, "Can't create VFX '%s'", *ComponentName.ToString());
+	Component->SetupAttachment(RootComponent);
+	return Component;
 }
-
 
 UNiagaraComponent* ACloud9WeaponBase::CreateEffectComponent(FName ComponentName, FName SocketName)
 {
-	if (let Component = CreateDefaultSubobject<UNiagaraComponent>(ComponentName); IsValid(Component))
-	{
-		Component->SetupAttachment(RootComponent, SocketName);
-		return Component;
-	}
-
-	log(Error, "Can't create VFX '%s' for actor '%s'", *ComponentName.ToString(), *GetName());
-	return nullptr;
+	let Component = CreateDefaultSubobject<UNiagaraComponent>(ComponentName);
+	AssertOrReturn(IsValid(Component), nullptr, Error, "Can't create VFX '%s'", *ComponentName.ToString());
+	Component->SetupAttachment(RootComponent, SocketName);
+	return Component;
 }
 
 void ACloud9WeaponBase::InitializeName(const FWeaponId& NewWeaponId)
@@ -209,11 +175,7 @@ bool ACloud9WeaponBase::InitializeMeshComponent(
 	UStaticMesh* Mesh,
 	UMaterialInstance* Material) const
 {
-	if (Mesh == nullptr)
-	{
-		log(Error, "[Weapon='%s'] Mesh is invalid", *GetName());
-		return false;
-	}
+	AssertOrReturn(Mesh, false, Error, "Mesh is invalid");
 
 	Component->SetStaticMesh(Mesh);
 
@@ -230,11 +192,7 @@ bool ACloud9WeaponBase::InitializeEffectComponent(
 	UNiagaraSystem* Effect,
 	float Scale) const
 {
-	if (Effect == nullptr)
-	{
-		log(Error, "[Weapon='%s'] Effect is invalid", *GetName());
-		return false;
-	}
+	AssertOrReturn(Effect, false, Error, "Effect is invalid");
 
 	Component->SetAsset(Effect);
 	Component->SetFloatParameter(ExplosionEffectScaleName, Scale);
@@ -249,36 +207,19 @@ bool ACloud9WeaponBase::InitializeEffectComponent(
 bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond NewBond, bool Instant)
 {
 	let Character = GetOwner<ACloud9Character>();
-
-	if (not IsValid(Character))
-	{
-		log(Error, "[Weapon='%s' Slot='%s'] Weapon owner is invalid", *GetName(), SLOT_NAME);
-		return false;
-	}
+	AssertOrReturn(IsValid(Character), false, Error, "Weapon owner is invalid for slot '%s'", SLOT_NAME);
 
 	let CharacterMesh = Character->GetMesh();
-
-	if (not IsValid(CharacterMesh))
-	{
-		log(Error, "[Weapon='%s' Slot='%s'] Character mesh is invalid", *GetName(), SLOT_NAME);
-		return false;
-	}
+	AssertOrReturn(IsValid(CharacterMesh), false, Error, "Character mesh is invalid for slot '%s'", SLOT_NAME);
 
 	let SocketName = NewBond == EWeaponBond::Armed
 		                 ? UWeaponSlot::EquippedSocket()
 		                 : UWeaponSlot::HolsteredSocket(NewSlot);
 
-	if (SocketName.IsNone())
-	{
-		log(Error, "[Weapon='%s' Slot='%s'] Can't get socket name", *GetName(), SLOT_NAME);
-		return false;
-	}
-
-	if (not CharacterMesh->GetSocketByName(SocketName))
-	{
-		log(Error, "[Weapon='%s' Slot='%s'] Socket not found in character mesh", *GetName(), SLOT_NAME);
-		return false;
-	}
+	AssertOrReturn(not SocketName.IsNone(), false, Error, "Can't get socket name for slot '%s'", SLOT_NAME);
+	AssertOrReturn(
+		CharacterMesh->GetSocketByName(SocketName), false,
+		Error, "Socket not found in character mesh for '%s'", SLOT_NAME);
 
 	log(Verbose,
 	    "[Weapon='%s' Slot='%s'] Update attachment to character '%s' into socket '%s'",
@@ -306,45 +247,21 @@ USceneComponent* ACloud9WeaponBase::GetShootLocationActor() const
 
 bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot NewSlot)
 {
-	if (let MyOwner = GetOwner<ACloud9Character>())
-	{
-		log(
-			Warning,
-			"[Weapon='%s' Slot='%s'] Weapon already in inventory of '%s'",
-			*GetName(), SLOT_NAME, *MyOwner->GetName());
-		return false;
-	}
-
-	if (not IsValid(Character))
-	{
-		log(Error, "[Weapon='%s' Slot='%s'] Invalid character", *GetName(), SLOT_NAME);
-		return false;
-	}
-
-	if (NewSlot == EWeaponSlot::NotSelected)
-	{
-		log(Error, "[Weapon='%s' Slot='%s'] Invalid slot", *GetName(), SLOT_NAME);
-		return false;
-	}
+	AssertOrReturn(
+		not GetOwner<ACloud9Character>(), false,
+		Error, "Weapon already in inventory of '%s'", *GetOwner()->GetName());
+	AssertOrReturn(IsValid(Character), false, Error, "Invalid character for slot '%s'", SLOT_NAME);
+	AssertOrReturn(NewSlot != EWeaponSlot::NotSelected, false, Error, "Invalid slot");
 
 	let Inventory = Character->GetInventoryComponent();
 
-	if (not IsValid(Inventory))
-	{
-		log(Error, "[Weapon='%s' Slot='%s'] Character inventory is invalid", *GetName(), SLOT_NAME);
-		return false;
-	}
-
-	if (Inventory->GetWeaponAt(NewSlot) != nullptr)
-	{
-		log(Error, "[Weapon='%s' Slot='%s'] Weapon slot already occupied", *GetName(), SLOT_NAME);
-		return false;
-	}
+	AssertOrReturn(IsValid(Inventory), false, Error, "Character inventory is invalid for slot '%s'", SLOT_NAME);
+	AssertOrReturn(not Inventory->GetWeaponAt(NewSlot), false, Error, "Weapon slot '%s' already occupied", SLOT_NAME);
 
 	SetOwner(Character);
 
-	// Set new instigator for this weapon so When weapon thrown owner will be changed
-	// to nothing but we need to know who do it (throw a weapon)
+	// Set new instigator for this weapon, so When a weapon thrown an owner will be changed
+	// to nothing, but we need to know who do it (throw a weapon).
 	// This is important for nades to get handle number of kills for player
 	SetInstigator(Character);
 
@@ -383,25 +300,18 @@ bool ACloud9WeaponBase::RemoveFromInventory()
 bool ACloud9WeaponBase::ChangeState(EWeaponBond NewBond, bool Instant, bool Force)
 {
 	let Character = GetOwner<ACloud9Character>();
+	AssertOrReturn(IsValid(Character), false, Error, "Weapon owner is invalid for bond '%s'", BOND_NAME);
 
-	if (not IsValid(Character))
-	{
-		log(Error, "[Weapon='%s' Bond='%s'] Weapon not in any inventory", *GetName(), BOND_NAME);
-		return false;
-	}
+	let AnimComponent = Character->GetAnimationComponent();
+	AssertOrReturn(IsValid(AnimComponent), false, Error, "Weapon owner animation component is invalid '%s'", BOND_NAME);
 
-	if (let AnimComponent = Character->GetAnimationComponent();
-		not Force and IsValid(AnimComponent) and AnimComponent->IsAnyMontagePlaying())
-	{
-		log(Verbose, "[Weapon='%s' Bond='%s'] Montage is playing now", *GetName(), BOND_NAME);
-		return false;
-	}
+	AssertOrReturn(
+		Force or not AnimComponent->IsAnyMontagePlaying(), false,
+		Verbose, "Montage is playing now");
 
-	if (not Force and IsActionInProgress())
-	{
-		log(Verbose, "[Weapon='%s' Bond='%s'] Some action is in progress", *GetName(), BOND_NAME);
-		return false;
-	}
+	AssertOrReturn(
+		Force or not IsActionInProgress(), false,
+		Verbose, "Some action is in progress for bond '%s'", BOND_NAME);
 
 	return UpdateWeaponAttachment(WeaponState.GetWeaponSlot(), NewBond, Instant);
 }
@@ -456,17 +366,10 @@ bool ACloud9WeaponBase::OnInitialize(const FWeaponConfig& WeaponConfig)
 {
 	let Asset = GetWeaponDefinitionsAsset();
 
-	if (not IsValid(Asset))
-	{
-		log(Error, "[Weapon='%s'] Can't get weapon definitions asset", *GetName());
-		return false;
-	}
-
-	if (not Asset->GetWeaponDefinition(WeaponConfig.GetWeaponId(), WeaponDefinition))
-	{
-		log(Error, "[Weapon='%s'] Not initialized and Tick() will be disabled", *GetName());
-		return false;
-	}
+	AssertOrReturn(IsValid(Asset), false, Error, "Can't get weapon definitions asset");
+	AssertOrReturn(
+		Asset->GetWeaponDefinition(WeaponConfig.GetWeaponId(), WeaponDefinition), false,
+		Error, "Not initialized and Tick() will be disabled");
 
 	return true;
 }
@@ -505,7 +408,7 @@ FName ACloud9WeaponBase::GetWeaponName() const { return GetWeaponId() | EFWeapon
 FWeaponId ACloud9WeaponBase::GetWeaponId() const
 {
 	static let UnknownWeaponId = ETVariant::Convert<FWeaponId>(EBadWeapon::NoClass);
-	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName())
+	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName());
 	return UnknownWeaponId;
 }
 
@@ -513,7 +416,7 @@ FName ACloud9WeaponBase::GetWeaponSkin() const { return WeaponSkin; }
 
 EWeaponType ACloud9WeaponBase::GetWeaponType() const
 {
-	assertf(IsValid(WeaponDefinition), "[Weapon='%ls'] Not initialized", *GetName());
+	AssertOrCrash(IsValid(WeaponDefinition), "[Weapon='%ls'] Not initialized", *GetName());
 	return WeaponDefinition.GetWeaponInfo()->Type;
 }
 

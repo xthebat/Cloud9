@@ -78,7 +78,7 @@ bool FWeaponConfig::Initialize(AActor* Actor) const
 {
 	if (not IsValid(Actor))
 	{
-		log(Error, "Actor is invalid")
+		log(Error, "Actor is invalid");
 		return false;
 	}
 
@@ -148,7 +148,7 @@ FWeaponConfig FWeaponConfig::FromWeapon(const ACloud9WeaponBase* Weapon)
 
 	if (not Config.IsSet())
 	{
-		log(Fatal, "Weapon class is undefined")
+		log(Fatal, "Weapon class is undefined");
 		return {};
 	}
 

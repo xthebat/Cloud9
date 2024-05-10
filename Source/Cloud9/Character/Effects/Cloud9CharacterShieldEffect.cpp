@@ -17,7 +17,7 @@ void UCloud9CharacterShieldEffect::ToggleEffect(bool NewState)
 	IsEnabled = NewState;
 	let Character = GetCharacter();
 	let HealthComponent = Character->GetHealthComponent();
-	CheckIsValid(HealthComponent, Error, "HealthComponent is invalid");
+	AssertOrVoid(HealthComponent, Error, "HealthComponent is invalid");
 	HealthComponent->IsInvulnerable(NewState);
 	ToggleVisual(NewState);
 }
@@ -26,7 +26,7 @@ void UCloud9CharacterShieldEffect::ToggleVisual(bool NewState)
 {
 	let Character = GetCharacter();
 	let MeshComponent = Character->GetMesh();
-	CheckIsValid(MeshComponent, Error, "MeshComponent is invalid");
+	AssertOrVoid(MeshComponent, Error, "MeshComponent is invalid");
 	MeshComponent->GetMaterials()
 		| ETContainer::Transform{[](let It) { return Cast<UMaterialInstanceDynamic>(It); }}
 		| ETContainer::Filter{[](let It) { return IsValid(It); }}

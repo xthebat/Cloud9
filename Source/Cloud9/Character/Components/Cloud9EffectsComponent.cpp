@@ -42,7 +42,7 @@ UCloud9CharacterEffectTrait* UCloud9EffectsComponent::AddEffect(
 				AppliedCanDamagedEffects.Add(Effect);
 			}
 
-			log(Verbose, "[Component='%s'] Apply effect class='%s' effect='%s' (%p) on owner='%s'",
+			log(Verbose, "[%s] Apply effect class='%s' effect='%s' (%p) on owner='%s'",
 			    *GetName(), *EffectClass->GetName(), *Effect->GetName(), Effect, *GetOwnerName());
 
 			return Effect;
@@ -54,11 +54,7 @@ UCloud9CharacterEffectTrait* UCloud9EffectsComponent::AddEffect(
 
 bool UCloud9EffectsComponent::RemoveEffect(UCloud9CharacterEffectTrait* Effect)
 {
-	if (AppliedEffects.Remove(Effect) == 0)
-	{
-		log(Warning, "[Component='%s'] Effect '%s' not found", *GetName(), *Effect->GetName());
-		return false;
-	}
+	AssertOrReturn(AppliedEffects.Remove(Effect) != 0, false, Warning, "Effect '%s' not found", *Effect->GetName());
 
 	AppliedCanDamagedEffects.Remove(Effect);
 	AppliedCanTickEffects.Remove(Effect);
@@ -67,7 +63,7 @@ bool UCloud9EffectsComponent::RemoveEffect(UCloud9CharacterEffectTrait* Effect)
 
 	Effect->OnRemove();
 
-	log(Verbose, "[Component='%s'] Remove effect='%s' (%p) on owner='%s'",
+	log(Verbose, "[%s] Remove effect='%s' (%p) on owner='%s'",
 	    *GetName(), *Effect->GetName(), Effect, *GetOwnerName());
 	return true;
 }
@@ -82,10 +78,10 @@ void UCloud9EffectsComponent::RemoveAllEffects()
 UCloud9HealthComponent* UCloud9EffectsComponent::GetHealthComponent() const
 {
 	let Character = GetOwner<ACloud9Character>();
-	CheckIsValid(Character, Error, "Owner is invalid", nullptr);
+	AssertOrReturn(IsValid(Character), nullptr, Error, "Owner is invalid");
 
 	let HealthComponent = Character->GetHealthComponent();
-	CheckIsValid(HealthComponent, Error, "Owner HealthComponent is invalid", nullptr);
+	AssertOrReturn(HealthComponent, nullptr, Error, "Owner HealthComponent is invalid");
 
 	return HealthComponent;
 }

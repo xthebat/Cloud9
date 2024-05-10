@@ -45,23 +45,14 @@ const FName ACloud9WeaponGrenade::ActiveEffectComponentName = TEXT("ActiveEffect
 
 ACloud9WeaponGrenade::ACloud9WeaponGrenade()
 {
-	if (Explosion = CreateDetonateComponent(ExplosionComponentName); not IsValid(Explosion))
-	{
-		log(Error, "Failed to create URadialForceComponent");
-		return;
-	}
+	Explosion = CreateDetonateComponent(ExplosionComponentName);
+	AssertOrVoid(IsValid(Explosion), Error, "Failed to create URadialForceComponent");
 
-	if (DetonationEffect = CreateEffectComponent(DetonationEffectComponentName); not IsValid(DetonationEffect))
-	{
-		log(Error, "Failed to create DetonationEffect");
-		return;
-	}
+	DetonationEffect = CreateEffectComponent(DetonationEffectComponentName);
+	AssertOrVoid(IsValid(Explosion), Error, "Failed to create DetonationEffect");
 
-	if (ActiveEffect = CreateEffectComponent(ActiveEffectComponentName); not IsValid(ActiveEffect))
-	{
-		log(Error, "Failed to create ActiveEffect");
-		return;
-	}
+	ActiveEffect = CreateEffectComponent(ActiveEffectComponentName);
+	AssertOrVoid(IsValid(Explosion), Error, "Failed to create ActiveEffect");
 }
 
 FWeaponId ACloud9WeaponGrenade::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
@@ -77,12 +68,7 @@ bool ACloud9WeaponGrenade::OnInitialize(const FWeaponConfig& WeaponConfig)
 	{
 		let MyWeaponInfo = GetWeaponInfo();
 		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(WeaponConfig.GetSkinName());
-
-		if (MySkinInfo.Material == nullptr)
-		{
-			log(Error, "[Weapon='%s'] Skin material is invalid", *GetName());
-			return false;
-		}
+		AssertOrReturn(MySkinInfo.Material, false, Error, "Skin material is invalid");
 
 		let& [OnDetonationEffect, OnDetonationScale, OnActiveEffect, OnActiveScale] = MyWeaponInfo->Effects;
 
@@ -367,28 +353,13 @@ bool ACloud9WeaponGrenade::OnGrenadeThrown()
 bool ACloud9WeaponGrenade::Throw() const
 {
 	let Character = GetOwner<ACloud9Character>();
-
-	if (not IsValid(Character))
-	{
-		log(Error, "[Weapon='%s'] Character is invalid", *GetName());
-		return false;
-	}
+	AssertOrReturn(IsValid(Character), false, Error, "Character is invalid");
 
 	let Controller = Character->GetCloud9Controller();
-
-	if (not IsValid(Controller))
-	{
-		log(Error, "[Weapon='%s'] Controller is invalid", *GetName());
-		return false;
-	}
+	AssertOrReturn(IsValid(Controller), false, Error, "Controller is invalid");
 
 	let Inventory = Character->GetInventoryComponent();
-
-	if (not IsValid(Inventory))
-	{
-		log(Error, "[Weapon='%s'] Inventory is invalid", *GetName());
-		return false;
-	}
+	AssertOrReturn(IsValid(Inventory), false, Error, "Inventory is invalid");
 
 	let ActorsToIgnore = TArray<AActor*>{Character};
 	let CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
@@ -397,11 +368,7 @@ bool ACloud9WeaponGrenade::Throw() const
 		ActorsToIgnore
 	};
 
-	if (not CursorHit)
-	{
-		log(Error, "[Weapon='%s'] Cursor not hit anything", *GetName());
-		return false;
-	}
+	AssertOrReturn(CursorHit, false, Error, "Cursor not hit anything");
 
 	static let Settings = UCloud9DeveloperSettings::Get();
 	FWeaponConfig GrenadeConfig;

@@ -23,15 +23,46 @@
 
 #pragma once
 
+#include "Cloud9/Tools/Macro/Logging.h"
+
 // Simplification of const auto/auto
 #define let const auto
 #define var auto
 
-#define CheckIsValid(What, Severity, Message, ...) \
+#define AssertOrReturn(What, Value, Severity, Message, ...) \
 	do { \
-		if (not IsValid(What)) \
+		if (not (What)) \
 		{ \
-			log(Severity, Message); \
-			return __VA_ARGS__; \
+			log(Severity, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+			return Value; \
 		} \
-	} while(false);
+	} while(false)
+
+#define AssertOrVoid(What, Severity, Message, ...) \
+	do { \
+		if (not (What)) \
+		{ \
+			log(Severity, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+			return; \
+		} \
+	} while(false)
+
+#define StaticAssertOrReturn(What, Value, Severity, Message, ...) \
+	do { \
+		if (not (What)) \
+		{ \
+			log(Severity, Message, __VA_ARGS__); \
+			return Value; \
+		} \
+	} while(false)
+
+#define StaticAssertOrVoid(What, Severity, Message, ...) \
+	do { \
+		if (not (What)) \
+		{ \
+			log(Severity, Message, ##__VA_ARGS__); \
+			return; \
+		} \
+	} while(false)
+
+#define AssertOrCrash(Condition, FormatString, ...) checkf(Condition, TEXT(FormatString), ##__VA_ARGS__)
