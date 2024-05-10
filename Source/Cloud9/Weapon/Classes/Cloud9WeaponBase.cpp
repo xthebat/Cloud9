@@ -420,13 +420,18 @@ void ACloud9WeaponBase::SecondaryAction(bool IsReleased)
 	WeaponState.ActivateAction(EWeaponAction::Secondary, IsReleased);
 }
 
+bool ACloud9WeaponBase::CanReload() const { return false; }
+
 void ACloud9WeaponBase::Reload(bool IsReleased)
 {
-	WeaponState.ActivateSequence(
-		EWeaponAction::ReloadStart,
-		EWeaponAction::ReloadLoop,
-		EWeaponAction::ReloadEnd,
-		IsReleased);
+	if (CanReload())
+	{
+		WeaponState.ActivateSequence(
+			EWeaponAction::ReloadStart,
+			EWeaponAction::ReloadLoop,
+			EWeaponAction::ReloadEnd,
+			IsReleased);
+	}
 }
 
 bool ACloud9WeaponBase::Initialize(const FWeaponConfig& WeaponConfig)
@@ -441,7 +446,7 @@ bool ACloud9WeaponBase::Initialize(const FWeaponConfig& WeaponConfig)
 		return false;
 	}
 
-	// Enable tick only when weapon armed
+	// Enable tick only when a weapon armed
 	SetActorTickEnabled(false);
 
 	return true;

@@ -24,6 +24,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9/Character/Components/Cloud9HealthComponent.h"
+#include "Cloud9/Physicals/Cloud9PhysicalMaterial.h"
 #include "Cloud9/Tools/Structures.h"
 
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
@@ -46,10 +48,8 @@ enum class EFirearmFireStatus : uint8
 {
 	Success = 0,
 	NoCursorHit = 1,
-
-	PlayAnimation = NoCursorHit,
-
 	OutOfAmmo = 2,
+
 	Error = 0x80
 };
 
@@ -71,7 +71,6 @@ struct FCursorHitScanInfo
 
 	static TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> Create(
 		const ACloud9WeaponFirearm* Firearm,
-		const FFirearmWeaponInfo* WeaponInfo,
 		const FFirearmCommonData& FirearmCommonData);
 };
 
@@ -103,7 +102,6 @@ public:
 	static constexpr let ArmorCoefficient = 0.5f;
 	static constexpr let ArmorBonus = 0.5f;
 
-public:
 	virtual FWeaponId GetWeaponId() const override;
 
 	template <typename WeaponIdType>
@@ -130,6 +128,10 @@ protected:
 		const FFirearmCommonData& FirearmCommonData,
 		const FCursorHitScanInfo& HitScanInfo);
 
+	bool HasAmmoInReserve() const;
+	bool IsFullyLoaded() const;
+	virtual bool CanReload() const override;
+
 	bool UpdateReloadAmmo(bool IsShotgun);
 
 	float GetInaccuracy() const;
@@ -141,7 +143,12 @@ protected:
 	void DropMagazine() const;
 	void EjectCase() const;
 
-protected: // properties
+	static USoundBase* GetHitSound(
+		AActor* DamagedActor,
+		const UCloud9PhysicalMaterial* DamagedPhysicalMaterial,
+		const UCloud9HealthComponent* DamagedHealthComponent,
+		FName Bone);
+
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnAmmoInReserveChanged OnAmmoInReserveChanged;
 

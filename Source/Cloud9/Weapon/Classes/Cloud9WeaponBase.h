@@ -198,6 +198,7 @@ public:
 
 	virtual void PrimaryAction(bool IsReleased);
 	virtual void SecondaryAction(bool IsReleased);
+	virtual bool CanReload() const;
 	virtual void Reload(bool IsReleased);
 
 	USceneComponent* GetShootLocationActor() const;
