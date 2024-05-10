@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Alexei Gladkikh
+﻿// Copyright (c) 2024 Alexei Gladkikh
 
 #pragma once
 
@@ -96,13 +96,34 @@ protected:
 		meta=(UIMin="0", UIMax="1000", ClampMin="0", ClampMax="1000"))
 	float FirearmBackgroundDecalMaxDistance;
 
+	// Firearm sounds config
+
 	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Sound")
 	TSet<USoundBase*> FirearmHitSounds;
+
+	/**
+	 * Kevlar shot sounds
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Sound")
+	TSet<USoundBase*> FirearmHitAlt1Sounds;
+
+	/**
+	 * Headshot sounds without a helmet
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Sound")
+	TSet<USoundBase*> FirearmHitAlt2Sounds;
+
+	/**
+	 * Headshot sounds with helmet
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Sound")
+	TSet<USoundBase*> FirearmHitAlt3Sounds;
 
 	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Sound",
 		meta=(UIMin="0", UIMax="10.0", ClampMin="0", ClampMax="10.0"))
 	float FirearmHitSoundVolume;
 
+	// Grenade decal config
 
 	UPROPERTY(EditDefaultsOnly, Category="Grenade Hit Decal")
 	TSet<UMaterialInterface*> GrenadeDecals;
@@ -125,6 +146,8 @@ protected:
 	TSet<UNiagaraSystem*> MeleeEffects;
 
 private:
+	USoundBase* GetFirearmAltHitSound(const TSet<USoundBase*> Sounds) const;
+
 	template <typename ReturnType>
 	static ReturnType* GetRandomItem(const TSet<ReturnType*> Collection)
 	{

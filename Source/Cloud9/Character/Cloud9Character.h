@@ -146,6 +146,14 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category=Character)
 	uint32 bIsSneaking : 1;
 
+	bool IsHeadBone(FName Bone) const;
+
+	bool IsUpperBodyBone(FName Bone) const;
+
+	bool IsLowerBodyBone(FName Bone) const;
+
+	bool IsLegsBone(FName Bone) const;
+
 protected:
 	UFUNCTION(BlueprintCallable)
 	void OnCharacterDie(AActor* Actor);
