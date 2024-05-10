@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Alexei Gladkikh
+﻿// Copyright (c) 2024 Alexei Gladkikh
 
 #include "Cloud9PhysicalMaterial.h"
 
@@ -43,6 +43,32 @@ FRotator UCloud9PhysicalMaterial::GetFirearmDecalRotation(FVector Normal) const
 }
 
 USoundBase* UCloud9PhysicalMaterial::GetRandomFirearmHitSound() const { return GetRandomItem(FirearmHitSounds); }
+
+USoundBase* UCloud9PhysicalMaterial::GetFirearmAltHitSound(const TSet<USoundBase*> Sounds) const
+{
+	let Sound = GetRandomItem(Sounds);
+	if (not IsValid(Sound))
+	{
+		log(Warning, "[Phys. Material='%s'] Can't get alternative sound, fallback to base sound", *GetName());
+		return GetRandomFirearmHitSound();
+	}
+	return Sound;
+}
+
+USoundBase* UCloud9PhysicalMaterial::GetFirearmAlt1HitSound() const
+{
+	return GetFirearmAltHitSound(FirearmHitAlt1Sounds);
+}
+
+USoundBase* UCloud9PhysicalMaterial::GetFirearmAlt2HitSound() const
+{
+	return GetFirearmAltHitSound(FirearmHitAlt2Sounds);
+}
+
+USoundBase* UCloud9PhysicalMaterial::GetFirearmAlt3HitSound() const
+{
+	return GetFirearmAltHitSound(FirearmHitAlt3Sounds);
+}
 
 float UCloud9PhysicalMaterial::GetFirearmHitSoundVolume() const { return FirearmHitSoundVolume; }
 

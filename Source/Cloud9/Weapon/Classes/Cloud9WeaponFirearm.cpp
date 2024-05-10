@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 Alexei Gladkikh
+// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -504,12 +504,10 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 		}
 
 		let DamagedActor = Cast<AActor>(LineHit.Actor);
-
-		if (not IsValid(DamagedActor))
-		{
-			log(Warning, "[Weapon='%s'] Line trace got hit but target actor is invalid", *GetName());
-			return EFirearmFireStatus::Success;
-		}
+		CheckIsValid(
+			DamagedActor,
+			Warning, "Line trace got hit but target actor is invalid",
+			EFirearmFireStatus::Success);
 
 		let Damage = UGameplayStatics::ApplyPointDamage(
 			DamagedActor,
@@ -521,9 +519,10 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 			UFirearmDamageType::StaticClass()
 		);
 
+		let HealthComponent = DamagedActor->FindComponentByClass<UCloud9HealthComponent>();
+
 		// If an actor has the health component (then can be damaged) or we shot in some stuff
-		let IsNeedProcessPhysicalMaterial = Damage > 0.0f or not
-			DamagedActor->GetComponentByClass(UCloud9HealthComponent::StaticClass());
+		let IsNeedProcessPhysicalMaterial = Damage > 0.0f or not HealthComponent;
 
 		if (let Target = LineHit.Component;
 			Target.IsValid() and IsNeedProcessPhysicalMaterial)
@@ -540,8 +539,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 
 			if (let PhysicalMaterial = Cast<UCloud9PhysicalMaterial>(LineHit.PhysMaterial); IsValid(PhysicalMaterial))
 			{
-				if (let HealthComponent = DamagedActor->FindComponentByClass<UCloud9HealthComponent>();
-					IsValid(HealthComponent) and HealthComponent->IsArmored())
+				if (IsValid(HealthComponent) and HealthComponent->IsArmored())
 				{
 					if (let FirearmSquib = PhysicalMaterial->GetRandomFirearmSquib(true); IsValid(FirearmSquib))
 					{
@@ -582,7 +580,9 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 					Decal->SetFadeScreenSize(Settings->DecalFadeScreenSize);
 				}
 
-				if (let HitSound = PhysicalMaterial->GetRandomFirearmHitSound(); IsValid(HitSound))
+				let HitSound = GetHitSound(DamagedActor, PhysicalMaterial, HealthComponent, LineHit.BoneName);
+
+				if (IsValid(HitSound))
 				{
 					UCloud9SoundPlayer::PlaySingleSound(
 						HitSound,
@@ -636,27 +636,66 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 	return EFirearmFireStatus::Success;
 }
 
+USoundBase* ACloud9WeaponFirearm::GetHitSound(
+	AActor* DamagedActor,
+	const UCloud9PhysicalMaterial* DamagedPhysicalMaterial,
+	const UCloud9HealthComponent* DamagedHealthComponent,
+	FName Bone)
+{
+	USoundBase* HitSound;
+
+	if (let DamagedCharacter = Cast<ACloud9Character>(DamagedActor); IsValid(DamagedCharacter))
+	{
+		if (DamagedCharacter->IsHeadBone(Bone))
+		{
+			if (DamagedHealthComponent->HasHelmet())
+			{
+				HitSound = DamagedPhysicalMaterial->GetFirearmAlt3HitSound();
+			}
+			else
+			{
+				HitSound = DamagedPhysicalMaterial->GetFirearmAlt2HitSound();
+			}
+		}
+		else
+		{
+			if (DamagedHealthComponent->GetArmor() > 0.0f)
+			{
+				HitSound = DamagedPhysicalMaterial->GetFirearmAlt1HitSound();
+			}
+			else
+			{
+				HitSound = DamagedPhysicalMaterial->GetRandomFirearmHitSound();
+			}
+		}
+	}
+	else
+	{
+		HitSound = DamagedPhysicalMaterial->GetRandomFirearmHitSound();
+	}
+
+	return HitSound;
+}
+
+bool ACloud9WeaponFirearm::HasAmmoInReserve() const { return AmmoInReserve != 0; }
+
+bool ACloud9WeaponFirearm::IsFullyLoaded() const { return CurrentAmmo == MaxMagazineSize; }
+
+bool ACloud9WeaponFirearm::CanReload() const { return HasAmmoInReserve() and not IsFullyLoaded(); }
+
 bool ACloud9WeaponFirearm::UpdateReloadAmmo(bool IsShotgun)
 {
-	if (AmmoInReserve == 0)
+	if (CanReload())
 	{
-		log(Display, "[Weapon='%s'] No ammo in reserve", *GetName());
-		return false;
+		let RequiredAmmo = IsShotgun ? 1 : FMath::Min(MaxMagazineSize - CurrentAmmo, AmmoInReserve);
+		AmmoInReserve -= RequiredAmmo;
+		CurrentAmmo += RequiredAmmo;
+		OnAmmoInReserveChanged.Broadcast(AmmoInReserve);
+		OnAmmoInMagazineChanged.Broadcast(CurrentAmmo);
+		return true;
 	}
 
-	if (CurrentAmmo == MaxMagazineSize)
-	{
-		log(Display, "[Weapon='%s'] Can't load more ammo", *GetName());
-		return false;
-	}
-
-	let RequiredAmmo = IsShotgun ? 1 : FMath::Min(MaxMagazineSize - CurrentAmmo, AmmoInReserve);
-
-	AmmoInReserve -= RequiredAmmo;
-	CurrentAmmo += RequiredAmmo;
-	OnAmmoInReserveChanged.Broadcast(AmmoInReserve);
-	OnAmmoInMagazineChanged.Broadcast(CurrentAmmo);
-	return true;
+	return false;
 }
 
 // ======================================== begin cstrike15_src ====================================================

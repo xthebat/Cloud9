@@ -327,6 +327,26 @@ void ACloud9Character::UseObject()
 	// TODO: Implement UseObject
 }
 
+bool ACloud9Character::IsHeadBone(FName Bone) const
+{
+	return HeadBoneNames.Contains(Bone);
+}
+
+bool ACloud9Character::IsUpperBodyBone(FName Bone) const
+{
+	return UpperBodyBoneNames.Contains(Bone);
+}
+
+bool ACloud9Character::IsLowerBodyBone(FName Bone) const
+{
+	return LowerBodyBoneNames.Contains(Bone);
+}
+
+bool ACloud9Character::IsLegsBone(FName Bone) const
+{
+	return LegsBoneNames.Contains(Bone);
+}
+
 void ACloud9Character::OnCharacterDie(AActor* Actor)
 {
 	if (let MyCapsuleComponent = GetCapsuleComponent(); IsValid(MyCapsuleComponent))
@@ -372,21 +392,21 @@ float ACloud9Character::InternalTakePointDamage(
 
 		bool HitInArmor = false;
 
-		if (HeadBoneNames.Contains(BoneName))
+		if (IsHeadBone(BoneName))
 		{
 			Damage *= WeaponInfo->HeadshotMultiplier;
 			HitInArmor = HealthComponent->HasHelmet();
 		}
-		else if (UpperBodyBoneNames.Contains(BoneName))
+		else if (IsUpperBodyBone(BoneName))
 		{
 			Damage *= WeaponInfo->UpperBodyMultiplier;
 			HitInArmor = HealthComponent->IsArmored();
 		}
-		else if (LowerBodyBoneNames.Contains(BoneName))
+		else if (IsLowerBodyBone(BoneName))
 		{
 			Damage *= WeaponInfo->LowerBodyMultiplier;
 		}
-		else if (LegsBoneNames.Contains(BoneName))
+		else if (IsLegsBone(BoneName))
 		{
 			Damage *= WeaponInfo->LegMultiplier;
 		}
