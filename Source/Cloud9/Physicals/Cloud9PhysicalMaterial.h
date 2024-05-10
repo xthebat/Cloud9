@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2024 Alexei Gladkikh
+// Copyright (c) 2024 Alexei Gladkikh
 
 #pragma once
 
@@ -30,14 +30,27 @@ public:
 	FVector GetFirearmDecalSize() const;
 	FRotator GetFirearmDecalRotation(FVector Normal) const;
 	USoundBase* GetRandomFirearmHitSound() const;
+	USoundBase* GetFirearmAlt1HitSound() const;
+	USoundBase* GetFirearmAlt2HitSound() const;
+	USoundBase* GetFirearmAlt3HitSound() const;
 	float GetFirearmHitSoundVolume() const;
 
 protected:
+	// Firearm decal config
+
 	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Decal")
 	TSet<UMaterialInterface*> FirearmDecals;
 
 	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Decal")
 	FVector FirearmDecalSize;
+
+	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Decal",
+		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
+	float FirearmDecalScaleMin;
+
+	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Decal",
+		meta=(UIMin="0", UIMax="10", ClampMin="0", ClampMax="10"))
+	float FirearmDecalScaleMax;
 
 	UPROPERTY(EditDefaultsOnly, Category="Firearm Hit Decal",
 		meta=(UIMin="-180", UIMax="180", ClampMin="-180", ClampMax="180"))
@@ -100,6 +113,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Grenade Hit Effect")
 	TSet<UNiagaraSystem*> GrenadeEffects;
 
+	// Melee decal config
 
 	UPROPERTY(EditDefaultsOnly, Category="Melee Hit Decal")
 	TSet<UMaterialInterface*> MeleeDecals;
