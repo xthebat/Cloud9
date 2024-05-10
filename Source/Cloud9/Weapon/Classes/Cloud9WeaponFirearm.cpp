@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Alexei Gladkikh
+﻿// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -46,7 +46,6 @@
 #include "Cloud9/Tools/Math.h"
 #include "Cloud9/Tools/Structures.h"
 #include "Cloud9/Tools/Extensions/TArray.h"
-#include "Cloud9/Tools/Extensions/USoundBase.h"
 #include "Cloud9/Weapon/Sounds/Cloud9SoundPlayer.h"
 #include "Cloud9/Weapon/Structures/WeaponConfig.h"
 #include "Cloud9/Weapon/Tables/WeaponTableFirearm.h"
@@ -59,7 +58,6 @@ const FName ACloud9WeaponFirearm::TracerDirectionParameterName = TEXT("Direction
 
 TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
 	const ACloud9WeaponFirearm* Firearm,
-	const FFirearmWeaponInfo* WeaponInfo,
 	const FFirearmCommonData& FirearmCommonData)
 {
 	static let Settings = UCloud9DeveloperSettings::Get();
@@ -226,7 +224,7 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 
 	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
 
-	let Character = GetOwner<ACloud9Character>(); // suppose weapon has owner cus we pass bond guard
+	let Character = GetOwner<ACloud9Character>(); // suppose a weapon has owner cus we pass bond guard
 	let AnimComponent = Character->GetAnimationComponent();
 
 	WEAPON_ANIM_COMPONENT_GUARD();
@@ -263,15 +261,24 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	{
 		if (WeaponState.IsActionActive(EWeaponAction::ReloadLoop))
 		{
-			ExecuteAction(
-				EWeaponAction::ReloadLoop,
-				WeaponInfo->ReloadLoopTime,
-				[&]
-				{
-					return UpdateReloadAmmo(WeaponInfo->Type == EWeaponType::Shotgun)
-						and AnimComponent->PlayMontage(PoseMontages->ReloadLoopMontage);
-				}
-			);
+			// Assume only shotguns has looped reload
+			if (not CanReload())
+			{
+				WeaponState.ClearAction(EWeaponAction::ReloadLoop);
+				WeaponState.ActivateAction(EWeaponAction::ReloadEnd);
+			}
+			else
+			{
+				ExecuteAction(
+					EWeaponAction::ReloadLoop,
+					WeaponInfo->ReloadLoopTime,
+					[&]
+					{
+						return UpdateReloadAmmo(true) and
+							AnimComponent->PlayMontage(PoseMontages->ReloadLoopMontage);
+					}
+				);
+			}
 		}
 		else if (WeaponState.IsActionActive(EWeaponAction::ReloadEnd))
 		{
@@ -304,8 +311,14 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			WeaponInfo->CycleTime,
 			[&]
 			{
-				if (let Status = PrimaryAttack(WeaponInfo, CommonData->Firearm);
-					Status > EFirearmFireStatus::PlayAnimation)
+				let Status = PrimaryAttack(WeaponInfo, CommonData->Firearm);
+
+				if (Status == EFirearmFireStatus::OutOfAmmo)
+				{
+					return true;
+				}
+
+				if (Status == EFirearmFireStatus::Error)
 				{
 					log(Error, "[Weapon='%s'] Weapon fire failure status = %d", *GetName(), Status);
 					return false;
@@ -381,7 +394,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::PrimaryAttack(
 		return EFirearmFireStatus::OutOfAmmo;
 	}
 
-	if (var [Error, HitScanInfo] = FCursorHitScanInfo::Create(this, WeaponInfo, FirearmCommonData);
+	if (var [Error, HitScanInfo] = FCursorHitScanInfo::Create(this, FirearmCommonData);
 		Error == EFirearmFireStatus::Success)
 	{
 		let EndLocations = RecalculateByShotInaccuracy(*HitScanInfo);
