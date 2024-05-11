@@ -33,18 +33,52 @@
 		) \
 	)
 
-// UE LOG
-
-#define log(Severity, FormatString, ...) \
+#define log(Severity, FormatString, ...) do { \
 	UE_LOG(\
 		LogCloud9, \
 		Severity, \
 		TEXT("%s: %s"), \
 		*TRACE_STR_CUR_CLASS_FUNC_LINE, \
-		*FString::Printf(TEXT(FormatString), ##__VA_ARGS__ ) \
-	)
+		*FString::Printf(TEXT(FormatString), ##__VA_ARGS__) \
+	) \
+} while (false)
 
-#define assert(Condition) check(Condition)
+#define FunctionFatal(Message, ...) do { \
+	log(Fatal, Message, ##__VA_ARGS__); \
+} while (false)
 
-#define assertf(Condition, FormatString, ...) \
-	checkf(Condition, TEXT(FormatString), ##__VA_ARGS__)
+#define FunctionError(Message, ...) do { \
+	log(Error, Message, ##__VA_ARGS__); \
+} while (false)
+
+#define FunctionWarning(Message, ...) do { \
+	log(Warning, Message, ##__VA_ARGS__); \
+} while (false)
+
+#define FunctionDisplay(Message, ...) do { \
+	log(Display, Message, ##__VA_ARGS__); \
+} while (false)
+
+#define FunctionVerbose(Message, ...) do { \
+	log(Verbose, Message, ##__VA_ARGS__); \
+} while (false)
+
+#define ObjectFatal(Message, ...) do { \
+	log(Fatal, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+} while (false)
+
+#define ObjectError(Message, ...) do { \
+	log(Error, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+} while (false)
+
+#define ObjectWarn(Message, ...) do { \
+	log(Warning, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+} while (false)
+
+#define ObjectDisplay(Message, ...) do { \
+	log(Display, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+} while (false)
+
+#define ObjectVerbose(Message, ...) do { \
+	log(Verbose, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+} while (false)

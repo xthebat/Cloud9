@@ -71,7 +71,7 @@ void AEquipmentSpawner::PostEditChangeProperty(FPropertyChangedEvent& PropertyCh
 
 	if (not bChangeArmor)
 	{
-		log(Warning, "Can't add helmet without kevlar vest");
+		ObjectWarn("Can't add helmet without kevlar vest");
 		bHelmet = false;
 	}
 }

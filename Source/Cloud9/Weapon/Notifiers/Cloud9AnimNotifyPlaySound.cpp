@@ -38,11 +38,9 @@ FString UCloud9AnimNotifyPlaySound::GetNotifyName_Implementation() const
 bool UCloud9AnimNotifyPlaySound::PlayMeleeSound(USkeletalMeshComponent* MeshComp, float Volume) const
 {
 	let SelectedWeapon = GetSelectedWeapon<ACloud9WeaponMelee>(MeshComp);
-	if (not IsValid(SelectedWeapon) or not SelectedWeapon->IsWeaponDefined())
-	{
-		log(Error, "[Notify='%s'] Invalid or undefined weapon for play sound", *GetName());
-		return false;
-	}
+	AssertOrReturn(
+		IsValid(SelectedWeapon) and SelectedWeapon->IsWeaponDefined(), false,
+		Error, "Invalid or undefined weapon for play sound");
 
 	let WeaponInfo = SelectedWeapon->GetWeaponInfo();
 	let Location = SelectedWeapon->GetActorLocation();
@@ -56,7 +54,7 @@ bool UCloud9AnimNotifyPlaySound::PlayMeleeSound(USkeletalMeshComponent* MeshComp
 	case EWeaponSoundType::Secondary:
 		return UCloud9SoundPlayer::PlayRandomSound(WeaponInfo->Sounds.StabSounds, Location, Volume);
 	default:
-		log(Error, "[Notify='%s'] Invalid sound type for melee sound", *GetName());
+		ObjectError("Invalid sound type for melee sound");
 		return false;
 	}
 }
@@ -64,11 +62,9 @@ bool UCloud9AnimNotifyPlaySound::PlayMeleeSound(USkeletalMeshComponent* MeshComp
 bool UCloud9AnimNotifyPlaySound::PlayFirearmSound(USkeletalMeshComponent* MeshComp, float Volume) const
 {
 	let SelectedWeapon = GetSelectedWeapon<ACloud9WeaponFirearm>(MeshComp);
-	if (not IsValid(SelectedWeapon) or not SelectedWeapon->IsWeaponDefined())
-	{
-		log(Error, "[Notify='%s'] Invalid or undefined weapon for play sound", *GetName());
-		return false;
-	}
+	AssertOrReturn(
+		IsValid(SelectedWeapon) and SelectedWeapon->IsWeaponDefined(), false,
+		Error, "Invalid or undefined weapon for play sound");
 
 	let WeaponInfo = SelectedWeapon->GetWeaponInfo();
 	let CommonData = SelectedWeapon->GetWeaponCommonData();
@@ -92,7 +88,7 @@ bool UCloud9AnimNotifyPlaySound::PlayFirearmSound(USkeletalMeshComponent* MeshCo
 		}
 		return false;
 	default:
-		log(Error, "[Notify='%s'] Invalid sound type for firearm sound SoundType=%d", *GetName(), SoundType);
+		ObjectError("Invalid sound type for firearm sound SoundType=%d", SoundType);
 		return false;
 	}
 }
@@ -100,11 +96,9 @@ bool UCloud9AnimNotifyPlaySound::PlayFirearmSound(USkeletalMeshComponent* MeshCo
 bool UCloud9AnimNotifyPlaySound::PlayGrenadeSound(USkeletalMeshComponent* MeshComp, float Volume) const
 {
 	let SelectedWeapon = GetSelectedWeapon<ACloud9WeaponGrenade>(MeshComp);
-	if (not IsValid(SelectedWeapon) or not SelectedWeapon->IsWeaponDefined())
-	{
-		log(Error, "[Notify='%s'] Invalid or undefined weapon for play sound", *GetName());
-		return false;
-	}
+	AssertOrReturn(
+		IsValid(SelectedWeapon) and SelectedWeapon->IsWeaponDefined(), false,
+		Error, "Invalid or undefined weapon for play sound");
 
 	let WeaponInfo = SelectedWeapon->GetWeaponInfo();
 	let Location = SelectedWeapon->GetActorLocation();
@@ -118,28 +112,19 @@ bool UCloud9AnimNotifyPlaySound::PlayGrenadeSound(USkeletalMeshComponent* MeshCo
 	case EWeaponSoundType::Primary:
 		return UCloud9SoundPlayer::PlaySingleSound(WeaponInfo->Sounds.ThrowSound, Location, Volume);
 	default:
-		log(Error, "[Notify='%s'] Invalid sound type for firearm sound SoundType=%d", *GetName(), SoundType);
+		ObjectError("Invalid sound type for firearm sound SoundType=%d", SoundType);
 		return false;
 	}
 }
 
 void UCloud9AnimNotifyPlaySound::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-	if (not bIsEnabled)
-	{
-		log(Verbose, "[Notify='%s'] Is disabled", *GetName());
-		return;
-	}
+	AssertOrVoid(bIsEnabled, Verbose, "Notify is disabled");
 
 #if WITH_EDITORONLY_DATA
 	// See AnimNotify_PlaySound (only variant that's work)
 	let World = MeshComp->GetWorld();
-
-	if (not IsValid(World))
-	{
-		log(Error, "Game world is invalid")
-		return;
-	}
+	AssertOrVoid(IsValid(World), Error, "Game world is invalid");
 
 	if (World->WorldType == EWorldType::EditorPreview)
 	{
@@ -164,7 +149,7 @@ void UCloud9AnimNotifyPlaySound::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 			PlayGrenadeSound(MeshComp, Volume);
 			break;
 		default:
-			log(Error, "[Notify='%s'] Invalid class name", *GetName());
+			ObjectError("Invalid class name");
 		}
 	}
 }

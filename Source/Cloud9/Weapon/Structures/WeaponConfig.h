@@ -118,13 +118,8 @@ struct FWeaponConfig
 	template <typename WeaponClassType>
 	bool Initialize(WeaponClassType* Weapon) const
 	{
-		if (not IsValid(Weapon))
-		{
-			log(Error, "[Config='%s'] Weapon to initialize is invalid", *ToString());
-			return false;
-		}
-
-		log(Verbose, "[Config='%s'] Initializing weapon...", *ToString());
+		FunctionAssertOrReturn(IsValid(Weapon), false, Error, "Weapon to initialize is invalid");
+		FunctionVerbose("[%s] Initializing weapon...", *ToString());
 		return Weapon->Initialize(*this);
 	}
 
@@ -157,22 +152,14 @@ protected:
 	void PostEditChangeProperty()
 	{
 		let Asset = ACloud9WeaponBase::GetWeaponDefinitionsAsset();
-
-		if (not IsValid(Asset))
-		{
-			log(Error, "Can't get WeaponDefinitionsAsset");
-			return;
-		}
+		FunctionAssertOrVoid(IsValid(Asset), Error, "WCan't get WeaponDefinitionsAsset");
 
 		if (WeaponClass == EWeaponClass::Firearm)
 		{
 			FWeaponDefinition WeaponDefinition;
-
-			if (not Asset->GetWeaponDefinition(GetWeaponId(), WeaponDefinition))
-			{
-				log(Error, "Can't get WeaponDefinition for firearm = %d", FirearmWeaponId);
-				return;
-			}
+			FunctionAssertOrVoid(
+				Asset->GetWeaponDefinition(GetWeaponId(), WeaponDefinition),
+				Error, "Can't get WeaponDefinition for firearm = %d", FirearmWeaponId);
 
 			let FirearmWeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 

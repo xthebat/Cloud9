@@ -56,7 +56,7 @@ void ACloud9GameMode::StartToLeaveMap()
 
 	if (let MyWorld = GetWorld(); MyWorld != nullptr)
 	{
-		log(Verbose, "Cleanup world timers = %p", this);
+		ObjectVerbose("Cleanup world timers = %p", this);
 		MyWorld | EUWorld::ClearAllTimers{};
 	}
 
@@ -66,12 +66,6 @@ void ACloud9GameMode::StartToLeaveMap()
 UCloud9GameInstance* ACloud9GameMode::GetCloud9GameInstance() const
 {
 	let GameInstance = GetGameInstance<UCloud9GameInstance>();
-
-	if (not IsValid(GameInstance))
-	{
-		log(Fatal, "GameInstance isn't valid");
-		return nullptr;
-	}
-
+	AssertOrReturn(IsValid(GameInstance), nullptr, Fatal, "GameInstance is invalid (required Cloud9 class)");
 	return GameInstance;
 }

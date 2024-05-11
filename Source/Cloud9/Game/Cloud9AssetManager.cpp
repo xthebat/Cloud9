@@ -52,20 +52,13 @@ UObject* UCloud9AssetManager::GetOrLoadScannedAssetSync(FPrimaryAssetId PrimaryA
 	static var& Manager = Get();
 
 	let Future = Manager.LoadPrimaryAsset(PrimaryAssetId);
+	FunctionAssertOrReturn(Future, nullptr, Error, "Can't find asset: '%s'", *PrimaryAssetId.ToString());
 
-	if (not Future)
-	{
-		log(Error, "Can't find asset: '%s'", *PrimaryAssetId.ToString())
-		return nullptr;
-	}
+	FunctionAssertOrReturn(
+		Future->WaitUntilComplete() == EAsyncPackageState::Complete, nullptr, Error,
+		"Failed to loading asset: '%s'", *PrimaryAssetId.ToString());
 
-	if (Future->WaitUntilComplete() == EAsyncPackageState::Complete)
-	{
-		let Asset = Future->GetLoadedAsset();
-		Asset->AddToRoot(); // Prevent GC destroy asset
-		return Asset;
-	}
-
-	log(Error, "Failed to loading asset: '%s'", *PrimaryAssetId.ToString())
-	return nullptr;
+	let Asset = Future->GetLoadedAsset();
+	Asset->AddToRoot(); // Prevent GC destroy asset
+	return Asset;
 }

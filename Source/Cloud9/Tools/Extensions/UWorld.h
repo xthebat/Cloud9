@@ -76,7 +76,7 @@ namespace EUWorld
 				return {};
 			}
 
-			assertf(Self != nullptr, "World should not be nullptr to start timer");
+			AssertOrCrash(Self != nullptr, "World should not be nullptr to start timer");
 
 			FTimerHandle Handle;
 			let Delegate = FTimerDelegate::CreateStatic(&AsyncAfter::Execute, Block, Handle);
@@ -144,20 +144,9 @@ namespace EUWorld
 	{
 		FORCEINLINE GameModeType* operator()(const UWorld* Self) const
 		{
-			if (not IsValid(Self))
-			{
-				log(Error, "World isn't valid to get GameMode")
-				return nullptr;
-			}
-
+			FunctionAssertOrReturn(IsValid(Self), nullptr, Error, "World isn't valid to get GameMode");
 			let GameMode = UGameplayStatics::GetGameMode(Self);
-
-			if (not IsValid(GameMode))
-			{
-				log(Error, "Current GameMode isn't valid")
-				return nullptr;
-			}
-
+			FunctionAssertOrReturn(IsValid(GameMode), nullptr, Error, "Current GameMode isn't valid");
 			return Cast<GameModeType>(GameMode);
 		}
 

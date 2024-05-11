@@ -60,40 +60,33 @@ UCloud9MouseController::UCloud9MouseController()
 
 FVector2D UCloud9MouseController::GetMousePosition() const
 {
-	if (let Owner = GetOwner<ACloud9PlayerController>(); IsValid(Owner))
-	{
-		FVector2D MousePosition = FVector2D::ZeroVector;
-		GetOwner<ACloud9PlayerController>()->GetMousePosition(MousePosition.X, MousePosition.Y);
-		return MousePosition;
-	}
-
-	log(Fatal, "Can't get Cloud9PlayerController");
-	return FVector2D::ZeroVector;
+	let Owner = GetOwner<ACloud9PlayerController>();
+	AssertOrReturn(IsValid(Owner), {}, Fatal, "Can't get Cloud9PlayerController");
+	FVector2D MousePosition = FVector2D::ZeroVector;
+	GetOwner<ACloud9PlayerController>()->GetMousePosition(MousePosition.X, MousePosition.Y);
+	return MousePosition;
 }
 
 float UCloud9MouseController::GetCameraZoomHeightLevel() const
 {
-	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
+	let Pawn = GetCloud9Pawn();
+	AssertOrReturn(IsValid(Pawn), InvalidCameraZoomLevel, Fatal, "Can't get Cloud9Pawn");
+
+	let ZoomHeightLevel = Math::InverseLerp(
+		MinCameraZoomHeight,
+		MaxCameraZoomHeight,
+		Pawn->GetCameraZoomHeight());
+	let ZoomAngleLevel = Math::InverseLerp(
+		MinCameraZoomAngle,
+		MaxCameraZoomAngle,
+		Pawn->GetCameraRotationRoll());
+
+	if (not FMath::IsNearlyEqual(ZoomHeightLevel, ZoomAngleLevel, 0.001f))
 	{
-		let ZoomHeightLevel = Math::InverseLerp(
-			MinCameraZoomHeight,
-			MaxCameraZoomHeight,
-			Pawn->GetCameraZoomHeight());
-		let ZoomAngleLevel = Math::InverseLerp(
-			MinCameraZoomAngle,
-			MaxCameraZoomAngle,
-			Pawn->GetCameraRotationRoll());
-
-		if (not FMath::IsNearlyEqual(ZoomHeightLevel, ZoomAngleLevel, 0.001f))
-		{
-			log(Error, "ZoomHeightLevel = %f != ZoomAngleLevel != %f", ZoomHeightLevel, ZoomAngleLevel);
-		}
-
-		return ZoomHeightLevel;
+		ObjectError("ZoomHeightLevel = %f != ZoomAngleLevel != %f", ZoomHeightLevel, ZoomAngleLevel);
 	}
 
-	log(Fatal, "Can't get Cloud9Pawn");
-	return InvalidCameraZoomLevel;
+	return ZoomHeightLevel;
 }
 
 void UCloud9MouseController::SetCameraZoomLevel(float Value) const

@@ -66,32 +66,17 @@ template <typename FunctionType>
 void UCloud9KeyboardController::WeaponAction(FunctionType Function)
 {
 	let Pawn = GetCloud9Pawn();
-
-	if (not IsValid(Pawn))
-	{
-		log(Error, "Pawn is invalid")
-		return;
-	}
+	AssertOrVoid(IsValid(Pawn), Error, "Pawn is invalid");
 
 	let Inventory = Pawn->GetInventoryComponent();
-
-	if (not IsValid(Inventory))
-	{
-		log(Error, "Pawn inventory is invalid")
-		return;
-	}
+	AssertOrVoid(IsValid(Inventory), Error, "Pawn inventory is invalid");
 
 	if (not Inventory->IsWeaponChanging())
 	{
 		let SelectedWeapon = Inventory->GetSelectedWeapon();
+		AssertOrVoid(IsValid(SelectedWeapon), Error, "Selected weapon is invalid");
 
-		if (not IsValid(SelectedWeapon))
-		{
-			log(Error, "Selected weapon is invalid");
-			return;
-		}
-
-		// Checking of other actions in progress should be done inside weapon
+		// Checking of other actions in progress should be done inside a weapon
 		// because this can depend on implementation of weapon work logic
 		Function(SelectedWeapon);
 	}

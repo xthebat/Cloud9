@@ -31,7 +31,6 @@ namespace ETOptional
 	template <typename DefaultValueType>
 	struct Get : TOperator<Get<DefaultValueType>>
 	{
-	public:
 		constexpr explicit Get() : DefaultValueGetter(NullOptionalDereference) {}
 
 		template <typename T> requires std::invocable<T>
@@ -44,7 +43,7 @@ namespace ETOptional
 		constexpr const ValueType& operator()(const TOptional<ValueType>& Self)
 		{
 			// nullptr_t is acceptable because we case crash on dereference
-			// using log(Fatal) if not default argument was set   
+			// using Fatal if not default argument was set   
 			static_assert(
 				TIsSame<DefaultValueType, ValueType>::Value or TIsSame<DefaultValueType, nullptr_t>::Value,
 				"Default value type and value type should be the same or default value type should be nullptr_t"
@@ -66,7 +65,7 @@ namespace ETOptional
 
 		constexpr static DefaultValueType NullOptionalDereference()
 		{
-			log(Fatal, "nullopt dereference");
+			FunctionFatal("nullopt dereference");
 			return {};
 		}
 	};
@@ -82,7 +81,6 @@ namespace ETOptional
 	template <typename BlockType>
 	struct OnNull
 	{
-	public:
 		const BlockType& Block;
 
 		template <typename ValueType>
@@ -120,7 +118,6 @@ namespace ETOptional
 
 	struct IsSet
 	{
-	public:
 		template <typename ValueType>
 		constexpr bool operator()(const TOptional<ValueType>& Self) { return Self.IsSet(); }
 

@@ -22,29 +22,14 @@ void ACloud9GameState::Tick(float DeltaSeconds)
 	if (Settings->NetGraph > 0)
 	{
 		let MyWorld = GetWorld();
-
-		if (not IsValid(MyWorld))
-		{
-			log(Error, "World isn't exist")
-			return;
-		}
+		AssertOrVoid(IsValid(MyWorld), Error, "World isn't exist");
 
 		// TODO: Make valid for any player
 		let FirstPlayerController = MyWorld->GetFirstPlayerController();
-
-		if (not IsValid(FirstPlayerController))
-		{
-			log(Error, "FirstPlayerController isn't exist")
-			return;
-		}
+		AssertOrVoid(IsValid(FirstPlayerController), Error, "World isn't exist");
 
 		let Character = Cast<ACloud9Character>(FirstPlayerController->GetCharacter());
-
-		if (not IsValid(FirstPlayerController))
-		{
-			log(Error, "Character isn't exist")
-			return;
-		}
+		AssertOrVoid(IsValid(Character), Error, "Character isn't exist");
 
 		let Fps = 1.0f / DeltaSeconds;
 		let Location = Character->GetActorLocation();

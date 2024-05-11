@@ -63,20 +63,12 @@ TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
 	static let Settings = UCloud9DeveloperSettings::Get();
 
 	let Character = Firearm->GetOwner<ACloud9Character>();
-
-	if (not IsValid(Character))
-	{
-		log(Error, "Character is invalid")
-		return EFirearmFireStatus::Error;
-	}
+	FunctionAssertOrReturn(IsValid(Character), EFirearmFireStatus::Error, Error, "Character is invalid");
 
 	let Controller = Character->GetCloud9Controller();
-
-	if (not IsValid(Controller))
-	{
-		log(Error, "Can't hit object because player controller isn't valid")
-		return EFirearmFireStatus::Error;
-	}
+	FunctionAssertOrReturn(
+		IsValid(Controller), EFirearmFireStatus::Error,
+		Error, "Can't hit object because player controller isn't valid");
 
 	var Result = FCursorHitScanInfo();
 
@@ -92,11 +84,9 @@ TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
 			Result.ActorsToIgnore
 		};
 
-		if (not CursorHit)
-		{
-			log(Error, "Cursor wasn't hit anything")
-			return EFirearmFireStatus::NoCursorHit;
-		}
+		FunctionAssertOrReturn(
+			CursorHit, EFirearmFireStatus::NoCursorHit,
+			Error, "Cursor wasn't hit anything");
 
 		Result.EndLocation = CursorHit->Location;
 		Result.Alpha = FirearmCommonData.LineTraceAlpha;
@@ -108,13 +98,11 @@ TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
 			true
 		};
 
-		if (not CursorHit)
-		{
-			log(Error, "Cursor wasn't anything")
-			return EFirearmFireStatus::NoCursorHit;
-		}
+		FunctionAssertOrReturn(
+			CursorHit, EFirearmFireStatus::NoCursorHit,
+			Error, "Cursor wasn't hit anything");
 
-		// Check if use Somali shooting (when cursor on Character)
+		// Check if character use Somali shooting (when cursor on Character)
 		if (CursorHit->Actor == Character)
 		{
 			Result.EndLocation = Result.StartLocation + Firearm->GetShootLocationActor()->GetForwardVector();
@@ -138,41 +126,31 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponConfig& WeaponConfig)
 	{
 		let MyWeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(WeaponConfig.GetSkinName());
+		AssertOrReturn(MySkinInfo.Material, false, Error, "Skin material is invalid");
 
-		if (MySkinInfo.Material == nullptr)
-		{
-			log(Error, "[Weapon='%s'] Skin material is invalid", *GetName());
-			return false;
-		}
+		AssertOrReturn(
+			InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo.Material), false,
+			Error, "Can't initilaize WeaponMesh"
+		);
 
-		if (not InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo.Material))
-		{
-			log(Error, "[Weapon='%s'] Can't initilaize WeaponMesh", *GetName());
-			return false;
-		}
+		AssertOrReturn(
+			InitializeMeshComponent(
+				MagazineMesh, MyWeaponInfo->MagazineModel,
+				MyWeaponInfo->bIsMagazinePainted ? MySkinInfo.Material : nullptr), false,
+			Error, "Can't initilaize MagazineMesh"
+		);
 
-		if (not InitializeMeshComponent(
-			MagazineMesh,
-			MyWeaponInfo->MagazineModel,
-			MyWeaponInfo->bIsMagazinePainted ? MySkinInfo.Material : nullptr))
-		{
-			log(Error, "[Weapon='%s'] Can't initilaize MagazineMesh", *GetName());
-			return false;
-		}
-
-		if (not InitializeEffectComponent(MuzzleFlash, MyWeaponInfo->Effects.MuzzleFlash))
-		{
-			log(Error, "[Weapon='%s'] Can't initilaize MuzzleFlash", *GetName());
-			return false;
-		}
+		AssertOrReturn(
+			InitializeEffectComponent(MuzzleFlash, MyWeaponInfo->Effects.MuzzleFlash), false,
+			Error, "Can't initilaize MuzzleFlash"
+		);
 
 		if (MyWeaponInfo->SilencerModel)
 		{
-			if (not InitializeMeshComponent(SilencerMesh, MyWeaponInfo->SilencerModel, MySkinInfo.Material))
-			{
-				log(Error, "[Weapon='%s'] Can't initilaize SilencerMesh", *GetName());
-				return false;
-			}
+			AssertOrReturn(
+				InitializeMeshComponent(SilencerMesh, MyWeaponInfo->SilencerModel, MySkinInfo.Material), false,
+				Error, "Can't initilaize SilencerMesh"
+			);
 		}
 
 		MaxMagazineSize = MyWeaponInfo->MagazineSize;
@@ -188,8 +166,9 @@ bool ACloud9WeaponFirearm::OnInitialize(const FWeaponConfig& WeaponConfig)
 		OnAmmoInMagazineChanged.Broadcast(CurrentAmmo);
 		OnAmmoInReserveChanged.Broadcast(AmmoInReserve);
 
-		log(Verbose, "[Weapon='%s'] CurrentAmmo=%d MaxMagazineSize=%d AmmoInReserve=%d MaxAmmoInReserve=%d",
-		    *GetName(), CurrentAmmo, MaxMagazineSize, AmmoInReserve, MaxAmmoInReserve);
+		ObjectVerbose(
+			"CurrentAmmo=%d MaxMagazineSize=%d AmmoInReserve=%d MaxAmmoInReserve=%d",
+			CurrentAmmo, MaxMagazineSize, AmmoInReserve, MaxAmmoInReserve);
 
 		return true;
 	}
@@ -217,17 +196,16 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	WEAPON_IS_DEFINED_GUARD();
-	WEAPON_IS_DISARMED_GUARD();
+	AssertOrVoid(IsWeaponDefined(), Error, "Weapon not defined");
+	AssertOrVoid(not IsWeaponDisarmed(), Verbose, "AnimComponent isn't valid");
 
 	UpdateAccuracyPenalty(DeltaSeconds);
 
-	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
+	AssertOrVoid(not IsActionInProgress(), Verbose, "Action already in progress during Tick");
 
 	let Character = GetOwner<ACloud9Character>(); // suppose a weapon has owner cus we pass bond guard
 	let AnimComponent = Character->GetAnimationComponent();
-
-	WEAPON_ANIM_COMPONENT_GUARD();
+	AssertOrVoid(IsValid(AnimComponent), Error, "AnimComponent isn't valid");
 
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
@@ -318,17 +296,14 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 					return true;
 				}
 
-				if (Status == EFirearmFireStatus::Error)
-				{
-					log(Error, "[Weapon='%s'] Weapon fire failure status = %d", *GetName(), Status);
-					return false;
-				}
+				AssertOrReturn(
+					Status != EFirearmFireStatus::Error, false,
+					Error, "Weapon fire failure status=%d", Status);
 
-				if (not AnimComponent->PlayMontage(PoseMontages->PrimaryActionMontage))
-				{
-					log(Error, "[Weapon='%s'] No montage for primary action specified", *GetName());
-					return false;
-				}
+				AssertOrReturn(
+					AnimComponent->PlayMontage(PoseMontages->PrimaryActionMontage), false,
+					Error, "No montage for primary action specified"
+				);
 
 				// TODO: May be move to notifier?
 				MuzzleFlash->Activate(true);
@@ -408,11 +383,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::PrimaryAttack(
 			}
 		};
 
-		if (not IsOk)
-		{
-			log(Error, "[Weapon='%s'] Gun fire error...", *GetName());
-			return EFirearmFireStatus::Error;
-		}
+		AssertOrReturn(IsOk, EFirearmFireStatus::Error, Error, "Gun fire error...");
 	}
 
 	AccuracyPenalty += WeaponInfo->GetInaccuracyFire();
@@ -437,12 +408,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 	static let Settings = UCloud9DeveloperSettings::Get();
 
 	let Character = GetOwner<ACloud9Character>();
-
-	if (not IsValid(Character))
-	{
-		log(Error, "Character is invalid")
-		return EFirearmFireStatus::Error;
-	}
+	AssertOrReturn(IsValid(Character), EFirearmFireStatus::Error, Error, "Character is invalid");
 
 	// GetHitResultUnderCursor can return coordinates slightly upper then surface
 	// Prolong line in shoot direction
@@ -479,16 +445,16 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 			                    : TEXT("???");
 		FString PhysicalMaterial = LineHit.PhysMaterial.IsValid() ? *LineHit.PhysMaterial->GetName() : TEXT("???");
 
-		log(Display,
-		    "Target='%s' Owner='%s' Material='%s' Start={%s} End={%s} TraceEnd={%s} Hit={%s} Normal={%s}",
-		    *TargetName,
-		    *OwnerName,
-		    *PhysicalMaterial,
-		    *HitScanInfo.StartLocation.ToString(),
-		    *EndLocation.ToString(),
-		    *LineHit.TraceEnd.ToString(),
-		    *LineHit.Location.ToString(),
-		    *LineHit.Normal.ToString()
+		ObjectDisplay(
+			"Target='%s' Owner='%s' Material='%s' Start={%s} End={%s} TraceEnd={%s} Hit={%s} Normal={%s}",
+			*TargetName,
+			*OwnerName,
+			*PhysicalMaterial,
+			*HitScanInfo.StartLocation.ToString(),
+			*EndLocation.ToString(),
+			*LineHit.TraceEnd.ToString(),
+			*LineHit.Location.ToString(),
+			*LineHit.Normal.ToString()
 		);
 	}
 
@@ -517,10 +483,9 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 		}
 
 		let DamagedActor = Cast<AActor>(LineHit.Actor);
-		CheckIsValid(
-			DamagedActor,
-			Warning, "Line trace got hit but target actor is invalid",
-			EFirearmFireStatus::Success);
+		AssertOrReturn(
+			DamagedActor, EFirearmFireStatus::Success,
+			Warning, "Line trace got hit but target actor is invalid");
 
 		let Damage = UGameplayStatics::ApplyPointDamage(
 			DamagedActor,
@@ -546,7 +511,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 					Damage * FirearmCommonData.ImpulseMultiplier,
 					FirearmCommonData.MinAppliedImpulse,
 					FirearmCommonData.MaxAppliedImpulse);
-				log(Verbose, "[Weapon='%s'] Damage=%f Impulse=%f", *GetName(), Damage, Impulse);
+				ObjectVerbose("[%s] Damage=%f Impulse=%f", *GetName(), Damage, Impulse);
 				Target->AddImpulseAtLocation(Direction * Impulse, LineHit.Location, LineHit.BoneName);
 			}
 
@@ -778,7 +743,7 @@ float ACloud9WeaponFirearm::GetInaccuracy() const
 
 			0.0f, // No movement-related penalty when close to stopped
 			InaccuracyJumpInitial
-		); // Movement-penalty at start of jump
+		); // Movement-penalty at the start of jump
 
 		// Clamp to min/max values.  (Don't use RemapValClamped because it makes clamping to > kJumpMovePenalty hard)
 		if (AirSpeedInaccuracy < 0.0f)
@@ -819,7 +784,7 @@ TArray<FVector> ACloud9WeaponFirearm::RecalculateByShotInaccuracy(
 		RadiusCurveDensity = 1.0f - RadiusCurveDensity * RadiusCurveDensity;
 	}
 
-	// Negev currently not implemented but left this check if will be added
+	// Negev currently isn't implemented but left this check if will be added
 	if (GetWeaponId<EFirearm>() == EFirearm::Negev and RecoilPattern < 3) /* NEGEV WILD BEAST */
 	{
 		for (int j = 3; j > RecoilPattern; --j)
@@ -847,9 +812,10 @@ TArray<FVector> ACloud9WeaponFirearm::RecalculateByShotInaccuracy(
 	let OffsetX0 = Radius0 * FMath::Cos(Theta0);
 	let OffsetY0 = Radius0 * FMath::Sin(Theta0);
 
-	assert(
+	AssertOrCrash(
 		WeaponInfo->BulletsPerShot >= 1 and
-		WeaponInfo->BulletsPerShot <= MaxBullets
+		WeaponInfo->BulletsPerShot <= MaxBullets,
+		"Invalid bullets per shot"
 	);
 
 	FVector Forward, Right, Up;
@@ -941,12 +907,7 @@ void ACloud9WeaponFirearm::UpdateAccuracyPenalty(float DeltaSeconds)
 	static let Settings = UCloud9DeveloperSettings::Get();
 
 	let Character = GetOwner<ACloud9Character>();
-
-	if (not IsValid(Character))
-	{
-		log(Error, "[Weapon='%s'] Weapon owner is invalid", *GetName());
-		return;
-	}
+	AssertOrVoid(IsValid(Character), Error, "Weapon owner is invalid");
 
 	let WeaponInfo = GetWeaponInfo();
 
@@ -1006,12 +967,7 @@ void ACloud9WeaponFirearm::UpdateAccuracyPenalty(float DeltaSeconds)
 float ACloud9WeaponFirearm::GetRecoveryTime() const
 {
 	let Character = GetOwner<ACloud9Character>();
-
-	if (not IsValid(Character))
-	{
-		log(Error, "[Weapon='%s'] Weapon owner is invalid", *GetName());
-		return -1.0f;
-	}
+	AssertOrReturn(IsValid(Character), -1.0f, Error, "Weapon owner is invalid");
 
 	let WeaponInfo = GetWeaponInfo();
 
@@ -1074,12 +1030,7 @@ float ACloud9WeaponFirearm::GetRecoveryTime() const
 bool ACloud9WeaponFirearm::UpdateMagazineAttachment(bool IsReload)
 {
 	let Character = GetOwner<ACloud9Character>();
-
-	if (not IsValid(Character))
-	{
-		log(Error, "[Weapon='%s'] Weapon owner is invalid", *GetName());
-		return false;
-	}
+	AssertOrReturn(IsValid(Character), false, Error, "Weapon owner is invalid");
 
 	UMeshComponent* Mesh;
 	FName SocketName;
@@ -1088,26 +1039,11 @@ bool ACloud9WeaponFirearm::UpdateMagazineAttachment(bool IsReload)
 	if (IsReload)
 	{
 		let CharacterMesh = Character->GetMesh();
-
-		if (not IsValid(CharacterMesh))
-		{
-			log(Error, "[Weapon='%s'] Character mesh is invalid", *GetName());
-			return false;
-		}
+		AssertOrReturn(IsValid(CharacterMesh), false, Error, "Character mesh is invalid");
 
 		SocketName = UWeaponSlot::ReloadWeaponSocket(GetWeaponType());
-
-		if (SocketName.IsNone())
-		{
-			log(Error, "[Weapon='%s'] Can't get socket name='%s'", *GetName(), *SocketName.ToString());
-			return false;
-		}
-
-		if (not CharacterMesh->GetSocketByName(SocketName))
-		{
-			log(Error, "[Weapon='%s'] Socket not found in character mesh", *GetName());
-			return false;
-		}
+		AssertOrReturn(not SocketName.IsNone(), false, Error, "Can't get socket name='%s'", *SocketName.ToString());
+		AssertOrReturn(CharacterMesh->GetSocketByName(SocketName), false, Error, "Socket not found in character mesh");
 
 		Mesh = CharacterMesh;
 		IsDetached = true;
@@ -1115,20 +1051,10 @@ bool ACloud9WeaponFirearm::UpdateMagazineAttachment(bool IsReload)
 	else
 	{
 		let Inventory = Character->GetInventoryComponent();
-
-		if (not IsValid(Inventory))
-		{
-			log(Error, "[Weapon='%s'] Inventory is invalid", *GetName());
-			return false;
-		}
+		AssertOrReturn(IsValid(Inventory), false, Error, "Inventory is invalid");
 
 		let SelectedWeapon = Inventory->GetSelectedWeapon();
-
-		if (not IsValid(SelectedWeapon))
-		{
-			log(Error, "[Weapon='%s'] Selected weapon is invalid", *GetName());
-			return false;
-		}
+		AssertOrReturn(IsValid(SelectedWeapon), false, Error, "Selected weapon is invalid");
 
 		Mesh = SelectedWeapon->GetWeaponMesh();
 
@@ -1136,19 +1062,16 @@ bool ACloud9WeaponFirearm::UpdateMagazineAttachment(bool IsReload)
 		IsDetached = false;
 	}
 
-	if (MagazineMesh->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform, SocketName))
-	{
-		log(Verbose,
-		    "[Weapon='%s'] Update magazine attachment to Mesh='%s' socket='%s'",
-		    *GetName(), *Mesh->GetName(), *SocketName.ToString());
+	// Attach in any case either to character (if reloading in progress) or to weapon (if reloading finished)
+	// WARN: Also need to correct socket (size and rotation) in skeletal mesh if added other weapons 
+	AssertOrReturn(
+		MagazineMesh->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform, SocketName), false,
+		Error, "Can't change magazine attachement");
 
-		WeaponState.DetachMagazine(IsDetached);
-		return true;
-	}
+	ObjectVerbose("Update magazine attachment to Mesh='%s' Socket='%s'", *Mesh->GetName(), *SocketName.ToString());
 
-	log(Error, "[Weapon='%s'] Can't change magazine attachement", *GetName());
-
-	return false;
+	WeaponState.DetachMagazine(IsDetached);
+	return true;
 }
 
 void ACloud9WeaponFirearm::DropMagazine() const
@@ -1172,22 +1095,12 @@ void ACloud9WeaponFirearm::DropMagazine() const
 void ACloud9WeaponFirearm::EjectCase() const
 {
 	let World = GetWorld();
-
-	if (not GetWeaponMesh()->GetSocketByName(CaseEjectSocketName))
-	{
-		log(Error, "[Weapon='%s'] Socket case ejector not found", *GetName());
-		return;
-	}
+	AssertOrVoid(GetWeaponMesh()->GetSocketByName(CaseEjectSocketName), Error, "Socket case ejector not found");
 
 	let Transform = GetWeaponMesh()->GetSocketTransform(CaseEjectSocketName);
 
 	let CaseModel = GetWeaponInfo()->CaseModel;
-
-	if (not IsValid(CaseModel))
-	{
-		log(Error, "[Weapon='%s'] Case model is invalid", *GetName());
-		return;
-	}
+	AssertOrVoid(IsValid(CaseModel), Error, "Case model is invalid");
 
 	let Case = World->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), Transform);
 

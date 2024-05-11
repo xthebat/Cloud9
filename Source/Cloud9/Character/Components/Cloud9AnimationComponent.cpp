@@ -12,45 +12,28 @@ UCloud9AnimationComponent::UCloud9AnimationComponent() {}
 UAnimInstance* UCloud9AnimationComponent::GetAnimInstance() const
 {
 	let Character = GetOwner<ACloud9Character>();
-
-	if (not IsValid(Character))
-	{
-		log(Error, "[Component='%s'] Character is invalid", *GetName());
-		return nullptr;
-	}
+	AssertOrReturn(IsValid(Character), nullptr, Error, "Character is invalid");
 
 	let Mesh = Character->GetMesh();
-
-	if (not IsValid(Mesh))
-	{
-		log(Error, "[Component='%s'] Mesh is invalid", *GetName());
-		return nullptr;
-	}
+	AssertOrReturn(IsValid(Mesh), nullptr, Error, "Mesh is invalid");
 
 	return Mesh->GetAnimInstance();
 }
 
 bool UCloud9AnimationComponent::PlayMontage(UAnimMontage* Montage, float StartTime, float Rate) const
 {
-	if (not IsValid(Montage))
-	{
-		log(Error, "[Component='%s'] Montage is invalid", *GetName());
-		return false;
-	}
+	AssertOrReturn(IsValid(Montage), false, Error, "Montage is invalid");
 
 	let AnimInstance = GetAnimInstance();
+	AssertOrReturn(
+		IsValid(AnimInstance), false,
+		Error, "AnimInstance is invalid for montage '%s'",
+		*Montage->GetName());
 
-	if (not IsValid(AnimInstance))
-	{
-		log(Error, "[Component='%s'] AnimInstance is invalid for montage '%s'", *GetName(), *Montage->GetName());
-		return false;
-	}
-
-	if (not AnimInstance->Montage_Play(Montage, Rate, EMontagePlayReturnType::MontageLength, StartTime))
-	{
-		log(Error, "[Component='%s'] Can't play montage '%s'", *GetName(), *Montage->GetName());
-		return false;
-	}
+	AssertOrReturn(
+		AnimInstance->Montage_Play(Montage, Rate, EMontagePlayReturnType::MontageLength, StartTime), false,
+		Error, "Can't play montage '%s'", *Montage->GetName()
+	);
 
 	return true;
 }
@@ -58,12 +41,6 @@ bool UCloud9AnimationComponent::PlayMontage(UAnimMontage* Montage, float StartTi
 bool UCloud9AnimationComponent::IsAnyMontagePlaying() const
 {
 	let AnimInstance = GetAnimInstance();
-
-	if (not IsValid(AnimInstance))
-	{
-		log(Error, "[Component='%s'] AnimInstance is invalid", *GetName());
-		return false;
-	}
-
+	AssertOrReturn(IsValid(AnimInstance), false, Error, "AnimInstance is invalid");
 	return AnimInstance->IsAnyMontagePlaying();
 }

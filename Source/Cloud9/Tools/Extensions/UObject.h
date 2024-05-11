@@ -57,14 +57,8 @@ namespace EUObject
 		FORCEINLINE FTimerHandle operator()(const UObject* Self) const
 		{
 			var MyWorld = Self->GetWorld();
-
-			if (not IsValid(MyWorld))
-			{
-				// Should we crash or not crash in this case?
-				log(Fatal, "Timer not set due to game World not exists")
-				return {};
-			}
-
+			// Should we crash or not crash in this case?
+			FunctionAssertOrReturn(IsValid(MyWorld), {}, Fatal, "Timer not set due to game World not exists");
 			return MyWorld | EUWorld::AsyncAfter{Block, InRate, bInLoop};
 		}
 
@@ -78,14 +72,8 @@ namespace EUObject
 		FORCEINLINE bool operator()(const UObject* Self) const
 		{
 			let MyWorld = Self->GetWorld();
-
-			if (not IsValid(MyWorld))
-			{
-				// Should we crash or not crash in this case?
-				log(Fatal, "Timer not set due to game World not exists")
-				return false;
-			}
-
+			// Should we crash or not crash in this case?
+			FunctionAssertOrReturn(IsValid(MyWorld), {}, Fatal, "Timer not set due to game World not exists");
 			return MyWorld | EUWorld::IsTimerActive{TimerHandle};
 		}
 

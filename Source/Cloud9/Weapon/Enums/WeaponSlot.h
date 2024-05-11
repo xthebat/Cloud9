@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 Alexei Gladkikh
+// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -81,8 +81,7 @@ public:
 		case EWeaponType::Sniper:
 			return TEXT("ReloadSniperSocket");
 		default:
-			log(
-				Error,
+			FunctionError(
 				"Can't get reload weapon socket for weapon type '%s'",
 				WeaponType | EUEnum::GetValueName() | EFName::ToCStr());
 			return NAME_None;

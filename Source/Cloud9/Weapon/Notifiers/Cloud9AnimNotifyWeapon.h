@@ -24,34 +24,14 @@ protected:
 	static WeaponClassType* GetSelectedWeapon(USkeletalMeshComponent* MeshComp)
 	{
 		let Character = MeshComp->GetOwner<ACloud9Character>();
-
-		if (not IsValid(Character))
-		{
-			log(Error, "Character is invalid");
-			return nullptr;
-		}
+		FunctionAssertOrReturn(IsValid(Character), nullptr, Error, "Character is invalid");
 
 		let Inventory = Character->GetInventoryComponent();
-
-		if (not IsValid(Inventory))
-		{
-			log(Error, "Inventory is invalid");
-			return nullptr;
-		}
+		FunctionAssertOrReturn(IsValid(Inventory), nullptr, Error, "Inventory is invalid");
 
 		let SelectedWeapon = Inventory->GetSelectedWeapon();
-
-		if (not IsValid(SelectedWeapon))
-		{
-			log(Error, "Selected weapon is invalid");
-			return nullptr;
-		}
-
-		if (not SelectedWeapon->IsWeaponDefined())
-		{
-			log(Error, "Selected weapon is not defined");
-			return nullptr;
-		}
+		FunctionAssertOrReturn(IsValid(SelectedWeapon), nullptr, Error, "Selected weapon is invalid");
+		FunctionAssertOrReturn(SelectedWeapon->IsWeaponDefined(), nullptr, Error, "Selected weapon is not defined");
 
 		return Cast<WeaponClassType>(SelectedWeapon);
 	}

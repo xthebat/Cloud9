@@ -23,6 +23,7 @@
 
 #include "WeaponDefinitionsAsset.h"
 
+#include "Cloud9/Tools/Extensions/FString.h"
 #include "Cloud9/Tools/Macro/Common.h"
 #include "Cloud9/Tools/Macro/Logging.h"
 
@@ -40,42 +41,21 @@ FWeaponDefinition UWeaponDefinitionsAsset::GetWeaponDefinition(
 	using WeaponInfoType = typename EFWeaponId::WeaponInfo<WeaponIdType>::Type;
 
 	let WeaponName = WeaponId | EUEnum::GetValueName{};
-
-	if (WeaponName.IsNone())
-	{
-		log(Error, "WeaponName/WeaponId is invalid");
-		return {};
-	}
-
-	if (WeaponsInfoTable == nullptr)
-	{
-		log(Error, "WeaponsInfoTable isn't set");
-		return {};
-	}
+	AssertOrReturn(not WeaponName.IsNone(), {}, Error, "WeaponName/WeaponId is invalid");
+	AssertOrReturn(WeaponsInfoTable, {}, Error, "WeaponsInfoTable isn't set");
 
 	let WeaponInfo = WeaponsInfoTable->FindRow<WeaponInfoType>(WeaponName, "", false);
-
-	if (WeaponInfo == nullptr)
-	{
-		log(Error, "Can't get weapon info for '%s'", *WeaponName.ToString());
-		return {};
-	}
-
-	if (not Validator(WeaponInfo->Type))
-	{
-		let TypeName = WeaponInfo->Type | EUEnum::GetEnumFullValueName{};
-		log(Error, "Specified weapon type '%s' is invalid", *TypeName.ToString());
-		return {};
-	}
+	AssertOrReturn(WeaponInfo, {}, Error, "Can't get weapon info for '%s'", *WeaponName.ToString());
+	AssertOrReturn(
+		Validator(WeaponInfo->Type), {},
+		Error, "Specified weapon type '%s' is invalid",
+		WeaponInfo->Type | EUEnum::GetEnumFullValueName{} | EFName::ToCStr{});
 
 	let Montages = WeaponActionMontages.Find(WeaponInfo->Type);
-
-	if (Montages == nullptr)
-	{
-		let TypeName = WeaponInfo->Type | EUEnum::GetValueName{};
-		log(Error, "Animation montages not defined for weapon type '%s'", *TypeName.ToString());
-		return {};
-	}
+	AssertOrReturn(
+		Montages, {},
+		Error, "Animation montages not defined for weapon type '%s'",
+		WeaponInfo->Type | EUEnum::GetValueName{} | EFName::ToCStr{});
 
 	return FWeaponDefinition(*WeaponInfo, *Montages, WeaponCommonData);
 }
@@ -91,11 +71,10 @@ bool UWeaponDefinitionsAsset::GetWeaponDefinition(const FWeaponId& WeaponId, FWe
 		}, WeaponId
 	);
 
-	if (not IsValid(WeaponDefinition))
-	{
-		log(Error, "Can't get weapon definition for WeaponId='%s'", WeaponId | EFWeaponId::ToName() | EFName::ToCStr());
-		return false;
-	}
+	AssertOrReturn(
+		IsValid(WeaponDefinition), false,
+		Error, "Can't get weapon definition for WeaponId='%s'",
+		WeaponId | EFWeaponId::ToName() | EFName::ToCStr());
 
 	return true;
 }

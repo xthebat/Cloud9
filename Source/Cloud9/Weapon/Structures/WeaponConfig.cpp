@@ -76,11 +76,7 @@ TSubclassOf<AActor> FWeaponConfig::GetWeaponStaticClass() const
 
 bool FWeaponConfig::Initialize(AActor* Actor) const
 {
-	if (not IsValid(Actor))
-	{
-		log(Error, "Actor is invalid")
-		return false;
-	}
+	FunctionAssertOrReturn(IsValid(Actor), false, Error, "Actor is invalid");
 
 	let IsInitialized = Actor | WhenOrNone{
 		[this](ACloud9WeaponMelee* It) { return Initialize(It); },
@@ -88,11 +84,9 @@ bool FWeaponConfig::Initialize(AActor* Actor) const
 		[this](ACloud9WeaponGrenade* It) { return Initialize(It); }
 	};
 
-	if (not IsInitialized.Get(false))
-	{
-		log(Error, "[Actor='%s' Config='%s'] Weapon initialization failure", *Actor->GetName(), *ToString());
-		return false;
-	}
+	FunctionAssertOrReturn(
+		IsInitialized.Get(false), false,
+		Error, "Weapon '%s' initialization failure with config '%s'", *Actor->GetName(), *ToString());
 
 	return true;
 }
@@ -146,11 +140,6 @@ FWeaponConfig FWeaponConfig::FromWeapon(const ACloud9WeaponBase* Weapon)
 			}
 		};
 
-	if (not Config.IsSet())
-	{
-		log(Fatal, "Weapon class is undefined")
-		return {};
-	}
-
+	AssertOrCrash(Config.IsSet(), "Weapon class is undefined");
 	return *Config;
 }

@@ -24,46 +24,26 @@ void UCloud9HealthComponent::Initialize(FHealthConfig Config)
 
 bool UCloud9HealthComponent::TakeHealthDamage(float Change)
 {
-	if (Change >= 0.0f)
-	{
-		return ChangeHealth(Health - Change);
-	}
-
-	log(Warning, "Can't increase health using this method Change=%f", Change);
-	return false;
+	AssertOrReturn(Change >= 0.0f, false, Warning, "Can't increase health using this method Change=%f", Change);
+	return ChangeHealth(Health - Change);
 }
 
 bool UCloud9HealthComponent::TakeArmorDamage(float Change)
 {
-	if (Change >= 0.0f)
-	{
-		return ChangeArmor(Armor - Change);
-	}
-
-	log(Warning, "Can't increase armor using this method Change=%f", Change);
-	return false;
+	AssertOrReturn(Change >= 0.0f, false, Warning, "Can't increase armor using this method Change=%f", Change);
+	return ChangeArmor(Armor - Change);
 }
 
 bool UCloud9HealthComponent::IncreaseHealth(float Change)
 {
-	if (Change >= 0.0f)
-	{
-		return ChangeHealth(Health + Change);
-	}
-
-	log(Warning, "Can't decimante health using this method Change=%f", Change);
-	return false;
+	AssertOrReturn(Change >= 0.0f, false, Warning, "Can't decimante health using this method Change=%f", Change);
+	return ChangeHealth(Health + Change);
 }
 
 bool UCloud9HealthComponent::IncreaseArmor(float Change)
 {
-	if (Change >= 0.0f)
-	{
-		return ChangeArmor(Health + Change);
-	}
-
-	log(Warning, "Can't decimante armor using this method Change=%f", Change);
-	return false;
+	AssertOrReturn(Change >= 0.0f, false, Warning, "Can't decimante armor using this method Change=%f", Change);
+	return ChangeArmor(Health + Change);
 }
 
 bool UCloud9HealthComponent::IsInvulnerable() const { return bIsInvulnerable; }
@@ -79,16 +59,11 @@ bool UCloud9HealthComponent::ChangeHealth(float NewHealth)
 
 		if (Health == 0.0f)
 		{
-			let Owner = GetOwner();
-
-			if (not IsValid(Owner))
-			{
-				log(Fatal, "[Component=%s] Owner isn't valid", *GetName());
-				return false;
-			}
+			let MyOwner = GetOwner();
+			AssertOrReturn(IsValid(MyOwner), false, Fatal, "Owner isn't valid");
 
 			bIsAlive = false;
-			OnCharacterDie.Broadcast(Owner);
+			OnCharacterDie.Broadcast(MyOwner);
 		}
 
 		return true;
@@ -118,12 +93,7 @@ void UCloud9HealthComponent::OnRegister()
 	Super::OnRegister();
 
 	let MyOwner = GetOwner();
-
-	if (not IsValid(MyOwner))
-	{
-		log(Error, "HealthComponent isn't valid");
-		return;
-	}
+	AssertOrVoid(IsValid(MyOwner), Error, "HealthComponent isn't valid");
 
 	// Register twice or delegate add twice (?)
 	MyOwner->OnTakePointDamage.AddUniqueDynamic(this, &UCloud9HealthComponent::OnTakePointDamage);
@@ -134,11 +104,7 @@ void UCloud9HealthComponent::AddAttackerScore(const AController* InstigatedBy) c
 {
 	if (not bIsAlive)
 	{
-		if (not IsValid(InstigatedBy))
-		{
-			log(Error, "[Component = %s] InstigatedBy is invalid", *GetName());
-			return;
-		}
+		AssertOrVoid(IsValid(InstigatedBy), Error, "InstigatedBy is invalid");
 
 		// TODO: Make score component
 		if (let Character = Cast<ACloud9Character>(InstigatedBy->GetCharacter()); IsValid(Character))
