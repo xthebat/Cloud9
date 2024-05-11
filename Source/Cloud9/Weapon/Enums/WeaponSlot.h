@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Alexei Gladkikh
+﻿// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -72,8 +72,8 @@ public:
 		{
 		case EWeaponType::Pistol:
 			return TEXT("ReloadPistolSocket");
-		// case EWeaponType::Smg:
-		// return TEXT("ReloadSmgSocket");
+		case EWeaponType::Smg:
+			return TEXT("ReloadSmgSocket");
 		case EWeaponType::Shotgun:
 			return TEXT("ReloadShotgunSocket");
 		case EWeaponType::Rifle:
