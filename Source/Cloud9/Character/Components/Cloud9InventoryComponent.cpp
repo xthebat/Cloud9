@@ -189,7 +189,7 @@ bool UCloud9InventoryComponent::AddWeapon(const FWeaponConfig& Config, bool Sele
 		AssertOrReturn(SelectWeapon(Slot), false, Error, "New weapon selection failure: %s", *Config.ToString());
 	}
 
-	log(Verbose, "[%s] Added configured weapon = '%s'", *GetName(), *Config.ToString());
+	ObjectVerbose("Added configured weapon='%s'", *Config.ToString());
 
 	WeaponsCount++;
 	OnWeaponAddDelegate.Broadcast(Weapon);
@@ -228,7 +228,7 @@ bool UCloud9InventoryComponent::SelectOtherAvailableWeapon(bool Instant, bool Fo
 		| ETContainer::Find{[&](let It) { return It->GetWeaponSlot() != SelectedWeaponSlot; }}
 		| ETOptional::OnSet{[&](let It) { NewSlot = It->GetWeaponSlot(); }};
 
-	log(Verbose, "[%s] Change selected slot to '%d'", *GetName(), NewSlot);
+	ObjectVerbose("Change selected slot='%d'", NewSlot);
 
 	return SelectWeapon(NewSlot, Instant, Force);
 }

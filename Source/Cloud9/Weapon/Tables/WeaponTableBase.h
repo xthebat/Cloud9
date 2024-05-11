@@ -121,8 +121,8 @@ namespace EFWeaponInfo
 			{
 				if (SkinName == FWeaponSkin::Default)
 				{
-					// Crash if have no even default skin
-					log(Fatal, "Can't get default skin");
+					// Crash if we have no even default skin
+					FunctionFatal("Can't get default skin");
 				}
 
 				return {};
@@ -147,7 +147,7 @@ namespace EFWeaponInfo
 				| GetSkinByNameOrNull(SkinName)
 				| Get([&]
 					{
-						log(Error, "Weapon skin '%s' not found -> try to get default skin", *SkinName.ToString());
+						FunctionError("Weapon skin '%s' not found -> try to get default skin", *SkinName.ToString());
 						return Self
 							| GetSkinByNameOrNull()
 							| Get();

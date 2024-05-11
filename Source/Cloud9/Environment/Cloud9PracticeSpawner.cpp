@@ -103,7 +103,7 @@ AActor* ACloud9PracticeSpawner::SpawnTarget_Implementation(FVector Location)
 {
 	if (not IsValid(Template))
 	{
-		log(Error, "[%s]: Actor class not specified", *GetName());
+		ObjectError("Actor class not specified");
 		bIsEnabled = false;
 		SetActorTickEnabled(false);
 		return nullptr;

@@ -144,9 +144,9 @@ namespace EUWorld
 	{
 		FORCEINLINE GameModeType* operator()(const UWorld* Self) const
 		{
-			StaticAssertOrReturn(IsValid(Self), nullptr, Error, "World isn't valid to get GameMode");
+			FunctionAssertOrReturn(IsValid(Self), nullptr, Error, "World isn't valid to get GameMode");
 			let GameMode = UGameplayStatics::GetGameMode(Self);
-			StaticAssertOrReturn(IsValid(GameMode), nullptr, Error, "Current GameMode isn't valid");
+			FunctionAssertOrReturn(IsValid(GameMode), nullptr, Error, "Current GameMode isn't valid");
 			return Cast<GameModeType>(GameMode);
 		}
 

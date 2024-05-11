@@ -29,40 +29,36 @@
 #define let const auto
 #define var auto
 
-#define AssertOrReturn(What, Value, Severity, Message, ...) \
-	do { \
-		if (not (What)) \
-		{ \
-			log(Severity, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
-			return Value; \
-		} \
-	} while(false)
+#define AssertOrReturn(What, Value, Severity, Message, ...) do { \
+	if (not (What)) \
+	{ \
+		log(Severity, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+		return Value; \
+	} \
+} while (false)
 
-#define AssertOrVoid(What, Severity, Message, ...) \
-	do { \
-		if (not (What)) \
-		{ \
-			log(Severity, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
-			return; \
-		} \
-	} while(false)
+#define AssertOrVoid(What, Severity, Message, ...) do { \
+	if (not (What)) \
+	{ \
+		log(Severity, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+		return; \
+	} \
+} while (false)
 
-#define StaticAssertOrReturn(What, Value, Severity, Message, ...) \
-	do { \
-		if (not (What)) \
-		{ \
-			log(Severity, Message, __VA_ARGS__); \
-			return Value; \
-		} \
-	} while(false)
+#define FunctionAssertOrReturn(What, Value, Severity, Message, ...) do { \
+	if (not (What)) \
+	{ \
+		log(Severity, Message, __VA_ARGS__); \
+		return Value; \
+	} \
+} while (false)
 
-#define StaticAssertOrVoid(What, Severity, Message, ...) \
-	do { \
-		if (not (What)) \
-		{ \
-			log(Severity, Message, ##__VA_ARGS__); \
-			return; \
-		} \
-	} while(false)
+#define FunctionAssertOrVoid(What, Severity, Message, ...) do { \
+	if (not (What)) \
+	{ \
+		log(Severity, Message, ##__VA_ARGS__); \
+		return; \
+	} \
+} while (false)
 
 #define AssertOrCrash(Condition, FormatString, ...) checkf(Condition, TEXT(FormatString), ##__VA_ARGS__)

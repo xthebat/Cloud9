@@ -54,7 +54,7 @@ bool UCloud9AnimNotifyPlaySound::PlayMeleeSound(USkeletalMeshComponent* MeshComp
 	case EWeaponSoundType::Secondary:
 		return UCloud9SoundPlayer::PlayRandomSound(WeaponInfo->Sounds.StabSounds, Location, Volume);
 	default:
-		log(Error, "[%s] Invalid sound type for melee sound", *GetName());
+		ObjectError("Invalid sound type for melee sound");
 		return false;
 	}
 }
@@ -88,7 +88,7 @@ bool UCloud9AnimNotifyPlaySound::PlayFirearmSound(USkeletalMeshComponent* MeshCo
 		}
 		return false;
 	default:
-		log(Error, "[%s] Invalid sound type for firearm sound SoundType=%d", *GetName(), SoundType);
+		ObjectError("Invalid sound type for firearm sound SoundType=%d", SoundType);
 		return false;
 	}
 }
@@ -112,7 +112,7 @@ bool UCloud9AnimNotifyPlaySound::PlayGrenadeSound(USkeletalMeshComponent* MeshCo
 	case EWeaponSoundType::Primary:
 		return UCloud9SoundPlayer::PlaySingleSound(WeaponInfo->Sounds.ThrowSound, Location, Volume);
 	default:
-		log(Error, "[%s] Invalid sound type for firearm sound SoundType=%d", *GetName(), SoundType);
+		ObjectError("Invalid sound type for firearm sound SoundType=%d", SoundType);
 		return false;
 	}
 }
@@ -149,7 +149,7 @@ void UCloud9AnimNotifyPlaySound::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 			PlayGrenadeSound(MeshComp, Volume);
 			break;
 		default:
-			log(Error, "[%s] Invalid class name", *GetName());
+			ObjectError("Invalid class name");
 		}
 	}
 }

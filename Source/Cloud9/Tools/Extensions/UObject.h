@@ -58,7 +58,7 @@ namespace EUObject
 		{
 			var MyWorld = Self->GetWorld();
 			// Should we crash or not crash in this case?
-			StaticAssertOrReturn(IsValid(MyWorld), {}, Fatal, "Timer not set due to game World not exists");
+			FunctionAssertOrReturn(IsValid(MyWorld), {}, Fatal, "Timer not set due to game World not exists");
 			return MyWorld | EUWorld::AsyncAfter{Block, InRate, bInLoop};
 		}
 
@@ -73,7 +73,7 @@ namespace EUObject
 		{
 			let MyWorld = Self->GetWorld();
 			// Should we crash or not crash in this case?
-			StaticAssertOrReturn(IsValid(MyWorld), {}, Fatal, "Timer not set due to game World not exists");
+			FunctionAssertOrReturn(IsValid(MyWorld), {}, Fatal, "Timer not set due to game World not exists");
 			return MyWorld | EUWorld::IsTimerActive{TimerHandle};
 		}
 

@@ -69,14 +69,13 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	WEAPON_IS_DEFINED_GUARD();
-	WEAPON_IS_DISARMED_GUARD();
-	WEAPON_IS_ACTION_IN_PROGRESS_GUARD();
+	AssertOrVoid(IsWeaponDefined(), Error, "Weapon not defined");
+	AssertOrVoid(not IsWeaponDisarmed(), Verbose, "AnimComponent isn't valid");
+	AssertOrVoid(not IsActionInProgress(), Verbose, "Action already in progress during Tick");
 
 	let Character = GetOwner<ACloud9Character>();
 	let AnimComponent = Character->GetAnimationComponent();
-
-	WEAPON_ANIM_COMPONENT_GUARD();
+	AssertOrVoid(IsValid(AnimComponent), Error, "AnimComponent isn't valid");
 
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);

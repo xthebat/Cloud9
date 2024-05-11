@@ -99,7 +99,7 @@ UWeaponDefinitionsAsset* ACloud9WeaponBase::GetWeaponDefinitionsAsset()
 
 	// Try reload later then ... this will haven in PIE
 	// if some object required this asset placed on level
-	StaticAssertOrReturn(IsValid(Asset), nullptr, Error, "WeaponDefinitionsAsset loading failure");
+	FunctionAssertOrReturn(IsValid(Asset), nullptr, Error, "WeaponDefinitionsAsset loading failure");
 
 	WeaponDefinitionsAsset = Asset;
 
@@ -221,9 +221,9 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond 
 		CharacterMesh->GetSocketByName(SocketName), false,
 		Error, "Socket not found in character mesh for '%s'", SLOT_NAME);
 
-	log(Verbose,
-	    "[Weapon='%s' Slot='%s'] Update attachment to character '%s' into socket '%s'",
-	    *GetName(), SLOT_NAME, *Character->GetName(), *SocketName.ToString());
+	ObjectDisplay(
+		"Update attachment to character '%s' into socket '%s'",
+		*Character->GetName(), *SocketName.ToString());
 
 	AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, SocketName);
 
@@ -267,7 +267,7 @@ bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot 
 
 	if (not UpdateWeaponAttachment(NewSlot, EWeaponBond::Holstered))
 	{
-		log(Error, "Failed to update attachment for weapon '%s' slot '%s'", *GetName(), SLOT_NAME);
+		ObjectError("Failed to update attachment for slot '%s'", SLOT_NAME);
 		SetOwner(nullptr);
 		return false;
 	}
@@ -279,11 +279,8 @@ bool ACloud9WeaponBase::AddToInventory(ACloud9Character* Character, EWeaponSlot 
 
 bool ACloud9WeaponBase::RemoveFromInventory()
 {
-	if (let Character = GetOwner<ACloud9Character>(); not Character)
-	{
-		log(Error, "[Weapon='%s'] Weapon not in any inventory", *GetName());
-		return false;
-	}
+	let Character = GetOwner<ACloud9Character>();
+	AssertOrReturn(IsValid(Character), false, Error, "Weapon not in any inventory");
 
 	// TODO: Add velocity impulse when weapon dropped
 
@@ -351,7 +348,7 @@ bool ACloud9WeaponBase::Initialize(const FWeaponConfig& WeaponConfig)
 
 	if (not OnInitialize(WeaponConfig))
 	{
-		log(Error, "[Weapon='%s'] Weapon initialization failure", *GetName());
+		ObjectError("Weapon initialization failure");
 		Deinitialize();
 		return false;
 	}
@@ -376,7 +373,7 @@ bool ACloud9WeaponBase::OnInitialize(const FWeaponConfig& WeaponConfig)
 
 void ACloud9WeaponBase::Deinitialize()
 {
-	log(Warning, "[Weapon='%s'] Deinitialize weapon to initial state", *GetName());
+	ObjectWarn("Deinitialize weapon to initial state");
 
 	WeaponSkin = FWeaponSkin::Default;
 
@@ -408,7 +405,7 @@ FName ACloud9WeaponBase::GetWeaponName() const { return GetWeaponId() | EFWeapon
 FWeaponId ACloud9WeaponBase::GetWeaponId() const
 {
 	static let UnknownWeaponId = ETVariant::Convert<FWeaponId>(EBadWeapon::NoClass);
-	log(Fatal, "[Weapon='%s'] Not implmemented", *GetName());
+	ObjectFatal("Not implmemented");
 	return UnknownWeaponId;
 }
 

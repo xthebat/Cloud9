@@ -234,33 +234,6 @@ protected:
 
 	const FWeaponCommonData* GetWeaponCommonData() const;
 
-#define WEAPON_IS_DEFINED_GUARD() \
-	if (not IsWeaponDefined()) \
-	{ \
-		log(Error, "[%s] Not defined", *GetName()); \
-		return; \
-	}
-
-#define WEAPON_ANIM_COMPONENT_GUARD() \
-	if (not IsValid(AnimComponent)) \
-	{ \
-		log(Warning, "[%s] AnimComponent isn't valid", *GetName()); \
-		return; \
-	}
-
-#define WEAPON_IS_ACTION_IN_PROGRESS_GUARD() \
-	if (IsActionInProgress()) \
-	{ \
-		log(Verbose, "[%s] Action already in progress during Tick", *GetName()); \
-		return; \
-	}
-
-#define WEAPON_IS_DISARMED_GUARD() \
-	if (IsWeaponDisarmed()) \
-	{ \
-		return; \
-	}
-
 	// properties
 	/**
 	  * Current weapon skin name

@@ -91,7 +91,7 @@ UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
 void UCloud9DeveloperSettings::Save()
 {
 	UpdateDefaultConfigFile();
-	log(Display, "%s", this | EUObject::Stringify{} | EFString::ToCStr{});
+	ObjectDisplay("%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 }
 
 template <typename ValueType>
@@ -268,7 +268,7 @@ void UCloud9DeveloperSettings::InitializeCVars()
 			TEXT("Decal size to fade off screen")
 		);
 
-		log(Display, "%s", this | EUObject::Stringify{} | EFString::ToCStr{});
+		ObjectDisplay("%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 	}
 }
 

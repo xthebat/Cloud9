@@ -56,7 +56,7 @@ void ACloud9GameMode::StartToLeaveMap()
 
 	if (let MyWorld = GetWorld(); MyWorld != nullptr)
 	{
-		log(Verbose, "Cleanup world timers = %p", this);
+		ObjectVerbose("Cleanup world timers = %p", this);
 		MyWorld | EUWorld::ClearAllTimers{};
 	}
 

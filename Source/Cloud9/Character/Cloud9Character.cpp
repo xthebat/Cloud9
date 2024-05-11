@@ -437,15 +437,14 @@ float ACloud9Character::InternalTakePointDamage(
 
 		if (Settings->WeaponDebugDamageInfo)
 		{
-			log(Display,
-			    "[Actor='%s'] Distance=%f RangeCoefficient=%f BoneName=%s Armored=%d DamageToHealth=%f DamageToArmor=%f",
-			    *GetName(),
-			    FMath::Sqrt(Distance),
-			    RangeCoefficient,
-			    *BoneName.ToString(),
-			    HitInArmor,
-			    DamageToHealth,
-			    DamageToArmor);
+			ObjectDisplay(
+				"Distance=%f RangeCoefficient=%f BoneName=%s Armored=%d DamageToHealth=%f DamageToArmor=%f",
+				FMath::Sqrt(Distance),
+				RangeCoefficient,
+				*BoneName.ToString(),
+				HitInArmor,
+				DamageToHealth,
+				DamageToArmor);
 		}
 
 		FlinchModLarge = WeaponInfo->GetFlinchVelocityModifierLarge();
@@ -492,7 +491,7 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 		if (not CameraTargetBoneName.IsNone())
 		{
 			let HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
-			log(Verbose, "Setup CameraBoom = %s", *HeadBoneLocation.ToString());
+			ObjectVerbose("Setup CameraBoom = %s", *HeadBoneLocation.ToString());
 			CameraBoom->SetWorldLocation(HeadBoneLocation);
 		}
 
@@ -523,7 +522,7 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 				HitBox->SetCollisionProfileName(TRACE_HITBOX);
 				HitBox->CreationMethod = EComponentCreationMethod::UserConstructionScript;
 		
-				log(Error, "Hitbox registered = %s [%f]", *HitBox->GetName(), HitBox->GetUnscaledCapsuleRadius());
+				ObjectVerbose("Hitbox registered = %s [%f]", *HitBox->GetName(), HitBox->GetUnscaledCapsuleRadius());
 			}
 		}
 #endif

@@ -61,7 +61,7 @@ public:
 		{
 			if (not OnExecute())
 			{
-				log(Error, "[%s] Failed to execute function", *GetName());
+				ObjectError("Failed to execute action function");
 				OnComplete();
 				return false;
 			}

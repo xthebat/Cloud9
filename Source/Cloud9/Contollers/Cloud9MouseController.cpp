@@ -83,7 +83,7 @@ float UCloud9MouseController::GetCameraZoomHeightLevel() const
 
 	if (not FMath::IsNearlyEqual(ZoomHeightLevel, ZoomAngleLevel, 0.001f))
 	{
-		log(Error, "ZoomHeightLevel = %f != ZoomAngleLevel != %f", ZoomHeightLevel, ZoomAngleLevel);
+		ObjectError("ZoomHeightLevel = %f != ZoomAngleLevel != %f", ZoomHeightLevel, ZoomAngleLevel);
 	}
 
 	return ZoomHeightLevel;

@@ -42,8 +42,9 @@ UCloud9CharacterEffectTrait* UCloud9EffectsComponent::AddEffect(
 				AppliedCanDamagedEffects.Add(Effect);
 			}
 
-			log(Verbose, "[%s] Apply effect class='%s' effect='%s' (%p) on owner='%s'",
-			    *GetName(), *EffectClass->GetName(), *Effect->GetName(), Effect, *GetOwnerName());
+			ObjectVerbose(
+				"Apply effect class='%s' effect='%s' (%p) on owner='%s'",
+				*EffectClass->GetName(), *Effect->GetName(), Effect, *GetOwnerName());
 
 			return Effect;
 		}
@@ -63,8 +64,8 @@ bool UCloud9EffectsComponent::RemoveEffect(UCloud9CharacterEffectTrait* Effect)
 
 	Effect->OnRemove();
 
-	log(Verbose, "[%s] Remove effect='%s' (%p) on owner='%s'",
-	    *GetName(), *Effect->GetName(), Effect, *GetOwnerName());
+	ObjectVerbose("Remove effect='%s' (%p) on owner='%s'", *Effect->GetName(), Effect, *GetOwnerName());
+
 	return true;
 }
 
