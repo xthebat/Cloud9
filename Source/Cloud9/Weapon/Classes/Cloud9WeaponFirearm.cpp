@@ -550,7 +550,7 @@ EFirearmFireStatus ACloud9WeaponFirearm::GunFire(
 						LineHit.GetComponent(),
 						NAME_None,
 						LineHit.Location,
-						PhysicalMaterial->GetFirearmDecalRotation(LineHit.ImpactNormal),
+						PhysicalMaterial->GetFirearmDecalRotation(-LineHit.ImpactNormal),
 						EAttachLocation::KeepWorldPosition,
 						Settings->DecalLifeSpan
 					);
