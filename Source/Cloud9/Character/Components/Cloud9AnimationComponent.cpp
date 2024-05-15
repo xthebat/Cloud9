@@ -12,25 +12,25 @@ UCloud9AnimationComponent::UCloud9AnimationComponent() {}
 UAnimInstance* UCloud9AnimationComponent::GetAnimInstance() const
 {
 	let Character = GetOwner<ACloud9Character>();
-	AssertOrReturn(IsValid(Character), nullptr, Error, "Character is invalid");
+	OBJECT_RETURN_IF_FAIL(IsValid(Character), nullptr, Error, "Character is invalid");
 
 	let Mesh = Character->GetMesh();
-	AssertOrReturn(IsValid(Mesh), nullptr, Error, "Mesh is invalid");
+	OBJECT_RETURN_IF_FAIL(IsValid(Mesh), nullptr, Error, "Mesh is invalid");
 
 	return Mesh->GetAnimInstance();
 }
 
 bool UCloud9AnimationComponent::PlayMontage(UAnimMontage* Montage, float StartTime, float Rate) const
 {
-	AssertOrReturn(IsValid(Montage), false, Error, "Montage is invalid");
+	OBJECT_RETURN_IF_FAIL(IsValid(Montage), false, Error, "Montage is invalid");
 
 	let AnimInstance = GetAnimInstance();
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(
 		IsValid(AnimInstance), false,
 		Error, "AnimInstance is invalid for montage '%s'",
 		*Montage->GetName());
 
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(
 		AnimInstance->Montage_Play(Montage, Rate, EMontagePlayReturnType::MontageLength, StartTime), false,
 		Error, "Can't play montage '%s'", *Montage->GetName()
 	);
@@ -41,6 +41,6 @@ bool UCloud9AnimationComponent::PlayMontage(UAnimMontage* Montage, float StartTi
 bool UCloud9AnimationComponent::IsAnyMontagePlaying() const
 {
 	let AnimInstance = GetAnimInstance();
-	AssertOrReturn(IsValid(AnimInstance), false, Error, "AnimInstance is invalid");
+	OBJECT_RETURN_IF_FAIL(IsValid(AnimInstance), false, Error, "AnimInstance is invalid");
 	return AnimInstance->IsAnyMontagePlaying();
 }

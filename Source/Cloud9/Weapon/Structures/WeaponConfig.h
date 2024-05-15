@@ -118,8 +118,8 @@ struct FWeaponConfig
 	template <typename WeaponClassType>
 	bool Initialize(WeaponClassType* Weapon) const
 	{
-		FunctionAssertOrReturn(IsValid(Weapon), false, Error, "Weapon to initialize is invalid");
-		FunctionVerbose("[%s] Initializing weapon...", *ToString());
+		RETURN_IF_FAIL(IsValid(Weapon), false, Error, "Weapon to initialize is invalid");
+		FUNCTION_VERBOSE("[%s] Initializing weapon...", *ToString());
 		return Weapon->Initialize(*this);
 	}
 
@@ -152,12 +152,12 @@ protected:
 	void PostEditChangeProperty()
 	{
 		let Asset = ACloud9WeaponBase::GetWeaponDefinitionsAsset();
-		FunctionAssertOrVoid(IsValid(Asset), Error, "WCan't get WeaponDefinitionsAsset");
+		VOID_IF_FAIL(IsValid(Asset), Error, "WCan't get WeaponDefinitionsAsset");
 
 		if (WeaponClass == EWeaponClass::Firearm)
 		{
 			FWeaponDefinition WeaponDefinition;
-			FunctionAssertOrVoid(
+			VOID_IF_FAIL(
 				Asset->GetWeaponDefinition(GetWeaponId(), WeaponDefinition),
 				Error, "Can't get WeaponDefinition for firearm = %d", FirearmWeaponId);
 

@@ -94,7 +94,7 @@ void UCloud9ToolsLibrary::GetWidthHeightDepth(const FBox& Box, float& Width, flo
 
 TArray<FString> UCloud9ToolsLibrary::GetObjectEditorProperties(UClass* Class)
 {
-	FunctionAssertOrReturn(IsValid(Class), {}, Error, "Input class is invalid");
+	RETURN_IF_FAIL(IsValid(Class), {}, Error, "Input class is invalid");
 	return TFieldIterator<FProperty>(Class)
 		| ETContainer::FromIterator{}
 		| ETContainer::Filter{[](let& It) { return It.HasAnyPropertyFlags(CPF_Edit); }}

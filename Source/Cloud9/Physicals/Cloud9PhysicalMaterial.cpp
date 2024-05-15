@@ -47,7 +47,7 @@ USoundBase* UCloud9PhysicalMaterial::GetRandomFirearmHitSound() const { return G
 USoundBase* UCloud9PhysicalMaterial::GetFirearmAltHitSound(const TSet<USoundBase*> Sounds) const
 {
 	let Sound = GetRandomItem(Sounds);
-	AssertOrReturn(IsValid(Sound), nullptr, Warning, "Can't get alternative sound, fallback to base sound");
+	OBJECT_RETURN_IF_FAIL(IsValid(Sound), nullptr, Warning, "Can't get alternative sound, fallback to base sound");
 	return Sound;
 }
 

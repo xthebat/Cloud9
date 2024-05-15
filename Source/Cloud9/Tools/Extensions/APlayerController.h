@@ -16,7 +16,7 @@ namespace EAPlayerController
 
 		TOptional<FHitResult> operator()(const APlayerController* Self) const
 		{
-			AssertOrCrash(Self != nullptr, "APlayerController should not be nullptr");
+			CRASH_IF_FAIL(Self != nullptr, "APlayerController should not be nullptr");
 
 			let LocalPlayer = Cast<ULocalPlayer>(Self->Player);
 			if (IsValid(LocalPlayer) and LocalPlayer->ViewportClient)

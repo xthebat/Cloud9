@@ -78,7 +78,7 @@ void AItemSpawner::OnConstruction(const FTransform& Transform)
 	Super::OnConstruction(Transform);
 
 	let ItemSample = CreateChildActor();
-	AssertOrVoid(IsValid(ItemSample), Error, "Can't create spawner sample");
+	OBJECT_VOID_IF_FAIL(IsValid(ItemSample), Error, "Can't create spawner sample");
 
 	ItemSample->SetActorTickEnabled(false);
 	ItemSample->UpdateComponentTransforms();
@@ -103,7 +103,7 @@ void AItemSpawner::BeginPlay()
 	Super::BeginPlay();
 
 	let ItemSample = ItemSampleComponent->GetChildActor();
-	AssertOrVoid(IsValid(ItemSample), Error, "Invalid spawner");
+	OBJECT_VOID_IF_FAIL(IsValid(ItemSample), Error, "Invalid spawner");
 
 	if (bIsRandomInitialRotation)
 	{

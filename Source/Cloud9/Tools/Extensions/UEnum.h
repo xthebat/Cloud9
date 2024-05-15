@@ -60,7 +60,7 @@ namespace EUEnum
 				return Block(EnumClass, EnumValue);
 			}
 
-			FunctionError("Can't get static enum class for value '%d'", Self);
+			FUNCTION_ERROR("Can't get static enum class for value '%d'", Self);
 
 			return Default;
 		}
@@ -111,8 +111,8 @@ namespace EUEnum
 
 		FORCEINLINE FName operator()(const UEnum* Self) const
 		{
-			FunctionAssertOrReturn(ValueId >= 0, NAME_None, Error,
-			                       "GetValueName should not be called with ValueId < 0");
+			RETURN_IF_FAIL(ValueId >= 0, NAME_None, Error,
+			               "GetValueName should not be called with ValueId < 0");
 			return GetOnlyValueName(Self, ValueId);
 		}
 
@@ -131,7 +131,7 @@ namespace EUEnum
 		static FName GetOnlyValueName(const UEnum* Enum, const int Value)
 		{
 			let Name = Enum->GetNameByIndex(Value);
-			FunctionAssertOrReturn(not Name.IsNone(), NAME_None, Error, "Invalid value name");
+			RETURN_IF_FAIL(not Name.IsNone(), NAME_None, Error, "Invalid value name");
 
 			let String = Name.ToString();
 

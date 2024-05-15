@@ -9,7 +9,7 @@
 
 bool UCloud9SoundPlayer::PlaySingleSound(USoundBase* Sound, FVector Location, float Volume)
 {
-	FunctionAssertOrReturn(Sound, false, Error, "Invalid Sound");
+	RETURN_IF_FAIL(Sound, false, Error, "Invalid Sound");
 
 	USoundAttenuation* AttenuationSettings = nullptr;
 
@@ -36,9 +36,9 @@ bool UCloud9SoundPlayer::PlaySoundByName(
 	FVector Location,
 	float Volume)
 {
-	FunctionAssertOrReturn(not Name.IsNone(), false, Error, "Name not specified");
+	RETURN_IF_FAIL(not Name.IsNone(), false, Error, "Name not specified");
 	let Sound = Sounds.Find(Name);
-	FunctionAssertOrReturn(Sound and *Sound, false, Error, "No sound specified");
+	RETURN_IF_FAIL(Sound and *Sound, false, Error, "No sound specified");
 	return PlaySingleSound(*Sound, Location, Volume);
 }
 
@@ -52,7 +52,7 @@ bool UCloud9SoundPlayer::PlayRandomSound(
 
 	return Sounds
 		| Random()
-		| OnNull{[] { FunctionError("No sound specified"); }}
+		| OnNull{[] { FUNCTION_ERROR("No sound specified"); }}
 		| OnSet{[Location, Volume](var It) { PlaySingleSound(It, Location, Volume); }}
 		| IsSet{};
 }

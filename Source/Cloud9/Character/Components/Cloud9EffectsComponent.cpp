@@ -42,7 +42,7 @@ UCloud9CharacterEffectTrait* UCloud9EffectsComponent::AddEffect(
 				AppliedCanDamagedEffects.Add(Effect);
 			}
 
-			ObjectVerbose(
+			OBJECT_VERBOSE(
 				"Apply effect class='%s' effect='%s' (%p) on owner='%s'",
 				*EffectClass->GetName(), *Effect->GetName(), Effect, *GetOwnerName());
 
@@ -55,7 +55,9 @@ UCloud9CharacterEffectTrait* UCloud9EffectsComponent::AddEffect(
 
 bool UCloud9EffectsComponent::RemoveEffect(UCloud9CharacterEffectTrait* Effect)
 {
-	AssertOrReturn(AppliedEffects.Remove(Effect) != 0, false, Warning, "Effect '%s' not found", *Effect->GetName());
+	OBJECT_RETURN_IF_FAIL(
+		AppliedEffects.Remove(Effect) != 0, false,
+		Warning, "Effect '%s' not found", *Effect->GetName());
 
 	AppliedCanDamagedEffects.Remove(Effect);
 	AppliedCanTickEffects.Remove(Effect);
@@ -64,7 +66,7 @@ bool UCloud9EffectsComponent::RemoveEffect(UCloud9CharacterEffectTrait* Effect)
 
 	Effect->OnRemove();
 
-	ObjectVerbose("Remove effect='%s' (%p) on owner='%s'", *Effect->GetName(), Effect, *GetOwnerName());
+	OBJECT_VERBOSE("Remove effect='%s' (%p) on owner='%s'", *Effect->GetName(), Effect, *GetOwnerName());
 
 	return true;
 }
@@ -79,10 +81,10 @@ void UCloud9EffectsComponent::RemoveAllEffects()
 UCloud9HealthComponent* UCloud9EffectsComponent::GetHealthComponent() const
 {
 	let Character = GetOwner<ACloud9Character>();
-	AssertOrReturn(IsValid(Character), nullptr, Error, "Owner is invalid");
+	OBJECT_RETURN_IF_FAIL(IsValid(Character), nullptr, Error, "Owner is invalid");
 
 	let HealthComponent = Character->GetHealthComponent();
-	AssertOrReturn(HealthComponent, nullptr, Error, "Owner HealthComponent is invalid");
+	OBJECT_RETURN_IF_FAIL(HealthComponent, nullptr, Error, "Owner HealthComponent is invalid");
 
 	return HealthComponent;
 }

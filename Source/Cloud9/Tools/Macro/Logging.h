@@ -26,14 +26,14 @@
 #define TRACE_STR_CUR_FUNCSIG (FString(__FUNCSIG__))
 
 // Screen Message
-#define screen(FormatString, ...) ( \
+#define CLOUD9_SCREEN_MESSAGE(FormatString, ...) ( \
 	GEngine->AddOnScreenDebugMessage( \
 			-1, 10.0f, FColor::Yellow, \
 			*(TRACE_STR_CUR_CLASS_FUNC_LINE + ": " + (FString::Printf(TEXT(FormatString), ##__VA_ARGS__ ))) \
 		) \
 	)
 
-#define log(Severity, FormatString, ...) do { \
+#define CLOUD9_LOG(Severity, FormatString, ...) do { \
 	UE_LOG(\
 		LogCloud9, \
 		Severity, \
@@ -43,42 +43,42 @@
 	) \
 } while (false)
 
-#define FunctionFatal(Message, ...) do { \
-	log(Fatal, Message, ##__VA_ARGS__); \
+#define FUNCTION_FATAL(Message, ...) do { \
+	CLOUD9_LOG(Fatal, Message, ##__VA_ARGS__); \
 } while (false)
 
-#define FunctionError(Message, ...) do { \
-	log(Error, Message, ##__VA_ARGS__); \
+#define FUNCTION_ERROR(Message, ...) do { \
+	CLOUD9_LOG(Error, Message, ##__VA_ARGS__); \
 } while (false)
 
-#define FunctionWarning(Message, ...) do { \
-	log(Warning, Message, ##__VA_ARGS__); \
+#define FUNCTION_WARNING(Message, ...) do { \
+	CLOUD9_LOG(Warning, Message, ##__VA_ARGS__); \
 } while (false)
 
-#define FunctionDisplay(Message, ...) do { \
-	log(Display, Message, ##__VA_ARGS__); \
+#define FUNCTION_DISPLAY(Message, ...) do { \
+	CLOUD9_LOG(Display, Message, ##__VA_ARGS__); \
 } while (false)
 
-#define FunctionVerbose(Message, ...) do { \
-	log(Verbose, Message, ##__VA_ARGS__); \
+#define FUNCTION_VERBOSE(Message, ...) do { \
+	CLOUD9_LOG(Verbose, Message, ##__VA_ARGS__); \
 } while (false)
 
-#define ObjectFatal(Message, ...) do { \
-	log(Fatal, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+#define OBJECT_FATAL(Message, ...) do { \
+	CLOUD9_LOG(Fatal, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
 } while (false)
 
-#define ObjectError(Message, ...) do { \
-	log(Error, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+#define OBJECT_ERROR(Message, ...) do { \
+	CLOUD9_LOG(Error, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
 } while (false)
 
-#define ObjectWarn(Message, ...) do { \
-	log(Warning, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+#define OBJECT_WARN(Message, ...) do { \
+	CLOUD9_LOG(Warning, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
 } while (false)
 
-#define ObjectDisplay(Message, ...) do { \
-	log(Display, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+#define OBJECT_DISPLAY(Message, ...) do { \
+	CLOUD9_LOG(Display, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
 } while (false)
 
-#define ObjectVerbose(Message, ...) do { \
-	log(Verbose, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+#define OBJECT_VERBOSE(Message, ...) do { \
+	CLOUD9_LOG(Verbose, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
 } while (false)

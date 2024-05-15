@@ -36,7 +36,7 @@ namespace EAActor
 
 		FVector operator()(const AActor* Self) const
 		{
-			AssertOrCrash(Self != nullptr, "Actor should not be nullptr");
+			CRASH_IF_FAIL(Self != nullptr, "Actor should not be nullptr");
 
 			if (Direction == EDirection::Right)
 			{
@@ -68,7 +68,7 @@ namespace EAActor
 				return -Self->GetActorForwardVector();
 			}
 
-			FunctionFatal("Invalid value Actor = '%s' Direction = '%d'", *Self->GetName(), Direction);
+			FUNCTION_FATAL("Invalid value Actor = '%s' Direction = '%d'", *Self->GetName(), Direction);
 			return {};
 		}
 
@@ -81,12 +81,12 @@ namespace EAActor
 
 		FTimerHandle operator()(AActor* Self) const
 		{
-			AssertOrCrash(Self != nullptr, "Actor should not be nullptr");
+			CRASH_IF_FAIL(Self != nullptr, "Actor should not be nullptr");
 
 			// May be not needed?
 			if (Self->IsPendingKill())
 			{
-				FunctionWarning("Object '%s' already waiting it's death", *Self->GetName());
+				FUNCTION_WARNING("Object '%s' already waiting it's death", *Self->GetName());
 				return {};
 			}
 
@@ -101,7 +101,7 @@ namespace EAActor
 				return {};
 			}
 
-			FunctionVerbose("[%s] Set to be destroyed with delay but won't be because Delay<0.0f", *Self->GetName());
+			FUNCTION_VERBOSE("[%s] Set to be destroyed with delay but won't be because Delay<0.0f", *Self->GetName());
 			return {};
 		}
 

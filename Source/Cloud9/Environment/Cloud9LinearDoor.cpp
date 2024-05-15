@@ -78,13 +78,13 @@ void ACloud9LinearDoor::BeginPlay()
 	if (DirectionVector.IsZero())
 	{
 		SetActorTickEnabled(false);
-		ObjectError("Can't moved due to incorrect direction vector");
+		OBJECT_ERROR("Can't moved due to incorrect direction vector");
 	}
 
 	if (Speed <= 0.0f)
 	{
 		SetActorTickEnabled(false);
-		ObjectWarn("Can't moved due to speed <= 0.0f");
+		OBJECT_WARN("Can't moved due to speed <= 0.0f");
 	}
 
 	if (Distance <= 0.0f)
@@ -97,7 +97,7 @@ void ACloud9LinearDoor::BeginPlay()
 
 	let ActualDistance = Distance - Extent;
 
-	ObjectVerbose("Distance = '%f'", ActualDistance);
+	OBJECT_VERBOSE("Distance = '%f'", ActualDistance);
 
 	let Sign = bIsOpen ? -1 : 1;
 	OriginPosition = Transform.GetLocation();

@@ -54,7 +54,7 @@ bool UCloud9InventoryComponent::Initialize(const TArray<FWeaponConfig>& WeaponCo
 		| ETContainer::Filter{[](let& Config) { return IsValid(Config); }}
 		| ETContainer::ForEach{[this](let& Config) { AddWeapon(Config); }};
 
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(
 		SelectWeapon(WeaponSlot), false,
 		Error, "Can't select default weapon slot='%s'", WeaponSlot | EUEnum::GetValueName() | EFName::ToCStr());
 
@@ -63,26 +63,28 @@ bool UCloud9InventoryComponent::Initialize(const TArray<FWeaponConfig>& WeaponCo
 
 bool UCloud9InventoryComponent::SelectWeaponImpl(EWeaponSlot Slot, bool Instant, bool Force)
 {
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(
 		Slot != EWeaponSlot::NotSelected, false,
 		Warning, "Should not be called with EWeaponSlot::NotSelected");
 
-	AssertOrReturn(not IsWeaponChanging(), false, Warning, "Weapon deploying in progress");
-	AssertOrReturn(Force or Slot != SelectedWeaponSlot, false, Warning, "No switching will be performed");
+	OBJECT_RETURN_IF_FAIL(not IsWeaponChanging(), false, Warning, "Weapon deploying in progress");
+	OBJECT_RETURN_IF_FAIL(Force or Slot != SelectedWeaponSlot, false, Warning, "No switching will be performed");
 
 	let PendingWeapon = GetWeaponAt(Slot);
-	AssertOrReturn(IsValid(PendingWeapon), false, Warning, "Weapon at requested slot='%d' not set or invalid", Slot);
+	OBJECT_RETURN_IF_FAIL(
+		IsValid(PendingWeapon), false,
+		Warning, "Weapon at requested slot='%d' not set or invalid", Slot);
 
 	if (SelectedWeaponSlot == EWeaponSlot::NotSelected)
 	{
 		let SelectedWeapon = GetWeaponAt(SelectedWeaponSlot);
 
-		AssertOrCrash(
+		CRASH_IF_FAIL(
 			not IsValid(SelectedWeapon),
 			"[%s] SelectedWeapon should not be valid if slot == EWeaponSlot::NotSelected",
 			*GetName());
 
-		AssertOrReturn(
+		OBJECT_RETURN_IF_FAIL(
 			PendingWeapon->ChangeState(EWeaponBond::Armed, Instant, Force), false,
 			Error, "Can't select starting weapon");
 
@@ -92,12 +94,12 @@ bool UCloud9InventoryComponent::SelectWeaponImpl(EWeaponSlot Slot, bool Instant,
 
 	if (let SelectedWeapon = GetSelectedWeapon(); IsValid(SelectedWeapon))
 	{
-		AssertOrReturn(
+		OBJECT_RETURN_IF_FAIL(
 			SelectedWeapon->ChangeState(EWeaponBond::Holstered, true, Force), false,
 			Verbose, "Can't change state of selected weapon from slot='%d'", SelectedWeaponSlot);
 	}
 
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(
 		PendingWeapon->ChangeState(EWeaponBond::Armed, Instant, Force), false,
 		Verbose, "Can't change state of pending weapon to slot='%d'", SelectedWeaponSlot);
 
@@ -123,12 +125,12 @@ ACloud9WeaponBase* UCloud9InventoryComponent::GetWeaponAt(EWeaponSlot Slot) cons
 
 bool UCloud9InventoryComponent::ShoveWeapon(EWeaponSlot Slot, ACloud9WeaponBase* Weapon)
 {
-	AssertOrReturn(IsValid(Weapon), false, Error, "Weapon is invalid to shove into inventory");
+	OBJECT_RETURN_IF_FAIL(IsValid(Weapon), false, Error, "Weapon is invalid to shove into inventory");
 
 	let Character = GetOwner<ACloud9Character>();
-	AssertOrReturn(IsValid(Character), false, Error, "Inventory owner wasn't set");
+	OBJECT_RETURN_IF_FAIL(IsValid(Character), false, Error, "Inventory owner wasn't set");
 
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(
 		Weapon->AddToInventory(Character, Slot), false,
 		Error, "Failed add to inventory weapon '%s'", *Weapon->GetName());
 
@@ -139,10 +141,10 @@ bool UCloud9InventoryComponent::ShoveWeapon(EWeaponSlot Slot, ACloud9WeaponBase*
 bool UCloud9InventoryComponent::DropWeapon(EWeaponSlot Slot, FVector ViewLocation, float Angle, float Impulse)
 {
 	let Character = GetOwner<ACloud9Character>();
-	AssertOrReturn(IsValid(Character), false, Error, "Inventory owner wasn't set");
+	OBJECT_RETURN_IF_FAIL(IsValid(Character), false, Error, "Inventory owner wasn't set");
 
 	let Weapon = WeaponAt(Slot);
-	AssertOrReturn(Weapon, false, Error, "Inventory cell for slot '%d' is empty", Slot);
+	OBJECT_RETURN_IF_FAIL(Weapon, false, Error, "Inventory cell for slot '%d' is empty", Slot);
 
 	let StartLocation = Weapon->GetActorLocation();
 	let ViewDirection = ViewLocation - StartLocation | EFVector::Normalize{};
@@ -150,7 +152,7 @@ bool UCloud9InventoryComponent::DropWeapon(EWeaponSlot Slot, FVector ViewLocatio
 
 	let Direction = ViewDirection.RotateAngleAxis(-Angle, RotationAxis);
 
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(
 		Weapon->RemoveFromInventory(), false,
 		Error, "Failed to remove from inventory weapon '%s'", *Weapon->GetName());
 
@@ -166,8 +168,8 @@ bool UCloud9InventoryComponent::DropWeapon(EWeaponSlot Slot, FVector ViewLocatio
 bool UCloud9InventoryComponent::AddWeapon(const FWeaponConfig& Config, bool Select, bool Force)
 {
 	let Character = GetOwner<ACloud9Character>();
-	AssertOrReturn(IsValid(Character), false, Error, "Inventory owner wasn't set");
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(IsValid(Character), false, Error, "Inventory owner wasn't set");
+	OBJECT_RETURN_IF_FAIL(
 		not IsWeaponChanging(), false,
 		Verbose, "Weapon deploying in progress when added by config='%s'", *Config.ToString());
 
@@ -175,21 +177,23 @@ bool UCloud9InventoryComponent::AddWeapon(const FWeaponConfig& Config, bool Sele
 
 	if (WeaponAt(Slot))
 	{
-		AssertOrReturn(Force, false, Error, "Weapon slot already occupied");
-		AssertOrReturn(RemoveWeapon(Slot), false, Error, "Can't remove weapon");
+		OBJECT_RETURN_IF_FAIL(Force, false, Error, "Weapon slot already occupied");
+		OBJECT_RETURN_IF_FAIL(RemoveWeapon(Slot), false, Error, "Can't remove weapon");
 	}
 
 	let Weapon = Config.SpawnWeapon(GetWorld());
 
-	AssertOrReturn(IsValid(Weapon), false, Error, "Can't spawn weapon by config: %s", *Config.ToString());
-	AssertOrReturn(ShoveWeapon(Slot, Weapon), false, Error, "Can't shove weapon by config: %s", *Config.ToString());
+	OBJECT_RETURN_IF_FAIL(IsValid(Weapon), false, Error, "Can't spawn weapon by config: %s", *Config.ToString());
+	OBJECT_RETURN_IF_FAIL(ShoveWeapon(Slot, Weapon), false, Error, "Can't shove weapon by config: %s",
+	                      *Config.ToString());
 
 	if (Select)
 	{
-		AssertOrReturn(SelectWeapon(Slot), false, Error, "New weapon selection failure: %s", *Config.ToString());
+		OBJECT_RETURN_IF_FAIL(SelectWeapon(Slot), false, Error, "New weapon selection failure: %s",
+		                      *Config.ToString());
 	}
 
-	ObjectVerbose("Added configured weapon='%s'", *Config.ToString());
+	OBJECT_VERBOSE("Added configured weapon='%s'", *Config.ToString());
 
 	WeaponsCount++;
 	OnWeaponAddDelegate.Broadcast(Weapon);
@@ -199,9 +203,9 @@ bool UCloud9InventoryComponent::AddWeapon(const FWeaponConfig& Config, bool Sele
 bool UCloud9InventoryComponent::RemoveWeapon(EWeaponSlot Slot)
 {
 	let Character = GetOwner<ACloud9Character>();
-	AssertOrReturn(IsValid(Character), false, Error, "Inventory owner wasn't set");
-	AssertOrReturn(WeaponAt(Slot), false, Error, "Cell for slot '%d' is empty", Slot);
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(IsValid(Character), false, Error, "Inventory owner wasn't set");
+	OBJECT_RETURN_IF_FAIL(WeaponAt(Slot), false, Error, "Cell for slot '%d' is empty", Slot);
+	OBJECT_RETURN_IF_FAIL(
 		not IsWeaponChanging(), false,
 		Error, "Weapon deploying in progress when remove weapon from slot='%d'", Slot);
 
@@ -228,7 +232,7 @@ bool UCloud9InventoryComponent::SelectOtherAvailableWeapon(bool Instant, bool Fo
 		| ETContainer::Find{[&](let It) { return It->GetWeaponSlot() != SelectedWeaponSlot; }}
 		| ETOptional::OnSet{[&](let It) { NewSlot = It->GetWeaponSlot(); }};
 
-	ObjectVerbose("Change selected slot='%d'", NewSlot);
+	OBJECT_VERBOSE("Change selected slot='%d'", NewSlot);
 
 	return SelectWeapon(NewSlot, Instant, Force);
 }

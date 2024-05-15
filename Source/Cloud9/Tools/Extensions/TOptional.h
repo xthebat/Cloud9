@@ -65,7 +65,7 @@ namespace ETOptional
 
 		constexpr static DefaultValueType NullOptionalDereference()
 		{
-			FunctionFatal("nullopt dereference");
+			FUNCTION_FATAL("nullopt dereference");
 			return {};
 		}
 	};

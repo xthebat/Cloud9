@@ -29,36 +29,36 @@
 #define let const auto
 #define var auto
 
-#define AssertOrReturn(What, Value, Severity, Message, ...) do { \
+#define OBJECT_RETURN_IF_FAIL(What, Value, Severity, Message, ...) do { \
 	if (not (What)) \
 	{ \
-		log(Severity, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+		CLOUD9_LOG(Severity, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
 		return Value; \
 	} \
 } while (false)
 
-#define AssertOrVoid(What, Severity, Message, ...) do { \
+#define OBJECT_VOID_IF_FAIL(What, Severity, Message, ...) do { \
 	if (not (What)) \
 	{ \
-		log(Severity, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
+		CLOUD9_LOG(Severity, "[%s]: %s", *GetName(), *FString::Printf(TEXT(Message), ##__VA_ARGS__)); \
 		return; \
 	} \
 } while (false)
 
-#define FunctionAssertOrReturn(What, Value, Severity, Message, ...) do { \
+#define RETURN_IF_FAIL(What, Value, Severity, Message, ...) do { \
 	if (not (What)) \
 	{ \
-		log(Severity, Message, __VA_ARGS__); \
+		CLOUD9_LOG(Severity, Message, __VA_ARGS__); \
 		return Value; \
 	} \
 } while (false)
 
-#define FunctionAssertOrVoid(What, Severity, Message, ...) do { \
+#define VOID_IF_FAIL(What, Severity, Message, ...) do { \
 	if (not (What)) \
 	{ \
-		log(Severity, Message, ##__VA_ARGS__); \
+		CLOUD9_LOG(Severity, Message, ##__VA_ARGS__); \
 		return; \
 	} \
 } while (false)
 
-#define AssertOrCrash(Condition, FormatString, ...) checkf(Condition, TEXT(FormatString), ##__VA_ARGS__)
+#define CRASH_IF_FAIL(Condition, FormatString, ...) checkf(Condition, TEXT(FormatString), ##__VA_ARGS__)

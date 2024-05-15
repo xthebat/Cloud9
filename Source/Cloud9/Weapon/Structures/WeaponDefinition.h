@@ -109,7 +109,7 @@ struct FWeaponDefinition
 			}
 		}
 
-		FunctionError("WeaponInfo class wasn't set");
+		FUNCTION_ERROR("WeaponInfo class wasn't set");
 		return nullptr;
 	}
 

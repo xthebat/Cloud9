@@ -46,13 +46,13 @@ const FName ACloud9WeaponGrenade::ActiveEffectComponentName = TEXT("ActiveEffect
 ACloud9WeaponGrenade::ACloud9WeaponGrenade()
 {
 	Explosion = CreateDetonateComponent(ExplosionComponentName);
-	AssertOrVoid(IsValid(Explosion), Error, "Failed to create URadialForceComponent");
+	OBJECT_VOID_IF_FAIL(IsValid(Explosion), Error, "Failed to create URadialForceComponent");
 
 	DetonationEffect = CreateEffectComponent(DetonationEffectComponentName);
-	AssertOrVoid(IsValid(Explosion), Error, "Failed to create DetonationEffect");
+	OBJECT_VOID_IF_FAIL(IsValid(Explosion), Error, "Failed to create DetonationEffect");
 
 	ActiveEffect = CreateEffectComponent(ActiveEffectComponentName);
-	AssertOrVoid(IsValid(Explosion), Error, "Failed to create ActiveEffect");
+	OBJECT_VOID_IF_FAIL(IsValid(Explosion), Error, "Failed to create ActiveEffect");
 }
 
 FWeaponId ACloud9WeaponGrenade::GetWeaponId() const { return ETVariant::Convert<FWeaponId>(WeaponId); }
@@ -68,7 +68,7 @@ bool ACloud9WeaponGrenade::OnInitialize(const FWeaponConfig& WeaponConfig)
 	{
 		let MyWeaponInfo = GetWeaponInfo();
 		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(WeaponConfig.GetSkinName());
-		AssertOrReturn(MySkinInfo.Material, false, Error, "Skin material is invalid");
+		OBJECT_RETURN_IF_FAIL(MySkinInfo.Material, false, Error, "Skin material is invalid");
 
 		let& [OnDetonationEffect, OnDetonationScale, OnActiveEffect, OnActiveScale] = MyWeaponInfo->Effects;
 
@@ -118,7 +118,7 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	AssertOrVoid(IsWeaponDefined(), Error, "Weapon not defined");
+	OBJECT_VOID_IF_FAIL(IsWeaponDefined(), Error, "Weapon not defined");
 
 	if (WeaponState.IsGrenadeActionFinished())
 	{
@@ -138,12 +138,12 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 		return;
 	}
 
-	AssertOrVoid(not IsWeaponDisarmed(), Verbose, "AnimComponent isn't valid");
-	AssertOrVoid(not IsActionInProgress(), Verbose, "Action already in progress during Tick");
+	OBJECT_VOID_IF_FAIL(not IsWeaponDisarmed(), Verbose, "AnimComponent isn't valid");
+	OBJECT_VOID_IF_FAIL(not IsActionInProgress(), Verbose, "Action already in progress during Tick");
 
 	let Character = GetOwner<ACloud9Character>();
 	let AnimComponent = Character->GetAnimationComponent();
-	AssertOrVoid(IsValid(AnimComponent), Error, "AnimComponent isn't valid");
+	OBJECT_VOID_IF_FAIL(IsValid(AnimComponent), Error, "AnimComponent isn't valid");
 
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
 
@@ -352,13 +352,13 @@ bool ACloud9WeaponGrenade::OnGrenadeThrown()
 bool ACloud9WeaponGrenade::Throw() const
 {
 	let Character = GetOwner<ACloud9Character>();
-	AssertOrReturn(IsValid(Character), false, Error, "Character is invalid");
+	OBJECT_RETURN_IF_FAIL(IsValid(Character), false, Error, "Character is invalid");
 
 	let Controller = Character->GetCloud9Controller();
-	AssertOrReturn(IsValid(Controller), false, Error, "Controller is invalid");
+	OBJECT_RETURN_IF_FAIL(IsValid(Controller), false, Error, "Controller is invalid");
 
 	let Inventory = Character->GetInventoryComponent();
-	AssertOrReturn(IsValid(Inventory), false, Error, "Inventory is invalid");
+	OBJECT_RETURN_IF_FAIL(IsValid(Inventory), false, Error, "Inventory is invalid");
 
 	let ActorsToIgnore = TArray<AActor*>{Character};
 	let CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
@@ -367,7 +367,7 @@ bool ACloud9WeaponGrenade::Throw() const
 		ActorsToIgnore
 	};
 
-	AssertOrReturn(CursorHit, false, Error, "Cursor not hit anything");
+	OBJECT_RETURN_IF_FAIL(CursorHit, false, Error, "Cursor not hit anything");
 
 	static let Settings = UCloud9DeveloperSettings::Get();
 	FWeaponConfig GrenadeConfig;

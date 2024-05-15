@@ -61,7 +61,7 @@ UCloud9MouseController::UCloud9MouseController()
 FVector2D UCloud9MouseController::GetMousePosition() const
 {
 	let Owner = GetOwner<ACloud9PlayerController>();
-	AssertOrReturn(IsValid(Owner), {}, Fatal, "Can't get Cloud9PlayerController");
+	OBJECT_RETURN_IF_FAIL(IsValid(Owner), {}, Fatal, "Can't get Cloud9PlayerController");
 	FVector2D MousePosition = FVector2D::ZeroVector;
 	GetOwner<ACloud9PlayerController>()->GetMousePosition(MousePosition.X, MousePosition.Y);
 	return MousePosition;
@@ -70,7 +70,7 @@ FVector2D UCloud9MouseController::GetMousePosition() const
 float UCloud9MouseController::GetCameraZoomHeightLevel() const
 {
 	let Pawn = GetCloud9Pawn();
-	AssertOrReturn(IsValid(Pawn), InvalidCameraZoomLevel, Fatal, "Can't get Cloud9Pawn");
+	OBJECT_RETURN_IF_FAIL(IsValid(Pawn), InvalidCameraZoomLevel, Fatal, "Can't get Cloud9Pawn");
 
 	let ZoomHeightLevel = Math::InverseLerp(
 		MinCameraZoomHeight,
@@ -83,7 +83,7 @@ float UCloud9MouseController::GetCameraZoomHeightLevel() const
 
 	if (not FMath::IsNearlyEqual(ZoomHeightLevel, ZoomAngleLevel, 0.001f))
 	{
-		ObjectError("ZoomHeightLevel = %f != ZoomAngleLevel != %f", ZoomHeightLevel, ZoomAngleLevel);
+		OBJECT_ERROR("ZoomHeightLevel = %f != ZoomAngleLevel != %f", ZoomHeightLevel, ZoomAngleLevel);
 	}
 
 	return ZoomHeightLevel;

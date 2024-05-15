@@ -103,7 +103,7 @@ AActor* ACloud9PracticeSpawner::SpawnTarget_Implementation(FVector Location)
 {
 	if (not IsValid(Template))
 	{
-		ObjectError("Actor class not specified");
+		OBJECT_ERROR("Actor class not specified");
 		bIsEnabled = false;
 		SetActorTickEnabled(false);
 		return nullptr;
@@ -128,14 +128,16 @@ bool ACloud9PracticeSpawner::AddPracticeTargets()
 			let Location = EFVector::Random(Origin - BoxExtent, Origin + BoxExtent, GridSize);
 
 			let Actor = SpawnTarget(Location);
-			AssertOrReturn(IsValid(Actor), false, Error, "Can't spawn actor at location = %s", *Location.ToString());
+			OBJECT_RETURN_IF_FAIL(
+				IsValid(Actor), false,
+				Error, "Can't spawn actor at location = %s", *Location.ToString());
 
 			if (Actors | ETContainer::AnyByPredicate{[Actor](let It) { return It->IsOverlappingActor(Actor); }})
 			{
 				Actor->Destroy();
 
 				constexpr int MaxRetries = 10;
-				AssertOrReturn(
+				OBJECT_RETURN_IF_FAIL(
 					Retries++ != MaxRetries, false,
 					Error, "Parameters seems to be invalid can't spawn specified count of Actors = %d", MaxRetries);
 

@@ -38,7 +38,7 @@ FString UCloud9AnimNotifyPlaySound::GetNotifyName_Implementation() const
 bool UCloud9AnimNotifyPlaySound::PlayMeleeSound(USkeletalMeshComponent* MeshComp, float Volume) const
 {
 	let SelectedWeapon = GetSelectedWeapon<ACloud9WeaponMelee>(MeshComp);
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(
 		IsValid(SelectedWeapon) and SelectedWeapon->IsWeaponDefined(), false,
 		Error, "Invalid or undefined weapon for play sound");
 
@@ -54,7 +54,7 @@ bool UCloud9AnimNotifyPlaySound::PlayMeleeSound(USkeletalMeshComponent* MeshComp
 	case EWeaponSoundType::Secondary:
 		return UCloud9SoundPlayer::PlayRandomSound(WeaponInfo->Sounds.StabSounds, Location, Volume);
 	default:
-		ObjectError("Invalid sound type for melee sound");
+		OBJECT_ERROR("Invalid sound type for melee sound");
 		return false;
 	}
 }
@@ -62,7 +62,7 @@ bool UCloud9AnimNotifyPlaySound::PlayMeleeSound(USkeletalMeshComponent* MeshComp
 bool UCloud9AnimNotifyPlaySound::PlayFirearmSound(USkeletalMeshComponent* MeshComp, float Volume) const
 {
 	let SelectedWeapon = GetSelectedWeapon<ACloud9WeaponFirearm>(MeshComp);
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(
 		IsValid(SelectedWeapon) and SelectedWeapon->IsWeaponDefined(), false,
 		Error, "Invalid or undefined weapon for play sound");
 
@@ -88,7 +88,7 @@ bool UCloud9AnimNotifyPlaySound::PlayFirearmSound(USkeletalMeshComponent* MeshCo
 		}
 		return false;
 	default:
-		ObjectError("Invalid sound type for firearm sound SoundType=%d", SoundType);
+		OBJECT_ERROR("Invalid sound type for firearm sound SoundType=%d", SoundType);
 		return false;
 	}
 }
@@ -96,7 +96,7 @@ bool UCloud9AnimNotifyPlaySound::PlayFirearmSound(USkeletalMeshComponent* MeshCo
 bool UCloud9AnimNotifyPlaySound::PlayGrenadeSound(USkeletalMeshComponent* MeshComp, float Volume) const
 {
 	let SelectedWeapon = GetSelectedWeapon<ACloud9WeaponGrenade>(MeshComp);
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(
 		IsValid(SelectedWeapon) and SelectedWeapon->IsWeaponDefined(), false,
 		Error, "Invalid or undefined weapon for play sound");
 
@@ -112,19 +112,19 @@ bool UCloud9AnimNotifyPlaySound::PlayGrenadeSound(USkeletalMeshComponent* MeshCo
 	case EWeaponSoundType::Primary:
 		return UCloud9SoundPlayer::PlaySingleSound(WeaponInfo->Sounds.ThrowSound, Location, Volume);
 	default:
-		ObjectError("Invalid sound type for firearm sound SoundType=%d", SoundType);
+		OBJECT_ERROR("Invalid sound type for firearm sound SoundType=%d", SoundType);
 		return false;
 	}
 }
 
 void UCloud9AnimNotifyPlaySound::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-	AssertOrVoid(bIsEnabled, Verbose, "Notify is disabled");
+	OBJECT_VOID_IF_FAIL(bIsEnabled, Verbose, "Notify is disabled");
 
 #if WITH_EDITORONLY_DATA
 	// See AnimNotify_PlaySound (only variant that's work)
 	let World = MeshComp->GetWorld();
-	AssertOrVoid(IsValid(World), Error, "Game world is invalid");
+	OBJECT_VOID_IF_FAIL(IsValid(World), Error, "Game world is invalid");
 
 	if (World->WorldType == EWorldType::EditorPreview)
 	{
@@ -149,7 +149,7 @@ void UCloud9AnimNotifyPlaySound::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 			PlayGrenadeSound(MeshComp, Volume);
 			break;
 		default:
-			ObjectError("Invalid class name");
+			OBJECT_ERROR("Invalid class name");
 		}
 	}
 }

@@ -46,7 +46,8 @@ void ACloud9DefaultGameMode::InitializeCharacter(ACloud9Character* Character)
 	let BotConfig = InitialPlayerConfig.Find(BotConfigName);
 
 	let Config = Character->IsPlayerControlled() ? PlayerConfig : BotConfig;
-	AssertOrVoid(Config, Warning, "Initialization skipped cus config wasn't specified for '%s'", *Character->GetName());
+	OBJECT_VOID_IF_FAIL(Config, Warning, "Initialization skipped cus config wasn't specified for '%s'",
+	                    *Character->GetName());
 
 	let Inventory = Character->GetInventoryComponent();
 	let Health = Character->GetHealthComponent();

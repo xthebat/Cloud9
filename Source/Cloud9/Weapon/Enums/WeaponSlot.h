@@ -81,7 +81,7 @@ public:
 		case EWeaponType::Sniper:
 			return TEXT("ReloadSniperSocket");
 		default:
-			FunctionError(
+			FUNCTION_ERROR(
 				"Can't get reload weapon socket for weapon type '%s'",
 				WeaponType | EUEnum::GetValueName() | EFName::ToCStr());
 			return NAME_None;

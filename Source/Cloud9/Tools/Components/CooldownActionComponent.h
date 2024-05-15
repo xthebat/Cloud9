@@ -61,7 +61,7 @@ public:
 		{
 			if (not OnExecute())
 			{
-				ObjectError("Failed to execute action function");
+				OBJECT_ERROR("Failed to execute action function");
 				OnComplete();
 				return false;
 			}
@@ -86,7 +86,7 @@ public:
 	{
 		if (not bIsExecuting)
 		{
-			AssertOrReturn(OnExecute(), false, Error, "Failed to execute action function");
+			OBJECT_RETURN_IF_FAIL(OnExecute(), false, Error, "Failed to execute action function");
 			bIsExecuting = true;
 			TimerHandle = GetWorld() | EUWorld::AsyncAfter{[this] { bIsExecuting = false; }, CooldownTime};
 		}

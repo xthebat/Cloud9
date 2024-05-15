@@ -68,6 +68,8 @@ namespace EUWorld
 		float InRate;
 		bool bInLoop = false;
 
+		FTimerHandle TimerHandle{};
+
 		FORCEINLINE FTimerHandle operator()(const UWorld* Self)
 		{
 			if (InRate == 0.0f)
@@ -76,13 +78,12 @@ namespace EUWorld
 				return {};
 			}
 
-			AssertOrCrash(Self != nullptr, "World should not be nullptr to start timer");
+			CRASH_IF_FAIL(Self != nullptr, "World should not be nullptr to start timer");
 
-			FTimerHandle Handle;
-			let Delegate = FTimerDelegate::CreateStatic(&AsyncAfter::Execute, Block, Handle);
-			Self->GetTimerManager().SetTimer(Handle, Delegate, InRate, bInLoop);
-			Private_EUWorld::ActiveTimers.Add(Handle);
-			return Handle;
+			let Delegate = FTimerDelegate::CreateStatic(&AsyncAfter::Execute, Block, TimerHandle);
+			Self->GetTimerManager().SetTimer(TimerHandle, Delegate, InRate, bInLoop);
+			Private_EUWorld::ActiveTimers.Add(TimerHandle);
+			return TimerHandle;
 		}
 
 		static void Execute(BlockType Block, FTimerHandle Handle)
@@ -144,9 +145,9 @@ namespace EUWorld
 	{
 		FORCEINLINE GameModeType* operator()(const UWorld* Self) const
 		{
-			FunctionAssertOrReturn(IsValid(Self), nullptr, Error, "World isn't valid to get GameMode");
+			RETURN_IF_FAIL(IsValid(Self), nullptr, Error, "World isn't valid to get GameMode");
 			let GameMode = UGameplayStatics::GetGameMode(Self);
-			FunctionAssertOrReturn(IsValid(GameMode), nullptr, Error, "Current GameMode isn't valid");
+			RETURN_IF_FAIL(IsValid(GameMode), nullptr, Error, "Current GameMode isn't valid");
 			return Cast<GameModeType>(GameMode);
 		}
 

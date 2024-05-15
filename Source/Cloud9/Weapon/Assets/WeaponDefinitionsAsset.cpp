@@ -41,18 +41,18 @@ FWeaponDefinition UWeaponDefinitionsAsset::GetWeaponDefinition(
 	using WeaponInfoType = typename EFWeaponId::WeaponInfo<WeaponIdType>::Type;
 
 	let WeaponName = WeaponId | EUEnum::GetValueName{};
-	AssertOrReturn(not WeaponName.IsNone(), {}, Error, "WeaponName/WeaponId is invalid");
-	AssertOrReturn(WeaponsInfoTable, {}, Error, "WeaponsInfoTable isn't set");
+	OBJECT_RETURN_IF_FAIL(not WeaponName.IsNone(), {}, Error, "WeaponName/WeaponId is invalid");
+	OBJECT_RETURN_IF_FAIL(WeaponsInfoTable, {}, Error, "WeaponsInfoTable isn't set");
 
 	let WeaponInfo = WeaponsInfoTable->FindRow<WeaponInfoType>(WeaponName, "", false);
-	AssertOrReturn(WeaponInfo, {}, Error, "Can't get weapon info for '%s'", *WeaponName.ToString());
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(WeaponInfo, {}, Error, "Can't get weapon info for '%s'", *WeaponName.ToString());
+	OBJECT_RETURN_IF_FAIL(
 		Validator(WeaponInfo->Type), {},
 		Error, "Specified weapon type '%s' is invalid",
 		WeaponInfo->Type | EUEnum::GetEnumFullValueName{} | EFName::ToCStr{});
 
 	let Montages = WeaponActionMontages.Find(WeaponInfo->Type);
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(
 		Montages, {},
 		Error, "Animation montages not defined for weapon type '%s'",
 		WeaponInfo->Type | EUEnum::GetValueName{} | EFName::ToCStr{});
@@ -71,7 +71,7 @@ bool UWeaponDefinitionsAsset::GetWeaponDefinition(const FWeaponId& WeaponId, FWe
 		}, WeaponId
 	);
 
-	AssertOrReturn(
+	OBJECT_RETURN_IF_FAIL(
 		IsValid(WeaponDefinition), false,
 		Error, "Can't get weapon definition for WeaponId='%s'",
 		WeaponId | EFWeaponId::ToName() | EFName::ToCStr());

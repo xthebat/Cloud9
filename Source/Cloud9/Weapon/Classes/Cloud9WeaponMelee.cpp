@@ -45,7 +45,7 @@ bool ACloud9WeaponMelee::OnInitialize(const FWeaponConfig& WeaponConfig)
 	{
 		let MyWeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
 		let MySkinInfo = MyWeaponInfo | EFWeaponInfo::GetSkinByNameOrThrow(WeaponConfig.GetSkinName());
-		AssertOrReturn(MySkinInfo.Material, false, Error, "Skin material is invalid");
+		OBJECT_RETURN_IF_FAIL(MySkinInfo.Material, false, Error, "Skin material is invalid");
 
 		return InitializeMeshComponent(WeaponMesh, MyWeaponInfo->WeaponModel, MySkinInfo.Material);
 	}
@@ -69,13 +69,13 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	AssertOrVoid(IsWeaponDefined(), Error, "Weapon not defined");
-	AssertOrVoid(not IsWeaponDisarmed(), Verbose, "AnimComponent isn't valid");
-	AssertOrVoid(not IsActionInProgress(), Verbose, "Action already in progress during Tick");
+	OBJECT_VOID_IF_FAIL(IsWeaponDefined(), Error, "Weapon not defined");
+	OBJECT_VOID_IF_FAIL(not IsWeaponDisarmed(), Verbose, "AnimComponent isn't valid");
+	OBJECT_VOID_IF_FAIL(not IsActionInProgress(), Verbose, "Action already in progress during Tick");
 
 	let Character = GetOwner<ACloud9Character>();
 	let AnimComponent = Character->GetAnimationComponent();
-	AssertOrVoid(IsValid(AnimComponent), Error, "AnimComponent isn't valid");
+	OBJECT_VOID_IF_FAIL(IsValid(AnimComponent), Error, "AnimComponent isn't valid");
 
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
 	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);

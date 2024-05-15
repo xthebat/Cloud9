@@ -17,7 +17,7 @@ namespace EACharacter
 	{
 		int operator()(const ACharacter* Self) const
 		{
-			AssertOrCrash(Self != nullptr, "ACharacter should not be nullptr");
+			CRASH_IF_FAIL(Self != nullptr, "ACharacter should not be nullptr");
 
 			if (let PlayerState = Self->GetPlayerState())
 			{
