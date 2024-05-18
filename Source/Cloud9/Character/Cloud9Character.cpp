@@ -90,15 +90,20 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	Movement->bSnapToPlaneAtStart = true;
 	Movement->JumpZVelocity = JumpZVelocity;
 
-	CameraBoom = CreateDefaultSubobject<UCloud9SpringArmComponent>(SpringArmComponentName);
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
-	CameraBoom->bDoCollisionTest = true; // Don't want to pull camera in when it collides with level
-	CameraBoom->SetWorldRotation({CameraBoomYaw, 0.0f, 0.0f});
+	let MyCameraBoom = CreateDefaultSubobject<UCloud9SpringArmComponent>(SpringArmComponentName);
+	MyCameraBoom->SetupAttachment(RootComponent);
+	MyCameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
+	MyCameraBoom->bDoCollisionTest = true; // Don't want to pull the camera in when it collides with level
+	MyCameraBoom->SetWorldRotation({CameraBoomYaw, 0.0f, 0.0f});
+	MyCameraBoom->bEnableCameraLag = true;
+	MyCameraBoom->CameraLagSpeed = 1.0f;
+	MyCameraBoom->CameraLagVector = {50.0f, 50.0f, 0.1f};
+	MyCameraBoom->CameraLagMaxDistance = 50.0f;
+	CameraBoom = MyCameraBoom;
 
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(CameraComponentName);
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	TopDownCameraComponent->bUsePawnControlRotation = false; // The camera does not rotate relative to an arm
 
 	USkeletalMeshComponent* MyMesh = GetMesh();
 	MyMesh->SetRelativeLocation({0.0f, 0.0f, -MyCapsuleComponent->GetScaledCapsuleHalfHeight()});
