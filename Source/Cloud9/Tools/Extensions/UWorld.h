@@ -68,6 +68,7 @@ namespace EUWorld
 		float InRate;
 		bool bInLoop = false;
 
+		// Do not remove (or GC will delete timer handle) 
 		FTimerHandle TimerHandle{};
 
 		FORCEINLINE FTimerHandle operator()(const UWorld* Self)
