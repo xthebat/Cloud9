@@ -99,13 +99,10 @@ public:
 
 	void UnSneak() const;
 
-	void SetViewDirection(const TOptional<FHitResult>& HitResult);
+	void SetViewDirection(const TOptional<FHitResult>& HitResult) const;
 
 	UFUNCTION(BlueprintCallable)
 	void SetDestroyAfter(float NewTime);
-
-	UFUNCTION(BlueprintCallable)
-	float GetViewVerticalRotation() const { return ViewVerticalRotation; }
 
 	UWidgetInteractionComponent* GetWidgetInteractionComponent() const;
 
@@ -136,6 +133,11 @@ public:
 	void AddScore() const;
 
 	void UseObject();
+
+	void SetActorAimOffset(float Value);
+
+	UFUNCTION(BlueprintCallable)
+	float GetActorAimOffset() const;
 
 	/** Event called when character score changed. */
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
@@ -192,14 +194,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category=Crosshair, meta=(AllowPrivateAccess))
 	FVector CursorSize;
 
-	UPROPERTY(EditDefaultsOnly, Category=Camera)
-	float ViewVerticalRotation;
+	UPROPERTY(EditAnywhere, Category=Camera)
+	float AimOffset;
 
-	/** A decal that projects to the cursor location. */
+	/** View direction will be calculated relative to this bone */
 	UPROPERTY(EditDefaultsOnly, Category=Camera, meta=(AllowPrivateAccess))
-	FName CameraTargetBoneName;
+	FName ViewHeadBoneName;
 
-	/** Top down camera */
+	/** Top-down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera, meta=(AllowPrivateAccess))
 	UCameraComponent* TopDownCameraComponent;
 

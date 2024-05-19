@@ -32,7 +32,8 @@
 
 UCloud9CharacterMovement::UCloud9CharacterMovement()
 {
-	RotationLag = 30.0f;
+	RotationSpeed = 10.0f;
+
 	TargetRotator = FRotator::ZeroRotator;
 
 	SpeedRun = MaxPlayerSpeed::NoWeapon;
@@ -91,7 +92,9 @@ void UCloud9CharacterMovement::Rotate(FRotator Rotator, bool Instant)
 
 	if (let Owner = GetCloud9CharacterOwner(); Instant && IsValid(Owner))
 	{
-		Owner->SetActorRotation(TargetRotator);
+		// TargetRotator.Pitch processed in blueprints using Aim offset
+		Owner->SetActorRotation({0.0f, TargetRotator.Yaw, 0.0f});
+		Owner->SetActorAimOffset(Rotator.Pitch);
 	}
 }
 
@@ -192,12 +195,21 @@ void UCloud9CharacterMovement::TickComponent(
 
 	if (let Owner = GetCloud9CharacterOwner(); IsValid(Owner))
 	{
-		var NewRotation = TargetRotator;
-		if (RotationLag != 0.0f)
+		var Rotator = TargetRotator;
+
+		if (RotationSpeed > 0.0f)
 		{
-			let ActorRotation = Owner->GetActorRotation();
-			NewRotation = FMath::Lerp(ActorRotation, TargetRotator, DeltaTime / RotationLag * RotationLagScale);
+			let Pitch = Owner->GetActorAimOffset();
+			let Yaw = Owner->GetActorRotation();
+
+			Rotator = FMath::RInterpTo(
+				{Pitch, Yaw.Yaw, 0.0f},
+				{Rotator.Pitch, Rotator.Yaw, 0.0f},
+				DeltaTime,
+				RotationSpeed);
 		}
-		Owner->SetActorRotation(NewRotation);
+
+		Owner->SetActorRotation({0.0f, Rotator.Yaw, 0.0f});
+		Owner->SetActorAimOffset(Rotator.Pitch);
 	}
 }

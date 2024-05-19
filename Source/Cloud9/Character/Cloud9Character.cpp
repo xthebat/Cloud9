@@ -79,6 +79,7 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	bNeedInitialize = true;
 
 	DestroyAfterTime = DefaultDestroyAfterTime;
+	AimOffset = 0.0f;
 
 	let MyCapsuleComponent = GetCapsuleComponent();
 	MyCapsuleComponent->InitCapsuleSize(CapsuleRadius, CapsuleHeight / 2.0f);
@@ -99,6 +100,8 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	MyCameraBoom->CameraLagSpeed = 1.0f;
 	MyCameraBoom->CameraLagVector = {50.0f, 50.0f, 0.1f};
 	MyCameraBoom->CameraLagMaxDistance = 50.0f;
+	MyCameraBoom->SocketOffset = {0.0f, 0.0f, MyCapsuleComponent->GetScaledCapsuleHalfHeight() / 2.0f};
+	MyCameraBoom->TargetOffset = {0.0f, 0.0f, MyCapsuleComponent->GetScaledCapsuleHalfHeight() / 2.0f};
 	CameraBoom = MyCameraBoom;
 
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(CameraComponentName);
@@ -174,7 +177,7 @@ void ACloud9Character::UnSneak() const
 	}
 }
 
-void ACloud9Character::SetViewDirection(const TOptional<FHitResult>& HitResult)
+void ACloud9Character::SetViewDirection(const TOptional<FHitResult>& HitResult) const
 {
 	if (HitResult)
 	{
@@ -197,7 +200,7 @@ void ACloud9Character::SetViewDirection(const TOptional<FHitResult>& HitResult)
 
 		static let Settings = UCloud9DeveloperSettings::Get();
 
-		let StartLocation = GetMesh()->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
+		let StartLocation = GetMesh()->GetBoneLocation(ViewHeadBoneName, EBoneSpaces::WorldSpace);
 
 		if (Settings->IsDrawHitCursorLine)
 		{
@@ -234,8 +237,7 @@ void ACloud9Character::SetViewDirection(const TOptional<FHitResult>& HitResult)
 
 		let TargetLocation = HitResult->Location;
 		let LookRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
-		ViewVerticalRotation = LookRotation.Pitch;
-		GetCloud9CharacterMovement()->Rotate({0.0f, LookRotation.Yaw, 0.0f});
+		GetCloud9CharacterMovement()->Rotate({LookRotation.Pitch, LookRotation.Yaw, 0.0f});
 	}
 }
 
@@ -331,6 +333,10 @@ void ACloud9Character::UseObject()
 {
 	// TODO: Implement UseObject
 }
+
+void ACloud9Character::SetActorAimOffset(float Value) { AimOffset = Value; }
+
+float ACloud9Character::GetActorAimOffset() const { return AimOffset; }
 
 bool ACloud9Character::IsHeadBone(FName Bone) const
 {
@@ -493,13 +499,6 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 
 	if (let MyMesh = GetMesh(); IsValid(MyMesh))
 	{
-		if (not CameraTargetBoneName.IsNone())
-		{
-			let HeadBoneLocation = MyMesh->GetBoneLocation(CameraTargetBoneName, EBoneSpaces::WorldSpace);
-			OBJECT_VERBOSE("Setup CameraBoom = %s", *HeadBoneLocation.ToString());
-			CameraBoom->SetWorldLocation(HeadBoneLocation);
-		}
-
 		MyMesh->bCastDynamicShadow = true;
 		MyMesh->bAffectDynamicIndirectLighting = true;
 		MyMesh->SetCollisionProfileName(COLLISION_PROFILE_HITBOX);
