@@ -145,14 +145,21 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	let AnimComponent = Character->GetAnimationComponent();
 	OBJECT_VOID_IF_FAIL(IsValid(AnimComponent), Error, "AnimComponent isn't valid");
 
-	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
+	let BasePoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
+	let OtherPoseMontages = WeaponDefinition.GetPoseMontages(not Character->bIsCrouched);
 
 	if (WeaponState.IsActionActive(EWeaponAction::Deploy))
 	{
 		ExecuteAction(
 			EWeaponAction::Deploy,
 			GetWeaponInfo()->DeployTime,
-			[&] { return AnimComponent->PlayMontage(PoseMontages->DeployMontage); },
+			[&]
+			{
+				return AnimComponent->PlayMontage(
+					BasePoseMontages->DeployMontage,
+					OtherPoseMontages->DeployMontage
+				);
+			},
 			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
 		);
 	}
@@ -161,7 +168,13 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::PrimaryStart,
 			GetWeaponInfo()->PinpullTime,
-			[&] { return AnimComponent->PlayMontage(PoseMontages->PinpullPrimaryActionMontage); },
+			[&]
+			{
+				return AnimComponent->PlayMontage(
+					BasePoseMontages->PinpullPrimaryActionMontage,
+					OtherPoseMontages->PinpullPrimaryActionMontage
+				);
+			},
 			[this]
 			{
 				WeaponState.ClearAction(EWeaponAction::PrimaryStart);
@@ -173,8 +186,9 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 	{
 		// Play hold frame of montage
 		AnimComponent->PlayMontage(
-			PoseMontages->PinpullPrimaryActionMontage,
-			PoseMontages->PinpullPrimaryActionHoldTiming);
+			BasePoseMontages->PinpullPrimaryActionMontage,
+			OtherPoseMontages->PinpullPrimaryActionMontage,
+			BasePoseMontages->PinpullPrimaryActionHoldTiming);
 
 		if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
 		{
@@ -194,7 +208,13 @@ void ACloud9WeaponGrenade::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::PrimaryEnd,
 			GetWeaponInfo()->ThrowTime,
-			[&] { return AnimComponent->PlayMontage(PoseMontages->PrimaryActionMontage); },
+			[&]
+			{
+				return AnimComponent->PlayMontage(
+					BasePoseMontages->PrimaryActionMontage,
+					OtherPoseMontages->PrimaryActionMontage
+				);
+			},
 			[this]
 			{
 				WeaponState.ClearAction(EWeaponAction::PrimaryEnd);

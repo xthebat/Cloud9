@@ -25,6 +25,7 @@
 
 #include "Cloud9KeyboardController.h"
 
+#include "Cloud9/Character/Components/Cloud9AnimationComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
@@ -147,6 +148,9 @@ void UCloud9KeyboardController::OnCrouchPressed()
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
 		Pawn->Crouch(false);
+		let AnimationComponent = Pawn->GetAnimationComponent();
+		OBJECT_VOID_IF_FAIL(IsValid(AnimationComponent), Error, "AnimationComponent is invalid");
+		AnimationComponent->PoseChanged();
 	}
 }
 
@@ -155,6 +159,9 @@ void UCloud9KeyboardController::OnCrouchReleased()
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
 		Pawn->UnCrouch(false);
+		let AnimationComponent = Pawn->GetAnimationComponent();
+		OBJECT_VOID_IF_FAIL(IsValid(AnimationComponent), Error, "AnimationComponent is invalid");
+		AnimationComponent->PoseChanged();
 	}
 }
 

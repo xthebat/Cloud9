@@ -18,7 +18,24 @@ public:
 
 	UAnimInstance* GetAnimInstance() const;
 
-	bool PlayMontage(UAnimMontage* Montage, float StartTime = 0.0f, float Rate = 1.0f) const;
+	bool PlayMontage(
+		UAnimMontage* NewBasePoseMontage,
+		UAnimMontage* NewOtherPoseMontage,
+		float StartTime = 0.0f,
+		float Rate = 1.0f);
 
 	bool IsAnyMontagePlaying() const;
+	void StopMontage(const UAnimMontage* Montage) const;
+	void PoseChanged();
+
+protected:
+	void OnMontageEnded(UAnimMontage* Montage, bool IsInterrupted);
+
+	FOnMontageEnded MontageEndedDelegate;
+
+	UPROPERTY()
+	UAnimMontage* BasePoseMontage;
+
+	UPROPERTY()
+	UAnimMontage* OtherPoseMontage;
 };
