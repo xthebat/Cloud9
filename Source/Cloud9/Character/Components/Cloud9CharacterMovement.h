@@ -38,10 +38,8 @@ class CLOUD9_API UCloud9CharacterMovement : public UCharacterMovementComponent
 	GENERATED_BODY()
 
 public:
-	static constexpr let RotationLagScale = 360.0f;
-
 	/**
-	 * Coefficient to correct import scale of all models and assets from CS:GO
+	 * Coefficient to a correct import scale of all models and assets from CS:GO
 	 */
 	static constexpr let SpeedScaleCoefficient = 2.0f;
 
@@ -75,7 +73,7 @@ public:
 	float SpeedVip;
 
 	/**
-	 * Maximum speed of character when carrying shield (Not Implemented)
+	 * Maximum speed of character when carrying a shield (Not Implemented)
 	 */
 	UPROPERTY(Category="Character Movement: Base", EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", UIMin="500"))
 	float SpeedShield;
@@ -152,7 +150,10 @@ protected:
 	FRotator TargetRotator;
 
 private:
-	/** Character rotation lag */
-	UPROPERTY(EditDefaultsOnly, Category=Config)
-	float RotationLag;
+	/**
+	 * Character rotation speed, <= 0.0f - instant and greater are faster rotation
+	 * (internal UE4 rotation rate won't work as assumed)
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="Character Movement (Rotation Settings)")
+	float RotationSpeed;
 };
