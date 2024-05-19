@@ -92,7 +92,18 @@ namespace EAActor
 
 			if (Delay > 0)
 			{
-				return Self->GetWorld() | EUWorld::AsyncAfter{[Self] { Self->Destroy(); }, Delay};
+				return Self->GetWorld()
+					| EUWorld::AsyncAfter{
+						[Self]
+						{
+							// GC can delete actor during timeout
+							if (IsValid(Self))
+							{
+								Self->Destroy();
+							}
+						},
+						Delay
+					};
 			}
 
 			if (Delay == 0.0f)
