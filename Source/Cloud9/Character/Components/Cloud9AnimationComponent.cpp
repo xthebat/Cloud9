@@ -7,11 +7,7 @@
 
 #include "Cloud9/Character/Cloud9Character.h"
 
-UCloud9AnimationComponent::UCloud9AnimationComponent()
-{
-	// BasePoseMontage = nullptr;
-	// OtherPoseMontage = nullptr;
-}
+UCloud9AnimationComponent::UCloud9AnimationComponent() {}
 
 UAnimInstance* UCloud9AnimationComponent::GetAnimInstance() const
 {
