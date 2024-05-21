@@ -208,11 +208,12 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 	OBJECT_VOID_IF_FAIL(IsValid(AnimComponent), Error, "AnimComponent isn't valid");
 
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FFirearmWeaponInfo>();
-	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
+	let BasePoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
+	let OtherPoseMontages = WeaponDefinition.GetPoseMontages(not Character->bIsCrouched);
 	let CommonData = WeaponDefinition.GetCommonData();
 
-	let HasSecondaryAction = PoseMontages->bHasSecondaryAction;
-	let HasLoopedReload = PoseMontages->bHasReloadLoop;
+	let HasSecondaryAction = BasePoseMontages->bHasSecondaryAction;
+	let HasLoopedReload = BasePoseMontages->bHasReloadLoop;
 
 	if (WeaponState.IsActionActive(EWeaponAction::ReloadStart))
 	{
@@ -221,8 +222,14 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			WeaponInfo->ReloadTime,
 			[&]
 			{
+				// Stop current montage action to if change pose 
+				AnimComponent->StopAllMontages(0.0f);
+
 				return UpdateReloadAmmo(WeaponInfo->Type == EWeaponType::Shotgun)
-					and AnimComponent->PlayMontage(PoseMontages->ReloadMontage);
+					and AnimComponent->PlayMontage(
+						BasePoseMontages->ReloadMontage,
+						OtherPoseMontages->ReloadMontage
+					);
 			},
 			[this, HasLoopedReload]
 			{
@@ -253,7 +260,10 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 					[&]
 					{
 						return UpdateReloadAmmo(true) and
-							AnimComponent->PlayMontage(PoseMontages->ReloadLoopMontage);
+							AnimComponent->PlayMontage(
+								BasePoseMontages->ReloadLoopMontage,
+								OtherPoseMontages->ReloadLoopMontage
+							);
 					}
 				);
 			}
@@ -263,7 +273,13 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			ExecuteAction(
 				EWeaponAction::ReloadLoop,
 				WeaponInfo->ReloadEndTime,
-				[&] { return AnimComponent->PlayMontage(PoseMontages->ReloadEndMontage); }
+				[&]
+				{
+					return AnimComponent->PlayMontage(
+						BasePoseMontages->ReloadEndMontage,
+						OtherPoseMontages->ReloadEndMontage
+					);
+				}
 			);
 
 			WeaponState.ClearAction(EWeaponAction::ReloadEnd);
@@ -274,7 +290,15 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::Deploy,
 			WeaponInfo->DeployTime,
-			[&] { return AnimComponent->PlayMontage(PoseMontages->DeployMontage); },
+			[&]
+			{
+				// Stop current montage action to if change pose 
+				AnimComponent->StopAllMontages(0.0f);
+
+				return AnimComponent->PlayMontage(
+					BasePoseMontages->DeployMontage,
+					OtherPoseMontages->DeployMontage);
+			},
 			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
 		);
 	}
@@ -301,7 +325,10 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 					Error, "Weapon fire failure status=%d", Status);
 
 				OBJECT_RETURN_IF_FAIL(
-					AnimComponent->PlayMontage(PoseMontages->PrimaryActionMontage), false,
+					AnimComponent->PlayMontage(
+						BasePoseMontages->PrimaryActionMontage,
+						OtherPoseMontages->PrimaryActionMontage
+					), false,
 					Error, "No montage for primary action specified"
 				);
 

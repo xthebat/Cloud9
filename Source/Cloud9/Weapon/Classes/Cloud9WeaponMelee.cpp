@@ -78,16 +78,23 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 	OBJECT_VOID_IF_FAIL(IsValid(AnimComponent), Error, "AnimComponent isn't valid");
 
 	let WeaponInfo = WeaponDefinition.GetWeaponInfo<FMeleeWeaponInfo>();
-	let PoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
+	let BasePoseMontages = WeaponDefinition.GetPoseMontages(Character->bIsCrouched);
+	let OtherPoseMontages = WeaponDefinition.GetPoseMontages(not Character->bIsCrouched);
 
-	let HasSecondaryAction = PoseMontages->bHasSecondaryAction;
+	let HasSecondaryAction = BasePoseMontages->bHasSecondaryAction;
 
 	if (WeaponState.IsActionActive(EWeaponAction::Deploy))
 	{
 		ExecuteAction(
 			EWeaponAction::Deploy,
 			WeaponInfo->DeployTime,
-			[&] { return AnimComponent->PlayMontage(PoseMontages->DeployMontage); },
+			[&]
+			{
+				return AnimComponent->PlayMontage(
+					BasePoseMontages->DeployMontage,
+					OtherPoseMontages->DeployMontage
+				);
+			},
 			[this] { WeaponState.ClearAction(EWeaponAction::Deploy); }
 		);
 	}
@@ -100,7 +107,13 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::PrimaryLoop,
 			WeaponInfo->SlashCycleTime,
-			[&] { return AnimComponent->PlayMontage(PoseMontages->PrimaryActionMontage); }
+			[&]
+			{
+				return AnimComponent->PlayMontage(
+					BasePoseMontages->PrimaryActionMontage,
+					OtherPoseMontages->PrimaryActionMontage
+				);
+			}
 		);
 	}
 	else if (WeaponState.IsActionActive(EWeaponAction::PrimaryEnd))
@@ -112,7 +125,13 @@ void ACloud9WeaponMelee::Tick(float DeltaSeconds)
 		ExecuteAction(
 			EWeaponAction::Secondary,
 			WeaponInfo->StabCycleTime,
-			[&] { return AnimComponent->PlayMontage(PoseMontages->SecondaryActionMontage); }
+			[&]
+			{
+				return AnimComponent->PlayMontage(
+					BasePoseMontages->SecondaryActionMontage,
+					OtherPoseMontages->SecondaryActionMontage
+				);
+			}
 		);
 
 		// no auto stab
