@@ -26,16 +26,20 @@ public:
 
 	bool IsAnyMontagePlaying() const;
 	void StopMontage(const UAnimMontage* Montage) const;
+	UAnimMontage* StopMontage(int32 InstanceID) const;
+	void StopAllMontages(float BlendOut) const;
+
+	// TODO: Change with delegate and to untethered PlayerController with AnimationComponent  
 	void PoseChanged();
 
 protected:
-	void OnMontageEnded(UAnimMontage* Montage, bool IsInterrupted);
+	// This was made in an account that several montages can be played in same time,
+	// but easier way is just stop all other montages for weapon deploy and reload
+	// when the character pose changed.
+	//
+	// Currently left as is in order future modification.
 
-	FOnMontageEnded MontageEndedDelegate;
-
+	/** Montage instance ID to another pose montage */
 	UPROPERTY()
-	UAnimMontage* BasePoseMontage;
-
-	UPROPERTY()
-	UAnimMontage* OtherPoseMontage;
+	TMap<int32, UAnimMontage*> Montages;
 };

@@ -222,6 +222,9 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			WeaponInfo->ReloadTime,
 			[&]
 			{
+				// Stop current montage action to if change pose 
+				AnimComponent->StopAllMontages(0.0f);
+
 				return UpdateReloadAmmo(WeaponInfo->Type == EWeaponType::Shotgun)
 					and AnimComponent->PlayMontage(
 						BasePoseMontages->ReloadMontage,
@@ -289,6 +292,9 @@ void ACloud9WeaponFirearm::Tick(float DeltaSeconds)
 			WeaponInfo->DeployTime,
 			[&]
 			{
+				// Stop current montage action to if change pose 
+				AnimComponent->StopAllMontages(0.0f);
+
 				return AnimComponent->PlayMontage(
 					BasePoseMontages->DeployMontage,
 					OtherPoseMontages->DeployMontage);

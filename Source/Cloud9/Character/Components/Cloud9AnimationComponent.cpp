@@ -9,8 +9,8 @@
 
 UCloud9AnimationComponent::UCloud9AnimationComponent()
 {
-	BasePoseMontage = nullptr;
-	OtherPoseMontage = nullptr;
+	// BasePoseMontage = nullptr;
+	// OtherPoseMontage = nullptr;
 }
 
 UAnimInstance* UCloud9AnimationComponent::GetAnimInstance() const
@@ -43,19 +43,28 @@ bool UCloud9AnimationComponent::PlayMontage(
 		Error, "Can't play montage '%s'", *NewBasePoseMontage->GetName()
 	);
 
-	BasePoseMontage = NewBasePoseMontage;
-	OtherPoseMontage = NewOtherPoseMontage;
-
-	MontageEndedDelegate.BindUObject(this, &UCloud9AnimationComponent::OnMontageEnded);
-	AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, BasePoseMontage);
+	let MontageInstance = AnimInstance->GetActiveInstanceForMontage(NewBasePoseMontage);
+	let InstanceID = MontageInstance->GetInstanceID();
+	MontageInstance->OnMontageEnded.BindLambda(
+		[this, InstanceID](UAnimMontage* Montage, bool IsInterrupted)
+		{
+			OBJECT_VERBOSE(
+				"Montage stopped=%s InstanceID=%d Interrupted=%d",
+				*Montage->GetName(), InstanceID, IsInterrupted);
+			Montages.Remove(InstanceID);
+		}
+	);
+	Montages.Add(InstanceID, NewOtherPoseMontage);
+	OBJECT_VERBOSE("Montage started=%s InstanceID=%d", *NewBasePoseMontage->GetName(), InstanceID);
 
 	return true;
 }
 
-void UCloud9AnimationComponent::OnMontageEnded(UAnimMontage* Montage, bool IsInterrupted)
+void UCloud9AnimationComponent::StopAllMontages(float BlendOut) const
 {
-	BasePoseMontage = nullptr;
-	OtherPoseMontage = nullptr;
+	let AnimInstance = GetAnimInstance();
+	OBJECT_VOID_IF_FAIL(IsValid(AnimInstance), Error, "AnimInstance is invalid");
+	AnimInstance->StopAllMontages(BlendOut);
 }
 
 bool UCloud9AnimationComponent::IsAnyMontagePlaying() const
@@ -76,21 +85,35 @@ void UCloud9AnimationComponent::StopMontage(const UAnimMontage* Montage) const
 	}
 }
 
+UAnimMontage* UCloud9AnimationComponent::StopMontage(int32 InstanceID) const
+{
+	let AnimInstance = GetAnimInstance();
+	OBJECT_RETURN_IF_FAIL(IsValid(AnimInstance), nullptr, Error, "AnimInstance is invalid");
+
+	if (let MontageInstance = AnimInstance->GetMontageInstanceForID(InstanceID))
+	{
+		if (let Montage = MontageInstance->Montage; IsValid(Montage))
+		{
+			MontageInstance->Stop(Montage->BlendOut);
+			return Montage;
+		}
+	}
+
+	return nullptr;
+}
+
 void UCloud9AnimationComponent::PoseChanged()
 {
 	let AnimInstance = GetAnimInstance();
 	OBJECT_VOID_IF_FAIL(IsValid(AnimInstance), Error, "AnimInstance is invalid");
 
-	if (let BaseMontage = AnimInstance->GetCurrentActiveMontage(); BaseMontage != nullptr)
+	// Prevent modification during iteration
+	for (let Copy = Montages; let [InstanceID, OtherMontage] : Copy)
 	{
-		let MontageInstance = AnimInstance->GetActiveInstanceForMontage(BaseMontage);
+		let MontageInstance = AnimInstance->GetMontageInstanceForID(InstanceID);
 		let Position = MontageInstance->GetPosition();
-		// Cache pose because OtherPoseMontage will be nulled on StopMontage
-		let OtherMontage = OtherPoseMontage;
-		StopMontage(BaseMontage);
-		if (IsValid(OtherMontage))
-		{
-			PlayMontage(OtherMontage, BaseMontage, Position);
-		}
+		let BaseMontage = StopMontage(InstanceID);
+		OBJECT_VERBOSE("Pose changed ActiveMontage=%s InstanceID=%d", *BaseMontage->GetName(), InstanceID);
+		PlayMontage(OtherMontage, BaseMontage, Position);
 	}
 }
