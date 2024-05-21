@@ -222,7 +222,7 @@ bool ACloud9WeaponBase::UpdateWeaponAttachment(EWeaponSlot NewSlot, EWeaponBond 
 		CharacterMesh->GetSocketByName(SocketName), false,
 		Error, "Socket not found in character mesh for '%s'", SLOT_NAME);
 
-	OBJECT_DISPLAY(
+	OBJECT_VERBOSE(
 		"Update attachment to character '%s' into socket '%s'",
 		*Character->GetName(), *SocketName.ToString());
 
