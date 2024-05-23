@@ -29,4 +29,7 @@ protected:
 	virtual void StartToLeaveMap() override final;
 
 	UCloud9GameInstance* GetCloud9GameInstance() const;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="HUD Widget Config.", meta=(AllowPrivateAccess))
+	TSubclassOf<UUserWidget> HudWidgetClass;
 };
