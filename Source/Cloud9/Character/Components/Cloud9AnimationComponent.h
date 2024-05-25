@@ -15,8 +15,10 @@ class CLOUD9_API UCloud9AnimationComponent : public UActorComponent
 
 public:
 	UCloud9AnimationComponent();
+	USkeletalMeshComponent* GetMesh() const;
 
 	UAnimInstance* GetAnimInstance() const;
+	EAnimationMode::Type GetAnimationMode() const;
 
 	bool PlayMontage(
 		UAnimMontage* NewBasePoseMontage,

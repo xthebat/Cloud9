@@ -23,8 +23,6 @@
 
 #include "Cloud9PlayerController.h"
 
-#include "Engine/World.h"
-
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Contollers/Cloud9KeyboardController.h"
 #include "Cloud9/Contollers/Cloud9MouseController.h"
