@@ -66,20 +66,20 @@ void UCloud9KeyboardController::TickComponent(
 template <typename FunctionType>
 void UCloud9KeyboardController::WeaponAction(FunctionType Function)
 {
-	let Pawn = GetCloud9Pawn();
-	OBJECT_VOID_IF_FAIL(IsValid(Pawn), Error, "Pawn is invalid");
-
-	let Inventory = Pawn->GetInventoryComponent();
-	OBJECT_VOID_IF_FAIL(IsValid(Inventory), Error, "Pawn inventory is invalid");
-
-	if (not Inventory->IsWeaponChanging())
+	if (let Pawn = GetCloud9Pawn())
 	{
-		let SelectedWeapon = Inventory->GetSelectedWeapon();
-		OBJECT_VOID_IF_FAIL(IsValid(SelectedWeapon), Error, "Selected weapon is invalid");
+		let Inventory = Pawn->GetInventoryComponent();
+		OBJECT_VOID_IF_FAIL(IsValid(Inventory), Error, "Pawn inventory is invalid");
 
-		// Checking of other actions in progress should be done inside a weapon
-		// because this can depend on implementation of weapon work logic
-		Function(SelectedWeapon);
+		if (not Inventory->IsWeaponChanging())
+		{
+			let SelectedWeapon = Inventory->GetSelectedWeapon();
+			OBJECT_VOID_IF_FAIL(IsValid(SelectedWeapon), Error, "Selected weapon is invalid");
+
+			// Checking of other actions in progress should be done inside a weapon
+			// because this can depend on implementation of weapon work logic
+			Function(SelectedWeapon);
+		}
 	}
 }
 

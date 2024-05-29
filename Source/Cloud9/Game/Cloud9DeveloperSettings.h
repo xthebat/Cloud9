@@ -79,6 +79,8 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	static FString DecalFadeScreenSizeName;
 	static FString VolumeName;
 
+	static inline FString MainMenuMusicVolumeName = "r.MainMenuMusicVolume";
+
 	// properties
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 IsDrawHitCursorLine;
@@ -118,6 +120,9 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Sound)
 	float Volume;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Sound)
+	float MainMenuMusicVolume;
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadWrite, Category=Sound)
 	int32 IsNoInaccuracy;

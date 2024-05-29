@@ -68,6 +68,7 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	IsCheatsEnabled = 0;
 	IsSelfAimEnabled = 0;
 	Volume = 0.1;
+	MainMenuMusicVolume = 0.005;
 	WeaponAirSpreadScale = 1.0f;
 	JumpImpulse = 301.993377;
 	IsNoInaccuracy = 0;
@@ -200,6 +201,12 @@ void UCloud9DeveloperSettings::InitializeCVars()
 			Volume,
 			*VolumeName,
 			TEXT("Basic game volume")
+		);
+
+		RegisterConsoleVariable(
+			MainMenuMusicVolume,
+			*MainMenuMusicVolumeName,
+			TEXT("Main menu music volume")
 		);
 
 		RegisterConsoleVariable(

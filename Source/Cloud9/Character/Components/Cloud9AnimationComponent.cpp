@@ -9,15 +9,25 @@
 
 UCloud9AnimationComponent::UCloud9AnimationComponent() {}
 
-UAnimInstance* UCloud9AnimationComponent::GetAnimInstance() const
+USkeletalMeshComponent* UCloud9AnimationComponent::GetMesh() const
 {
 	let Character = GetOwner<ACloud9Character>();
 	OBJECT_RETURN_IF_FAIL(IsValid(Character), nullptr, Error, "Character is invalid");
+	return Character->GetMesh();
+}
 
-	let Mesh = Character->GetMesh();
+UAnimInstance* UCloud9AnimationComponent::GetAnimInstance() const
+{
+	let Mesh = GetMesh();
 	OBJECT_RETURN_IF_FAIL(IsValid(Mesh), nullptr, Error, "Mesh is invalid");
-
 	return Mesh->GetAnimInstance();
+}
+
+EAnimationMode::Type UCloud9AnimationComponent::GetAnimationMode() const
+{
+	let Mesh = GetMesh();
+	OBJECT_RETURN_IF_FAIL(IsValid(Mesh), EAnimationMode::AnimationCustomMode, Error, "Mesh is invalid");
+	return Mesh->GetAnimationMode();
 }
 
 bool UCloud9AnimationComponent::PlayMontage(
@@ -28,7 +38,16 @@ bool UCloud9AnimationComponent::PlayMontage(
 {
 	OBJECT_RETURN_IF_FAIL(IsValid(NewBasePoseMontage), false, Error, "Montage is invalid");
 
-	let AnimInstance = GetAnimInstance();
+	let Mesh = GetMesh();
+	OBJECT_RETURN_IF_FAIL(IsValid(Mesh), false, Error, "Mesh is invalid");
+
+	if (Mesh->GetAnimationMode() == EAnimationMode::AnimationSingleNode)
+	{
+		OBJECT_VERBOSE("Montage '%s' discarded due to selected animation mode", *NewBasePoseMontage->GetName());
+		return true;
+	}
+
+	let AnimInstance = Mesh->GetAnimInstance();
 	OBJECT_RETURN_IF_FAIL(
 		IsValid(AnimInstance), false,
 		Error, "AnimInstance is invalid for montage '%s'",

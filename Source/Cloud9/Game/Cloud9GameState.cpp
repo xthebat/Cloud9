@@ -28,19 +28,19 @@ void ACloud9GameState::Tick(float DeltaSeconds)
 		let FirstPlayerController = MyWorld->GetFirstPlayerController();
 		OBJECT_VOID_IF_FAIL(IsValid(FirstPlayerController), Error, "World isn't exist");
 
-		let Character = Cast<ACloud9Character>(FirstPlayerController->GetCharacter());
-		OBJECT_VOID_IF_FAIL(IsValid(Character), Error, "Character isn't exist");
+		if (let Character = Cast<ACloud9Character>(FirstPlayerController->GetCharacter()))
+		{
+			let Fps = 1.0f / DeltaSeconds;
+			let Location = Character->GetActorLocation();
+			let Velocity = Character->GetVelocity();
+			let Text = FString::Printf(
+				TEXT("Location = %s Scaled Velocity = %.2f fps = %.1f"),
+				*Location.ToString(),
+				Velocity.Size() / UCloud9CharacterMovement::SpeedScaleCoefficient,
+				Fps
+			);
 
-		let Fps = 1.0f / DeltaSeconds;
-		let Location = Character->GetActorLocation();
-		let Velocity = Character->GetVelocity();
-		let Text = FString::Printf(
-			TEXT("Location = %s Scaled Velocity = %.2f fps = %.1f"),
-			*Location.ToString(),
-			Velocity.Size() / UCloud9CharacterMovement::SpeedScaleCoefficient,
-			Fps
-		);
-
-		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, Text);
+			GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, Text);
+		}
 	}
 }
