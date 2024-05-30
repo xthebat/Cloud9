@@ -28,6 +28,7 @@
 #include "Cloud9/Tools/Math.h"
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
+#include "GameFramework/HUD.h"
 
 UCloud9MouseController::UCloud9MouseController()
 {
@@ -115,8 +116,22 @@ void UCloud9MouseController::ProcessCharacterView()
 	{
 		if (let Controller = GetCloud9Controller(); IsValid(Controller))
 		{
-			static var Settings = UCloud9DeveloperSettings::Get();
-			let ActorsToIgnore = Settings->IsSelfAimEnabled ? TArray<AActor*>{} : TArray<AActor*>{Pawn};
+			static let Settings = UCloud9DeveloperSettings::Get();
+
+			var ActorsToIgnore = TArray<AActor*>{};
+
+			if (Settings->IsSelfAimEnabled)
+			{
+				ActorsToIgnore.Add(Pawn);
+			}
+
+			// Hud are visible, and we trace using ECC_Visibility channel
+			// so hitscan can returns hit to HUD actor itself 
+			if (let Hud = Controller->GetHUD(); IsValid(Hud))
+			{
+				ActorsToIgnore.Add(Hud);
+			}
+
 			let CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
 				TRACE_CHANNEL,
 				true,
