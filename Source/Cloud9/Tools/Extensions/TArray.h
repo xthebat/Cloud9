@@ -37,4 +37,17 @@ namespace ETArray
 		}
 		return Result;
 	}
+
+	struct Sorted
+	{
+		template <typename ElementType>
+		FORCEINLINE TArray<ElementType> operator()(const TArray<ElementType>& Self) const
+		{
+			var Result = Self;
+			Result.StableSort();
+			return Result;
+		}
+
+		OPERATOR_BODY(Sorted)
+	};
 }
