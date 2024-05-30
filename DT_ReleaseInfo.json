@@ -1,0 +1,138 @@
+[
+	{
+		"Name": "Patch-14.3",
+		"Image": "Texture2D'/Game/HUD/Textures/Ranks/level6.level6'",
+		"Datetime": "6 May 2024",
+		"Caption": "-----------------",
+		"Lines": [
+			"- Fixed Physical Material on de_shortdust",
+			"- Fixed holstered secondary weapon placement",
+			"- Fixed Physical Material and directory structure on de_mirage",
+			"- Fixed armor damage amount nearly like CS15",
+			"- Fixed MP9 animation",
+			"- Fixed damage amount calculation in armor",
+			"- Added shield effect on spawn",
+			"- Added impact bullet sounds for Physical Materials",
+			"- Added weapon inaccuracy",
+			"- Added flinch effect on shot",
+			"- Added bot_move command for flinch test (make bots strafes)",
+			"- Added shot effect on armored character",
+			"- Implemented maximum character speed depend on weapon",
+			"- implemented effect-system for characters (shields, etc)",
+			"- Implemented bot spawn initialization config"
+		]
+	},
+	{
+		"Name": "Patch-13.4",
+		"Image": "Texture2D'/Game/HUD/Textures/Ranks/level5.level5'",
+		"Datetime": "9 Mar 2024",
+		"Caption": "-----------------",
+		"Lines": [
+			"- Fixed hp/armor/bullets HUD UI",
+			"- Fixed infinite ammo nade",
+			"- Fixed code's bugs to add simple bots",
+			"- Fixed self damage registration",
+			"- Fixed JungleRaider skeletal mesh",
+			"- Fixed shot registration when SelfAim enabled",
+			"- Fixed invalid initial rotation angle",
+			"- Fixed practice range and added spawner on dust",
+			"- Added weapon transferring between maps",
+			"- Added equipment spawner with support to spawn kevlar vest, helmet and medkit",
+			"- Added destroyable balls grid",
+			"- Added Shooting Range Class",
+			"- Reworked HUD to event-oriented system",
+			"- Added Shooting Range stats",
+			"- Added new characters for bots and etc",
+			"- Added blood decals after character has been shoot",
+			"- Added ragdoll for character and death animation",
+			"- Added coefficients for damages of Firearms",
+			"- Added decals for different types of materials",
+			"- Added shoot decal logic and improved decals VFX",
+			"- Added background decals logic",
+			"- Added bot_add and bot_place commands"
+		]
+	},
+	{
+		"Name": "Patch-11.5",
+		"Image": "Texture2D'/Game/HUD/Textures/Ranks/level4.level4'",
+		"Datetime": "5 Feb 2024",
+		"Caption": "-----------------",
+		"Lines": [
+			"- Fixed Aim Offset for Knife",
+			"- Fixed map command",
+			"- Fixed crashes on map change",
+			"- Fixed map change using nade",
+			"- Fixed crash after double start in PIE",
+			"- Fixed ammo widget",
+			"- Added VFX weapon spawner",
+			"- Added firearm ammo counting",
+			"- Added weapon spawner VFX",
+			"- Added empty ammo sound",
+			"- Added hud widget",
+			"- Added ammo health and armor info widget",
+			"- Added low ammo sound",
+			"- Added HUD icons and label for weapons",
+			"- Added grenade spawner",
+			"- Added ammo spawner"
+		]
+	},
+	{
+		"Name": "Patch-7.10",
+		"Image": "Texture2D'/Game/HUD/Textures/Ranks/level3.level3'",
+		"Datetime": "8 Jan 2024",
+		"Caption": "-----------------",
+		"Lines": [
+			"- Reworked weapon system to UDataTable",
+			"- Added models and VFX for the most types of weapons",
+			"- Added different weapon VFX",
+			"- Added magazine ejection and case ejection",
+			"- Fixed shotgun VFX",
+			"- Added grenades VFX",
+			"- Added explosive grenade BL",
+			"- VFX improvement",
+			"- Fixed crash on level change",
+			"- Added debug spheres on explosion",
+			"- Fixed shoot registration",
+			"- Fixed include in WeaponCommonData",
+			"- Imported vertical animations",
+			"- Added vertical weapon animation"
+		]
+	},
+	{
+		"Name": "Patch-6.4",
+		"Image": "Texture2D'/Game/HUD/Textures/Ranks/level2.level2'",
+		"Datetime": "16 Nov 2023",
+		"Caption": "-----------------",
+		"Lines": [
+			"- Added levels screenshots",
+			"- Assets removed and rearranged",
+			"- Added console/configuration file parameters",
+			"- Fixed config file",
+			"- Fixed console",
+			"- Implemented UCLASS/USTRUCT debug print for basic properties",
+			"- C++ code refactoring",
+			"- Added Epic copyright for UpdateDesiredArmLocation",
+			"- Added smart cast WhenOrNone trait",
+			"- Added vertical camera lag",
+			"- Fixed console map loading command",
+			"- Fixed trace-hit shoot logic",
+			"- Added door actors and fixed doors on de_shortdust",
+			"- Rebuild maps for Patch 6.4"
+		]
+	},
+	{
+		"Name": "Patch-5.5",
+		"Image": "Texture2D'/Game/HUD/Textures/Ranks/level1.level1'",
+		"Datetime": "31 Oct 2023",
+		"Caption": "\"First blood\"",
+		"Lines": [
+			"- Added scripts for CS:GO maps post-import processing",
+			"- Fixed warmup/de_mirage/de_shortdust maps with Python-scripts",
+			"- Added Python script's descriptions",
+			"- Fixed digital vibrance of the maps",
+			"- Added teleport to de_mirage from warmup",
+			"- Fixed zoom camera indoors",
+			"- Added damper for vertical camera movement"
+		]
+	}
+]
