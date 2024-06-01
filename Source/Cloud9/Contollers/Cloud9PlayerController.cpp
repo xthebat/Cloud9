@@ -53,17 +53,21 @@ void ACloud9PlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	InputComponent->BindAxis("MoveForward", KeyboardController, &UCloud9KeyboardController::OnMoveForward);
-	InputComponent->BindAxis("MoveRight", KeyboardController, &UCloud9KeyboardController::OnMoveRight);
+	InputComponent->BindAxis(
+		*UCloud9DeveloperSettings::BindMoveForwardName,
+		KeyboardController, &UCloud9KeyboardController::OnMoveForward);
 
-	InputComponent->BindAction("Crouch", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnCrouchPressed);
-	InputComponent->BindAction("Crouch", IE_Released, KeyboardController, &UCloud9KeyboardController::OnCrouchReleased);
+	InputComponent->BindAxis(
+		*UCloud9DeveloperSettings::BindMoveBackwardName,
+		KeyboardController, &UCloud9KeyboardController::OnMoveBackward);
 
-	InputComponent->BindAction("Walk", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnWalkPressed);
-	InputComponent->BindAction("Walk", IE_Released, KeyboardController, &UCloud9KeyboardController::OnWalkReleased);
+	InputComponent->BindAxis(
+		*UCloud9DeveloperSettings::BindMoveLeftName,
+		KeyboardController, &UCloud9KeyboardController::OnMoveLeft);
 
-	InputComponent->BindAction("Jump", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnJumpPressed);
-	InputComponent->BindAction("Jump", IE_Released, KeyboardController, &UCloud9KeyboardController::OnJumpReleased);
+	InputComponent->BindAxis(
+		*UCloud9DeveloperSettings::BindMoveRightName,
+		KeyboardController, &UCloud9KeyboardController::OnMoveRight);
 
 	InputComponent->BindAxis("CameraZoom", MouseController, &UCloud9MouseController::OnCameraZoom);
 	InputComponent->BindAction(
@@ -78,26 +82,82 @@ void ACloud9PlayerController::SetupInputComponent()
 		MouseController,
 		&UCloud9MouseController::OnCameraRotationReleased);
 
-	InputComponent->BindAction("Slot1", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot1);
-	InputComponent->BindAction("Slot2", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot2);
-	InputComponent->BindAction("Slot3", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot3);
-	InputComponent->BindAction("Slot4", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot4);
-	InputComponent->BindAction("Slot5", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSlot5);
-
-	InputComponent->BindAction("Reload", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnReloadPressed);
-	InputComponent->BindAction("Reload", IE_Released, KeyboardController, &UCloud9KeyboardController::OnReloadReleased);
-
 	InputComponent->BindAction(
-		"Primary", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnPrimaryActionPressed);
+		*UCloud9DeveloperSettings::BindCrouchName,
+		IE_Pressed, KeyboardController,
+		&UCloud9KeyboardController::OnCrouchPressed);
 	InputComponent->BindAction(
-		"Primary", IE_Released, KeyboardController, &UCloud9KeyboardController::OnPrimaryActionReleased);
-	InputComponent->BindAction(
-		"Secondary", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSecondaryActionPressed);
-	InputComponent->BindAction(
-		"Secondary", IE_Released, KeyboardController, &UCloud9KeyboardController::OnSecondaryActionReleased);
+		*UCloud9DeveloperSettings::BindCrouchName,
+		IE_Released, KeyboardController,
+		&UCloud9KeyboardController::OnCrouchReleased);
 
 	InputComponent->BindAction(
-		"Use", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnUseAction);
+		*UCloud9DeveloperSettings::BindWalkName,
+		IE_Pressed, KeyboardController,
+		&UCloud9KeyboardController::OnWalkPressed);
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindWalkName,
+		IE_Released, KeyboardController,
+		&UCloud9KeyboardController::OnWalkReleased);
+
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindJumpName,
+		IE_Pressed, KeyboardController,
+		&UCloud9KeyboardController::OnJumpPressed);
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindJumpName,
+		IE_Released, KeyboardController,
+		&UCloud9KeyboardController::OnJumpReleased);
+
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindSlot1Name,
+		IE_Pressed, KeyboardController,
+		&UCloud9KeyboardController::OnSlot1);
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindSlot2Name,
+		IE_Pressed, KeyboardController,
+		&UCloud9KeyboardController::OnSlot2);
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindSlot3Name,
+		IE_Pressed, KeyboardController,
+		&UCloud9KeyboardController::OnSlot3);
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindSlot4Name,
+		IE_Pressed, KeyboardController,
+		&UCloud9KeyboardController::OnSlot4);
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindSlot5Name,
+		IE_Pressed, KeyboardController,
+		&UCloud9KeyboardController::OnSlot5);
+
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindReloadName,
+		IE_Pressed, KeyboardController,
+		&UCloud9KeyboardController::OnReloadPressed);
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindReloadName,
+		IE_Released, KeyboardController,
+		&UCloud9KeyboardController::OnReloadReleased);
+
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindPrimaryName,
+		IE_Pressed, KeyboardController,
+		&UCloud9KeyboardController::OnPrimaryActionPressed);
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindPrimaryName,
+		IE_Released, KeyboardController,
+		&UCloud9KeyboardController::OnPrimaryActionReleased);
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindSecondaryName,
+		IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnSecondaryActionPressed);
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindSecondaryName,
+		IE_Released, KeyboardController, &UCloud9KeyboardController::OnSecondaryActionReleased);
+
+	InputComponent->BindAction(
+		*UCloud9DeveloperSettings::BindUseName,
+		IE_Pressed, KeyboardController,
+		&UCloud9KeyboardController::OnUseAction);
 
 	InputComponent->BindAction(
 		"CursorSelfAim", IE_Pressed, KeyboardController, &UCloud9KeyboardController::OnCursorSelfAim);

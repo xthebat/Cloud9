@@ -25,9 +25,16 @@
 
 #include "CoreMinimal.h"
 
+#include "Cloud9/Tools/Concepts.h"
+#include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Macro/Common.h"
 
+#include "GameFramework/InputSettings.h"
+#include "GameFramework/PlayerInput.h"
+
 #include "Cloud9DeveloperSettings.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCloud9SettingsChanged);
 
 USTRUCT(BlueprintType)
 struct FUnUsedStruct
@@ -54,34 +61,49 @@ UCLASS(Config=Game, defaultconfig, meta = (DisplayName="Various Developer Settin
 class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 {
 	GENERATED_UCLASS_BODY()
-	static FString ShowMouseCursorName;
-	static FString DrawDeprojectedCursorLineName;
-	static FString DrawHitCursorLineName;
-	static FString DrawExplosionSphereName;
-	static FString DrawHitScanName;
-	static FString PrintHitScanInfoName;
-	static FString NetGraphName;
-	static FString AutoSelectWeaponName;
-	static FString InfiniteAmmoName;
-	static FString CheatsName;
-	static FString SelfAimEnabledName;
-	static FString CameraVerticalSpeedLagName;
-	static FString NoInaccuracyName;
-	static FString JumpImpulseName;
-	static FString WeaponAirSpreadScaleName;
-	static FString WeaponDebugMaxInaccuracyName;
-	static FString WeaponDebugInaccuracyOnlyUpName;
-	static FString WeaponRecoilDecayCoefficientName;
-	static FString DrawShotDirectionAxisName;
-	static FString WeaponDebugDamageInfoName;
-	static FString TaggingScaleName;
-	static FString DecalLifeSpanName;
-	static FString DecalFadeScreenSizeName;
-	static FString VolumeName;
-
+	static inline FString ShowMouseCursorName = "r.ShowMouseCursor";
+	static inline FString DrawDeprojectedCursorLineName = "r.DrawDeprojectedCursorLine";
+	static inline FString DrawHitCursorLineName = "r.DrawHitCursorLine";
+	static inline FString DrawExplosionSphereName = "r.DrawExplosionSphere";
+	static inline FString DrawHitScanName = "r.DrawHitScan";
+	static inline FString PrintHitScanInfoName = "r.PrintHitScanInfo";
+	static inline FString NetGraphName = "r.NetGraph";
+	static inline FString AutoSelectWeaponName = "r.AutoSelectWeapon";
+	static inline FString InfiniteAmmoName = "r.InfiniteAmmo";
+	static inline FString CheatsName = "r.Cheats";
+	static inline FString SelfAimEnabledName = "r.SelfAimEnabled";
+	static inline FString CameraVerticalSpeedLagName = "r.CameraVerticalSpeedLag";
+	static inline FString NoInaccuracyName = "r.NoInaccuracy";
+	static inline FString JumpImpulseName = "r.JumpImpulse";
+	static inline FString WeaponAirSpreadScaleName = "r.WeaponAirSpreadScale";
+	static inline FString WeaponDebugMaxInaccuracyName = "r.WeaponDebugMaxInaccuracy";
+	static inline FString WeaponDebugInaccuracyOnlyUpName = "r.WeaponDebugInaccuracyOnlyUp";
+	static inline FString WeaponRecoilDecayCoefficientName = "r.WeaponRecoilDecayCoefficient";
+	static inline FString DrawShotDirectionAxisName = "r.DrawShotDirectionAxis";
+	static inline FString WeaponDebugDamageInfoName = "r.WeaponDebugDamageInfo";
+	static inline FString TaggingScaleName = "r.TaggingScale";
+	static inline FString DecalLifeSpanName = "r.DecalLifeSpan";
+	static inline FString DecalFadeScreenSizeName = "r.DecalFadeScreenSizeName";
+	static inline FString VolumeName = "r.Volume";
 	static inline FString MainMenuMusicVolumeName = "r.MainMenuMusicVolume";
 
-	// properties
+	static inline FString BindMoveForwardName = "MoveForward";
+	static inline FString BindMoveBackwardName = "MoveBackward";
+	static inline FString BindMoveLeftName = "MoveLeft";
+	static inline FString BindMoveRightName = "MoveRight";
+	static inline FString BindCrouchName = "Crouch";
+	static inline FString BindWalkName = "Walk";
+	static inline FString BindJumpName = "Jump";
+	static inline FString BindSlot1Name = "Slot1";
+	static inline FString BindSlot2Name = "Slot2";
+	static inline FString BindSlot3Name = "Slot3";
+	static inline FString BindSlot4Name = "Slot4";
+	static inline FString BindSlot5Name = "Slot5";
+	static inline FString BindReloadName = "Reload";
+	static inline FString BindPrimaryName = "Primary";
+	static inline FString BindSecondaryName = "Secondary";
+	static inline FString BindUseName = "Use";
+
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 IsDrawHitCursorLine;
 
@@ -163,6 +185,54 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	FUnUsedStruct UnUsedStruct;
 
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindMoveForward;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindMoveBackward;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindMoveLeft;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindMoveRight;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindCrouch;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindWalk;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindJump;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindSlot1;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindSlot2;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindSlot3;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindSlot4;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindSlot5;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindReload;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindPrimary;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindSecondary;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
+	FKey BindUse;
+
 	// static functions
 	UFUNCTION(BlueprintCallable, Category=Settings, DisplayName=GetCloud9DeveloperSettings)
 	static UCloud9DeveloperSettings* Get();
@@ -192,9 +262,58 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 
-protected: // functions
+protected:
+	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
+	FOnCloud9SettingsChanged OnChanged;
+
 	void InitializeCVars();
 
-	template <typename TValue>
-	auto RegisterConsoleVariable(TValue& ValueRef, const TCHAR* Name, const TCHAR* Help);
+	template <typename ValueType> requires Concepts::is_any_of<ValueType, int, float, bool, FString>
+	IConsoleObject* RegisterConsoleVariable(ValueType& ValueRef, const FString& Name, const FString& Help)
+	{
+		let ConsoleManager = &IConsoleManager::Get();
+		let CVar = ConsoleManager->RegisterConsoleVariableRef(*Name, ValueRef, *Help);
+		CVar->AsVariable()->SetOnChangedCallback(
+			FConsoleVariableDelegate::CreateLambda([this](IConsoleVariable* Arg) { Save(); })
+		);
+		return CVar;
+	}
+
+	IConsoleObject* RegisterConsoleVariable(FKey& ValueRef, const FString& Name, const FString& Help)
+	{
+		using namespace ETContainer;
+		let ConsoleManager = &IConsoleManager::Get();
+		return ConsoleManager->RegisterConsoleCommand(
+			*Name, *Help,
+			FConsoleCommandWithArgsDelegate::CreateLambda([this, Name, &ValueRef](const TArray<FString>& Args)
+			{
+				if (Args.Num() == 1)
+				{
+					if (let NewKey = FKey(*Args[0]); NewKey.IsValid())
+					{
+						var InputSettings = const_cast<UInputSettings*>(GetDefault<UInputSettings>());
+
+						if (InputSettings->DoesAxisExist(*Name))
+						{
+							var Mapping = TArray<FInputAxisKeyMapping>();
+							InputSettings->GetAxisMappingByName(*Name, Mapping);
+							Mapping | ForEach{[InputSettings](let& It) { InputSettings->RemoveAxisMapping(It); }};
+							InputSettings->AddAxisMapping(FInputAxisKeyMapping(*Name, NewKey), true);
+						}
+						else if (InputSettings->DoesActionExist(*Name))
+						{
+							var Mapping = TArray<FInputActionKeyMapping>();
+							InputSettings->GetActionMappingByName(*Name, Mapping);
+							Mapping | ForEach{[InputSettings](let& It) { InputSettings->RemoveActionMapping(It); }};
+							InputSettings->AddActionMapping(FInputActionKeyMapping(*Name, NewKey), true);
+						}
+
+						InputSettings->SaveKeyMappings();
+						ValueRef = NewKey;
+						Save();
+					}
+				}
+			})
+		);
+	}
 };
