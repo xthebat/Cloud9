@@ -58,7 +58,9 @@ public:
 	FOnMoveDelegate OnMoveDelegate;
 
 	void OnMoveForward(float Value);
+	void OnMoveBackward(float Value);
 	void OnMoveRight(float Value);
+	void OnMoveLeft(float Value);
 
 	void OnWalkPressed();
 	void OnWalkReleased();
@@ -81,6 +83,8 @@ public:
 
 protected:
 	float ForwardScale;
+	float BackwardScale;
+	float LeftScale;
 	float RightScale;
 
 	template <typename GetDirectionType>

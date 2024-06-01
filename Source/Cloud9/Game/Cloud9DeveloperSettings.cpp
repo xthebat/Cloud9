@@ -26,31 +26,6 @@
 #include "Cloud9/Tools/Extensions/FString.h"
 #include "Cloud9/Tools/Extensions/UObject.h"
 
-FString UCloud9DeveloperSettings::ShowMouseCursorName = "r.ShowMouseCursor";
-FString UCloud9DeveloperSettings::DrawDeprojectedCursorLineName = "r.DrawDeprojectedCursorLine";
-FString UCloud9DeveloperSettings::DrawHitCursorLineName = "r.DrawHitCursorLine";
-FString UCloud9DeveloperSettings::DrawExplosionSphereName = "r.DrawExplosionSphere";
-FString UCloud9DeveloperSettings::DrawHitScanName = "r.DrawHitScan";
-FString UCloud9DeveloperSettings::PrintHitScanInfoName = "r.PrintHitScanInfo";
-FString UCloud9DeveloperSettings::NetGraphName = "r.NetGraph";
-FString UCloud9DeveloperSettings::AutoSelectWeaponName = "r.AutoSelectWeapon";
-FString UCloud9DeveloperSettings::InfiniteAmmoName = "r.InfiniteAmmo";
-FString UCloud9DeveloperSettings::CheatsName = "r.Cheats";
-FString UCloud9DeveloperSettings::SelfAimEnabledName = "r.SelfAimEnabled";
-FString UCloud9DeveloperSettings::CameraVerticalSpeedLagName = "r.CameraVerticalSpeedLag";
-FString UCloud9DeveloperSettings::NoInaccuracyName = "r.NoInaccuracy";
-FString UCloud9DeveloperSettings::JumpImpulseName = "r.JumpImpulse";
-FString UCloud9DeveloperSettings::WeaponAirSpreadScaleName = "r.WeaponAirSpreadScale";
-FString UCloud9DeveloperSettings::WeaponDebugMaxInaccuracyName = "r.WeaponDebugMaxInaccuracy";
-FString UCloud9DeveloperSettings::WeaponDebugInaccuracyOnlyUpName = "r.WeaponDebugInaccuracyOnlyUp";
-FString UCloud9DeveloperSettings::WeaponRecoilDecayCoefficientName = "r.WeaponRecoilDecayCoefficient";
-FString UCloud9DeveloperSettings::DrawShotDirectionAxisName = "r.DrawShotDirectionAxis";
-FString UCloud9DeveloperSettings::WeaponDebugDamageInfoName = "r.WeaponDebugDamageInfo";
-FString UCloud9DeveloperSettings::TaggingScaleName = "r.TaggingScale";
-FString UCloud9DeveloperSettings::DecalLifeSpanName = "r.DecalLifeSpan";
-FString UCloud9DeveloperSettings::DecalFadeScreenSizeName = "r.DecalFadeScreenSizeName";
-FString UCloud9DeveloperSettings::VolumeName = "r.Volume";
-
 // ReSharper disable once CppPossiblyUninitializedMember
 UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -80,6 +55,23 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	TaggingScale = 1.0f;
 	DecalLifeSpan = 20.0f;
 	DecalFadeScreenSize = 0.0f;
+
+	BindMoveForward = "W";
+	BindMoveBackward = "S";
+	BindMoveLeft = "D";
+	BindMoveRight = "A";
+	BindCrouch = "LeftControl";
+	BindWalk = "LeftShift";
+	BindJump = "SpaceBar";
+	BindSlot1 = "One";
+	BindSlot2 = "Two";
+	BindSlot3 = "Three";
+	BindSlot4 = "Four";
+	BindSlot5 = "Five";
+	BindReload = "R";
+	BindPrimary = "LeftMouseButton";
+	BindSecondary = "RightMouseButton";
+	BindUse = "E";
 }
 
 UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
@@ -93,28 +85,7 @@ void UCloud9DeveloperSettings::Save()
 {
 	UpdateDefaultConfigFile();
 	OBJECT_DISPLAY("%s", this | EUObject::Stringify{} | EFString::ToCStr{});
-}
-
-template <typename ValueType>
-auto UCloud9DeveloperSettings::RegisterConsoleVariable(ValueType& ValueRef, const TCHAR* Name, const TCHAR* Help)
-{
-	static_assert(
-		TIsSame<ValueType, int>::Value ||
-		TIsSame<ValueType, float>::Value ||
-		TIsSame<ValueType, bool>::Value ||
-		TIsSame<ValueType, FString>::Value,
-		"TValue must be int, float, bool or FString"
-	);
-
-	let ConsoleManager = &IConsoleManager::Get();
-
-	let CVar = ConsoleManager->RegisterConsoleVariableRef(Name, ValueRef, Help);
-
-	CVar->AsVariable()->SetOnChangedCallback(
-		FConsoleVariableDelegate::CreateLambda([this](auto Arg) { Save(); })
-	);
-
-	return CVar;
+	OnChanged.Broadcast();
 }
 
 void UCloud9DeveloperSettings::InitializeCVars()
@@ -127,153 +98,170 @@ void UCloud9DeveloperSettings::InitializeCVars()
 
 		RegisterConsoleVariable(
 			IsShowMouseCursor,
-			*ShowMouseCursorName,
+			ShowMouseCursorName,
 			TEXT("Whether to draw line from character to GetHitResultUnderCursor point")
 		);
 
 		RegisterConsoleVariable(
 			IsDrawDeprojectedCursorLine,
-			*DrawDeprojectedCursorLineName,
+			DrawDeprojectedCursorLineName,
 			TEXT("Whether to draw line from character to deprojected mouse cursor")
 		);
 
 		RegisterConsoleVariable(
 			IsDrawHitCursorLine,
-			*DrawHitCursorLineName,
+			DrawHitCursorLineName,
 			TEXT("Whether to show mouse cursor on screen or not in game")
 		);
 
 		RegisterConsoleVariable(
 			IsDrawExplosionSpheres,
-			*DrawExplosionSphereName,
+			DrawExplosionSphereName,
 			TEXT("Whether to draw debug explosions spheres")
 		);
 
 		RegisterConsoleVariable(
 			IsDrawHitScan,
-			*DrawHitScanName,
+			DrawHitScanName,
 			TEXT("Whether to draw debug hit scan lines")
 		);
 
 		RegisterConsoleVariable(
 			IsPrintHitScanInfo,
-			*PrintHitScanInfoName,
+			PrintHitScanInfoName,
 			TEXT("Whether to print hit scan info")
 		);
 
 		RegisterConsoleVariable(
 			NetGraph,
-			*NetGraphName,
+			NetGraphName,
 			TEXT("Whether to show FPS and other specific debug info")
 		);
 
 		RegisterConsoleVariable(
 			IsAutoSelectWeapon,
-			*AutoSelectWeaponName,
+			AutoSelectWeaponName,
 			TEXT("Select weapon after picking it up")
 		);
 
 		RegisterConsoleVariable(
 			IsInfiniteAmmo,
-			*InfiniteAmmoName,
+			InfiniteAmmoName,
 			TEXT("Infinite Weapon Ammo")
 		);
 
 		RegisterConsoleVariable(
 			IsCheatsEnabled,
-			*CheatsName,
+			CheatsName,
 			TEXT("Enable cheats")
 		);
 
 		RegisterConsoleVariable(
 			IsSelfAimEnabled,
-			*SelfAimEnabledName,
+			SelfAimEnabledName,
 			TEXT("Enable self aim")
 		);
 
 		RegisterConsoleVariable(
 			CameraVerticalSpeedLag,
-			*CameraVerticalSpeedLagName,
+			CameraVerticalSpeedLagName,
 			TEXT("Configure how smoothly does the camera change its position vertically")
 		);
 
 		RegisterConsoleVariable(
 			Volume,
-			*VolumeName,
+			VolumeName,
 			TEXT("Basic game volume")
 		);
 
 		RegisterConsoleVariable(
 			MainMenuMusicVolume,
-			*MainMenuMusicVolumeName,
+			MainMenuMusicVolumeName,
 			TEXT("Main menu music volume")
 		);
 
 		RegisterConsoleVariable(
 			IsNoInaccuracy,
-			*NoInaccuracyName,
+			NoInaccuracyName,
 			TEXT("Remove inaccuracy spread while shooting")
 		);
 
 		RegisterConsoleVariable(
 			JumpImpulse,
-			*JumpImpulseName,
+			JumpImpulseName,
 			TEXT("sv_jump_impulse")
 		);
 
 		RegisterConsoleVariable(
 			WeaponAirSpreadScale,
-			*WeaponAirSpreadScaleName,
+			WeaponAirSpreadScaleName,
 			TEXT("weapon_air_spread_scale")
 		);
 
 		RegisterConsoleVariable(
 			WeaponDebugMaxInaccuracy,
-			*WeaponDebugMaxInaccuracyName,
+			WeaponDebugMaxInaccuracyName,
 			TEXT("weapon_debug_max_inaccuracy")
 		);
 
 		RegisterConsoleVariable(
 			WeaponDebugInaccuracyOnlyUp,
-			*WeaponDebugInaccuracyOnlyUpName,
+			WeaponDebugInaccuracyOnlyUpName,
 			TEXT("weapon_debug_inaccuracy_only_up")
 		);
 
 		RegisterConsoleVariable(
 			WeaponRecoilDecayCoefficient,
-			*WeaponRecoilDecayCoefficientName,
+			WeaponRecoilDecayCoefficientName,
 			TEXT("weapon_recoil_decay_coefficient")
 		);
 
 		RegisterConsoleVariable(
 			DrawShotDirectionAxis,
-			*DrawShotDirectionAxisName,
+			DrawShotDirectionAxisName,
 			TEXT("Draw debug orthonormal axis of shot direction")
 		);
 
 		RegisterConsoleVariable(
 			WeaponDebugDamageInfo,
-			*WeaponDebugDamageInfoName,
+			WeaponDebugDamageInfoName,
 			TEXT("Print debug info about damage to character on hit")
 		);
 
 		RegisterConsoleVariable(
 			TaggingScale,
-			*TaggingScaleName,
+			TaggingScaleName,
 			TEXT("Scalar for player tagging modifier when hit. Lower values for greater tagging")
 		);
 
 		RegisterConsoleVariable(
 			DecalLifeSpan,
-			*DecalLifeSpanName,
+			DecalLifeSpanName,
 			TEXT("Life span of the decals")
 		);
 
 		RegisterConsoleVariable(
 			DecalFadeScreenSize,
-			*DecalFadeScreenSizeName,
+			DecalFadeScreenSizeName,
 			TEXT("Decal size to fade off screen")
 		);
+
+		RegisterConsoleVariable(BindMoveForward, BindMoveForwardName,TEXT("Move forward bind key"));
+		RegisterConsoleVariable(BindMoveBackward, BindMoveBackwardName,TEXT("Move backward bind key"));
+		RegisterConsoleVariable(BindMoveLeft, BindMoveLeftName,TEXT("Move left bind key"));
+		RegisterConsoleVariable(BindMoveRight, BindMoveRightName,TEXT("Move right bind key"));
+		RegisterConsoleVariable(BindCrouch, BindCrouchName,TEXT("Crouch bind key"));
+		RegisterConsoleVariable(BindWalk, BindWalkName,TEXT("Walk bind key"));
+		RegisterConsoleVariable(BindJump, BindJumpName,TEXT("Jump bind key"));
+		RegisterConsoleVariable(BindSlot1, BindSlot1Name,TEXT("Slot1 bind key"));
+		RegisterConsoleVariable(BindSlot2, BindSlot2Name,TEXT("Slot2 bind key"));
+		RegisterConsoleVariable(BindSlot3, BindSlot3Name,TEXT("Slot3 bind key"));
+		RegisterConsoleVariable(BindSlot4, BindSlot4Name,TEXT("Slot4 bind key"));
+		RegisterConsoleVariable(BindSlot5, BindSlot5Name,TEXT("Slot5 bind key"));
+		RegisterConsoleVariable(BindReload, BindReloadName,TEXT("Reload bind key"));
+		RegisterConsoleVariable(BindPrimary, BindPrimaryName,TEXT("Primary bind key"));
+		RegisterConsoleVariable(BindSecondary, BindSecondaryName,TEXT("Secondary bind key"));
+		RegisterConsoleVariable(BindUse, BindUseName,TEXT("Use bind key"));
 
 		OBJECT_DISPLAY("%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 	}

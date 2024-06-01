@@ -38,6 +38,8 @@ UCloud9KeyboardController::UCloud9KeyboardController()
 	PrimaryComponentTick.bStartWithTickEnabled = true;
 
 	ForwardScale = 0.0f;
+	BackwardScale = 0.0f;
+	LeftScale = 0.0f;
 	RightScale = 0.0f;
 }
 
@@ -50,12 +52,15 @@ void UCloud9KeyboardController::TickComponent(
 
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
-		if (FMath::Abs(ForwardScale) > 0.0f or FMath::Abs(RightScale) > 0.0f)
-		{
-			let FV = ForwardScale * Pawn->GetCameraBoom()->GetForwardVector();
-			let RV = RightScale * Pawn->GetCameraBoom()->GetRightVector();
+		let StraitScale = ForwardScale + BackwardScale;
+		let StrafeScale = LeftScale + RightScale;
 
-			var DirectionXY = FVector{FV.X + RV.X, FV.Y + RV.Y, 0.0f};
+		if (FMath::Abs(StraitScale) > 0.0f or FMath::Abs(StrafeScale) > 0.0f)
+		{
+			let StraitVector = StraitScale * Pawn->GetCameraBoom()->GetForwardVector();
+			let StrafeVector = StrafeScale * Pawn->GetCameraBoom()->GetRightVector();
+
+			var DirectionXY = FVector{StraitVector.X + StrafeVector.X, StraitVector.Y + StrafeVector.Y, 0.0f};
 			DirectionXY.Normalize();
 			Pawn->AddMovementInput(DirectionXY);
 			OnMoveDelegate.Broadcast();
@@ -125,7 +130,11 @@ void UCloud9KeyboardController::UpdateMove(GetDirectionType GetDirection, float 
 
 void UCloud9KeyboardController::OnMoveForward(float Value) { ForwardScale = Value; }
 
+void UCloud9KeyboardController::OnMoveBackward(float Value) { BackwardScale = -Value; }
+
 void UCloud9KeyboardController::OnMoveRight(float Value) { RightScale = Value; }
+
+void UCloud9KeyboardController::OnMoveLeft(float Value) { LeftScale = -Value; }
 
 void UCloud9KeyboardController::OnWalkPressed()
 {

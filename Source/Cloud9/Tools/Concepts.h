@@ -53,4 +53,7 @@ namespace Concepts
 	{
 		{ Self } -> std::convertible_to<BoundType>;
 	};
+
+	template <typename T, typename... U>
+	concept is_any_of = (std::same_as<T, U> || ...);
 }

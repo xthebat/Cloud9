@@ -11,6 +11,7 @@ class CLOUD9_API UCloud9ArrayLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
+public:
 	UFUNCTION(BlueprintCallable)
 	static TArray<FString> SortArrayOfString(const TArray<FString>& Array);
 

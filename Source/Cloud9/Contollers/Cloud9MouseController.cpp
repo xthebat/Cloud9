@@ -120,7 +120,7 @@ void UCloud9MouseController::ProcessCharacterView()
 
 			var ActorsToIgnore = TArray<AActor*>{};
 
-			if (Settings->IsSelfAimEnabled)
+			if (not Settings->IsSelfAimEnabled)
 			{
 				ActorsToIgnore.Add(Pawn);
 			}
