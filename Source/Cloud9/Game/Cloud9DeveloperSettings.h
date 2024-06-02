@@ -283,7 +283,7 @@ protected:
 	{
 		using namespace ETContainer;
 		let ConsoleManager = &IConsoleManager::Get();
-		return ConsoleManager->RegisterConsoleCommand(
+		let CCom = ConsoleManager->RegisterConsoleCommand(
 			*Name, *Help,
 			FConsoleCommandWithArgsDelegate::CreateLambda([this, Name, &ValueRef](const TArray<FString>& Args)
 			{
@@ -315,5 +315,8 @@ protected:
 				}
 			})
 		);
+		// Execute bind command to update InputSettings file
+		CCom->Execute({ValueRef.GetFName().ToString()}, GetWorld(), *GLog);
+		return CCom;
 	}
 };
