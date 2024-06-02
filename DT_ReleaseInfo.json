@@ -1,5 +1,33 @@
 [
 	{
+		"Name": "Patch-15.5",
+		"Image": "Texture2D'/Game/HUD/Textures/Ranks/level7.level7'",
+		"Datetime": "2 Jun 2024",
+		"Caption": "-----------------",
+		"Lines": [
+			"- Fixed stand/crouch transition animation",
+			"- Fixed spawn decal for moving characters",
+			"- Fixed MP9 reload animation",
+			"- Fixed decal indirect light render",
+			"- Recovered vertical camera lag - added default parameters to C++ Character",
+			"- Fixed several camera bugs",
+			"- Fixed infinity ammo reload bug and shotgun reload animation bug",
+			"- Added new bullet hits decals pack",
+			"- Added Start tab in main menu",
+			"- Added spatial sounds",
+			"- Added firearm decal size randomization",
+			"- Added headshot and kevlar sound",
+			"- Fixed crash for destroy after",
+			"- Fixed/Added comment on fix for async after",
+			"- Added game main menu",
+			"- Added main menu start, settings and play tab",
+			"- Added key validator for settings tab",
+			"- Fixed events registration in package build",
+			"- Fixed map previews in package build",
+			"- Refactored asserts on getting objects and logging",
+		]
+	},
+	{
 		"Name": "Patch-14.3",
 		"Image": "Texture2D'/Game/HUD/Textures/Ranks/level6.level6'",
 		"Datetime": "6 May 2024",
