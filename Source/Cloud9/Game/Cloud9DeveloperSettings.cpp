@@ -58,8 +58,8 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 
 	BindMoveForward = "W";
 	BindMoveBackward = "S";
-	BindMoveLeft = "D";
-	BindMoveRight = "A";
+	BindMoveLeft = "A";
+	BindMoveRight = "D";
 	BindCrouch = "LeftControl";
 	BindWalk = "LeftShift";
 	BindJump = "SpaceBar";
