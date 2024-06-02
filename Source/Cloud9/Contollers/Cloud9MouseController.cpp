@@ -125,13 +125,6 @@ void UCloud9MouseController::ProcessCharacterView()
 				ActorsToIgnore.Add(Pawn);
 			}
 
-			// Hud are visible, and we trace using ECC_Visibility channel
-			// so hitscan can returns hit to HUD actor itself 
-			if (let Hud = Controller->GetHUD(); IsValid(Hud))
-			{
-				ActorsToIgnore.Add(Hud);
-			}
-
 			let CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
 				TRACE_CHANNEL,
 				true,
