@@ -56,4 +56,10 @@ namespace Concepts
 
 	template <typename T, typename... U>
 	concept is_any_of = (std::same_as<T, U> || ...);
+
+	template <typename T>
+	concept has_tostring = requires(T&& Value)
+	{
+		{ Value.ToString() } -> std::same_as<FString>;
+	};
 }

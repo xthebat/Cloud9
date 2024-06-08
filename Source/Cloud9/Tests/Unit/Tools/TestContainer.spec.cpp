@@ -66,6 +66,8 @@ void FRangeSpec::Define()
 	Describe("TArray", [this]
 	{
 		let Container = TArray{1, 2, 3, 4, 5};
+		let EmptyInts = TArray<int>{};
+		let FStrings = TArray<FString>{"Meow", "Gav", "Murr"};
 
 		It("Random", [=]
 		{
@@ -79,6 +81,27 @@ void FRangeSpec::Define()
 			var Result = 0;
 			Container | ETContainer::ForEach{[&](let It) { Result += It; }};
 			TestEqual("Result == 15", Result, 15);
+		});
+
+		It("JoinToStringInts", [=]
+		{
+			let Expected = "1, 2, 3, 4, 5";
+			let Actual = Container | ETContainer::JoinToString{};
+			TestEqual("Result == 1, 2, 3, 4, 5", Actual, Expected);
+		});
+
+		It("JoinToStringEmpty", [=]
+		{
+			let Expected = "";
+			let Actual = EmptyInts | ETContainer::JoinToString{};
+			TestEqual("Result == ", Actual, Expected);
+		});
+
+		It("JoinToStringFstrings", [=]
+		{
+			let Expected = "Meow, Gav, Murr";
+			let Actual = FStrings | ETContainer::JoinToString{};
+			TestEqual("Result == Meow, Gav, Murr", Actual, Expected);
 		});
 
 		It("ToArray", [=]
