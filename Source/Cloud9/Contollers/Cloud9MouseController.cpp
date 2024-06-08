@@ -57,7 +57,6 @@ UCloud9MouseController::UCloud9MouseController()
 
 	bIsLastCrosshairLocationValid = false;
 
-	CrosshairSize = 128;
 	CrosshairMaterial = nullptr;
 }
 
@@ -113,8 +112,6 @@ void UCloud9MouseController::SetCameraZoomLevel(float Value) const
 void UCloud9MouseController::OnCharacterMove() { ProcessCharacterView(); }
 
 UMaterialInterface* UCloud9MouseController::GetCrosshairMaterial() const { return CrosshairMaterial; }
-
-float UCloud9MouseController::GetCrosshairSize() const { return CrosshairSize; }
 
 void UCloud9MouseController::ProcessCharacterView()
 {

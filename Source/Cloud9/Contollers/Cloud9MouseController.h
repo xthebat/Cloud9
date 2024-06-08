@@ -59,7 +59,6 @@ public:
 	void OnCharacterMove();
 
 	UMaterialInterface* GetCrosshairMaterial() const;
-	float GetCrosshairSize() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -79,9 +78,6 @@ protected:
 	void ProcessCameraRotation();
 	void ProcessCameraZoom(float DeltaTime);
 
-	UPROPERTY(EditDefaultsOnly, Category=Crosshair)
-	int CrosshairSize;
-	
 	UPROPERTY(EditDefaultsOnly, Category=Crosshair)
 	UMaterialInterface* CrosshairMaterial;
 

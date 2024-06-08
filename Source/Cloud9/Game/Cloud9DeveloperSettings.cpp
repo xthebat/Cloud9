@@ -71,6 +71,12 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	BindPrimary = "LeftMouseButton";
 	BindSecondary = "RightMouseButton";
 	BindUse = "E";
+
+	CrosshairSize = 64;
+	CrosshairLength = 0.4f;
+	CrosshairWidth = 5.0f;
+	CrosshairGap = 0.15f;
+	CrosshairColor = {0.0f, 1.0f, 0.0f};
 }
 
 UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
@@ -255,6 +261,12 @@ void UCloud9DeveloperSettings::InitializeCVars()
 		RegisterConsoleVariable(BindPrimary, BindPrimaryName,TEXT("Primary bind key"));
 		RegisterConsoleVariable(BindSecondary, BindSecondaryName,TEXT("Secondary bind key"));
 		RegisterConsoleVariable(BindUse, BindUseName,TEXT("Use bind key"));
+
+		RegisterConsoleVariable(CrosshairSize, CrosshairSizeName,TEXT("Crosshair size in pixels"));
+		RegisterConsoleVariable(CrosshairLength, CrosshairLengthName,TEXT("Crosshair length"));
+		RegisterConsoleVariable(CrosshairWidth, CrosshairWidthName,TEXT("Crosshair width"));
+		RegisterConsoleVariable(CrosshairGap, CrosshairGapName,TEXT("Crosshair gap"));
+		RegisterConsoleVariable(CrosshairColor, CrosshairColorName,TEXT("Crosshair color"));
 
 		OBJECT_DISPLAY("%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 	}

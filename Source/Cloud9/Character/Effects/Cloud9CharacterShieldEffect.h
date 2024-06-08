@@ -16,10 +16,10 @@ class CLOUD9_API UCloud9CharacterShieldEffect : public UCloud9CharacterEffectTra
 	GENERATED_BODY()
 
 public:
-	static const FName ShieldEnableName;
-	static const FName ShieldReflectName;
-	static const FName ShieldPowerName;
-	static const FName ShieldColorName;
+	static inline const FName ShieldEnableName = TEXT("Shield Enabled");
+	static inline const FName ShieldReflectName = TEXT("Shield Reflect");
+	static inline const FName ShieldPowerName = TEXT("Shield Power");
+	static inline const FName ShieldColorName = TEXT("Shield Color");
 
 	UCloud9CharacterShieldEffect();
 
