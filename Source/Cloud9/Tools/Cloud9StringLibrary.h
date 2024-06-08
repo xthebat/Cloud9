@@ -24,6 +24,5 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static bool IsTextContainsFloat(const FText& Text);
 
-private:
 	static FString SanitizeString(const FString& String);
 };

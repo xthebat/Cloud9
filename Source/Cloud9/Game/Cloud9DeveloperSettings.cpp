@@ -79,6 +79,7 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	CrosshairColor = {0.0f, 1.0f, 0.0f};
 
 	Sensitivity = 1.0f;
+	IsWindowsInputEnabled = false;
 }
 
 UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
@@ -202,6 +203,7 @@ void UCloud9DeveloperSettings::InitializeCVars()
 		RegisterConsoleVariable(CrosshairColor, CrosshairColorName,TEXT("Crosshair color"));
 
 		RegisterConsoleVariable(Sensitivity, SensitivityName,TEXT("Mouse crosshair sensitivity"));
+		RegisterConsoleVariable(IsWindowsInputEnabled, IsWindowsInputEnabledName,TEXT("Use windows mouse sensitivity"));
 
 		OBJECT_DISPLAY("%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 	}

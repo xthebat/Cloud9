@@ -24,6 +24,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9/Tools/Cloud9StringLibrary.h"
 
 #include "Cloud9/Tools/Concepts.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
@@ -111,6 +112,7 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	static inline FString CrosshairColorName = "r.CrosshairColor";
 
 	static inline FString SensitivityName = "r.Sensitivity";
+	static inline FString IsWindowsInputEnabledName = "r.IsWindowsInputEnabled";
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 IsDrawHitCursorLine;
@@ -256,6 +258,9 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Mouse)
 	float Sensitivity;
 
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Mouse)
+	bool IsWindowsInputEnabled;
+
 	// static functions
 	UFUNCTION(BlueprintCallable, Category=Settings, DisplayName=GetCloud9DeveloperSettings)
 	static UCloud9DeveloperSettings* Get();
@@ -264,20 +269,36 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	UFUNCTION(BlueprintCallable)
 	void Save();
 
-	template <typename ValueType>
-	void SetVariableValue(const FString& Name, ValueType Value)
+	template <typename ValueType> requires Concepts::is_any_of<ValueType, int, float, bool, const wchar_t*>
+	static void SetVariableValue(const FString& Name, ValueType Value)
 	{
-		static_assert(
-			TIsSame<ValueType, int>::Value ||
-			TIsSame<ValueType, float>::Value ||
-			TIsSame<ValueType, bool>::Value ||
-			TIsSame<ValueType, FString>::Value,
-			"TValue must be int, float, bool or FString"
-		);
-
 		let ConsoleManager = &IConsoleManager::Get();
 		var Variable = ConsoleManager->FindConsoleVariable(*Name);
 		Variable->Set(Value);
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static void SetVariableValueByName(const FString& Name, const FString& Value)
+	{
+		let ConsoleManager = &IConsoleManager::Get();
+		var Variable = ConsoleManager->FindConsoleVariable(*Name);
+		if (Variable->IsVariableFloat())
+		{
+			let NewValue = UCloud9StringLibrary::SanitizeString(Value);
+			Variable->Set(*NewValue);
+		}
+		else
+		{
+			Variable->Set(*Value);
+		}
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static FString GetVariableValueByName(const FString& Name)
+	{
+		let ConsoleManager = &IConsoleManager::Get();
+		let Variable = ConsoleManager->FindConsoleVariable(*Name);
+		return Variable->GetString();
 	}
 
 #if WITH_EDITOR

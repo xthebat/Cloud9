@@ -66,7 +66,17 @@ UCloud9MouseController::UCloud9MouseController()
 	SetComponentTickInterval(0.001);
 }
 
-FVector2D UCloud9MouseController::GetSensitivityMousePosition() const { return MousePosition; }
+FVector2D UCloud9MouseController::GetSensitivityMousePosition() const
+{
+	static let Settings = UCloud9DeveloperSettings::Get();
+
+	if (Settings->IsWindowsInputEnabled)
+	{
+		return GetWindowsMousePosition();
+	}
+
+	return MousePosition;
+}
 
 FVector2D UCloud9MouseController::GetWindowsMousePosition() const
 {
@@ -124,7 +134,8 @@ TOptional<FHitResult> UCloud9MouseController::GetHitUnderCursor(
 	Params.bTraceComplex = bTraceComplex;
 	Params.AddIgnoredActors(ActorsToIgnore);
 	let Controller = GetCloud9Controller();
-	if (Controller->GetHitResultAtScreenPosition(MousePosition, TraceChannel, Params, HitResult))
+	let Position = GetSensitivityMousePosition();
+	if (Controller->GetHitResultAtScreenPosition(Position, TraceChannel, Params, HitResult))
 	{
 		return HitResult;
 	}
