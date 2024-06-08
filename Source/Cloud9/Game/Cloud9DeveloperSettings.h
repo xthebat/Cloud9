@@ -61,7 +61,6 @@ UCLASS(Config=Game, defaultconfig, meta = (DisplayName="Various Developer Settin
 class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 {
 	GENERATED_UCLASS_BODY()
-	static inline FString ShowMouseCursorName = "r.ShowMouseCursor";
 	static inline FString DrawDeprojectedCursorLineName = "r.DrawDeprojectedCursorLine";
 	static inline FString DrawHitCursorLineName = "r.DrawHitCursorLine";
 	static inline FString DrawExplosionSphereName = "r.DrawExplosionSphere";
@@ -109,9 +108,6 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 IsDrawDeprojectedCursorLine;
-
-	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
-	int32 IsShowMouseCursor;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 IsDrawExplosionSpheres;

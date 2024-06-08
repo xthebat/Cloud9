@@ -28,7 +28,6 @@
 #include "Cloud9/Tools/Math.h"
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
-#include "GameFramework/HUD.h"
 
 UCloud9MouseController::UCloud9MouseController()
 {
@@ -57,6 +56,9 @@ UCloud9MouseController::UCloud9MouseController()
 	IsMouseRotationMode = false;
 
 	bIsLastCrosshairLocationValid = false;
+
+	CrosshairSize = 128;
+	CrosshairMaterial = nullptr;
 }
 
 FVector2D UCloud9MouseController::GetMousePosition() const
@@ -109,6 +111,10 @@ void UCloud9MouseController::SetCameraZoomLevel(float Value) const
 
 // ReSharper disable once CppMemberFunctionMayBeConst
 void UCloud9MouseController::OnCharacterMove() { ProcessCharacterView(); }
+
+UMaterialInterface* UCloud9MouseController::GetCrosshairMaterial() const { return CrosshairMaterial; }
+
+float UCloud9MouseController::GetCrosshairSize() const { return CrosshairSize; }
 
 void UCloud9MouseController::ProcessCharacterView()
 {
@@ -235,7 +241,6 @@ void UCloud9MouseController::OnCameraRotationPressed()
 	{
 		CameraRotationBase = GetMousePosition();
 		IsMouseRotationMode = true;
-		Pawn->SetCursorIsHidden(true);
 	}
 }
 
@@ -245,6 +250,5 @@ void UCloud9MouseController::OnCameraRotationReleased()
 	{
 		CameraRotationBase = FVector2D::ZeroVector;
 		IsMouseRotationMode = false;
-		Pawn->SetCursorIsHidden(false);
 	}
 }

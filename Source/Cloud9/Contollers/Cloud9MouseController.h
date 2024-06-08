@@ -49,7 +49,6 @@ public:
 	static constexpr let MinCameraZoomLevel = 0.0f;
 	static constexpr let MaxCameraZoomLevel = 1.0f;
 
-public:
 	UCloud9MouseController();
 
 	void OnCameraZoom(float Value);
@@ -58,6 +57,9 @@ public:
 
 	UFUNCTION()
 	void OnCharacterMove();
+
+	UMaterialInterface* GetCrosshairMaterial() const;
+	float GetCrosshairSize() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -77,41 +79,46 @@ protected:
 	void ProcessCameraRotation();
 	void ProcessCameraZoom(float DeltaTime);
 
-private:
-	UPROPERTY(EditDefaultsOnly, Category = Sensitivity, meta=(AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category=Crosshair)
+	int CrosshairSize;
+	
+	UPROPERTY(EditDefaultsOnly, Category=Crosshair)
+	UMaterialInterface* CrosshairMaterial;
+
+	UPROPERTY(EditDefaultsOnly, Category=Sensitivity)
 	float CameraRotateSensitivity;
 
-	UPROPERTY(EditDefaultsOnly, Category = Sensitivity, meta=(AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category=Sensitivity)
 	float CameraZoomSensitivity;
 
-	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta=(AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category=Zoom)
 	float MinCameraZoomHeight;
 
-	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta=(AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category=Zoom)
 	float MaxCameraZoomHeight;
 
-	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta=(AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category=Zoom)
 	float MinCameraZoomAngle;
 
-	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta=(AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category=Zoom)
 	float MaxCameraZoomAngle;
 
-	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta=(AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category=Zoom)
 	float InitialCameraZoomLevel;
 
-	UPROPERTY(EditDefaultsOnly, Category = Zoom, meta=(AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category=Zoom)
 	bool bIsCameraChangeAngleEnabled;
 
-	UPROPERTY(EditDefaultsOnly, Category = Smooth, meta=(AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category=Smooth)
 	bool bIsCameraZoomSmoothEnabled;
 
-	UPROPERTY(EditDefaultsOnly, Category = Smooth, meta=(AllowPrivateAccess))
+	UPROPERTY(EditDefaultsOnly, Category=Smooth)
 	float CameraZoomSmoothSpeed;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State)
 	FVector LastCrosshairLocation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State, meta=(AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State)
 	bool bIsLastCrosshairLocationValid;
 
 	FVector2D CameraRotationBase;

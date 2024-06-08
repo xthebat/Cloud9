@@ -28,10 +28,6 @@
 #include "Cloud9/Contollers/Cloud9MouseController.h"
 #include "Cloud9/Console/Cloud9ConsoleComponent.h"
 
-const FName ACloud9PlayerController::ConsoleName = TEXT("Console");
-const FName ACloud9PlayerController::KeyboardControllerName = TEXT("KeyboardController");
-const FName ACloud9PlayerController::MouseControllerName = TEXT("MouseController");
-
 ACloud9PlayerController::ACloud9PlayerController()
 {
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
@@ -41,12 +37,16 @@ ACloud9PlayerController::ACloud9PlayerController()
 	MouseController = CreateDefaultSubobject<UCloud9MouseController>(MouseControllerName);
 }
 
-void ACloud9PlayerController::PlayerTick(float DeltaTime)
-{
-	Super::PlayerTick(DeltaTime);
+UCloud9MouseController* ACloud9PlayerController::GetMouseControllerComponent() const { return MouseController; }
 
-	let Settings = UCloud9DeveloperSettings::Get();
-	bShowMouseCursor = Settings->IsShowMouseCursor;
+UCloud9KeyboardController* ACloud9PlayerController::GetKeyboardControllerComponent() const
+{
+	return KeyboardController;
+}
+
+void ACloud9PlayerController::ShowMouseCursor(bool NewValue)
+{
+	bShowMouseCursor = NewValue;
 }
 
 void ACloud9PlayerController::SetupInputComponent()

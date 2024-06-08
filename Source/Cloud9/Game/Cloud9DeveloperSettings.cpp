@@ -32,7 +32,6 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 {
 	IsDrawHitCursorLine = 0;
 	IsDrawDeprojectedCursorLine = 0;
-	IsShowMouseCursor = 0;
 	IsDrawExplosionSpheres = 0;
 	IsDrawHitScan = 0;
 	IsPrintHitScanInfo = 0;
@@ -95,12 +94,6 @@ void UCloud9DeveloperSettings::InitializeCVars()
 	if (not bIsConsoleInitialized)
 	{
 		bIsConsoleInitialized = true;
-
-		RegisterConsoleVariable(
-			IsShowMouseCursor,
-			ShowMouseCursorName,
-			TEXT("Whether to draw line from character to GetHitResultUnderCursor point")
-		);
 
 		RegisterConsoleVariable(
 			IsDrawDeprojectedCursorLine,

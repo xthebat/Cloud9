@@ -46,7 +46,6 @@ public:
 		FActorComponentTickFunction* ThisTickFunction
 	) override;
 
-
 	void OnPrimaryActionPressed();
 	void OnPrimaryActionReleased();
 

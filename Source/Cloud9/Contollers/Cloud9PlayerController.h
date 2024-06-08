@@ -39,24 +39,27 @@ class ACloud9PlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	static const FName ConsoleName;
-	static const FName KeyboardControllerName;
-	static const FName MouseControllerName;
+	static inline const FName ConsoleName = TEXT("Console");
+	static inline const FName KeyboardControllerName = TEXT("KeyboardController");
+	static inline const FName MouseControllerName = TEXT("MouseController");
 
 	ACloud9PlayerController();
 
+	UCloud9MouseController* GetMouseControllerComponent() const;
+	UCloud9KeyboardController* GetKeyboardControllerComponent() const;
+
+	void ShowMouseCursor(bool NewValue);
+
 protected:
-	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
 	virtual bool ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor) override;
 
-private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Console, meta=(AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Console)
 	UCloud9ConsoleComponent* ConsoleComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Controllers, meta=(AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Controllers)
 	UCloud9MouseController* MouseController;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Controllers, meta=(AllowPrivateAccess))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Controllers)
 	UCloud9KeyboardController* KeyboardController;
 };
