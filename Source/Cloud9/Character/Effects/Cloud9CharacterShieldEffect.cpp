@@ -7,11 +7,6 @@
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Character/Components/Cloud9HealthComponent.h"
 
-const FName UCloud9CharacterShieldEffect::ShieldEnableName = TEXT("Shield Enabled");
-const FName UCloud9CharacterShieldEffect::ShieldReflectName = TEXT("Shield Reflect");
-const FName UCloud9CharacterShieldEffect::ShieldPowerName = TEXT("Shield Power");
-const FName UCloud9CharacterShieldEffect::ShieldColorName = TEXT("Shield Color");
-
 void UCloud9CharacterShieldEffect::ToggleEffect(bool NewState)
 {
 	IsEnabled = NewState;

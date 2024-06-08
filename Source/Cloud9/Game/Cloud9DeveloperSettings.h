@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Alexei Gladkikh
+﻿// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -28,6 +28,7 @@
 #include "Cloud9/Tools/Concepts.h"
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Macro/Common.h"
+#include "Engine/Console.h"
 
 #include "GameFramework/InputSettings.h"
 #include "GameFramework/PlayerInput.h"
@@ -102,6 +103,12 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	static inline FString BindPrimaryName = "Primary";
 	static inline FString BindSecondaryName = "Secondary";
 	static inline FString BindUseName = "Use";
+
+	static inline FString CrosshairSizeName = "r.CrosshairSize";
+	static inline FString CrosshairLengthName = "r.CrosshairLength";
+	static inline FString CrosshairWidthName = "r.CrosshairWidth";
+	static inline FString CrosshairGapName = "r.CrosshairGap";
+	static inline FString CrosshairColorName = "r.CrosshairColor";
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 IsDrawHitCursorLine;
@@ -229,6 +236,21 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Bind)
 	FKey BindUse;
 
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Crosshair)
+	int32 CrosshairSize;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Crosshair)
+	float CrosshairLength;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Crosshair)
+	float CrosshairWidth;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Crosshair)
+	float CrosshairGap;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Crosshair)
+	FVector CrosshairColor;
+
 	// static functions
 	UFUNCTION(BlueprintCallable, Category=Settings, DisplayName=GetCloud9DeveloperSettings)
 	static UCloud9DeveloperSettings* Get();
@@ -273,6 +295,38 @@ protected:
 			FConsoleVariableDelegate::CreateLambda([this](IConsoleVariable* Arg) { Save(); })
 		);
 		return CVar;
+	}
+
+	IConsoleObject* RegisterConsoleVariable(FVector& ValueRef, const FString& Name, const FString& Help)
+	{
+		using namespace ETContainer;
+		let ConsoleManager = &IConsoleManager::Get();
+		return ConsoleManager->RegisterConsoleCommand(
+			*Name, *Help,
+			FConsoleCommandWithArgsDelegate::CreateLambda([this, Name, &ValueRef](const TArray<FString>& Args)
+			{
+				if (Args.Num() == 3)
+				{
+					FVector Vector = FVector::ZeroVector;
+					let String = FString::Printf(TEXT("X=%s Y=%s Z=%s"), *Args[0], *Args[1], *Args[2]);
+					if (Vector.InitFromString(String))
+					{
+						ValueRef = Vector;
+						Save();
+					}
+				}
+				else if (Args.Num() == 0)
+				{
+					let Console = GEngine->GameViewport->ViewportConsole;
+					Console->OutputText(*FString::Printf(TEXT("%s %s"), *Name, *ValueRef.ToString()));
+				}
+				else
+				{
+					let Console = GEngine->GameViewport->ViewportConsole;
+					Console->OutputText(FString::Printf(TEXT("Invalid arguments for %s"), *Name));
+				}
+			})
+		);
 	}
 
 	IConsoleObject* RegisterConsoleVariable(FKey& ValueRef, const FString& Name, const FString& Help)
