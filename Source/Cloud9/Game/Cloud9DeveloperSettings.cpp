@@ -77,6 +77,8 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	CrosshairWidth = 5.0f;
 	CrosshairGap = 0.15f;
 	CrosshairColor = {0.0f, 1.0f, 0.0f};
+
+	Sensitivity = 1.0f;
 }
 
 UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
@@ -110,56 +112,20 @@ void UCloud9DeveloperSettings::InitializeCVars()
 		RegisterConsoleVariable(
 			IsDrawHitCursorLine,
 			DrawHitCursorLineName,
-			TEXT("Whether to show mouse cursor on screen or not in game")
-		);
+			TEXT("Whether to show mouse cursor on screen or not in game"));
 
 		RegisterConsoleVariable(
 			IsDrawExplosionSpheres,
 			DrawExplosionSphereName,
-			TEXT("Whether to draw debug explosions spheres")
-		);
+			TEXT("Whether to draw debug explosions spheres"));
 
-		RegisterConsoleVariable(
-			IsDrawHitScan,
-			DrawHitScanName,
-			TEXT("Whether to draw debug hit scan lines")
-		);
-
-		RegisterConsoleVariable(
-			IsPrintHitScanInfo,
-			PrintHitScanInfoName,
-			TEXT("Whether to print hit scan info")
-		);
-
-		RegisterConsoleVariable(
-			NetGraph,
-			NetGraphName,
-			TEXT("Whether to show FPS and other specific debug info")
-		);
-
-		RegisterConsoleVariable(
-			IsAutoSelectWeapon,
-			AutoSelectWeaponName,
-			TEXT("Select weapon after picking it up")
-		);
-
-		RegisterConsoleVariable(
-			IsInfiniteAmmo,
-			InfiniteAmmoName,
-			TEXT("Infinite Weapon Ammo")
-		);
-
-		RegisterConsoleVariable(
-			IsCheatsEnabled,
-			CheatsName,
-			TEXT("Enable cheats")
-		);
-
-		RegisterConsoleVariable(
-			IsSelfAimEnabled,
-			SelfAimEnabledName,
-			TEXT("Enable self aim")
-		);
+		RegisterConsoleVariable(IsDrawHitScan, DrawHitScanName,TEXT("Whether to draw debug hit scan lines"));
+		RegisterConsoleVariable(IsPrintHitScanInfo, PrintHitScanInfoName,TEXT("Whether to print hit scan info"));
+		RegisterConsoleVariable(NetGraph, NetGraphName,TEXT("Whether to show FPS and other specific debug info"));
+		RegisterConsoleVariable(IsAutoSelectWeapon, AutoSelectWeaponName,TEXT("Select weapon after picking it up"));
+		RegisterConsoleVariable(IsInfiniteAmmo, InfiniteAmmoName,TEXT("Infinite Weapon Ammo"));
+		RegisterConsoleVariable(IsCheatsEnabled, CheatsName,TEXT("Enable cheats"));
+		RegisterConsoleVariable(IsSelfAimEnabled, SelfAimEnabledName,TEXT("Enable self aim"));
 
 		RegisterConsoleVariable(
 			CameraVerticalSpeedLag,
@@ -167,35 +133,11 @@ void UCloud9DeveloperSettings::InitializeCVars()
 			TEXT("Configure how smoothly does the camera change its position vertically")
 		);
 
-		RegisterConsoleVariable(
-			Volume,
-			VolumeName,
-			TEXT("Basic game volume")
-		);
-
-		RegisterConsoleVariable(
-			MainMenuMusicVolume,
-			MainMenuMusicVolumeName,
-			TEXT("Main menu music volume")
-		);
-
-		RegisterConsoleVariable(
-			IsNoInaccuracy,
-			NoInaccuracyName,
-			TEXT("Remove inaccuracy spread while shooting")
-		);
-
-		RegisterConsoleVariable(
-			JumpImpulse,
-			JumpImpulseName,
-			TEXT("sv_jump_impulse")
-		);
-
-		RegisterConsoleVariable(
-			WeaponAirSpreadScale,
-			WeaponAirSpreadScaleName,
-			TEXT("weapon_air_spread_scale")
-		);
+		RegisterConsoleVariable(Volume, VolumeName,TEXT("Basic game volume"));
+		RegisterConsoleVariable(MainMenuMusicVolume, MainMenuMusicVolumeName,TEXT("Main menu music volume"));
+		RegisterConsoleVariable(IsNoInaccuracy, NoInaccuracyName,TEXT("Remove inaccuracy spread while shooting"));
+		RegisterConsoleVariable(JumpImpulse, JumpImpulseName, TEXT("sv_jump_impulse"));
+		RegisterConsoleVariable(WeaponAirSpreadScale, WeaponAirSpreadScaleName, TEXT("weapon_air_spread_scale"));
 
 		RegisterConsoleVariable(
 			WeaponDebugMaxInaccuracy,
@@ -233,17 +175,8 @@ void UCloud9DeveloperSettings::InitializeCVars()
 			TEXT("Scalar for player tagging modifier when hit. Lower values for greater tagging")
 		);
 
-		RegisterConsoleVariable(
-			DecalLifeSpan,
-			DecalLifeSpanName,
-			TEXT("Life span of the decals")
-		);
-
-		RegisterConsoleVariable(
-			DecalFadeScreenSize,
-			DecalFadeScreenSizeName,
-			TEXT("Decal size to fade off screen")
-		);
+		RegisterConsoleVariable(DecalLifeSpan, DecalLifeSpanName,TEXT("Life span of the decals"));
+		RegisterConsoleVariable(DecalFadeScreenSize, DecalFadeScreenSizeName,TEXT("Decal size to fade off screen"));
 
 		RegisterConsoleVariable(BindMoveForward, BindMoveForwardName,TEXT("Move forward bind key"));
 		RegisterConsoleVariable(BindMoveBackward, BindMoveBackwardName,TEXT("Move backward bind key"));
@@ -267,6 +200,8 @@ void UCloud9DeveloperSettings::InitializeCVars()
 		RegisterConsoleVariable(CrosshairWidth, CrosshairWidthName,TEXT("Crosshair width"));
 		RegisterConsoleVariable(CrosshairGap, CrosshairGapName,TEXT("Crosshair gap"));
 		RegisterConsoleVariable(CrosshairColor, CrosshairColorName,TEXT("Crosshair color"));
+
+		RegisterConsoleVariable(Sensitivity, SensitivityName,TEXT("Mouse crosshair sensitivity"));
 
 		OBJECT_DISPLAY("%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 	}

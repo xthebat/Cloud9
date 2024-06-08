@@ -24,7 +24,6 @@
 #include "Cloud9MouseController.h"
 
 #include "Cloud9/Tools/Cloud9ToolsLibrary.h"
-#include "Cloud9/Tools/Extensions/APlayerController.h"
 #include "Cloud9/Tools/Math.h"
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
@@ -58,15 +57,22 @@ UCloud9MouseController::UCloud9MouseController()
 	bIsLastCrosshairLocationValid = false;
 
 	CrosshairMaterial = nullptr;
+
+	MousePosition = FVector2D::ZeroVector;
+	ViewportSizeX = 0.0f;
+	ViewportSizeY = 0.0f;
+
+	// Set highest tickrate to recalculate mouse position with max precision  
+	SetComponentTickInterval(0.001);
 }
 
-FVector2D UCloud9MouseController::GetMousePosition() const
+FVector2D UCloud9MouseController::GetSensitivityMousePosition() const { return MousePosition; }
+
+FVector2D UCloud9MouseController::GetWindowsMousePosition() const
 {
-	let Owner = GetOwner<ACloud9PlayerController>();
-	OBJECT_RETURN_IF_FAIL(IsValid(Owner), {}, Fatal, "Can't get Cloud9PlayerController");
-	FVector2D MousePosition = FVector2D::ZeroVector;
-	GetOwner<ACloud9PlayerController>()->GetMousePosition(MousePosition.X, MousePosition.Y);
-	return MousePosition;
+	FVector2D WindowsMousePosition = FVector2D::ZeroVector;
+	GetCloud9Controller()->GetMousePosition(WindowsMousePosition.X, WindowsMousePosition.Y);
+	return WindowsMousePosition;
 }
 
 float UCloud9MouseController::GetCameraZoomHeightLevel() const
@@ -108,10 +114,49 @@ void UCloud9MouseController::SetCameraZoomLevel(float Value) const
 	}
 }
 
+TOptional<FHitResult> UCloud9MouseController::GetHitUnderCursor(
+	const TArray<AActor*>& ActorsToIgnore,
+	ECollisionChannel TraceChannel,
+	bool bTraceComplex) const
+{
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.bTraceComplex = bTraceComplex;
+	Params.AddIgnoredActors(ActorsToIgnore);
+	let Controller = GetCloud9Controller();
+	if (Controller->GetHitResultAtScreenPosition(MousePosition, TraceChannel, Params, HitResult))
+	{
+		return HitResult;
+	}
+	return {};
+}
+
 // ReSharper disable once CppMemberFunctionMayBeConst
 void UCloud9MouseController::OnCharacterMove() { ProcessCharacterView(); }
 
 UMaterialInterface* UCloud9MouseController::GetCrosshairMaterial() const { return CrosshairMaterial; }
+
+void UCloud9MouseController::ProcessMouseChangePosition()
+{
+	float DeltaX = 0.0f, DeltaY = 0.0f;
+	GetCloud9Controller()->GetInputMouseDelta(DeltaX, DeltaY);
+	MousePosition.X = FMath::Clamp(MousePosition.X + DeltaX, 0.0f, static_cast<float>(ViewportSizeX));
+	MousePosition.Y = FMath::Clamp(MousePosition.Y + DeltaY, 0.0f, static_cast<float>(ViewportSizeY));
+}
+
+void UCloud9MouseController::ProcessViewportSizeChange()
+{
+	int32 NewViewportSizeX = 0;
+	int32 NewViewportSizeY = 0;
+	let Controller = GetCloud9Controller();
+	Controller->GetViewportSize(NewViewportSizeX, NewViewportSizeY);
+	if (NewViewportSizeX != ViewportSizeX or NewViewportSizeY != ViewportSizeY)
+	{
+		MousePosition = GetWindowsMousePosition();
+		ViewportSizeX = NewViewportSizeX;
+		ViewportSizeY = NewViewportSizeY;
+	}
+}
 
 void UCloud9MouseController::ProcessCharacterView()
 {
@@ -128,11 +173,7 @@ void UCloud9MouseController::ProcessCharacterView()
 				ActorsToIgnore.Add(Pawn);
 			}
 
-			let CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
-				TRACE_CHANNEL,
-				true,
-				ActorsToIgnore
-			};
+			let CursorHit = GetHitUnderCursor(ActorsToIgnore);
 
 			if (CursorHit.IsSet())
 			{
@@ -152,7 +193,7 @@ void UCloud9MouseController::ProcessCameraRotation()
 {
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn) && IsMouseRotationMode)
 	{
-		let NewMousePosition = GetMousePosition();
+		let NewMousePosition = GetWindowsMousePosition();
 		let Offset = (NewMousePosition - CameraRotationBase).X;
 		CameraRotationBase = NewMousePosition;
 		let Angle = Offset * CameraRotateSensitivity;
@@ -198,6 +239,10 @@ void UCloud9MouseController::ProcessCameraZoom(float DeltaTime)
 void UCloud9MouseController::BeginPlay()
 {
 	Super::BeginPlay();
+	static let Settings = UCloud9DeveloperSettings::Get();
+	let Controller = GetCloud9Controller();
+	Controller->PlayerInput->SetMouseSensitivity(Settings->Sensitivity, Settings->Sensitivity);
+	Controller->PlayerInput->InvertAxisKey(EKeys::MouseY);
 	SetCameraZoomLevel(InitialCameraZoomLevel);
 }
 
@@ -208,6 +253,11 @@ void UCloud9MouseController::TickComponent(
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	static let Settings = UCloud9DeveloperSettings::Get();
+	GetCloud9Controller()->PlayerInput->SetMouseSensitivity(Settings->Sensitivity, Settings->Sensitivity);
+
+	ProcessViewportSizeChange();
+	ProcessMouseChangePosition();
 	ProcessCharacterView();
 	ProcessCameraRotation();
 	ProcessCameraZoom(DeltaTime);
@@ -236,7 +286,7 @@ void UCloud9MouseController::OnCameraRotationPressed()
 {
 	if (let Pawn = GetCloud9Pawn(); IsValid(Pawn))
 	{
-		CameraRotationBase = GetMousePosition();
+		CameraRotationBase = GetWindowsMousePosition();
 		IsMouseRotationMode = true;
 	}
 }

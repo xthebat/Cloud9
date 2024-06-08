@@ -26,12 +26,12 @@
 #include "DrawDebugHelpers.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 
-#include "Cloud9/Tools/Extensions/APlayerController.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Character/Components/Cloud9AnimationComponent.h"
 #include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Character/Damages/GrenadeDamageType.h"
+#include "Cloud9/Contollers/Cloud9MouseController.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
@@ -381,11 +381,9 @@ bool ACloud9WeaponGrenade::Throw() const
 	OBJECT_RETURN_IF_FAIL(IsValid(Inventory), false, Error, "Inventory is invalid");
 
 	let ActorsToIgnore = TArray<AActor*>{Character};
-	let CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
-		TRACE_CHANNEL,
-		true,
-		ActorsToIgnore
-	};
+
+	let MouseControllerComponent = Controller->GetMouseControllerComponent();
+	TOptional<FHitResult> CursorHit = MouseControllerComponent->GetHitUnderCursor(ActorsToIgnore);
 
 	OBJECT_RETURN_IF_FAIL(CursorHit, false, Error, "Cursor not hit anything");
 

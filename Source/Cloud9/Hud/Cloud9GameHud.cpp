@@ -27,8 +27,6 @@ void ACloud9GameHud::BeginPlay()
 		{
 			CrosshairMaterial = UMaterialInstanceDynamic::Create(Crosshair, this);
 		}
-
-		Controller->ShowMouseCursor(false);
 	}
 }
 
@@ -50,19 +48,14 @@ void ACloud9GameHud::DrawCrosshair()
 {
 	static let Settings = UCloud9DeveloperSettings::Get();
 
-	FVector2D MousePosition = FVector2D::ZeroVector;
-
-	if (let Controller = Cast<ACloud9PlayerController>(GetOwningPlayerController()))
+	if (let Controller = Cast<ACloud9PlayerController>(GetOwningPlayerController()); IsValid(Controller))
 	{
+		let MousePosition = Controller->GetMouseControllerComponent()->GetSensitivityMousePosition();
+
 		int32 ViewPortX = 0;
 		int32 ViewPortY = 0;
 
 		Controller->GetViewportSize(ViewPortX, ViewPortY);
-
-		OBJECT_VOID_IF_FAIL(
-			Controller->GetMousePosition(MousePosition.X, MousePosition.Y),
-			Error, "Can't get mouse position"
-		);
 
 		if (SetupCrosshair(
 			Settings->CrosshairLength,

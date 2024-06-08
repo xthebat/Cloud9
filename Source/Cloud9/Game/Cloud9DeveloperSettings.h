@@ -110,6 +110,8 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	static inline FString CrosshairGapName = "r.CrosshairGap";
 	static inline FString CrosshairColorName = "r.CrosshairColor";
 
+	static inline FString SensitivityName = "r.Sensitivity";
+
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Debug)
 	int32 IsDrawHitCursorLine;
 
@@ -250,6 +252,9 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Crosshair)
 	FVector CrosshairColor;
+
+	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Mouse)
+	float Sensitivity;
 
 	// static functions
 	UFUNCTION(BlueprintCallable, Category=Settings, DisplayName=GetCloud9DeveloperSettings)
