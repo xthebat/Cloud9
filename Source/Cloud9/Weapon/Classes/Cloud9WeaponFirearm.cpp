@@ -34,13 +34,13 @@
 #include "Cloud9/Tools/Extensions/AActor.h"
 #include "Cloud9/Tools/Extensions/TVariant.h"
 #include "Cloud9/Tools/Extensions/FVector.h"
-#include "Cloud9/Tools/Extensions/APlayerController.h"
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
 #include "Cloud9/Character/Components/Cloud9AnimationComponent.h"
 #include "Cloud9/Character/Components/Cloud9HealthComponent.h"
 #include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 #include "Cloud9/Character/Damages/FirearmDamageType.h"
+#include "Cloud9/Contollers/Cloud9MouseController.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Physicals/Cloud9PhysicalMaterial.h"
 #include "Cloud9/Tools/Math.h"
@@ -78,11 +78,8 @@ TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
 
 	if (not Settings->IsSelfAimEnabled)
 	{
-		TOptional<FHitResult> CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
-			TRACE_CHANNEL,
-			true,
-			Result.ActorsToIgnore
-		};
+		let MouseControllerComponent = Controller->GetMouseControllerComponent();
+		TOptional<FHitResult> CursorHit = MouseControllerComponent->GetHitUnderCursor(Result.ActorsToIgnore);
 
 		RETURN_IF_FAIL(
 			CursorHit, EFirearmFireStatus::NoCursorHit,
@@ -93,10 +90,8 @@ TErrorValue<EFirearmFireStatus, FCursorHitScanInfo> FCursorHitScanInfo::Create(
 	}
 	else
 	{
-		TOptional<FHitResult> CursorHit = Controller | EAPlayerController::GetHitUnderCursor{
-			TRACE_CHANNEL,
-			true
-		};
+		let MouseControllerComponent = Controller->GetMouseControllerComponent();
+		TOptional<FHitResult> CursorHit = MouseControllerComponent->GetHitUnderCursor();
 
 		RETURN_IF_FAIL(
 			CursorHit, EFirearmFireStatus::NoCursorHit,

@@ -60,6 +60,15 @@ public:
 
 	UMaterialInterface* GetCrosshairMaterial() const;
 
+	FVector2D GetSensitivityMousePosition() const;
+	FVector2D GetWindowsMousePosition() const;
+
+	TOptional<FHitResult> GetHitUnderCursor(
+		const TArray<AActor*>& ActorsToIgnore = {},
+		ECollisionChannel TraceChannel = TRACE_CHANNEL,
+		bool bTraceComplex = true
+	) const;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -69,11 +78,11 @@ protected:
 		FActorComponentTickFunction* ThisTickFunction
 	) override;
 
-	FVector2D GetMousePosition() const;
-
 	float GetCameraZoomHeightLevel() const;
 	void SetCameraZoomLevel(float Value) const;
 
+	void ProcessMouseChangePosition();
+	void ProcessViewportSizeChange();
 	void ProcessCharacterView();
 	void ProcessCameraRotation();
 	void ProcessCameraZoom(float DeltaTime);
@@ -116,6 +125,15 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State)
 	bool bIsLastCrosshairLocationValid;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State)
+	FVector2D MousePosition;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State)
+	int32 ViewportSizeX;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State)
+	int32 ViewportSizeY;
 
 	FVector2D CameraRotationBase;
 	float TargetCameraZoomLevel;

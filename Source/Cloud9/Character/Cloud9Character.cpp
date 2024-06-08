@@ -42,6 +42,7 @@
 #include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Character/Effects/Cloud9CharacterEffectTrait.h"
+#include "Cloud9/Contollers/Cloud9MouseController.h"
 #include "Cloud9/Modes/Cloud9GameMode.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Tools/Extensions/ACharacter.h"
@@ -177,16 +178,13 @@ void ACloud9Character::SetViewDirection(const TOptional<FHitResult>& HitResult) 
 
 		if (Settings->IsDrawDeprojectedCursorLine)
 		{
-			FVector WorldLocation;
-			FVector WorldDirection;
-			FVector2D MousePosition;
+			FVector WorldLocation = FVector::ZeroVector;
+			FVector WorldDirection = FVector::ZeroVector;
 
-			GetCloud9Controller()->GetMousePosition(MousePosition.X, MousePosition.Y);
-			GetCloud9Controller()->DeprojectScreenPositionToWorld(
-				MousePosition.X,
-				MousePosition.Y,
-				WorldLocation,
-				WorldDirection);
+			let MyController = GetCloud9Controller();
+
+			let MousePosition = MyController->GetMouseControllerComponent()->GetSensitivityMousePosition();
+			UGameplayStatics::DeprojectScreenToWorld(MyController, MousePosition, WorldLocation, WorldDirection);
 
 			DrawDebugLine(
 				GetWorld(),
