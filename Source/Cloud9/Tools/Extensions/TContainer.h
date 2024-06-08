@@ -160,6 +160,45 @@ namespace ETContainer
 		OPERATOR_BODY(ForEachIndexed)
 	};
 
+	struct JoinToString
+	{
+		const FString Separator = ", ";
+
+		template <typename ContainerType>
+		constexpr FString operator()(ContainerType&& Self) const
+		{
+			FString RetVal;
+
+			var It = Private_ETContainer::MutableIteratorOf(Self);
+
+			if (not It)
+			{
+				return RetVal;
+			}
+
+			RetVal.Appendf(TEXT("%s"), *ToString(*It));
+
+			while (++It)
+			{
+				RetVal.Appendf(TEXT("%s%s"), *Separator, *ToString(*It));
+			}
+
+			return RetVal;
+		}
+
+		OPERATOR_BODY(JoinToString)
+
+	private:
+		static FString ToString(const FString& Value) { return Value; }
+
+		static FString ToString(const float& Value) { return FString::Printf(TEXT("%f"), Value); }
+
+		static FString ToString(int Value) { return FString::FromInt(Value); }
+
+		template <typename ValueType> requires Concepts::has_tostring<ValueType>
+		static FString ToString(ValueType&& Value) { return Value.ToString(); }
+	};
+
 	template <typename KeyBlockType, typename ValueBlockType>
 	struct Associate
 	{
