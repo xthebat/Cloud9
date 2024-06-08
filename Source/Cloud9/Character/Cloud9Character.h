@@ -48,14 +48,14 @@ class ACloud9Character : public ACharacter
 	GENERATED_BODY()
 
 public:
-	static const FName SpringArmComponentName;
-	static const FName CameraComponentName;
-	static const FName DecalComponentName;
-	static const FName InventoryComponentName;
-	static const FName EffectsComponentName;
-	static const FName HealthComponentName;
-	static const FName AnimationComponentName;
-	static const FName WidgetInteractionComponentName;
+	static inline const FName SpringArmComponentName = TEXT("CameraBoom");
+	static inline const FName CameraComponentName = TEXT("TopDownCamera");
+	static inline const FName DecalComponentName = TEXT("CursorToWorld");
+	static inline const FName InventoryComponentName = TEXT("InventoryComponent");
+	static inline const FName EffectsComponentName = TEXT("EffectsComponent");
+	static inline const FName HealthComponentName = TEXT("HealthComponent");
+	static inline const FName AnimationComponentName = TEXT("AnimationComponent");
+	static inline const FName WidgetInteractionComponentName = TEXT("WidgetInteractionComponent");
 
 	static constexpr let HeavyArmorFlinchModifier = 0.5f;
 
@@ -110,8 +110,6 @@ public:
 	void AddCameraRotationYaw(float Angle) const;
 	float GetCameraRotationRoll() const;
 	void SetCameraRotationRoll(float Angle) const;
-
-	void SetCursorIsHidden(bool Hidden) const;
 
 	float GetCameraZoomHeight() const;
 	void SetCameraZoomHeight(float Value) const;
@@ -187,13 +185,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category=Config, meta=(AllowPrivateAccess))
 	TSet<FName> LegsBoneNames;
 
-	// TODO: Move to decals asset
-	UPROPERTY(EditDefaultsOnly, Category=Crosshair, meta=(AllowPrivateAccess))
-	UMaterial* CursorDecal;
-
-	UPROPERTY(EditDefaultsOnly, Category=Crosshair, meta=(AllowPrivateAccess))
-	FVector CursorSize;
-
 	UPROPERTY(EditAnywhere, Category=Camera)
 	float AimOffset;
 
@@ -208,10 +199,6 @@ private:
 	/** Camera boom positioning the camera above the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera, meta=(AllowPrivateAccess))
 	USpringArmComponent* CameraBoom;
-
-	/** A decal that projects to the cursor location. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera, meta=(AllowPrivateAccess))
-	UDecalComponent* CursorToWorld;
 
 	/** An inventory of the character. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Inventory, meta=(AllowPrivateAccess))

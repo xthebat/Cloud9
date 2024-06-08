@@ -55,15 +55,6 @@
 #include "Components/Cloud9SkeletalMeshComponent.h"
 #include "GameFramework/PlayerState.h"
 
-const FName ACloud9Character::SpringArmComponentName = TEXT("CameraBoom");
-const FName ACloud9Character::CameraComponentName = TEXT("TopDownCamera");
-const FName ACloud9Character::DecalComponentName = TEXT("CursorToWorld");
-const FName ACloud9Character::InventoryComponentName = TEXT("InventoryComponent");
-const FName ACloud9Character::EffectsComponentName = TEXT("EffectsComponent");
-const FName ACloud9Character::HealthComponentName = TEXT("HealthComponent");
-const FName ACloud9Character::AnimationComponentName = TEXT("AnimationComponent");
-const FName ACloud9Character::WidgetInteractionComponentName = TEXT("WidgetInteractionComponent");
-
 ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) : Super(
 	ObjectInitializer
 	.SetDefaultSubobjectClass<UCloud9CharacterMovement>(CharacterMovementComponentName)
@@ -111,18 +102,6 @@ ACloud9Character::ACloud9Character(const FObjectInitializer& ObjectInitializer) 
 	USkeletalMeshComponent* MyMesh = GetMesh();
 	MyMesh->SetRelativeLocation({0.0f, 0.0f, -MyCapsuleComponent->GetScaledCapsuleHalfHeight()});
 	MyMesh->SetRelativeRotation({0.0f, MeshRotationYaw, 0.0f});
-
-	// Create a decal in the world to show the cursor's location
-	CursorToWorld = CreateDefaultSubobject<UDecalComponent>(DecalComponentName);
-	CursorToWorld->SetupAttachment(RootComponent);
-	CursorSize = {16.0f, 32.0f, 32.0f};
-	CursorToWorld->SetRelativeLocation({
-			0.0f,
-			0.0f,
-			-MyCapsuleComponent->GetScaledCapsuleHalfHeight()
-		}
-	);
-	CursorToWorld->SetRelativeRotation({CrosshairRotationPitch, 0.0, 0.0f});
 
 	InventoryComponent = CreateDefaultSubobject<UCloud9InventoryComponent>(InventoryComponentName);
 	HealthComponent = CreateDefaultSubobject<UCloud9HealthComponent>(HealthComponentName);
@@ -181,23 +160,6 @@ void ACloud9Character::SetViewDirection(const TOptional<FHitResult>& HitResult) 
 {
 	if (HitResult)
 	{
-		if (IsValid(CursorToWorld))
-		{
-			let ImpactNormal = HitResult->ImpactNormal;
-			let ImpactRotation = ImpactNormal.Rotation();
-
-			if (HitResult->GetActor() != this)
-			{
-				CursorToWorld->SetWorldLocation(HitResult->Location);
-				CursorToWorld->SetWorldRotation(ImpactRotation);
-				SetCursorIsHidden(false);
-			}
-			else
-			{
-				SetCursorIsHidden(true);
-			}
-		}
-
 		static let Settings = UCloud9DeveloperSettings::Get();
 
 		let StartLocation = GetMesh()->GetBoneLocation(ViewHeadBoneName, EBoneSpaces::WorldSpace);
@@ -274,11 +236,6 @@ void ACloud9Character::SetCameraRotationRoll(float Angle) const
 	var Rotation = CameraBoom->GetRelativeRotation();
 	Rotation.Pitch = -Angle;
 	CameraBoom->SetRelativeRotation(Rotation);
-}
-
-void ACloud9Character::SetCursorIsHidden(bool Hidden) const
-{
-	CursorToWorld->SetHiddenInGame(Hidden or not IsValid(CursorDecal));
 }
 
 float ACloud9Character::GetCameraZoomHeight() const
@@ -489,14 +446,6 @@ void ACloud9Character::OnConstruction(const FTransform& Transform)
 	SetCameraRotationYaw(Rotator.Yaw);
 	GetCloud9CharacterMovement()->Rotate({0.0f, Rotator.Yaw, 0.0f}, true);
 
-	SetCursorIsHidden(true);
-
-	if (IsValid(CursorDecal))
-	{
-		CursorToWorld->SetDecalMaterial(CursorDecal);
-		CursorToWorld->DecalSize = CursorSize;
-	}
-
 	if (let MyMesh = GetMesh(); IsValid(MyMesh))
 	{
 		MyMesh->bCastDynamicShadow = true;
@@ -539,7 +488,6 @@ void ACloud9Character::BeginPlay()
 
 	if (not IsPlayerControlled())
 	{
-		CursorToWorld->Deactivate();
 		TopDownCameraComponent->Deactivate();
 		CameraBoom->Deactivate();
 	}
