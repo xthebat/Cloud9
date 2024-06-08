@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 Alexei Gladkikh
+// Copyright (c) 2023 Alexei Gladkikh
 //
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
@@ -308,6 +308,37 @@ protected:
 						ValueRef = NewKey;
 						Save();
 					}
+				}
+				else if (Args.Num() == 0)
+				{
+					let AddQuotes = [](const FString& Value) { return FString::Printf(TEXT("\"%s\""), *Value); };
+
+					let InputSettings = const_cast<UInputSettings*>(GetDefault<UInputSettings>());
+					let Console = GEngine->GameViewport->ViewportConsole;
+
+					if (InputSettings->DoesAxisExist(*Name))
+					{
+						var Mapping = TArray<FInputAxisKeyMapping>();
+						InputSettings->GetAxisMappingByName(*Name, Mapping);
+						let Keys = Mapping
+							| Transform{[&AddQuotes](let& It) { return AddQuotes(It.Key.ToString()); }}
+							| JoinToString{", "};
+						Console->OutputText(*FString::Printf(TEXT("%s %s"), *Name, *Keys));
+					}
+					else if (InputSettings->DoesActionExist(*Name))
+					{
+						var Mapping = TArray<FInputActionKeyMapping>();
+						InputSettings->GetActionMappingByName(*Name, Mapping);
+						let Keys = Mapping
+							| Transform{[&AddQuotes](let& It) { return AddQuotes(It.Key.ToString()); }}
+							| JoinToString{", "};
+						Console->OutputText(*FString::Printf(TEXT("%s %s"), *Name, *Keys));
+					}
+				}
+				else
+				{
+					let Console = GEngine->GameViewport->ViewportConsole;
+					Console->OutputText(FString::Printf(TEXT("Invalid arguments for %s"), *Name));
 				}
 			})
 		);
