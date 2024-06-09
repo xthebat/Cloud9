@@ -84,7 +84,7 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	static inline FString WeaponDebugDamageInfoName = "r.WeaponDebugDamageInfo";
 	static inline FString TaggingScaleName = "r.TaggingScale";
 	static inline FString DecalLifeSpanName = "r.DecalLifeSpan";
-	static inline FString DecalFadeScreenSizeName = "r.DecalFadeScreenSizeName";
+	static inline FString DecalFadeScreenSizeName = "r.DecalFadeScreenSize";
 	static inline FString VolumeName = "r.Volume";
 	static inline FString MainMenuMusicVolumeName = "r.MainMenuMusicVolume";
 
@@ -259,47 +259,19 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	float Sensitivity;
 
 	UPROPERTY(config, EditAnywhere, BlueprintReadWrite, Category=Mouse)
-	bool IsWindowsInputEnabled;
+	int32 IsWindowsInputEnabled;
 
-	// static functions
 	UFUNCTION(BlueprintCallable, Category=Settings, DisplayName=GetCloud9DeveloperSettings)
 	static UCloud9DeveloperSettings* Get();
 
-	// functions
 	UFUNCTION(BlueprintCallable)
 	void Save();
 
-	template <typename ValueType> requires Concepts::is_any_of<ValueType, int, float, bool, const wchar_t*>
-	static void SetVariableValue(const FString& Name, ValueType Value)
-	{
-		let ConsoleManager = &IConsoleManager::Get();
-		var Variable = ConsoleManager->FindConsoleVariable(*Name);
-		Variable->Set(Value);
-	}
+	UFUNCTION(BlueprintCallable)
+	static void SetVariableValueByName(const FString& Name, const FString& Value);
 
 	UFUNCTION(BlueprintCallable)
-	static void SetVariableValueByName(const FString& Name, const FString& Value)
-	{
-		let ConsoleManager = &IConsoleManager::Get();
-		var Variable = ConsoleManager->FindConsoleVariable(*Name);
-		if (Variable->IsVariableFloat())
-		{
-			let NewValue = UCloud9StringLibrary::SanitizeString(Value);
-			Variable->Set(*NewValue);
-		}
-		else
-		{
-			Variable->Set(*Value);
-		}
-	}
-
-	UFUNCTION(BlueprintCallable)
-	static FString GetVariableValueByName(const FString& Name)
-	{
-		let ConsoleManager = &IConsoleManager::Get();
-		let Variable = ConsoleManager->FindConsoleVariable(*Name);
-		return Variable->GetString();
-	}
+	static FString GetVariableValueByName(const FString& Name);
 
 #if WITH_EDITOR
 	virtual void PostInitProperties() override;

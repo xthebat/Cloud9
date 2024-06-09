@@ -103,7 +103,9 @@ void UCloud9KeyboardController::OnReloadReleased() { WeaponAction([](let It) { I
 void UCloud9KeyboardController::OnCursorSelfAim()
 {
 	static var Settings = UCloud9DeveloperSettings::Get();
-	Settings->SetVariableValue(UCloud9DeveloperSettings::SelfAimEnabledName, not Settings->IsSelfAimEnabled);
+	Settings->SetVariableValueByName(
+		UCloud9DeveloperSettings::SelfAimEnabledName,
+		UCloud9StringLibrary::BoolToIntString(not Settings->IsSelfAimEnabled));
 }
 
 void UCloud9KeyboardController::OnUseAction()

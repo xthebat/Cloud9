@@ -24,5 +24,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static bool IsTextContainsFloat(const FText& Text);
 
-	static FString SanitizeString(const FString& String);
+	UFUNCTION(BlueprintCallable)
+	static FString BoolToIntString(bool Value);
+
+	UFUNCTION(BlueprintCallable)
+	static FText BoolToIntText(bool Value);
+
+	UFUNCTION(BlueprintCallable)
+	static bool IntStringToBool(const FString& String);
+
+	static FString SanitizeFloatString(const FString& String);
 };

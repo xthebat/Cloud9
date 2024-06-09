@@ -79,7 +79,7 @@ UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& Obj
 	CrosshairColor = {0.0f, 1.0f, 0.0f};
 
 	Sensitivity = 1.0f;
-	IsWindowsInputEnabled = false;
+	IsWindowsInputEnabled = 0;
 }
 
 UCloud9DeveloperSettings* UCloud9DeveloperSettings::Get()
@@ -94,6 +94,28 @@ void UCloud9DeveloperSettings::Save()
 	UpdateDefaultConfigFile();
 	OBJECT_DISPLAY("%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 	OnChanged.Broadcast();
+}
+
+void UCloud9DeveloperSettings::SetVariableValueByName(const FString& Name, const FString& Value)
+{
+	let ConsoleManager = &IConsoleManager::Get();
+	var Variable = ConsoleManager->FindConsoleVariable(*Name);
+	if (Variable->IsVariableFloat())
+	{
+		let NewValue = UCloud9StringLibrary::SanitizeFloatString(Value);
+		Variable->Set(*NewValue);
+	}
+	else
+	{
+		Variable->Set(*Value);
+	}
+}
+
+FString UCloud9DeveloperSettings::GetVariableValueByName(const FString& Name)
+{
+	let ConsoleManager = &IConsoleManager::Get();
+	let Variable = ConsoleManager->FindConsoleVariable(*Name);
+	return Variable->GetString();
 }
 
 void UCloud9DeveloperSettings::InitializeCVars()
