@@ -27,6 +27,7 @@
 #include "Cloud9/Tools/Math.h"
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
+#include "GameFramework/PlayerInput.h"
 
 UCloud9MouseController::UCloud9MouseController()
 {

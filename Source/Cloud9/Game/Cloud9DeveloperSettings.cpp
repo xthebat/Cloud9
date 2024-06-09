@@ -23,9 +23,15 @@
 
 #include "Cloud9DeveloperSettings.h"
 
+#include "Cloud9/Tools/Cloud9StringLibrary.h"
 #include "Cloud9/Tools/Extensions/FString.h"
+#include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Extensions/UObject.h"
+#include "GameFramework/InputSettings.h"
+#include "GameFramework/PlayerInput.h"
+#include "Engine/Console.h"
 
+class UInputSettings;
 // ReSharper disable once CppPossiblyUninitializedMember
 UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -94,28 +100,6 @@ void UCloud9DeveloperSettings::Save()
 	UpdateDefaultConfigFile();
 	OBJECT_DISPLAY("%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 	OnChanged.Broadcast();
-}
-
-void UCloud9DeveloperSettings::SetVariableValueByName(const FString& Name, const FString& Value)
-{
-	let ConsoleManager = &IConsoleManager::Get();
-	var Variable = ConsoleManager->FindConsoleVariable(*Name);
-	if (Variable->IsVariableFloat())
-	{
-		let NewValue = UCloud9StringLibrary::SanitizeFloatString(Value);
-		Variable->Set(*NewValue);
-	}
-	else
-	{
-		Variable->Set(*Value);
-	}
-}
-
-FString UCloud9DeveloperSettings::GetVariableValueByName(const FString& Name)
-{
-	let ConsoleManager = &IConsoleManager::Get();
-	let Variable = ConsoleManager->FindConsoleVariable(*Name);
-	return Variable->GetString();
 }
 
 void UCloud9DeveloperSettings::InitializeCVars()
@@ -229,6 +213,181 @@ void UCloud9DeveloperSettings::InitializeCVars()
 
 		OBJECT_DISPLAY("%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 	}
+}
+
+bool UCloud9DeveloperSettings::SetVariableValueByName(const FString& Name, const FString& Value)
+{
+	let ConsoleManager = &IConsoleManager::Get();
+	if (let Variable = ConsoleManager->FindConsoleVariable(*Name))
+	{
+		if (not Variable->IsVariableFloat())
+		{
+			Variable->Set(*Value);
+			return true;
+		}
+
+		let NewValue = UCloud9StringLibrary::SanitizeFloatString(Value);
+		Variable->Set(*NewValue);
+		return true;
+	}
+
+	if (let Command = ConsoleManager->FindConsoleObject(*Name)->AsCommand())
+	{
+		if (VectorRefs.Find(Name))
+		{
+			if (FVector Vector; Vector.InitFromString(Value))
+			{
+				TArray<FString> Args;
+				Args.Add(FString::Printf(TEXT("%f"), Vector.X));
+				Args.Add(FString::Printf(TEXT("%f"), Vector.Y));
+				Args.Add(FString::Printf(TEXT("%f"), Vector.Z));
+				return Command->Execute(Args, GetWorld(), *GLog);
+			}
+		}
+
+		if (KeyRefs.Find(Name))
+		{
+			if (let Key = FKey(*Value); Key.IsValid())
+			{
+				return Command->Execute({Key.ToString()}, GetWorld(), *GLog);
+			}
+		}
+	}
+
+	return false;
+}
+
+FString UCloud9DeveloperSettings::GetVariableValueByName(const FString& Name)
+{
+	let ConsoleManager = &IConsoleManager::Get();
+	if (let Variable = ConsoleManager->FindConsoleVariable(*Name))
+	{
+		return Variable->GetString();
+	}
+
+	if (ConsoleManager->FindConsoleObject(*Name)->AsCommand())
+	{
+		if (let VectorPtr = VectorRefs.Find(Name))
+		{
+			return (*VectorPtr)->ToString();
+		}
+
+		if (let KeyPtr = KeyRefs.Find(Name))
+		{
+			return (*KeyPtr)->ToString();
+		}
+	}
+
+	return UndefinedConsoleValue;
+}
+
+IConsoleObject* UCloud9DeveloperSettings::RegisterConsoleVariable(
+	FVector& ValueRef, const FString& Name, const FString& Help)
+{
+	using namespace ETContainer;
+	let ConsoleManager = &IConsoleManager::Get();
+	let CCom = ConsoleManager->RegisterConsoleCommand(
+		*Name, *Help,
+		FConsoleCommandWithArgsDelegate::CreateLambda([this, Name, &ValueRef](const TArray<FString>& Args)
+		{
+			if (Args.Num() == 3)
+			{
+				FVector Vector = FVector::ZeroVector;
+				let String = FString::Printf(TEXT("X=%s Y=%s Z=%s"), *Args[0], *Args[1], *Args[2]);
+				if (Vector.InitFromString(String))
+				{
+					ValueRef = Vector;
+					Save();
+				}
+			}
+			else if (Args.Num() == 0)
+			{
+				let Console = GEngine->GameViewport->ViewportConsole;
+				Console->OutputText(*FString::Printf(TEXT("%s %s"), *Name, *ValueRef.ToString()));
+			}
+			else
+			{
+				let Console = GEngine->GameViewport->ViewportConsole;
+				Console->OutputText(FString::Printf(TEXT("Invalid arguments for %s"), *Name));
+			}
+		})
+	);
+	VectorRefs.Add(Name, &ValueRef);
+	return CCom;
+}
+
+IConsoleObject* UCloud9DeveloperSettings::RegisterConsoleVariable(
+	FKey& ValueRef, const FString& Name, const FString& Help)
+{
+	using namespace ETContainer;
+	let ConsoleManager = &IConsoleManager::Get();
+	let CCom = ConsoleManager->RegisterConsoleCommand(
+		*Name, *Help,
+		FConsoleCommandWithArgsDelegate::CreateLambda([this, Name, &ValueRef](const TArray<FString>& Args)
+		{
+			if (Args.Num() == 1)
+			{
+				if (let NewKey = FKey(*Args[0]); NewKey.IsValid())
+				{
+					var InputSettings = const_cast<UInputSettings*>(GetDefault<UInputSettings>());
+
+					if (InputSettings->DoesAxisExist(*Name))
+					{
+						var Mapping = TArray<FInputAxisKeyMapping>();
+						InputSettings->GetAxisMappingByName(*Name, Mapping);
+						Mapping | ForEach{[InputSettings](let& It) { InputSettings->RemoveAxisMapping(It); }};
+						InputSettings->AddAxisMapping(FInputAxisKeyMapping(*Name, NewKey), true);
+					}
+					else if (InputSettings->DoesActionExist(*Name))
+					{
+						var Mapping = TArray<FInputActionKeyMapping>();
+						InputSettings->GetActionMappingByName(*Name, Mapping);
+						Mapping | ForEach{[InputSettings](let& It) { InputSettings->RemoveActionMapping(It); }};
+						InputSettings->AddActionMapping(FInputActionKeyMapping(*Name, NewKey), true);
+					}
+
+					InputSettings->SaveKeyMappings();
+					ValueRef = NewKey;
+					Save();
+				}
+			}
+			else if (Args.Num() == 0)
+			{
+				let AddQuotes = [](const FString& Value) { return FString::Printf(TEXT("\"%s\""), *Value); };
+
+				let InputSettings = const_cast<UInputSettings*>(GetDefault<UInputSettings>());
+				let Console = GEngine->GameViewport->ViewportConsole;
+
+				if (InputSettings->DoesAxisExist(*Name))
+				{
+					var Mapping = TArray<FInputAxisKeyMapping>();
+					InputSettings->GetAxisMappingByName(*Name, Mapping);
+					let Keys = Mapping
+						| Transform{[&AddQuotes](let& It) { return AddQuotes(It.Key.ToString()); }}
+						| JoinToString{", "};
+					Console->OutputText(*FString::Printf(TEXT("%s %s"), *Name, *Keys));
+				}
+				else if (InputSettings->DoesActionExist(*Name))
+				{
+					var Mapping = TArray<FInputActionKeyMapping>();
+					InputSettings->GetActionMappingByName(*Name, Mapping);
+					let Keys = Mapping
+						| Transform{[&AddQuotes](let& It) { return AddQuotes(It.Key.ToString()); }}
+						| JoinToString{", "};
+					Console->OutputText(*FString::Printf(TEXT("%s %s"), *Name, *Keys));
+				}
+			}
+			else
+			{
+				let Console = GEngine->GameViewport->ViewportConsole;
+				Console->OutputText(FString::Printf(TEXT("Invalid arguments for %s"), *Name));
+			}
+		})
+	);
+	KeyRefs.Add(Name, &ValueRef);
+	// Execute bind command to update InputSettings file
+	CCom->Execute({ValueRef.GetFName().ToString()}, GetWorld(), *GLog);
+	return CCom;
 }
 
 #if WITH_EDITOR

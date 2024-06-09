@@ -24,15 +24,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Cloud9/Tools/Cloud9StringLibrary.h"
 
 #include "Cloud9/Tools/Concepts.h"
-#include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Macro/Common.h"
-#include "Engine/Console.h"
-
-#include "GameFramework/InputSettings.h"
-#include "GameFramework/PlayerInput.h"
 
 #include "Cloud9DeveloperSettings.generated.h"
 
@@ -59,10 +53,27 @@ enum class EUnUsedEnum : int32
 	Whatever = 3,
 };
 
+enum class EConsoleVariableType : int32
+{
+	Default = 0, // FString, float, int
+	Key = 1,
+	Vector = 2,
+};
+
+template <typename ValueType>
+struct TConsoleVariableInfo
+{
+	EConsoleVariableType Type;
+	FString Name;
+	ValueType& ValueRef;
+};
+
 UCLASS(Config=Game, defaultconfig, meta = (DisplayName="Various Developer Settings"))
 class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 {
 	GENERATED_UCLASS_BODY()
+	static inline FString UndefinedConsoleValue = "UNDEFINED";
+
 	static inline FString DrawDeprojectedCursorLineName = "r.DrawDeprojectedCursorLine";
 	static inline FString DrawHitCursorLineName = "r.DrawHitCursorLine";
 	static inline FString DrawExplosionSphereName = "r.DrawExplosionSphere";
@@ -268,10 +279,10 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 	void Save();
 
 	UFUNCTION(BlueprintCallable)
-	static void SetVariableValueByName(const FString& Name, const FString& Value);
+	bool SetVariableValueByName(const FString& Name, const FString& Value);
 
 	UFUNCTION(BlueprintCallable)
-	static FString GetVariableValueByName(const FString& Name);
+	FString GetVariableValueByName(const FString& Name);
 
 #if WITH_EDITOR
 	virtual void PostInitProperties() override;
@@ -281,6 +292,9 @@ class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 protected:
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnCloud9SettingsChanged OnChanged;
+
+	TMap<FString, FVector*> VectorRefs;
+	TMap<FString, FKey*> KeyRefs;
 
 	void InitializeCVars();
 
@@ -295,107 +309,7 @@ protected:
 		return CVar;
 	}
 
-	IConsoleObject* RegisterConsoleVariable(FVector& ValueRef, const FString& Name, const FString& Help)
-	{
-		using namespace ETContainer;
-		let ConsoleManager = &IConsoleManager::Get();
-		return ConsoleManager->RegisterConsoleCommand(
-			*Name, *Help,
-			FConsoleCommandWithArgsDelegate::CreateLambda([this, Name, &ValueRef](const TArray<FString>& Args)
-			{
-				if (Args.Num() == 3)
-				{
-					FVector Vector = FVector::ZeroVector;
-					let String = FString::Printf(TEXT("X=%s Y=%s Z=%s"), *Args[0], *Args[1], *Args[2]);
-					if (Vector.InitFromString(String))
-					{
-						ValueRef = Vector;
-						Save();
-					}
-				}
-				else if (Args.Num() == 0)
-				{
-					let Console = GEngine->GameViewport->ViewportConsole;
-					Console->OutputText(*FString::Printf(TEXT("%s %s"), *Name, *ValueRef.ToString()));
-				}
-				else
-				{
-					let Console = GEngine->GameViewport->ViewportConsole;
-					Console->OutputText(FString::Printf(TEXT("Invalid arguments for %s"), *Name));
-				}
-			})
-		);
-	}
+	IConsoleObject* RegisterConsoleVariable(FVector& ValueRef, const FString& Name, const FString& Help);
 
-	IConsoleObject* RegisterConsoleVariable(FKey& ValueRef, const FString& Name, const FString& Help)
-	{
-		using namespace ETContainer;
-		let ConsoleManager = &IConsoleManager::Get();
-		let CCom = ConsoleManager->RegisterConsoleCommand(
-			*Name, *Help,
-			FConsoleCommandWithArgsDelegate::CreateLambda([this, Name, &ValueRef](const TArray<FString>& Args)
-			{
-				if (Args.Num() == 1)
-				{
-					if (let NewKey = FKey(*Args[0]); NewKey.IsValid())
-					{
-						var InputSettings = const_cast<UInputSettings*>(GetDefault<UInputSettings>());
-
-						if (InputSettings->DoesAxisExist(*Name))
-						{
-							var Mapping = TArray<FInputAxisKeyMapping>();
-							InputSettings->GetAxisMappingByName(*Name, Mapping);
-							Mapping | ForEach{[InputSettings](let& It) { InputSettings->RemoveAxisMapping(It); }};
-							InputSettings->AddAxisMapping(FInputAxisKeyMapping(*Name, NewKey), true);
-						}
-						else if (InputSettings->DoesActionExist(*Name))
-						{
-							var Mapping = TArray<FInputActionKeyMapping>();
-							InputSettings->GetActionMappingByName(*Name, Mapping);
-							Mapping | ForEach{[InputSettings](let& It) { InputSettings->RemoveActionMapping(It); }};
-							InputSettings->AddActionMapping(FInputActionKeyMapping(*Name, NewKey), true);
-						}
-
-						InputSettings->SaveKeyMappings();
-						ValueRef = NewKey;
-						Save();
-					}
-				}
-				else if (Args.Num() == 0)
-				{
-					let AddQuotes = [](const FString& Value) { return FString::Printf(TEXT("\"%s\""), *Value); };
-
-					let InputSettings = const_cast<UInputSettings*>(GetDefault<UInputSettings>());
-					let Console = GEngine->GameViewport->ViewportConsole;
-
-					if (InputSettings->DoesAxisExist(*Name))
-					{
-						var Mapping = TArray<FInputAxisKeyMapping>();
-						InputSettings->GetAxisMappingByName(*Name, Mapping);
-						let Keys = Mapping
-							| Transform{[&AddQuotes](let& It) { return AddQuotes(It.Key.ToString()); }}
-							| JoinToString{", "};
-						Console->OutputText(*FString::Printf(TEXT("%s %s"), *Name, *Keys));
-					}
-					else if (InputSettings->DoesActionExist(*Name))
-					{
-						var Mapping = TArray<FInputActionKeyMapping>();
-						InputSettings->GetActionMappingByName(*Name, Mapping);
-						let Keys = Mapping
-							| Transform{[&AddQuotes](let& It) { return AddQuotes(It.Key.ToString()); }}
-							| JoinToString{", "};
-						Console->OutputText(*FString::Printf(TEXT("%s %s"), *Name, *Keys));
-					}
-				}
-				else
-				{
-					let Console = GEngine->GameViewport->ViewportConsole;
-					Console->OutputText(FString::Printf(TEXT("Invalid arguments for %s"), *Name));
-				}
-			})
-		);
-		// Execute bind command to update InputSettings file
-		CCom->Execute({ValueRef.GetFName().ToString()}, GetWorld(), *GLog);
-		return CCom;
-	}
+	IConsoleObject* RegisterConsoleVariable(FKey& ValueRef, const FString& Name, const FString& Help);
 };

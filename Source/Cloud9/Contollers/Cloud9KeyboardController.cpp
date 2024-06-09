@@ -30,6 +30,7 @@
 
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
 #include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
+#include "Cloud9/Tools/Cloud9StringLibrary.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 
 UCloud9KeyboardController::UCloud9KeyboardController()
@@ -100,6 +101,7 @@ void UCloud9KeyboardController::OnReloadPressed() { WeaponAction([](let It) { It
 
 void UCloud9KeyboardController::OnReloadReleased() { WeaponAction([](let It) { It->Reload(true); }); }
 
+// ReSharper disable once CppMemberFunctionMayBeStatic
 void UCloud9KeyboardController::OnCursorSelfAim()
 {
 	static var Settings = UCloud9DeveloperSettings::Get();
