@@ -24,8 +24,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9/Console/Entries/FVectorConsoleEntry.h"
 
-#include "Cloud9/Tools/Concepts.h"
 #include "Cloud9/Tools/Macro/Common.h"
 
 #include "Cloud9DeveloperSettings.generated.h"
@@ -53,27 +53,10 @@ enum class EUnUsedEnum : int32
 	Whatever = 3,
 };
 
-enum class EConsoleVariableType : int32
-{
-	Default = 0, // FString, float, int
-	Key = 1,
-	Vector = 2,
-};
-
-template <typename ValueType>
-struct TConsoleVariableInfo
-{
-	EConsoleVariableType Type;
-	FString Name;
-	ValueType& ValueRef;
-};
-
 UCLASS(Config=Game, defaultconfig, meta = (DisplayName="Various Developer Settings"))
 class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 {
 	GENERATED_UCLASS_BODY()
-	static inline FString UndefinedConsoleValue = "UNDEFINED";
-
 	static inline FString DrawDeprojectedCursorLineName = "r.DrawDeprojectedCursorLine";
 	static inline FString DrawHitCursorLineName = "r.DrawHitCursorLine";
 	static inline FString DrawExplosionSphereName = "r.DrawExplosionSphere";
@@ -293,23 +276,15 @@ protected:
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess), Category=Events)
 	FOnCloud9SettingsChanged OnChanged;
 
-	TMap<FString, FVector*> VectorRefs;
-	TMap<FString, FKey*> KeyRefs;
+	TMap<FString, TSharedPtr<FConsoleEntry>> ConsoleEntries;
 
 	void InitializeCVars();
 
-	template <typename ValueType> requires Concepts::is_any_of<ValueType, int, float, bool, FString>
-	IConsoleObject* RegisterConsoleVariable(ValueType& ValueRef, const FString& Name, const FString& Help)
-	{
-		let ConsoleManager = &IConsoleManager::Get();
-		let CVar = ConsoleManager->RegisterConsoleVariableRef(*Name, ValueRef, *Help);
-		CVar->AsVariable()->SetOnChangedCallback(
-			FConsoleVariableDelegate::CreateLambda([this](IConsoleVariable* Arg) { Save(); })
-		);
-		return CVar;
-	}
+	template <typename ConsoleEntryType>
+	bool RegisterConsoleVariable(const TSharedRef<ConsoleEntryType>& ConsoleEntry);
 
-	IConsoleObject* RegisterConsoleVariable(FVector& ValueRef, const FString& Name, const FString& Help);
-
-	IConsoleObject* RegisterConsoleVariable(FKey& ValueRef, const FString& Name, const FString& Help);
+	bool RegisterConsoleVariable(int32& ValueRef, const FString& Name, const FString& Help);
+	bool RegisterConsoleVariable(float& ValueRef, const FString& Name, const FString& Help);
+	bool RegisterConsoleVariable(FVector& ValueRef, const FString& Name, const FString& Help);
+	bool RegisterConsoleVariable(FKey& ValueRef, const FString& Name, const FString& Help);
 };
