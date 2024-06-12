@@ -53,7 +53,7 @@ enum class EUnUsedEnum : int32
 	Whatever = 3,
 };
 
-UCLASS(Config=Game, defaultconfig, meta = (DisplayName="Various Developer Settings"))
+UCLASS(Config=Game, defaultconfig, BlueprintType, Blueprintable)
 class CLOUD9_API UCloud9DeveloperSettings : public UDeveloperSettings
 {
 	GENERATED_UCLASS_BODY()
