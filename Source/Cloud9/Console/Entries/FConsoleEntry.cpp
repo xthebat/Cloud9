@@ -9,5 +9,11 @@ bool FConsoleEntry::ExecuteConsoleCommand(const FString& Args, UWorld* World) co
 {
 	TArray<FString> Strings;
 	Args.ParseIntoArrayWS(Strings);
-	return Command->Execute(Strings, World, *GLog);
+
+	if (IsArgsValid(Strings))
+	{
+		return Command->Execute(Strings, World, *GLog);
+	}
+
+	return false;
 }

@@ -26,8 +26,6 @@
 #include "CoreMinimal.h"
 #include "Cloud9/Console/Entries/FVectorConsoleEntry.h"
 
-#include "Cloud9/Tools/Macro/Common.h"
-
 #include "Cloud9DeveloperSettings.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCloud9SettingsChanged);

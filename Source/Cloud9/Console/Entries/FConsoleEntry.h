@@ -16,6 +16,7 @@ public:
 	bool ExecuteConsoleCommand(const FString& Args, UWorld* World) const;
 
 	virtual void Initialize(IConsoleCommand* CCom, UWorld* World);
+	virtual bool IsArgsValid(const TArray<FString>& Args) const = 0;
 	virtual bool FromConsoleArgs(const TArray<FString>& Args) = 0;
 	virtual FString GetValueAsString() = 0;
 

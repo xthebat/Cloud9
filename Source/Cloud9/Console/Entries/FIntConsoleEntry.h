@@ -3,7 +3,6 @@
 #pragma once
 
 #include "FConsoleEntry.h"
-#include "Cloud9/Tools/Cloud9StringLibrary.h"
 
 class FIntConsoleEntry final : public FConsoleEntry
 {
@@ -11,21 +10,12 @@ public:
 	FIntConsoleEntry(int32& ValueRef, const FString& Name, const FString& Help)
 		: FConsoleEntry(Name, Help), ValueRef(ValueRef) {}
 
-	virtual bool FromConsoleArgs(const TArray<FString>& Args) override
-	{
-		if (Args.Num() == 1 and UCloud9StringLibrary::IsStringContainsInt(Args[0]))
-		{
-			ValueRef = UCloud9StringLibrary::StringToInt(Args[0]);
-			return true;
-		}
+	virtual bool FromConsoleArgs(const TArray<FString>& Args) override;
+	virtual bool IsArgsValid(const TArray<FString>& Args) const override;
+	virtual FString GetValueAsString() override;
 
-		return false;
-	}
-
-	virtual FString GetValueAsString() override
-	{
-		return UCloud9StringLibrary::IntToString(ValueRef);
-	}
+protected:
+	static TOptional<int32> ConvertFromArgs(const TArray<FString>& Args);
 
 private:
 	int32& ValueRef;

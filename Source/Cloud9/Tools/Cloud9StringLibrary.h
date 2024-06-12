@@ -13,7 +13,7 @@ class CLOUD9_API UCloud9StringLibrary : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintCallable)
-	static FString FloatToString(float Value);
+	static FString FloatToString(float Value, int32 Precision = 3);
 
 	UFUNCTION(BlueprintCallable)
 	static FString IntToString(int32 Value);
@@ -25,22 +25,19 @@ public:
 	static float StringToInt(const FString& String);
 
 	UFUNCTION(BlueprintCallable)
-	static float TextToFloat(const FText& Text);
-
-	UFUNCTION(BlueprintCallable)
 	static bool IsStringContainsFloat(const FString& String);
 
 	UFUNCTION(BlueprintCallable)
 	static bool IsStringContainsInt(const FString& String);
 
 	UFUNCTION(BlueprintCallable)
-	static bool IsTextContainsFloat(const FText& Text);
+	static bool IsStringContainsVector(const FString& String);
+
+	UFUNCTION(BlueprintCallable)
+	static bool IsStringContainsKey(const FString& String);
 
 	UFUNCTION(BlueprintCallable)
 	static FString BoolToIntString(bool Value);
-
-	UFUNCTION(BlueprintCallable)
-	static FText BoolToIntText(bool Value);
 
 	UFUNCTION(BlueprintCallable)
 	static bool IntStringToBool(const FString& String);
