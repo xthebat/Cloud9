@@ -19,10 +19,16 @@ public:
 	static FString IntToString(int32 Value);
 
 	UFUNCTION(BlueprintCallable)
+	static FString VectorToString(const FVector& Vector, int32 Precision = 3);
+
+	UFUNCTION(BlueprintCallable)
 	static float StringToFloat(const FString& String);
 
 	UFUNCTION(BlueprintCallable)
 	static float StringToInt(const FString& String);
+
+	UFUNCTION(BlueprintCallable)
+	static FVector StringToVector(const FString& String);
 
 	UFUNCTION(BlueprintCallable)
 	static bool IsStringContainsFloat(const FString& String);

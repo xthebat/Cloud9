@@ -30,6 +30,16 @@ FString UCloud9StringLibrary::IntToString(int32 Value)
 	return FString::Printf(TEXT("%d"), Value);
 }
 
+FString UCloud9StringLibrary::VectorToString(const FVector& Vector, int32 Precision)
+{
+	return FString::Printf(
+		TEXT("X=%s Y=%s Z=%s"),
+		*FloatToString(Vector.X, Precision),
+		*FloatToString(Vector.Y, Precision),
+		*FloatToString(Vector.Z, Precision)
+	);
+}
+
 float UCloud9StringLibrary::StringToFloat(const FString& String)
 {
 	var Result = 0.0f;
@@ -43,6 +53,14 @@ float UCloud9StringLibrary::StringToInt(const FString& String)
 	int32 Result = 0;
 	FDefaultValueHelper::ParseInt(String, Result);
 	return Result;
+}
+
+FVector UCloud9StringLibrary::StringToVector(const FString& String)
+{
+	FVector Vector;
+	let InvariantString = SanitizeFloatString(String);
+	Vector.InitFromString(InvariantString);
+	return Vector;
 }
 
 bool UCloud9StringLibrary::IsStringContainsFloat(const FString& String)
