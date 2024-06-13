@@ -27,6 +27,7 @@
 #include "Cloud9/Tools/Math.h"
 #include "Cloud9/Contollers/Cloud9PlayerController.h"
 #include "Cloud9/Game/Cloud9DeveloperSettings.h"
+#include "GameFramework/PlayerInput.h"
 
 UCloud9MouseController::UCloud9MouseController()
 {
@@ -250,10 +251,6 @@ void UCloud9MouseController::ProcessCameraZoom(float DeltaTime)
 void UCloud9MouseController::BeginPlay()
 {
 	Super::BeginPlay();
-	static let Settings = UCloud9DeveloperSettings::Get();
-	let Controller = GetCloud9Controller();
-	Controller->PlayerInput->SetMouseSensitivity(Settings->Sensitivity, Settings->Sensitivity);
-	Controller->PlayerInput->InvertAxisKey(EKeys::MouseY);
 	SetCameraZoomLevel(InitialCameraZoomLevel);
 }
 
@@ -264,8 +261,15 @@ void UCloud9MouseController::TickComponent(
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	static var Sensitivity = -1.0f;
+
+	// TODO: Better to do by callback but looks like not dramatically affect performace
 	static let Settings = UCloud9DeveloperSettings::Get();
-	GetCloud9Controller()->PlayerInput->SetMouseSensitivity(Settings->Sensitivity, Settings->Sensitivity);
+	if (Sensitivity != Settings->Sensitivity)
+	{
+		// Y-axis inverted by default?
+		GetCloud9Controller()->PlayerInput->SetMouseSensitivity(Settings->Sensitivity, -Settings->Sensitivity);
+	}
 
 	ProcessViewportSizeChange();
 	ProcessMouseChangePosition();

@@ -23,9 +23,16 @@
 
 #include "Cloud9DeveloperSettings.h"
 
+#include "Cloud9/Console/Entries/FVectorConsoleEntry.h"
+#include "Cloud9/Console/Entries/FFloatConsoleEntry.h"
+#include "Cloud9/Console/Entries/FIntConsoleEntry.h"
+#include "Cloud9/Console/Entries/FKeyConsoleEntry.h"
 #include "Cloud9/Tools/Extensions/FString.h"
+#include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Cloud9/Tools/Extensions/UObject.h"
+#include "Engine/Console.h"
 
+class UInputSettings;
 // ReSharper disable once CppPossiblyUninitializedMember
 UCloud9DeveloperSettings::UCloud9DeveloperSettings(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -94,28 +101,6 @@ void UCloud9DeveloperSettings::Save()
 	UpdateDefaultConfigFile();
 	OBJECT_DISPLAY("%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 	OnChanged.Broadcast();
-}
-
-void UCloud9DeveloperSettings::SetVariableValueByName(const FString& Name, const FString& Value)
-{
-	let ConsoleManager = &IConsoleManager::Get();
-	var Variable = ConsoleManager->FindConsoleVariable(*Name);
-	if (Variable->IsVariableFloat())
-	{
-		let NewValue = UCloud9StringLibrary::SanitizeFloatString(Value);
-		Variable->Set(*NewValue);
-	}
-	else
-	{
-		Variable->Set(*Value);
-	}
-}
-
-FString UCloud9DeveloperSettings::GetVariableValueByName(const FString& Name)
-{
-	let ConsoleManager = &IConsoleManager::Get();
-	let Variable = ConsoleManager->FindConsoleVariable(*Name);
-	return Variable->GetString();
 }
 
 void UCloud9DeveloperSettings::InitializeCVars()
@@ -229,6 +214,100 @@ void UCloud9DeveloperSettings::InitializeCVars()
 
 		OBJECT_DISPLAY("%s", this | EUObject::Stringify{} | EFString::ToCStr{});
 	}
+}
+
+template <typename ConsoleEntryType>
+bool UCloud9DeveloperSettings::RegisterConsoleVariable(const TSharedRef<ConsoleEntryType>& ConsoleEntry)
+{
+	if (ConsoleEntries.Find(ConsoleEntry->GetName()))
+	{
+		OBJECT_FATAL("Console variable %s already registered", *ConsoleEntry->GetName());
+		return false;
+	}
+
+	let ConsoleManager = &IConsoleManager::Get();
+	let ConsoleCommand = ConsoleManager->RegisterConsoleCommand(
+		*ConsoleEntry->GetName(), *ConsoleEntry->GetHelp(),
+		FConsoleCommandWithArgsDelegate::CreateLambda(
+			[this, ConsoleEntry](const TArray<FString>& Args)
+			{
+				let PrintToConsole = [](const FString& String)
+				{
+					if (GEngine != nullptr)
+					{
+						if (let Viewport = GEngine->GameViewport)
+						{
+							if (let Console = Viewport->ViewportConsole)
+							{
+								Console->OutputText(*String);
+							}
+						}
+					}
+				};
+
+				let Name = ConsoleEntry->GetName();
+
+				if (Args.Num() == 0)
+				{
+					let String = ConsoleEntry->GetValueAsString();
+					PrintToConsole(FString::Printf(TEXT("%s %s"), *Name, *String));
+				}
+				else if (ConsoleEntry->FromConsoleArgs(Args))
+				{
+					PrintToConsole(FString::Printf(TEXT("%s changed"), *Name));
+					Save();
+				}
+				else
+				{
+					PrintToConsole(FString::Printf(TEXT("Invalid arguments for %s"), *Name));
+				}
+			})
+	);
+
+	ConsoleEntry->Initialize(ConsoleCommand, GetWorld());
+	ConsoleEntries.Add(ConsoleEntry->GetName(), ConsoleEntry);
+
+	return true;
+}
+
+bool UCloud9DeveloperSettings::RegisterConsoleVariable(int32& ValueRef, const FString& Name, const FString& Help)
+{
+	return RegisterConsoleVariable(MakeShared<FIntConsoleEntry>(ValueRef, Name, Help));
+}
+
+bool UCloud9DeveloperSettings::RegisterConsoleVariable(float& ValueRef, const FString& Name, const FString& Help)
+{
+	return RegisterConsoleVariable(MakeShared<FFloatConsoleEntry>(ValueRef, Name, Help));
+}
+
+bool UCloud9DeveloperSettings::RegisterConsoleVariable(FVector& ValueRef, const FString& Name, const FString& Help)
+{
+	return RegisterConsoleVariable(MakeShared<FVectorConsoleEntry>(ValueRef, Name, Help));
+}
+
+bool UCloud9DeveloperSettings::RegisterConsoleVariable(FKey& ValueRef, const FString& Name, const FString& Help)
+{
+	return RegisterConsoleVariable(MakeShared<FKeyConsoleEntry>(ValueRef, Name, Help));
+}
+
+bool UCloud9DeveloperSettings::SetVariableValueByName(const FString& Name, const FString& Value)
+{
+	if (let Object = ConsoleEntries.Find(*Name))
+	{
+		return (*Object)->ExecuteConsoleCommand(Value, GetWorld());
+	}
+
+	return false;
+}
+
+FString UCloud9DeveloperSettings::GetVariableValueByName(const FString& Name)
+{
+	if (let Object = ConsoleEntries.Find(*Name))
+	{
+		return (*Object)->GetValueAsString();
+	}
+
+	return FConsoleEntry::UndefinedConsoleValue;
 }
 
 #if WITH_EDITOR
