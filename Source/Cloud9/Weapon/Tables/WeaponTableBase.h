@@ -86,11 +86,17 @@ struct FBaseWeaponInfo : public FTableRowBase
 	FText Description;
 
 	/**
-	 * Weapon icon
+	 * Weapon icon in HUD
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Icon)
 	UTexture2D* Icon;
 
+	/**
+	 * Weapon preview in GUI
+	 */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Icon)
+	UTexture2D* Preview;
+	
 	/**
 	 * Maximum running speed with the weapon equipped (aka Mobility)
 	 */
