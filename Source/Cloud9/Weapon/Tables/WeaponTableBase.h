@@ -105,7 +105,7 @@ struct FBaseWeaponInfo : public FTableRowBase
 	float MaxPlayerSpeed = 250.0f;
 
 	/**
-	 * Money award for kill enemy with this gun
+	 * Money award for kill an enemy with this gun
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category=Economy,
 		meta=(UIMin="0", UIMax="20000", ClampMin="0", ClampMax="20000"))
