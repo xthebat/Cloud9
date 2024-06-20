@@ -11,13 +11,18 @@ class CLOUD9_API ACloud9PracticeGameMode : public ACloud9GameMode
 {
 	GENERATED_BODY()
 
+	static inline FString RangePreviewName = TEXT("RangePreview");
+	static inline FString RangeStartName = TEXT("RangeStart");
+
+	ACloud9PracticeGameMode();
+
 	virtual void StartPlay() override;
-	
-	virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName) override;
+
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+
+	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> ConfigWidgetClass;
-
-	
 };

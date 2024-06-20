@@ -275,6 +275,30 @@ namespace ETContainer
 	};
 
 	template <typename PredicateType>
+	struct FindPointer
+	{
+		const PredicateType& Predicate;
+
+		template <typename ContainerType>
+		constexpr auto operator()(ContainerType&& Self) const
+		{
+			using ElementType = typename TDecay<ContainerType>::Type::ElementType;
+
+			for (var& It : Self)
+			{
+				if (Predicate(It))
+				{
+					return &It;
+				}
+			}
+
+			return static_cast<ElementType*>(nullptr);
+		}
+
+		OPERATOR_BODY(FindPointer)
+	};
+
+	template <typename PredicateType>
 	struct AnyByPredicate
 	{
 		const PredicateType& Predicate;
