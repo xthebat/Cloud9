@@ -27,11 +27,13 @@
 #include "Cloud9/Game/Cloud9GameState.h"
 #include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Character/Cloud9SpectatorPawn.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
 
 ACloud9GameMode::ACloud9GameMode()
 {
 	PlayerControllerClass = ACloud9PlayerController::StaticClass();
+	SpectatorClass = ACloud9SpectatorPawn::StaticClass();
 	DefaultPawnClass = ACloud9Character::StaticClass();
 	GameStateClass = ACloud9GameState::StaticClass();
 }

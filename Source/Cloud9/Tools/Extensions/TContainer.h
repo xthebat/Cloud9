@@ -275,7 +275,7 @@ namespace ETContainer
 	};
 
 	template <typename PredicateType>
-	struct FindPointer
+	struct FirstOrNullByPredicate
 	{
 		const PredicateType& Predicate;
 
@@ -295,7 +295,25 @@ namespace ETContainer
 			return static_cast<ElementType*>(nullptr);
 		}
 
-		OPERATOR_BODY(FindPointer)
+		OPERATOR_BODY(FirstOrNullByPredicate)
+	};
+
+	struct FirstOrNull
+	{
+		template <typename ContainerType>
+		constexpr auto operator()(ContainerType&& Self) const
+		{
+			using ElementType = typename TDecay<ContainerType>::Type::ElementType;
+
+			for (var& It : Self)
+			{
+				return &It;
+			}
+
+			return static_cast<ElementType*>(nullptr);
+		}
+
+		OPERATOR_BODY(FirstOrNull)
 	};
 
 	template <typename PredicateType>

@@ -6,13 +6,12 @@
 #include "Cloud9GameMode.h"
 #include "Cloud9PracticeGameMode.generated.h"
 
+class ACloud9PracticePlayerStart;
+
 UCLASS()
 class CLOUD9_API ACloud9PracticeGameMode : public ACloud9GameMode
 {
 	GENERATED_BODY()
-
-	static inline FString RangePreviewName = TEXT("RangePreview");
-	static inline FString RangeStartName = TEXT("RangeStart");
 
 	ACloud9PracticeGameMode();
 
@@ -23,6 +22,10 @@ class CLOUD9_API ACloud9PracticeGameMode : public ACloud9GameMode
 	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
 protected:
+	ACloud9PracticePlayerStart* FindPlayerStartEx(const FString& IncomingName = TEXT("")) const;
+
+	virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName) override;
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> ConfigWidgetClass;
 };
