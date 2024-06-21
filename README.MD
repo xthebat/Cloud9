@@ -1,5 +1,9 @@
 ﻿# Cloud9
 
+### Milestones Release dates
+
+See [Valve-Time](https://developer.valvesoftware.com/wiki/Valve_Time)
+
 ### Game design
 
 - [Design Document](Docs/Design.MD)
