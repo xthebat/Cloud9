@@ -1,7 +1,7 @@
 ﻿// Copyright (c) 2024 Alexei Gladkikh
 
 
-#include "Cloud9GameHud.h"
+#include "Cloud9HudBase.h"
 
 #include "Blueprint/UserWidget.h"
 #include "Cloud9/Contollers/Cloud9MouseController.h"
@@ -11,7 +11,7 @@
 #include "Components/WidgetComponent.h"
 #include "Engine/Canvas.h"
 
-ACloud9GameHud::ACloud9GameHud()
+ACloud9HudBase::ACloud9HudBase()
 {
 	IsCrosshairEnabled = false;
 	CrosshairMaterial = nullptr;
@@ -22,29 +22,26 @@ ACloud9GameHud::ACloud9GameHud()
 	RootComponent = GameWidgetComponent;
 }
 
-void ACloud9GameHud::OnConstruction(const FTransform& Transform)
+void ACloud9HudBase::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 	OBJECT_VOID_IF_FAIL(IsValid(GameWidgetClass), Error, "GameWidgetClass wasn't specified");
 	GameWidgetComponent->SetWidgetClass(GameWidgetClass);
 }
 
-void ACloud9GameHud::BeginPlay()
+void ACloud9HudBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (let Controller = GetCloud9PlayerController())
+	let Controller = GetCloud9PlayerController();
+	let MouseControllerComponent = Controller->GetMouseControllerComponent();
+	if (let Crosshair = MouseControllerComponent->GetCrosshairMaterial())
 	{
-		let MouseControllerComponent = Controller->GetMouseControllerComponent();
-
-		if (let Crosshair = MouseControllerComponent->GetCrosshairMaterial())
-		{
-			CrosshairMaterial = UMaterialInstanceDynamic::Create(Crosshair, this);
-		}
+		CrosshairMaterial = UMaterialInstanceDynamic::Create(Crosshair, this);
 	}
 }
 
-void ACloud9GameHud::DrawHUD()
+void ACloud9HudBase::DrawHUD()
 {
 	Super::DrawHUD();
 
@@ -54,17 +51,13 @@ void ACloud9GameHud::DrawHUD()
 	}
 }
 
-void ACloud9GameHud::SetCrosshairEnabled(bool IsEnabled)
+void ACloud9HudBase::SetCrosshairEnabled(bool IsEnabled)
 {
 	IsCrosshairEnabled = IsEnabled;
-
-	if (let Controller = GetCloud9PlayerController(); IsValid(Controller))
-	{
-		Controller->ShowMouseCursor(not IsEnabled);
-	}
+	GetCloud9PlayerController()->ShowMouseCursor(not IsEnabled);
 }
 
-void ACloud9GameHud::SetGameHudEnabled(bool IsEnabled) const
+void ACloud9HudBase::SetGameHudEnabled(bool IsEnabled)
 {
 	OBJECT_VOID_IF_FAIL(IsValid(GameWidgetComponent), Error, "GameWidgetComponent is invalid");
 
@@ -84,12 +77,14 @@ void ACloud9GameHud::SetGameHudEnabled(bool IsEnabled) const
 	}
 }
 
-ACloud9PlayerController* ACloud9GameHud::GetCloud9PlayerController() const
+ACloud9PlayerController* ACloud9HudBase::GetCloud9PlayerController() const
 {
-	return Cast<ACloud9PlayerController>(GetOwningPlayerController());
+	let Controller = Cast<ACloud9PlayerController>(GetOwningPlayerController());
+	CRASH_IF_FAIL(IsValid(Controller), "Owning controller is invalid");
+	return Controller;
 }
 
-bool ACloud9GameHud::SetupCrosshair(float Length, float Width, float Gap, FVector Color) const
+bool ACloud9HudBase::SetupCrosshair(float Length, float Width, float Gap, FVector Color) const
 {
 	if (IsValid(CrosshairMaterial))
 	{
@@ -103,31 +98,29 @@ bool ACloud9GameHud::SetupCrosshair(float Length, float Width, float Gap, FVecto
 	return false;
 }
 
-void ACloud9GameHud::DrawCrosshair()
+void ACloud9HudBase::DrawCrosshair()
 {
 	static let Settings = UCloud9DeveloperSettings::Get();
 
-	if (let Controller = GetCloud9PlayerController(); IsValid(Controller))
+	let Controller = GetCloud9PlayerController();
+	let MousePosition = Controller->GetMouseControllerComponent()->GetSensitivityMousePosition();
+
+	int32 ViewPortX = 0;
+	int32 ViewPortY = 0;
+
+	Controller->GetViewportSize(ViewPortX, ViewPortY);
+
+	if (SetupCrosshair(
+		Settings->CrosshairLength,
+		Settings->CrosshairWidth,
+		Settings->CrosshairGap,
+		Settings->CrosshairColor))
 	{
-		let MousePosition = Controller->GetMouseControllerComponent()->GetSensitivityMousePosition();
+		let Size = Settings->CrosshairSize;
 
-		int32 ViewPortX = 0;
-		int32 ViewPortY = 0;
+		let ScreenX = (Canvas->SizeX - ViewPortX) / 2.0f + MousePosition.X - Size / 2.0f;
+		let ScreenY = (Canvas->SizeY - ViewPortY) / 2.0f + MousePosition.Y - Size / 2.0f;
 
-		Controller->GetViewportSize(ViewPortX, ViewPortY);
-
-		if (SetupCrosshair(
-			Settings->CrosshairLength,
-			Settings->CrosshairWidth,
-			Settings->CrosshairGap,
-			Settings->CrosshairColor))
-		{
-			let Size = Settings->CrosshairSize;
-
-			let ScreenX = (Canvas->SizeX - ViewPortX) / 2.0f + MousePosition.X - Size / 2.0f;
-			let ScreenY = (Canvas->SizeY - ViewPortY) / 2.0f + MousePosition.Y - Size / 2.0f;
-
-			DrawMaterial(CrosshairMaterial, ScreenX, ScreenY, Size, Size, 0, 0, 1, 1);
-		}
+		DrawMaterial(CrosshairMaterial, ScreenX, ScreenY, Size, Size, 0, 0, 1, 1);
 	}
 }

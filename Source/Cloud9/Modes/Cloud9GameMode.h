@@ -9,10 +9,10 @@
 
 #include "Cloud9GameMode.generated.h"
 
-class ACloud9GameHud;
+class ACloud9HudBase;
 class UCloud9GameInstance;
 
-UCLASS()
+UCLASS(Blueprintable)
 class ACloud9GameMode : public AGameModeBase
 {
 	GENERATED_BODY()

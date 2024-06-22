@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
-#include "Cloud9GameHud.generated.h"
+#include "Cloud9HudBase.generated.h"
 
 class ACloud9PlayerController;
 class UWidgetComponent;
 
 UCLASS()
-class CLOUD9_API ACloud9GameHud : public AHUD
+class CLOUD9_API ACloud9HudBase : public AHUD
 {
 	GENERATED_BODY()
 
@@ -23,7 +23,7 @@ public:
 	static inline const FName GameWidgetComponentName = TEXT("GameWidgetComponent");
 	static inline const FName GameWidgetName = TEXT("GameWidget");
 
-	ACloud9GameHud();
+	ACloud9HudBase();
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 
@@ -35,7 +35,7 @@ public:
 	void SetCrosshairEnabled(bool IsEnabled);
 
 	UFUNCTION(BlueprintCallable)
-	void SetGameHudEnabled(bool IsEnabled) const;
+	void SetGameHudEnabled(bool IsEnabled);
 
 protected:
 	ACloud9PlayerController* GetCloud9PlayerController() const;

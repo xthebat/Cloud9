@@ -4,15 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Cloud9GameMode.h"
-#include "Cloud9DefaultGameMode.generated.h"
+#include "Cloud9MenuGameMode.generated.h"
 
 UCLASS(Blueprintable)
-class CLOUD9_API ACloud9DefaultGameMode : public ACloud9GameMode
+class CLOUD9_API ACloud9MenuGameMode : public ACloud9GameMode
 {
 	GENERATED_BODY()
-
+	
 public:
-	ACloud9DefaultGameMode();
+	ACloud9MenuGameMode();
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 };

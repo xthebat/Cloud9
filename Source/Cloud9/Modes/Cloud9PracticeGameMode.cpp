@@ -6,7 +6,7 @@
 #include "EngineUtils.h"
 #include "Blueprint/UserWidget.h"
 #include "Cloud9/Game/Cloud9PracticePlayerStart.h"
-#include "Cloud9/Hud/Cloud9GameHud.h"
+#include "Cloud9/Hud/Cloud9HudBase.h"
 #include "GameFramework/SpectatorPawn.h"
 
 ACloud9PracticeGameMode::ACloud9PracticeGameMode()
@@ -27,7 +27,7 @@ void ACloud9PracticeGameMode::PostLogin(APlayerController* NewPlayer)
 	Widget->AddToViewport();
 	NewPlayer->SetInputMode(FInputModeUIOnly{});
 
-	if (let Hud = NewPlayer->GetHUD<ACloud9GameHud>(); IsValid(Hud))
+	if (let Hud = NewPlayer->GetHUD<ACloud9HudBase>(); IsValid(Hud))
 	{
 		Hud->SetGameHudEnabled(false);
 		Hud->SetCrosshairEnabled(false);

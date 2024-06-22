@@ -8,11 +8,12 @@
 
 class ACloud9PracticePlayerStart;
 
-UCLASS()
+UCLASS(Blueprintable)
 class CLOUD9_API ACloud9PracticeGameMode : public ACloud9GameMode
 {
 	GENERATED_BODY()
 
+public:
 	ACloud9PracticeGameMode();
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
