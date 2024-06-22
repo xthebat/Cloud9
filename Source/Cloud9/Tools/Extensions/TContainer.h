@@ -275,6 +275,48 @@ namespace ETContainer
 	};
 
 	template <typename PredicateType>
+	struct FirstOrNullByPredicate
+	{
+		const PredicateType& Predicate;
+
+		template <typename ContainerType>
+		constexpr auto operator()(ContainerType&& Self) const
+		{
+			using ElementType = typename TDecay<ContainerType>::Type::ElementType;
+
+			for (var& It : Self)
+			{
+				if (Predicate(It))
+				{
+					return &It;
+				}
+			}
+
+			return static_cast<ElementType*>(nullptr);
+		}
+
+		OPERATOR_BODY(FirstOrNullByPredicate)
+	};
+
+	struct FirstOrNull
+	{
+		template <typename ContainerType>
+		constexpr auto operator()(ContainerType&& Self) const
+		{
+			using ElementType = typename TDecay<ContainerType>::Type::ElementType;
+
+			for (var& It : Self)
+			{
+				return &It;
+			}
+
+			return static_cast<ElementType*>(nullptr);
+		}
+
+		OPERATOR_BODY(FirstOrNull)
+	};
+
+	template <typename PredicateType>
 	struct AnyByPredicate
 	{
 		const PredicateType& Predicate;

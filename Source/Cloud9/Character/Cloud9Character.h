@@ -50,7 +50,6 @@ class ACloud9Character : public ACharacter
 public:
 	static inline const FName SpringArmComponentName = TEXT("CameraBoom");
 	static inline const FName CameraComponentName = TEXT("TopDownCamera");
-	static inline const FName DecalComponentName = TEXT("CursorToWorld");
 	static inline const FName InventoryComponentName = TEXT("InventoryComponent");
 	static inline const FName EffectsComponentName = TEXT("EffectsComponent");
 	static inline const FName HealthComponentName = TEXT("HealthComponent");

@@ -25,20 +25,70 @@
 
 #include "EngineUtils.h"
 #include "Cloud9/Game/Cloud9GameState.h"
+#include "Cloud9/Game/Cloud9GameInstance.h"
 #include "Cloud9/Contollers//Cloud9PlayerController.h"
 #include "Cloud9/Character/Cloud9Character.h"
-#include "Cloud9/Game/Cloud9GameInstance.h"
+#include "Cloud9/Character/Cloud9SpectatorPawn.h"
+#include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
 
 ACloud9GameMode::ACloud9GameMode()
 {
+	IsTransferPawnsByDefault = false;
+	IsInitializePawnsByDefault = false;
 	PlayerControllerClass = ACloud9PlayerController::StaticClass();
+	SpectatorClass = ACloud9SpectatorPawn::StaticClass();
 	DefaultPawnClass = ACloud9Character::StaticClass();
 	GameStateClass = ACloud9GameState::StaticClass();
 }
 
-void ACloud9GameMode::SaveCharacter(const ACloud9Character* Character) {}
+void ACloud9GameMode::SaveCharacter(const ACloud9Character* Character)
+{
+	GetCloud9GameInstance()->SaveCharacterInfo(Character);
+}
 
-void ACloud9GameMode::LoadCharacter(ACloud9Character* Character) {}
+void ACloud9GameMode::LoadCharacter(ACloud9Character* Character)
+{
+	if (Character->GetNeedInitialize())
+	{
+		if (IsTransferPawnsByDefault)
+		{
+			let GameInstance = GetCloud9GameInstance();
+			if (Character->IsPlayerControlled() and IsValid(GameInstance) and GameInstance->HasCharacterInfo(Character))
+			{
+				GameInstance->LoadCharacterInfo(Character);
+				return;
+			}
+		}
+
+		if (IsInitializePawnsByDefault)
+		{
+			InitializeCharacter(Character);
+		}
+	}
+}
+
+void ACloud9GameMode::InitializeCharacter(ACloud9Character* Character)
+{
+	let PlayerConfig = InitialPlayerConfig.Find(PlayerConfigName);
+	let BotConfig = InitialPlayerConfig.Find(BotConfigName);
+
+	let Config = Character->IsPlayerControlled() ? PlayerConfig : BotConfig;
+	OBJECT_VOID_IF_FAIL(
+		Config, Warning,
+		"Initialization skipped cus config wasn't specified for '%s'", *Character->GetName());
+
+	let Inventory = Character->GetInventoryComponent();
+	let Health = Character->GetHealthComponent();
+
+	Inventory->Initialize(Config->WeaponConfigs, Config->WeaponSlot);
+	Health->Initialize(Config->HealthConfig);
+
+	Character->RemoveAllCharacterEffects();
+
+	Config->Effects | ETContainer::ForEach{
+		[Character](let EffectClass) { Character->AddCharacterEffect(EffectClass); }
+	};
+}
 
 void ACloud9GameMode::StartPlay()
 {

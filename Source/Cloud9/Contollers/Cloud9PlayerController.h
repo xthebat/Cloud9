@@ -33,6 +33,15 @@ class UCloud9MouseController;
 class UCloud9ConsoleComponent;
 class ACloud9Character;
 
+UENUM()
+enum class EInputMode : int32
+{
+	Unknown = 0,
+	UIOnly = 1,
+	UIAndGame = 2,
+	GameOnly = 3,
+};
+
 UCLASS()
 class ACloud9PlayerController : public APlayerController
 {
@@ -50,6 +59,8 @@ public:
 
 	void ShowMouseCursor(bool NewValue);
 
+	EInputMode GetInputMode() const;
+
 protected:
 	virtual void SetupInputComponent() override;
 	virtual bool ProcessConsoleExec(const TCHAR* Cmd, FOutputDevice& Ar, UObject* Executor) override;
@@ -62,4 +73,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Controllers)
 	UCloud9KeyboardController* KeyboardController;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=State)
+	bool IsPawnControlEnabled;
 };

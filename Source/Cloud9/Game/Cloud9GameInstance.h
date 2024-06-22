@@ -41,7 +41,7 @@ class CLOUD9_API UCloud9GameInstance : public UGameInstance
 public:
 	void SaveCharacterInfo(const ACloud9Character* Character);
 
-	void LoadCharacterInfo(ACloud9Character* Character);
+	void LoadCharacterInfo(const ACloud9Character* Character) const;
 
 	bool HasCharacterInfo(const ACloud9Character* Character) const;
 

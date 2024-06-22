@@ -272,10 +272,14 @@ void UCloud9MouseController::TickComponent(
 	}
 
 	ProcessViewportSizeChange();
-	ProcessMouseChangePosition();
-	ProcessCharacterView();
-	ProcessCameraRotation();
-	ProcessCameraZoom(DeltaTime);
+
+	if (let Controller = GetCloud9Controller(); Controller->GetInputMode() != EInputMode::UIOnly)
+	{
+		ProcessMouseChangePosition();
+		ProcessCharacterView();
+		ProcessCameraRotation();
+		ProcessCameraZoom(DeltaTime);
+	}
 }
 
 void UCloud9MouseController::OnCameraZoom(float Value)

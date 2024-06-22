@@ -3,61 +3,22 @@
 #include "Cloud9DefaultGameMode.h"
 
 #include "Cloud9/Tools/Macro/Common.h"
-#include "Cloud9/Tools/Macro/Logging.h"
 #include "Cloud9/Game/Cloud9GameInstance.h"
-#include "Cloud9/Character/Cloud9Character.h"
+#include "Cloud9/Hud/Cloud9HudBase.h"
 
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Cloud9/Character/Components/Cloud9InventoryComponent.h"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "Cloud9/Character/Components/Cloud9HealthComponent.h"
-#include "Cloud9/Tools/Extensions/ACharacter.h"
-
-FName ACloud9DefaultGameMode::PlayerConfigName = TEXT("God");
-FName ACloud9DefaultGameMode::BotConfigName = TEXT("Bot");
-
-ACloud9DefaultGameMode::ACloud9DefaultGameMode() {}
-
-void ACloud9DefaultGameMode::SaveCharacter(const ACloud9Character* Character)
+ACloud9DefaultGameMode::ACloud9DefaultGameMode()
 {
-	GetCloud9GameInstance()->SaveCharacterInfo(Character);
+	IsTransferPawnsByDefault = true;
+	IsInitializePawnsByDefault = true;
 }
 
-void ACloud9DefaultGameMode::LoadCharacter(ACloud9Character* Character)
+void ACloud9DefaultGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	if (Character->GetNeedInitialize())
+	Super::PostLogin(NewPlayer);
+
+	if (let Hud = NewPlayer->GetHUD<ACloud9HudBase>(); IsValid(Hud))
 	{
-		let GameInstance = GetCloud9GameInstance();
-
-		if (GameInstance->HasCharacterInfo(Character) and Character->IsPlayerControlled())
-		{
-			GameInstance->LoadCharacterInfo(Character);
-		}
-		else
-		{
-			InitializeCharacter(Character);
-		}
+		Hud->SetGameHudEnabled(true);
+		Hud->SetCrosshairEnabled(true);
 	}
-}
-
-void ACloud9DefaultGameMode::InitializeCharacter(ACloud9Character* Character)
-{
-	let PlayerConfig = InitialPlayerConfig.Find(PlayerConfigName);
-	let BotConfig = InitialPlayerConfig.Find(BotConfigName);
-
-	let Config = Character->IsPlayerControlled() ? PlayerConfig : BotConfig;
-	OBJECT_VOID_IF_FAIL(Config, Warning, "Initialization skipped cus config wasn't specified for '%s'",
-	                    *Character->GetName());
-
-	let Inventory = Character->GetInventoryComponent();
-	let Health = Character->GetHealthComponent();
-
-	Inventory->Initialize(Config->WeaponConfigs, Config->WeaponSlot);
-	Health->Initialize(Config->HealthConfig);
-
-	Character->RemoveAllCharacterEffects();
-
-	Config->Effects | ETContainer::ForEach{
-		[Character](let EffectClass) { Character->AddCharacterEffect(EffectClass); }
-	};
 }

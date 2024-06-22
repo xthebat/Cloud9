@@ -35,6 +35,8 @@ ACloud9PlayerController::ACloud9PlayerController()
 	ConsoleComponent = CreateDefaultSubobject<UCloud9ConsoleComponent>(ConsoleName);
 	KeyboardController = CreateDefaultSubobject<UCloud9KeyboardController>(KeyboardControllerName);
 	MouseController = CreateDefaultSubobject<UCloud9MouseController>(MouseControllerName);
+
+	IsPawnControlEnabled = true;
 }
 
 UCloud9MouseController* ACloud9PlayerController::GetMouseControllerComponent() const { return MouseController; }
@@ -47,6 +49,30 @@ UCloud9KeyboardController* ACloud9PlayerController::GetKeyboardControllerCompone
 void ACloud9PlayerController::ShowMouseCursor(bool NewValue)
 {
 	bShowMouseCursor = NewValue;
+}
+
+EInputMode ACloud9PlayerController::GetInputMode() const
+{
+	let MyWorld = GetWorld();
+	OBJECT_RETURN_IF_FAIL(IsValid(MyWorld), EInputMode::Unknown, Verbose, "World is invalid");
+
+	let GameViewport = MyWorld->GetGameViewport();
+	OBJECT_RETURN_IF_FAIL(IsValid(GameViewport), EInputMode::Unknown, Verbose, "GameViewport is invalid");
+
+	let IgnoreInput = GameViewport->IgnoreInput();
+	let MouseCaptureMode = GameViewport->GetMouseCaptureMode();
+
+	if (not IgnoreInput and MouseCaptureMode == EMouseCaptureMode::CaptureDuringMouseDown)
+	{
+		return EInputMode::UIAndGame;
+	}
+
+	if (IgnoreInput && MouseCaptureMode == EMouseCaptureMode::NoCapture)
+	{
+		return EInputMode::UIOnly;
+	}
+
+	return EInputMode::GameOnly;
 }
 
 void ACloud9PlayerController::SetupInputComponent()
