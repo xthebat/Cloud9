@@ -6,30 +6,32 @@
 #include "EngineUtils.h"
 #include "Blueprint/UserWidget.h"
 #include "Cloud9/Game/Cloud9PracticePlayerStart.h"
-#include "GameFramework/HUD.h"
-#include "GameFramework/PlayerStart.h"
+#include "Cloud9/Hud/Cloud9GameHud.h"
 #include "GameFramework/SpectatorPawn.h"
 
 ACloud9PracticeGameMode::ACloud9PracticeGameMode()
 {
+	IsTransferPawnsByDefault = false;
+	IsInitializePawnsByDefault = true;
 	bStartPlayersAsSpectators = true;
 	// bDelayedStart = 0; // WTF?
 }
-
-void ACloud9PracticeGameMode::StartPlay()
-{
-	Super::StartPlay();
-}
-
 
 void ACloud9PracticeGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	// Maybe use HandleStartingNewPlayer?
 	Super::PostLogin(NewPlayer);
+
 	CRASH_IF_FAIL(IsValid(ConfigWidgetClass), "Starting widget class is invalid");
 	let Widget = CreateWidget(NewPlayer, ConfigWidgetClass);
 	Widget->AddToViewport();
 	NewPlayer->SetInputMode(FInputModeUIOnly{});
+
+	if (let Hud = NewPlayer->GetHUD<ACloud9GameHud>(); IsValid(Hud))
+	{
+		Hud->SetGameHudEnabled(false);
+		Hud->SetCrosshairEnabled(false);
+	}
 
 	let PlayerStart = FindPlayerStartEx();
 

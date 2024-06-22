@@ -6,6 +6,9 @@
 #include "GameFramework/HUD.h"
 #include "Cloud9GameHud.generated.h"
 
+class ACloud9PlayerController;
+class UWidgetComponent;
+
 UCLASS()
 class CLOUD9_API ACloud9GameHud : public AHUD
 {
@@ -17,18 +20,39 @@ public:
 	static inline const FName CrosshairGapName = TEXT("Gap");
 	static inline const FName CrosshairColorName = TEXT("Color");
 
+	static inline const FName GameWidgetComponentName = TEXT("GameWidgetComponent");
+	static inline const FName GameWidgetName = TEXT("GameWidget");
+
 	ACloud9GameHud();
 
+	virtual void OnConstruction(const FTransform& Transform) override;
+
 	virtual void BeginPlay() override;
-	bool SetupCrosshair(float Length, float Width, float Gap, FVector Color) const;
-	void DrawCrosshair();
 
 	virtual void DrawHUD() override;
 
+	UFUNCTION(BlueprintCallable)
+	void SetCrosshairEnabled(bool IsEnabled);
+
+	UFUNCTION(BlueprintCallable)
+	void SetGameHudEnabled(bool IsEnabled) const;
+
 protected:
+	ACloud9PlayerController* GetCloud9PlayerController() const;
+
+	bool SetupCrosshair(float Length, float Width, float Gap, FVector Color) const;
+
+	void DrawCrosshair();
+
 	UPROPERTY()
 	bool IsCrosshairEnabled;
 
 	UPROPERTY()
 	UMaterialInstanceDynamic* CrosshairMaterial;
+
+	UPROPERTY(EditDefaultsOnly, Category=UI)
+	TSubclassOf<UUserWidget> GameWidgetClass;
+
+	UPROPERTY()
+	UWidgetComponent* GameWidgetComponent;
 };

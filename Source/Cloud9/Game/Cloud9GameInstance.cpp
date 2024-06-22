@@ -54,7 +54,7 @@ void UCloud9GameInstance::SaveCharacterInfo(const ACloud9Character* Character)
 	}
 }
 
-void UCloud9GameInstance::LoadCharacterInfo(ACloud9Character* Character)
+void UCloud9GameInstance::LoadCharacterInfo(const ACloud9Character* Character) const
 {
 	using namespace EACharacter;
 

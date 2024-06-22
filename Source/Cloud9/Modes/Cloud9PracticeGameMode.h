@@ -15,8 +15,6 @@ class CLOUD9_API ACloud9PracticeGameMode : public ACloud9GameMode
 
 	ACloud9PracticeGameMode();
 
-	virtual void StartPlay() override;
-
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
