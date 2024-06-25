@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Cloud9/Modes/Cloud9PracticeGameMode.h"
 #include "GameFramework/PlayerStart.h"
 #include "Cloud9PracticePlayerStart.generated.h"
 
@@ -25,6 +26,9 @@ public:
 	void GetPlayerStartLocationAndRotation(FVector& Location, FRotator& Rotator) const;
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	FPracticeRangeInfo Info;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	USpringArmComponent* PreviewSpringArmComponent;
 

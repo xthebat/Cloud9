@@ -8,6 +8,90 @@
 
 class ACloud9PracticePlayerStart;
 
+UENUM(BlueprintType)
+enum class EPracticeTargetType : uint8
+{
+	Bots = 0,
+	Dots = 1
+};
+
+USTRUCT(BlueprintType)
+struct FPracticeRangeConfig
+{
+	GENERATED_BODY()
+
+	// TODO: Add player equipment
+
+	/** Target type */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	EPracticeTargetType TargetType = EPracticeTargetType::Bots;
+
+	/** Practice range targets */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	int32 TargetsCount = 5;
+
+	/** Practice range round time */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	float PracticeTime = 60.0f;
+
+	/** Practice range target respawn time in seconds */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	float TargetRespawnTime = 1.0f;
+
+	/** Target movement speed in units */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	bool MovementSpeed = 0.0f;
+
+	/** Bots will have armor or not */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config,
+		meta=(EditCondition="TargetType == EPracticeTargetType::Bots"))
+	bool IsArmorEnabled = true;
+
+	/** Bots will have a helmet or not */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config,
+		meta=(EditCondition="TargetType == EPracticeTargetType::Bots"))
+	bool IsHelmetEnabled = true;
+
+	/** Dots color */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config,
+		meta=(EditCondition="TargetType == EPracticeTargetType::Dots"))
+	FLinearColor Color = {1.0f, 1.0f, 1.0f};
+};
+
+USTRUCT(BlueprintType)
+struct FPracticeRangeInfo
+{
+	GENERATED_BODY()
+
+	/** Practice range name */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	FName RangeName;
+
+	/** Maximum targets on practice range at the same time (min. always = 1) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	int32 MaxTargetsCount = 20;
+
+	/** Minimum round practice time in seconds */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	float MinPracticeTime = 5.0f;
+
+	/** Maximum round practice time in seconds */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	float MaxPracticeTime = 300.0f;
+
+	/** Practice range preview image for a configuration menu */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	UTexture2D* PreviewImage = nullptr;
+
+	/** Practice range place description for a configuration menu */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	FText Description;
+
+	/** Practice range default config. parameters */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	FPracticeRangeConfig Defaults;
+};
+
 UCLASS(Blueprintable)
 class CLOUD9_API ACloud9PracticeGameMode : public ACloud9GameMode
 {
