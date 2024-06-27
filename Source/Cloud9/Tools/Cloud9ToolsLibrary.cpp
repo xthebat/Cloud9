@@ -22,8 +22,7 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 
 #include "Cloud9ToolsLibrary.h"
-
-#include "Cloud9/Modes//Cloud9GameMode.h"
+#include "Extensions/TContainer.h"
 
 void UCloud9ToolsLibrary::SetCollisionComplexity(UStaticMesh* StaticMesh, uint8 CollisionTraceFlag)
 {

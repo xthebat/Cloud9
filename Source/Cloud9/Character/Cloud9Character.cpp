@@ -34,7 +34,6 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/WidgetInteractionComponent.h"
-#include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
 
 #include "Cloud9/Tools/Extensions/AActor.h"
@@ -43,8 +42,7 @@
 #include "Cloud9/Weapon/Classes/Cloud9WeaponBase.h"
 #include "Cloud9/Character/Effects/Cloud9CharacterEffectTrait.h"
 #include "Cloud9/Contollers/Cloud9MouseController.h"
-#include "Cloud9/Modes/Cloud9GameMode.h"
-#include "Cloud9/Game/Cloud9GameInstance.h"
+#include "Cloud9/Modes/Base/Cloud9GameMode.h"
 #include "Cloud9/Tools/Extensions/ACharacter.h"
 #include "Cloud9/Weapon/Classes/Cloud9WeaponGrenade.h"
 #include "Components/Cloud9InventoryComponent.h"
