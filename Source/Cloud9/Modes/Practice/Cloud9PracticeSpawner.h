@@ -18,7 +18,7 @@ class CLOUD9_API ACloud9PracticeSpawner : public AActor
 	GENERATED_BODY()
 
 public:
-	static FName ZoneComponentName;
+	static inline FName ZoneComponentName = TEXT("ZoneComponentName");
 
 	ACloud9PracticeSpawner();
 
@@ -86,7 +86,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess), Category=Info)
 	bool bIsEnabled;
 
-protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category=Zone)
 	AActor* SpawnTarget(FVector Location);
 

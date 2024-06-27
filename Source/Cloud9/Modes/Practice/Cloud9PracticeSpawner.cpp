@@ -6,8 +6,6 @@
 #include "Cloud9/Tools/Extensions/TContainer.h"
 #include "Components/BoxComponent.h"
 
-FName ACloud9PracticeSpawner::ZoneComponentName = "ZoneComponentName";
-
 ACloud9PracticeSpawner::ACloud9PracticeSpawner()
 {
 	// Disable collision to remove firearms hit screen

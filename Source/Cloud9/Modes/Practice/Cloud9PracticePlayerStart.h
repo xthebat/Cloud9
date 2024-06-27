@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "Cloud9PracticePlayerStart.generated.h"
 
+class ACloud9PracticeSpawner;
 class USpringArmComponent;
 class UCameraComponent;
 
@@ -26,6 +27,9 @@ public:
 	void GetPlayerStartLocationAndRotation(FVector& Location, FRotator& Rotator) const;
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
+	ACloud9PracticeSpawner* Spawner;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Config)
 	FPracticeRangeInfo Info;
 
